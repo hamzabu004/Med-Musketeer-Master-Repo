@@ -85,7 +85,10 @@ pnpm-debug.log*
 *.pcapng
 data/raw/
 
+**/sdkconfig
+
 # ===== Editors / OS =====
+**/.vscode/*
 .vscode/*
 !.vscode/extensions.json
 .idea/

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medmusketeer-ca-tool"
+version = "0.1.0"
+description = "Local certificate authority and device provisioning CLI for MedMusketeer"
+requires-python = ">=3.11"
+dependencies = [
+  "cryptography>=44",
+  "pyserial>=3.5",
+  "esptool>=5.5,<6",
+  "esp-idf-nvs-partition-gen>=0.3,<1",
+  "paramiko>=3.5",
+  "bleak>=3.0,<4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+mmca = "mmca.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["mmca*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
