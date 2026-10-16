@@ -1,0 +1,30 @@
+menu "MedMusketeer Gateway"
+
+choice GATEWAY_MODE
+    prompt "Gateway mode (compile-time selection)"
+    default GATEWAY_MODE_FIXED
+
+config GATEWAY_MODE_FIXED
+    bool "Fixed gateway onboarding"
+
+config GATEWAY_MODE_MOBILE
+    bool "Mobile mode (placeholder)"
+
+endchoice
+
+config GATEWAY_OLED_SDA_GPIO
+    int "SH1106 I2C SDA GPIO"
+    range 0 48
+    default 8
+
+config GATEWAY_OLED_SCL_GPIO
+    int "SH1106 I2C SCL GPIO"
+    range 0 48
+    default 9
+
+config GATEWAY_OLED_I2C_ADDRESS
+    hex "SH1106 I2C address"
+    range 0x3C 0x3D
+    default 0x3C
+
+endmenu
