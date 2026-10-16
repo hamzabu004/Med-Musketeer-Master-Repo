@@ -1,0 +1,97 @@
+# ===== Secrets & PKI (never commit) =====
+*.key
+*.pem
+*.crt
+*.csr
+*.srl
+*.p12
+*.pfx
+*.der
+*.jks
+*.keystore
+ca/
+certs/
+secrets/
+provisioning-output/
+*.passphrase
+.env
+.env.*
+!.env.example
+
+# ===== Mosquitto / broker runtime =====
+passwd
+*.passwd
+mosquitto.db
+mosquitto.log
+*.acl.local
+
+# ===== Python (CA tool, gateway, backend) =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+*.sqlite3
+*.db
+
+# ===== ESP-IDF / PlatformIO (firmware) =====
+build/
+sdkconfig.old
+managed_components/
+dependencies.lock
+.pio/
+*.bin
+*.elf
+*.map
+
+# ===== Android (provisioner + relay apps) =====
+.gradle/
+local.properties
+*.apk
+*.aab
+captures/
+.externalNativeBuild/
+.cxx/
+google-services.json
+
+# ===== Flutter / React Native (if used for the apps) =====
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+ios/Pods/
+.expo/
+
+# ===== Web dashboard (Node / Next.js / Vercel) =====
+node_modules/
+.next/
+out/
+.vercel/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Data & logs =====
+*.log
+*.pcap
+*.pcapng
+data/raw/
+
+# ===== Editors / OS =====
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ===== AI tool local state =====
+.claude/settings.local.json
