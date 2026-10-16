@@ -1,10 +1,8 @@
 bcrypt==5.0.0
-bleak==3.0.2
 bitstring==5.0.0
 cffi==2.1.1
 click==8.5.0
 cryptography==50.0.2
-dbus-fast==5.2.0
 esp-pylib==1.2.0
 esp_idf_nvs_partition_gen==0.3.0
 esptool==5.5.0

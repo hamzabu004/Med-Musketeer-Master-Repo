@@ -8,7 +8,6 @@ import uuid
 from pathlib import Path
 
 from .core.audit import read_events
-from .core.ble import clear_wifi_credentials
 from .core.ca import (REPLACE_PHRASE, cert_preview, init_ca, issue_device)
 from .core.config import ensure_layout, load_settings
 from .core.errors import MMCAError
@@ -70,9 +69,6 @@ def _parser() -> argparse.ArgumentParser:
                                 "(application nvs partition); all: both")
     erase_esp.add_argument("--device-id", required=True)
     erase_esp.add_argument("--port")
-    erase_wifi = erase_sub.add_parser("wifi", help="clear only gateway Wi-Fi credentials over authenticated BLE")
-    erase_wifi.add_argument("--device-name", required=True, help="BLE name shown on the gateway display, e.g. MM-GW-12AB34")
-    erase_wifi.add_argument("--device-id", help="optional gateway UUID for the local audit record")
     erase_gateway = erase_sub.add_parser("gateway", help="erase deployed Mosquitto TLS credentials over SSH")
     erase_gateway.add_argument("--device-id", required=True)
     erase_gateway.add_argument("--host")
@@ -171,11 +167,6 @@ def main(argv: list[str] | None = None) -> int:
                 print("Run 'mmca flash' with a new wearable identity before MQTT can connect.")
             if args.scope in ("network", "all"):
                 print("Remove the old gateway pairing on the phone, then provision Wi-Fi again over BLE.")
-        elif args.command == "erase" and args.erase_target == "wifi":
-            ensure_layout(settings)
-            result = clear_wifi_credentials(settings, args.device_name, device_id=args.device_id)
-            print(f"Wi-Fi credential clear request sent to {result['device_name']} ({result['address']}).")
-            print("Check the gateway display for 'WIFI CREDENTIALS CLEARED / BROKER AND TLS KEPT'.")
         elif args.command == "erase" and args.erase_target == "gateway":
             ensure_layout(settings)
             host = args.host or settings.gateway_host

@@ -27,7 +27,6 @@ mmca issue gateway [--device-id UUID] [--key-type ec_p256|rsa_2048] [--validity-
 mmca flash --device-id UUID [--port PORT]
 mmca deploy --device-id UUID --host HOST [--port 22] [--user pi] [--remote-cert-dir PATH] [--restart]
 mmca erase esp tls|network|all --device-id UUID [--port PORT]
-mmca erase wifi --device-name MM-GW-XXXXXX [--device-id UUID]
 mmca erase gateway --device-id UUID --host HOST [--port 22] [--user pi] [--remote-cert-dir PATH]
 mmca audit [--device-id UUID]
 ```
@@ -77,12 +76,6 @@ mmca erase esp all --device-id "$ESP_ID" --port /dev/ttyACM0
 ```
 
 After `tls` or `all`, flash a new wearable identity with `mmca flash` before MQTT can connect. After `network` or `all`, the gateway boots to its QR code and waits for BLE provisioning. Because BLE bonds are erased too, remove the old pairing on the phone before pairing again. The partition names can be changed with `creds_partition_name` and `app_nvs_partition_name` in the `[esp]` section of `config.toml`.
-
-Without a USB connection, `erase wifi` clears the Wi-Fi SSID and password over BLE instead. Use the gateway's BLE name from the OLED display (for example, `MM-GW-12AB34`). The gateway must be nearby, powered, and advertising. The command pairs over the existing authenticated BLE provisioning service; enter the passkey displayed by the gateway if your system Bluetooth agent asks. It requires typing `CLEAR WIFI CREDENTIALS`. The firmware clears the app's `ssid` and `password` NVS keys and resets any legacy Wi-Fi-driver station configuration. The MQTT broker settings, BLE bonds, and the TLS `creds` partition are kept, and the display shows `BROKER AND TLS KEPT`. Provision the gateway again by sending the full settings document over BLE:
-
-```sh
-mmca erase wifi --device-name MM-GW-12AB34 --device-id "$GATEWAY_ID"
-```
 
 `erase gateway` removes `ca.crt`, `gateway.crt`, `gateway.key`, and their CA Tool deployment backups from the configured remote certificate directory. It stops Mosquitto first if the service is running, and leaves its configuration, ACL files, and service password in place. Restarting Mosquitto requires deploying gateway certificates again. The SSH host-key checks still apply, and the command requires the typed phrase `ERASE GATEWAY TLS CREDENTIALS`:
 
