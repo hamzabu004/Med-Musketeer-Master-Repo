@@ -58,6 +58,9 @@ static const char *TAG = "fixed_gateway";
 #define TLS_PEM_MAX_LEN 4096
 #define DEVICE_ID_MAX_LEN 64
 #define ALERT_TOPIC_MAX_LEN 96
+#define CLOCK_VALID_AFTER 1704067200
+#define CLOCK_SYNC_WAIT_MS 10000
+#define SNTP_SERVER_COUNT 3
 
 /* UUID: 7a2e0001-2b3c-4d5e-8f90-123456789abc */
 static const ble_uuid128_t provisioning_service_uuid = BLE_UUID128_INIT(
@@ -102,8 +105,10 @@ static char tls_device_cert[TLS_PEM_MAX_LEN];
 static char tls_ca_cert[TLS_PEM_MAX_LEN];
 static bool tls_credentials_ready;
 static bool sntp_started;
+static TaskHandle_t clock_task_handle;
 
 static void network_task(void *arg);
+static void start_mqtt_check(const gateway_config_t *config);
 static void start_advertising(void);
 
 static bool copy_json_string(const cJSON *root, const char *key, char *out,
@@ -585,15 +590,35 @@ static void alert_publish_task(void *arg)
     }
 }
 
+/* Waits outside the event loop until SNTP sets the clock, then starts MQTT. SNTP keeps
+ * retrying and moves to the next server on timeout, so one dead server no longer blocks TLS. */
+static void clock_sync_task(void *arg)
+{
+    (void)arg;
+    while (time(NULL) < CLOCK_VALID_AFTER) {
+        if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(CLOCK_SYNC_WAIT_MS)) != ESP_OK &&
+            time(NULL) < CLOCK_VALID_AFTER) {
+            ESP_LOGW(TAG, "System clock not synchronized yet; SNTP is retrying");
+        }
+    }
+    ESP_LOGI(TAG, "System clock synchronized");
+    clock_task_handle = NULL;
+    gateway_config_t config;
+    if (wifi_has_ip && wifi_configured && load_saved_config(&config)) start_mqtt_check(&config);
+    vTaskDelete(NULL);
+}
+
 static void start_mqtt_check(const gateway_config_t *config)
 {
     if (!tls_credentials_ready) {
         display_show_text("WIFI CONNECTED", "TLS CREDS MISSING", "FLASH DEVICE IDENTITY", "", "", "");
         return;
     }
-    if (time(NULL) < 1704067200) {
+    if (time(NULL) < CLOCK_VALID_AFTER) {
         if (!sntp_started) {
-            const esp_sntp_config_t sntp_config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
+            const esp_sntp_config_t sntp_config = ESP_NETIF_SNTP_DEFAULT_CONFIG_MULTIPLE(
+                SNTP_SERVER_COUNT,
+                ESP_SNTP_SERVER_LIST("time.google.com", "pool.ntp.org", "time.cloudflare.com"));
             esp_err_t err = esp_netif_sntp_init(&sntp_config);
             if (err != ESP_OK) {
                 ESP_LOGE(TAG, "Cannot start SNTP before TLS validation: %s", esp_err_to_name(err));
@@ -602,11 +627,14 @@ static void start_mqtt_check(const gateway_config_t *config)
             }
             sntp_started = true;
         }
-        if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK || time(NULL) < 1704067200) {
-            ESP_LOGE(TAG, "System clock is not synchronized; refusing TLS connection");
+        display_show_text("WIFI CONNECTED", "SYNCING CLOCK...", "TLS WAITS FOR TIME", "", "", "");
+        if (!clock_task_handle &&
+            xTaskCreate(clock_sync_task, "gateway_clock", 4096, NULL, 4, &clock_task_handle) != pdPASS) {
+            clock_task_handle = NULL;
+            ESP_LOGE(TAG, "Cannot start the clock sync task; refusing TLS connection");
             display_show_text("WIFI CONNECTED", "CLOCK SYNC FAILED", "TLS NOT STARTED", "", "", "");
-            return;
         }
+        return;
     }
     bool start_client = false;
     xSemaphoreTake(mqtt_client_mutex, portMAX_DELAY);
