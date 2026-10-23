@@ -41,9 +41,20 @@ curl -s http://127.0.0.1:8000/healthz
 
 ```bash
 cd cloud/backend
-python3 -m venv .venv && .venv/bin/pip install -r requirements.lock -e ".[dev]"
+python3 -m venv .venv
+.venv/bin/pip install --require-hashes -r requirements.lock
+.venv/bin/pip install --no-deps -e . && .venv/bin/pip install pytest pytest-cov
 .venv/bin/python -m pytest -m "not integration"   # unit tests, no containers
 ../run_cloud_tests.sh                               # all tests + evidence in docs/testing/evidence/<date>/cloud/
 ```
 
 The integration tests (TC-C01) bring the stack up under the compose project `mm-cloud-tc` on ports 18080/18000/28083 and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
+
+## Dependencies
+
+`backend/requirements.lock` is generated from `pyproject.toml` with hashes, and the image installs it with `--require-hashes`. After changing a dependency:
+
+```bash
+pip install pip-tools
+pip-compile --generate-hashes --strip-extras --allow-unsafe --output-file backend/requirements.lock backend/pyproject.toml
+```

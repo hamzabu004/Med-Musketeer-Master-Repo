@@ -7,6 +7,7 @@ touched, and removes its containers and volumes afterwards. Needs Docker with Co
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import urllib.request
 from pathlib import Path
@@ -38,6 +39,9 @@ def evidence(name: str, content: str) -> None:
 
 @pytest.fixture(scope="module")
 def stack(tmp_path_factory):
+    engine = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))[0]
+    if shutil.which(engine) is None:
+        pytest.skip(f"{engine} not found; TC-C01 needs a container engine with Compose")
     env_file = tmp_path_factory.mktemp("cloud") / "test.env"
     subprocess.run([str(CLOUD_DIR / "scripts" / "init-env.sh"), str(env_file)], check=True, capture_output=True)
     with env_file.open("a") as handle:

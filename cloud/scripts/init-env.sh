@@ -5,8 +5,15 @@ set -Eeuo pipefail
 # file: the ZITADEL masterkey cannot change once ZITADEL has been initialised with it.
 # Usage: scripts/init-env.sh [path]   (default: cloud/.env)
 
-cd "$(dirname "$0")/.."
-readonly TARGET="${1:-.env}"
+readonly CLOUD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+# Resolve the target before changing directory, so a relative path means the caller's.
+if [[ $# -ge 1 ]]; then
+    TARGET="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+else
+    TARGET="$CLOUD_DIR/.env"
+fi
+readonly TARGET
+cd "$CLOUD_DIR"
 
 if [[ -e "$TARGET" ]]; then
     printf '%s already exists; not overwriting it.\n' "$TARGET" >&2

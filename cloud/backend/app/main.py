@@ -1,4 +1,5 @@
 """FastAPI application. /livez reports that the process is up; /healthz checks its dependencies."""
+import math
 from contextlib import asynccontextmanager
 
 import httpx
@@ -17,7 +18,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.engine = create_async_engine(
             settings.database_url.get_secret_value(),
             pool_pre_ping=True,
-            connect_args={"connect_timeout": int(settings.dependency_timeout_s)},
+            # libpq takes whole seconds and treats 0 as "wait forever"
+            connect_args={"connect_timeout": max(1, math.ceil(settings.dependency_timeout_s))},
         )
         app.state.http = httpx.AsyncClient(timeout=settings.dependency_timeout_s)
         try:
@@ -38,7 +40,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "database": check_database(app.state.engine),
             "zitadel": check_http(app.state.http, f"{settings.zitadel_url}/debug/ready"),
             "emqx": check_http(app.state.http, settings.emqx_status_url),
-        })
+        }, timeout_s=settings.dependency_timeout_s)
         healthy = all(result == "ok" for result in checks.values())
         if not healthy:
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE

@@ -1,8 +1,12 @@
 """TC-C02 and /livez, /healthz behaviour without the compose stack."""
+import asyncio
+import time
+
 import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from app.health import run_checks
 from app.main import create_app
 from app.settings import Settings
 
@@ -56,3 +60,17 @@ def test_healthz_reports_each_failed_dependency_with_503(unreachable_app):
         "status": "error",
         "checks": {"database": "error", "zitadel": "error", "emqx": "error"},
     }
+
+
+def test_a_hanging_check_is_reported_as_error_within_the_timeout():
+    async def hangs() -> str:
+        await asyncio.sleep(60)
+        return "ok"
+
+    async def ok() -> str:
+        return "ok"
+
+    started = time.monotonic()
+    result = asyncio.run(run_checks({"slow": hangs(), "fast": ok()}, timeout_s=0.2))
+    assert result == {"slow": "error", "fast": "ok"}
+    assert time.monotonic() - started < 2

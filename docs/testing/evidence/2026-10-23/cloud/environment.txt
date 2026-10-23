@@ -1,22 +1,31 @@
-run_at: 2026-10-23T16:57:48+05:00
+run_at: 2026-10-23T17:20:12+05:00
 host: Linux 7.2.5-200.fc44.x86_64 x86_64
 python: Python 3.14.7
 packages: fastapi==0.161.1 httpx==0.28.1 psycopg==3.3.6 pydantic-settings==2.16.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
 compose: Docker Compose version v5.4.0
-engine: server 29.7.2
+engine: docker 29.7.2
 images: timescale/timescaledb:2.31.0-pg18 ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 traefik:v3.7.16 emqx/emqx:6.3.2 medmusketeer/cloud-api:dev 
-commit: b7f240fb1c158aedd6f170d34f9c70a9a0337fbe
+commit: 6ac9f5b985d63fc99a70595cd77c46862e9889c5
 uncommitted changes:
-?? cloud/.env.example
-?? cloud/README.md
-?? cloud/backend/.dockerignore
-?? cloud/backend/Dockerfile
-?? cloud/backend/app/
-?? cloud/backend/pyproject.toml
-?? cloud/backend/requirements.lock
-?? cloud/backend/tests/
-?? cloud/compose.yaml
-?? cloud/postgres/
-?? cloud/run_cloud_tests.sh
-?? cloud/scripts/
-?? cloud/traefik/
+ M cloud/README.md
+ M cloud/backend/Dockerfile
+ M cloud/backend/app/health.py
+ M cloud/backend/app/main.py
+ M cloud/backend/requirements.lock
+ M cloud/backend/tests/integration/test_stack.py
+ M cloud/backend/tests/unit/test_app.py
+ M cloud/compose.yaml
+M  cloud/postgres/init/010-databases.sh
+MM cloud/run_cloud_tests.sh
+MM cloud/scripts/init-env.sh
+ M docs/decisions/gaps.md
+ D docs/testing/evidence/2026-10-23/cloud/coverage.xml
+ M docs/testing/evidence/2026-10-23/cloud/environment.txt
+ D docs/testing/evidence/2026-10-23/cloud/junit.xml
+ D docs/testing/evidence/2026-10-23/cloud/pytest.txt
+ D docs/testing/evidence/2026-10-23/cloud/stack/compose_ps.json
+ D docs/testing/evidence/2026-10-23/cloud/stack/compose_up.txt
+ D docs/testing/evidence/2026-10-23/cloud/stack/healthz.json
+M  tools/Fixed-Gateway-Setup/setup_mosquitto.sh
+M  tools/Fixed-Gateway-Setup/setup_pi.sh
+M  tools/ca-tool/run_report_tests.sh

@@ -58,6 +58,7 @@ Last updated: 2026-10-23
 - No OTA/firmware update strategy (`device_updates` exists only if remote updates are adopted) — relevant if credentials ever need pushing to deployed devices
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one domain/cert or separate subdomains
 - No platform ops logging/monitoring (distinct from IDS/IPS event logging)
+- ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume) before the cloud is exposed beyond Tailscale
 - `is_testbed` exists as a registry field, but physical/logical separation of testbed hardware from anything resembling real patient data isn't specified
 - RSA key size (2048 assumed) and whether an RSA-CA variant is run for the key-type benchmark
 

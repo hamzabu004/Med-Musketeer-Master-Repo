@@ -19,7 +19,9 @@ services:
       # Mount the script, not the directory: the image keeps its own 000/001 TimescaleDB scripts there.
       - ./postgres/init/010-databases.sh:/docker-entrypoint-initdb.d/010-databases.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d medmusketeer"]
+      # Over TCP: the entrypoint's temporary init server listens only on the Unix socket, so a
+      # socket check could pass before 010-databases.sh has created the databases and roles.
+      test: ["CMD-SHELL", "psql -h 127.0.0.1 -U postgres -d medmusketeer -Atc 'select 1'"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -29,8 +31,9 @@ services:
     image: ghcr.io/zitadel/zitadel:v4.20.0
     restart: unless-stopped
     user: "0"
-    command: start-from-init --masterkey "${ZITADEL_MASTERKEY:?set in .env}"
+    command: start-from-init --masterkeyFromEnv
     environment:
+      ZITADEL_MASTERKEY: ${ZITADEL_MASTERKEY:?set in .env}
       ZITADEL_PORT: 8080
       ZITADEL_EXTERNALDOMAIN: ${ZITADEL_DOMAIN:-localhost}
       ZITADEL_EXTERNALPORT: ${PROXY_HTTP_PUBLISHED_PORT:-8080}

@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /srv
 COPY requirements.lock .
-RUN pip install -r requirements.lock
+RUN pip install --require-hashes -r requirements.lock
 
 COPY pyproject.toml .
 COPY app ./app

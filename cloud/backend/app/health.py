@@ -27,9 +27,13 @@ async def check_http(client: httpx.AsyncClient, url: str) -> str:
     return "ok"
 
 
-async def run_checks(checks: dict[str, Awaitable[str]]) -> dict[str, str]:
+async def run_checks(checks: dict[str, Awaitable[str]], timeout_s: float) -> dict[str, str]:
+    """Run the checks concurrently; a check that has not finished within timeout_s is an error."""
     names = list(checks)
-    results = await asyncio.gather(*checks.values(), return_exceptions=True)
+    results = await asyncio.gather(
+        *(asyncio.wait_for(check, timeout_s) for check in checks.values()),
+        return_exceptions=True,
+    )
     status = {}
     for name, result in zip(names, results):
         if isinstance(result, BaseException):
