@@ -7,7 +7,7 @@ description: Locked project context for "MedMusketeer" — a Final Year Project 
 
 This file is the **scope lock** for one Final Year Project. It exists so that any LLM session working on this project (writing code, slides, reports, evaluation scripts, etc.) starts from the same facts instead of re-deriving or drifting from them. It defines *what the project is*. How it is built is in `stack.md`; what is still undecided is in `gaps.md`; progress and measured results are in the mid report and `docs/testing/` (see `README.md` in this folder).
 
-**Source of truth**: the FYP-1 mid report (`MedMusketeer_FYP1_Mid_Report_LaTeX`, 2026-10-22) and the user's explicit clarifications. The mid report supersedes the proposal defence deck where they differ. If anything in a future conversation conflicts with this file, ask the user rather than assuming — and if the user confirms a change, update this file.
+**Source of truth**: the FYP-1 mid report (`MedMusketeer_FYP1_Mid_Report_LaTeX`, 2026-10-22) as the baseline, the changes since then recorded in this folder and in `docs/changelog/`, and the user's explicit clarifications. The mid report is frozen; it supersedes the proposal defence deck but not later changes. If anything in a future conversation conflicts with this file, ask the user rather than assuming — and if the user confirms a change, update this file and add a change-log entry.
 
 Last updated: 2026-10-23
 
