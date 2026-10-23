@@ -1,0 +1,26 @@
+run_at: 2026-10-24T00:24:56+05:00
+host: Linux 7.2.5-200.fc44.x86_64 x86_64
+python: Python 3.14.7
+packages: fastapi==0.161.1 httpx==0.28.1 psycopg==3.3.6 pydantic-settings==2.16.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
+compose: Docker Compose version v5.4.0
+engine: docker 29.7.2
+images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev emqx/emqx:6.3.2 medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev 
+base images: python:3.14.9-slim-trixie timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
+commit: 2ec0d55596ddca2e8c9f9aabd82694b3fd8a6ff1
+uncommitted changes:
+ M cloud/backend/Dockerfile
+ M cloud/backend/app/auth.py
+ M cloud/backend/app/main.py
+ M cloud/backend/app/settings.py
+ M cloud/backend/pyproject.toml
+ M cloud/backend/requirements.lock
+ M cloud/backend/tests/integration/test_registry.py
+ M cloud/backend/tests/integration/test_stack.py
+ M cloud/compose.yaml
+?? cloud/backend/app/manage.py
+?? cloud/backend/app/tokens.py
+?? cloud/backend/app/zitadel_bootstrap.py
+?? cloud/backend/tests/integration/test_auth.py
+?? cloud/backend/tests/tokens.py
+?? cloud/backend/tests/unit/test_tokens.py
+?? docs/testing/evidence/2026-10-24/

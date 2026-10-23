@@ -1,0 +1,182 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/cloud/backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, cov-7.1.0
+collected 57 items
+
+tests/integration/test_auth.py .............                             [ 22%]
+tests/integration/test_registry.py ..........                            [ 40%]
+tests/integration/test_schema.py ........                                [ 54%]
+tests/integration/test_stack.py ....                                     [ 61%]
+tests/unit/test_app.py .......                                           [ 73%]
+tests/unit/test_tokens.py ...............                                [100%]
+
+=============================== warnings summary ===============================
+.venv/lib64/python3.14/site-packages/fastapi/testclient.py:1
+  /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/cloud/backend/.venv/lib64/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+______________ test_tc_c12_a_registered_system_admin_is_accepted _______________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation _______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c12_requests_without_a_valid_bearer_token_get_401 ___________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[unregistered] ____
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role differs] ____
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[two roles] _____
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[no role] ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role from another org] _
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[other organisation] _
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[suspended organisation] _
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[admin from client org] _
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_without_zitadel_config_authentication_answers_503 ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:38 /nonexistent.json not found: authentication is disabled
+_________________ test_unknown_roles_in_the_token_are_ignored __________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________________ test_tc_c08_registry_round_trip ________________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session _______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_revoking_a_device_revokes_its_credentials_and_closes_its_grant ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_grants_need_an_existing_active_organisation _______________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________________ test_unknown_records_return_404 ________________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_registry_is_closed_without_authentication_config _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_registry_is_for_the_system_admin_only[org_admin] _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_registry_is_for_the_system_admin_only[doctor] ______________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_registry_is_for_the_system_admin_only[patient] ______________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_a_write_that_fails_at_commit_is_not_reported_as_success _________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_livez_is_ok_without_dependencies _____________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_healthz_reports_each_failed_dependency_with_503 _____________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.health:health.py:40 health check database failed: OperationalError
+WARNING  app.health:health.py:40 health check zitadel failed: ConnectError
+WARNING  app.health:health.py:40 health check emqx failed: ConnectError
+_________ test_a_hanging_check_is_reported_as_error_within_the_timeout _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.health:health.py:40 health check slow failed: TimeoutError
+- generated xml file: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-24/cloud/junit.xml -
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.7-final-0 ________________
+
+Name                       Stmts   Miss Branch BrPart  Cover   Missing
+----------------------------------------------------------------------
+app/__init__.py                0      0      0      0   100%
+app/auth.py                   58      1     24      1    98%   87
+app/db.py                     20      0      2      0   100%
+app/health.py                 27      6      6      0    76%   16-21, 26-27
+app/main.py                   44      2      4      2    92%   35-36, 66->68
+app/manage.py                 32     32      2      0     0%   8-51
+app/registry.py              131      4     34      5    95%   226->229, 242, 272, 281, 283
+app/settings.py                7      0      0      0   100%
+app/tokens.py                 71      2     16      1    97%   40-41, 72->71
+app/zitadel_bootstrap.py      86     47     20      4    41%   48, 52, 55-57, 60-65, 68-73, 76-81, 97, 100, 106-134, 138
+----------------------------------------------------------------------
+TOTAL                        476     94    108     13    79%
+Coverage XML written to file /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-24/cloud/coverage.xml
+=========================== short test summary info ============================
+PASSED tests/integration/test_auth.py::test_tc_c12_a_registered_system_admin_is_accepted
+PASSED tests/integration/test_auth.py::test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation
+PASSED tests/integration/test_auth.py::test_tc_c12_requests_without_a_valid_bearer_token_get_401
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[unregistered]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role differs]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[two roles]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[no role]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role from another org]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[other organisation]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[suspended organisation]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[admin from client org]
+PASSED tests/integration/test_auth.py::test_without_zitadel_config_authentication_answers_503
+PASSED tests/integration/test_auth.py::test_unknown_roles_in_the_token_are_ignored
+PASSED tests/integration/test_registry.py::test_tc_c08_registry_round_trip
+PASSED tests/integration/test_registry.py::test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session
+PASSED tests/integration/test_registry.py::test_revoking_a_device_revokes_its_credentials_and_closes_its_grant
+PASSED tests/integration/test_registry.py::test_grants_need_an_existing_active_organisation
+PASSED tests/integration/test_registry.py::test_unknown_records_return_404
+PASSED tests/integration/test_registry.py::test_registry_is_closed_without_authentication_config
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[org_admin]
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[doctor]
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[patient]
+PASSED tests/integration/test_registry.py::test_a_write_that_fails_at_commit_is_not_reported_as_success
+PASSED tests/integration/test_schema.py::test_tc_c03_migrations_go_down_and_up_on_an_empty_database
+PASSED tests/integration/test_schema.py::test_tc_c03_the_api_login_can_change_rows_but_not_the_schema
+PASSED tests/integration/test_schema.py::test_tc_c04_a_device_has_at_most_one_open_grant
+PASSED tests/integration/test_schema.py::test_tc_c05_one_active_wearable_per_patient_and_one_patient_per_wearable
+PASSED tests/integration/test_schema.py::test_tc_c06_one_active_doctor_per_patient
+PASSED tests/integration/test_schema.py::test_a_monitoring_session_keeps_its_patient_and_organisation
+PASSED tests/integration/test_schema.py::test_users_belong_to_an_organisation_except_the_system_admin
+PASSED tests/integration/test_schema.py::test_a_recording_segment_needs_the_command_that_requested_it
+PASSED tests/integration/test_stack.py::test_tc_c01_every_service_is_healthy
+PASSED tests/integration/test_stack.py::test_tc_c01_healthz_reports_every_dependency_ok
+PASSED tests/integration/test_stack.py::test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy
+PASSED tests/integration/test_stack.py::test_tc_c12_a_real_zitadel_token_works_once_the_user_is_registered
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_DATABASE_URL]
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_ZITADEL_URL]
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_EMQX_STATUS_URL]
+PASSED tests/unit/test_app.py::test_database_url_is_not_shown_in_settings_repr
+PASSED tests/unit/test_app.py::test_livez_is_ok_without_dependencies
+PASSED tests/unit/test_app.py::test_healthz_reports_each_failed_dependency_with_503
+PASSED tests/unit/test_app.py::test_a_hanging_check_is_reported_as_error_within_the_timeout
+PASSED tests/unit/test_tokens.py::test_a_valid_token_yields_its_subject_roles_and_organisation
+PASSED tests/unit/test_tokens.py::test_keys_are_fetched_with_the_public_host_name
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides0-InvalidIssuerError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides1-InvalidAudienceError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides2-ExpiredSignatureError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides3-ImmatureSignatureError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides4-MissingRequiredClaimError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides5-MissingRequiredClaimError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_a_token_signed_by_another_key_is_refused
+PASSED tests/unit/test_tokens.py::test_tc_c12_a_token_with_an_unknown_key_id_is_refused
+PASSED tests/unit/test_tokens.py::test_tc_c12_other_algorithms_are_refused[HS256]
+PASSED tests/unit/test_tokens.py::test_tc_c12_other_algorithms_are_refused[none]
+PASSED tests/unit/test_tokens.py::test_a_garbage_token_is_refused
+PASSED tests/unit/test_tokens.py::test_a_token_without_role_or_organisation_claims_is_refused
+PASSED tests/unit/test_tokens.py::test_rotated_keys_are_picked_up_without_a_restart
+======================== 57 passed, 1 warning in 58.05s ========================

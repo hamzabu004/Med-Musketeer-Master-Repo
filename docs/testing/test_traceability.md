@@ -50,3 +50,4 @@ Kinds: **A** automated, no containers; **A-stack** automated against the full co
 | TC-C08 | A-db | `test_registry::test_tc_c08_registry_round_trip` and the 404/403/401 tests in `test_registry` | System admin only; the API refuses every request until authentication exists (Slice 3). |
 
 **A-db**: automated against a throwaway TimescaleDB container (same image and init script as the stack), migrated as `mm_migrator`, with the API connecting as `mm_api`.
+| TC-C12 | A + A-db + A-stack | `test_tokens::test_tc_c12_*` (signature, key id, algorithm, issuer, audience, expiry), `test_auth::test_tc_c12_*` (registered user, role and organisation must match), `test_stack::test_tc_c12_a_real_zitadel_token_works_once_the_user_is_registered` | Unit tests sign tokens with a local RSA key; the stack test uses a real ZITADEL machine user with a client-credentials token. |

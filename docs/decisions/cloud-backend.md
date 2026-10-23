@@ -61,7 +61,7 @@ ZITADEL instance
 
 Token claims the API reads:
   sub                                          → users.zitadel_sub
-  urn:zitadel:iam:org:project:roles            → role
+  urn:zitadel:iam:org:project:{project_id}:roles → role → {granting org id: domain}
   urn:zitadel:iam:user:resourceowner:id        → ZITADEL org id → organisations.org_id
 ```
 
@@ -73,7 +73,7 @@ users:         user_id, zitadel_sub, role, org_id           ← mirror for joins
 
 - ZITADEL is the source of truth for the role. The API authorises from the token's role and takes `org_id` from `organisations`.
 - The API is the only path that changes a role: it updates ZITADEL and the `users` row in one operation.
-- Verify in Slice 3: the claim names, and the project-grant-per-organisation set-up.
+- Verified in Slice 3 (2026-10-24) against ZITADEL v4.20.0: the role claim is project-specific, `urn:zitadel:iam:org:project:{project_id}:roles`, and maps each role to the organisation that granted it; the API also requires that this is the user's own organisation (`resourceowner:id`). `aud` is the project id, tokens are RS256-signed with keys from `/oauth/v2/keys`, and machine users must use `ACCESS_TOKEN_TYPE_JWT` (the API validates JWTs only). A project grant per client organisation plus a user grant gives a client-organisation user their role.
 
 ## D4 — Gateway authentication: mTLS + HTTP hook (Decided)
 

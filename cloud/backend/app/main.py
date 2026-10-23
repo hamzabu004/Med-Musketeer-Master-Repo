@@ -1,14 +1,21 @@
 """FastAPI application. /livez reports that the process is up; /healthz checks its dependencies."""
+import logging
 import math
 from contextlib import asynccontextmanager
 
+from typing import Annotated
+
 import httpx
-from fastapi import FastAPI, Response, status
+from fastapi import Depends, FastAPI, Response, status
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app import registry
+from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
 from app.settings import Settings
+from app.tokens import TokenVerifier, ZitadelConfig
+
+log = logging.getLogger(__name__)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -23,6 +30,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             connect_args={"connect_timeout": max(1, math.ceil(settings.dependency_timeout_s))},
         )
         app.state.http = httpx.AsyncClient(timeout=settings.dependency_timeout_s)
+        app.state.verifier = None
+        if settings.zitadel_config_file.is_file():
+            config = ZitadelConfig.load(settings.zitadel_config_file)
+            app.state.verifier = TokenVerifier(config, settings.zitadel_url, app.state.http)
+        else:
+            log.warning("%s not found: authentication is disabled", settings.zitadel_config_file)
         try:
             yield
         finally:
@@ -31,6 +44,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(title="MedMusketeer cloud API", version="0.1.0", lifespan=lifespan)
     app.include_router(registry.router)
+
+    @app.get("/me")
+    async def me(principal: Annotated[Principal, Depends(get_principal)]) -> dict:
+        """Who the caller is, for every role."""
+        return {"user_id": str(principal.user_id), "role": principal.role,
+                "org_id": str(principal.org_id) if principal.org_id else None}
 
     @app.get("/livez")
     async def livez() -> dict[str, str]:

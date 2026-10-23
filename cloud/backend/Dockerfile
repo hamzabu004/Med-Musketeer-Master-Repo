@@ -12,7 +12,8 @@ RUN pip install --require-hashes -r requirements.lock
 COPY pyproject.toml alembic.ini ./
 COPY app ./app
 COPY migrations ./migrations
-RUN pip install --no-deps . && useradd --system --no-create-home mm
+RUN pip install --no-deps . && useradd --system --no-create-home mm \
+    && install -d -o mm -g mm /var/lib/medmusketeer  # mount point of the mm-config volume
 USER mm
 
 EXPOSE 8000

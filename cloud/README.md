@@ -36,6 +36,23 @@ curl -s http://127.0.0.1:8000/healthz
 |---|---|
 | `GET /livez` | The process is up (used by the container health check) |
 | `GET /healthz` | Database (with the TimescaleDB extension), ZITADEL and EMQX reachable; 503 if any is not |
+| `GET /me` | The caller's user id, role and organisation (every role) |
+| `/admin/...` | System-admin registry: organisations, devices, credentials, device grants |
+
+Every endpoint except `/livez` and `/healthz` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from a user registered in `users` with the same role (`app/auth.py`).
+
+## ZITADEL set-up
+
+The one-off `zitadel-bootstrap` job runs on every `up`. With the IAM_OWNER service account `mm-bootstrap` (created on ZITADEL's first start; its token stays in the `zitadel-bootstrap` volume, which the API does not mount), it creates the `MedMusketeer` project and its roles `system_admin`, `org_admin`, `doctor`, `patient`, grants `system_admin` to ZITADEL's first admin, and writes `zitadel.json` (issuer, project id, default organisation id) to the `mm-config` volume for the API.
+
+Register the first admin as the MedMusketeer system admin once; the job's log prints the exact command:
+
+```bash
+docker compose logs zitadel-bootstrap | grep register-user
+docker compose exec api python -m app.manage register-user --zitadel-sub <id> --role system_admin
+```
+
+The service account is configured only on ZITADEL's first start. A stack created before it was added needs `docker compose down --volumes` (which deletes all data) to pick it up.
 
 ## Tests
 

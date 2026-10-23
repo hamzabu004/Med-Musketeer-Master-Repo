@@ -105,11 +105,11 @@ def test_unknown_records_return_404(admin_client):
     assert admin_client.patch(f"/admin/organisations/{missing}", json={"status": "active"}).status_code == 404
 
 
-def test_registry_is_closed_until_authentication_exists(make_client):
-    # No override: the production get_principal refuses every request until Slice 3.
+def test_registry_is_closed_without_authentication_config(make_client):
+    # No override and no ZITADEL config file: the real get_principal refuses every request.
     client = make_client(None)
-    assert client.get("/admin/devices").status_code == 401
-    assert client.post("/admin/organisations", json={"name": "x", "kind": "public"}).status_code == 401
+    assert client.get("/admin/devices").status_code == 503
+    assert client.post("/admin/organisations", json={"name": "x", "kind": "public"}).status_code == 503
 
 
 @pytest.mark.parametrize("role", ["org_admin", "doctor", "patient"])

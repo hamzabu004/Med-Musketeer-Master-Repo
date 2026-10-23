@@ -43,6 +43,12 @@ services:
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD:?set in .env}
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
       ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel/bootstrap/login-client.pat
+      # Service account with IAM_OWNER, used only by the zitadel-bootstrap job (and the stack tests)
+      # to set up the MedMusketeer project and roles. Its token never leaves the bootstrap volume.
+      ZITADEL_FIRSTINSTANCE_PATPATH: /zitadel/bootstrap/admin.pat
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME: mm-bootstrap
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME: MedMusketeer bootstrap
+      ZITADEL_FIRSTINSTANCE_ORG_MACHINE_PAT_EXPIRATIONDATE: "2099-01-01T00:00:00Z"
       ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: login-client
       ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: Automatically Initialized IAM_LOGIN_CLIENT
       ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: "2099-01-01T00:00:00Z"
@@ -138,6 +144,23 @@ services:
       postgres:
         condition: service_healthy
 
+  # One-off: sets up the MedMusketeer project and roles in ZITADEL with the bootstrap service
+  # account, and writes the API's non-secret ZITADEL config to the mm-config volume.
+  zitadel-bootstrap:
+    image: medmusketeer/cloud-api:dev
+    command: ["python", "-m", "app.zitadel_bootstrap"]
+    environment:
+      MM_ZITADEL_URL: http://zitadel-api:8080
+      MM_ZITADEL_ISSUER: http://${ZITADEL_DOMAIN:-localhost}:${PROXY_HTTP_PUBLISHED_PORT:-8080}
+      MM_ZITADEL_ADMIN_PAT_FILE: /zitadel/bootstrap/admin.pat
+      MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
+    volumes:
+      - zitadel-bootstrap:/zitadel/bootstrap:ro
+      - mm-config:/var/lib/medmusketeer
+    depends_on:
+      zitadel-api:
+        condition: service_healthy
+
   api:
     build: ./backend
     image: medmusketeer/cloud-api:dev
@@ -146,8 +169,11 @@ services:
       MM_DATABASE_URL: postgresql+psycopg://mm_api:${MM_API_PASSWORD}@postgres:5432/medmusketeer
       MM_ZITADEL_URL: http://zitadel-api:8080
       MM_EMQX_STATUS_URL: http://emqx:18083/status
+      MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
     ports:
       - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
+    volumes:
+      - mm-config:/var/lib/medmusketeer:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/livez', timeout=3)"]
       interval: 10s
@@ -157,13 +183,14 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-      zitadel-api:
-        condition: service_healthy
+      zitadel-bootstrap:
+        condition: service_completed_successfully
       emqx:
         condition: service_healthy
 
 volumes:
   postgres-data:
   zitadel-bootstrap:
+  mm-config:
   emqx-data:
   emqx-log:

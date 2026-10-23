@@ -1,13 +1,23 @@
-"""Who is calling, and what they may do.
+"""Who is calling, and what they may do (D2, D3, D9).
 
-Until Slice 3 adds ZITADEL token validation, get_principal refuses every request, so no
-endpoint that depends on it is reachable. Tests replace it with app.dependency_overrides.
+get_principal accepts a request only when:
+- it carries a valid ZITADEL access token (app.tokens),
+- the token grants exactly one MedMusketeer role, granted by the user's own ZITADEL organisation,
+- the user is registered in `users` with that same role (the mirror is changed only by the API),
+- and, for organisation users, the user's organisation is the one in the token and is active.
+The system admin's token must come from the ZITADEL instance's default organisation.
 """
+import logging
 from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
+from sqlalchemy import text
+
+from app.tokens import InvalidToken
+
+log = logging.getLogger(__name__)
 
 ROLES = ("system_admin", "org_admin", "doctor", "patient")
 
@@ -19,12 +29,56 @@ class Principal:
     org_id: UUID | None
 
 
-async def get_principal() -> Principal:
-    raise HTTPException(
-        status.HTTP_401_UNAUTHORIZED,
-        "authentication is not configured",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+def _unauthorized(detail: str) -> HTTPException:
+    return HTTPException(status.HTTP_401_UNAUTHORIZED, detail, headers={"WWW-Authenticate": "Bearer"})
+
+
+def _forbidden(reason: str) -> HTTPException:
+    log.info("request refused: %s", reason)
+    return HTTPException(status.HTTP_403_FORBIDDEN, "not allowed")
+
+
+async def get_principal(request: Request) -> Principal:
+    verifier = getattr(request.app.state, "verifier", None)
+    if verifier is None:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "authentication is not configured")
+
+    scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        raise _unauthorized("a bearer token is required")
+    try:
+        claims = await verifier.verify(token)
+    except InvalidToken as error:
+        log.info("token rejected: %s", error)
+        raise _unauthorized("invalid token") from error
+
+    roles = {role: orgs for role, orgs in claims.roles.items() if role in ROLES}
+    if len(roles) != 1:
+        raise _forbidden(f"token grants {len(roles)} MedMusketeer roles")
+    (role, granting_orgs), = roles.items()
+    if claims.zitadel_org_id not in granting_orgs:
+        raise _forbidden("role not granted by the user's own organisation")
+
+    async with request.app.state.engine.connect() as conn:
+        row = (await conn.execute(text("""
+            SELECT u.user_id, u.role, u.org_id, o.zitadel_org_id, o.status AS org_status
+            FROM users u LEFT JOIN organisations o ON o.org_id = u.org_id
+            WHERE u.zitadel_sub = :sub
+        """), {"sub": claims.subject})).mappings().first()
+
+    if row is None:
+        raise _forbidden("user not registered")
+    if row["role"] != role:
+        raise _forbidden("role in token differs from the registered role")
+    if role == "system_admin":
+        if claims.zitadel_org_id != verifier.config.default_org_id:
+            raise _forbidden("system admin token from another organisation")
+    else:
+        if row["zitadel_org_id"] != claims.zitadel_org_id:
+            raise _forbidden("organisation in token differs from the registered organisation")
+        if row["org_status"] != "active":
+            raise _forbidden("organisation suspended")
+    return Principal(user_id=row["user_id"], role=row["role"], org_id=row["org_id"])
 
 
 def require_role(*roles: str):

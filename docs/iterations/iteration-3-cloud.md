@@ -94,7 +94,9 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 - System-admin API: organisations; devices (register pending → active, suspend, revoke); credentials; device grants and grant revocation.
 - **Tests (real Postgres in a container):** TC-C03 migrations up and down on an empty DB; TC-C04 to TC-C06 each uniqueness rule rejects a second open row; TC-C07 revoking a grant ends the device's open assignment and session; TC-C08 registry endpoints round-trip.
 
-### Slice 3 — IAM and access control (L)
+### Slice 3 — IAM and access control (L) — In progress
+
+**Done 2026-10-24 (part 1):** `zitadel-bootstrap` job (project, four roles, `system_admin` for ZITADEL's first admin, non-secret config written to the `mm-config` volume); token validation against ZITADEL's JWKS and mapping to `users` (`app.tokens`, `app.auth`); `GET /me`; `python -m app.manage register-user`; TC-C12 (unit, database and end-to-end with a real ZITADEL token). **Remaining (part 2):** organisation-admin API with account creation in ZITADEL, the role × endpoint matrix and TC-C09 to TC-C11, TC-C13.
 
 - ZITADEL bootstrap script: project, four roles, an API application, two test organisations, one test user per role per organisation, a machine user for the management API (key kept out of the repo).
 - API: token validation against ZITADEL's JWKS; dependencies for role, organisation and doctor-assignment checks; patient and ECG queries filtered by `patient_id`/`org_id` from sessions and segments.
