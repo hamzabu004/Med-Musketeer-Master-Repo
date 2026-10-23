@@ -25,7 +25,7 @@ Last updated: 2026-10-23
 - The schema is **designed** (mid report §5, summarised in `stack.md`) but not implemented; column-level details are still open
 - `status`/`last_seen`/`current_mode` semantics per path (fixed = gateway-attested broker events; mobile = envelope arrival) and how the two reconcile
 - Heartbeat envelope interval/timeout thresholds for mobile-path liveness
-- Raw ECG retention period (only `ecg_chunks` are dropped)
+- Raw ECG retention period (only `ecg_chunks` are dropped; the migration uses a 90-day placeholder)
 - Cloud data at rest: disk encryption of the cloud server and least-privilege database roles (planned with the cloud platform)
 
 ## Ingestion / messaging (blocks Iteration 3–4)

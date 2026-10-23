@@ -6,16 +6,16 @@ The MedMusketeer cloud platform (M7), built in Iteration 3 (`docs/iterations/ite
 
 | Service | Image | Role | Host port (127.0.0.1) |
 |---|---|---|---|
-| `postgres` | `timescale/timescaledb:2.31.0-pg18` | Databases `medmusketeer` (TimescaleDB) and `zitadel` | — |
+| `postgres` | built from `postgres/` on `timescale/timescaledb:2.31.0-pg18` | Databases `medmusketeer` (TimescaleDB) and `zitadel` | — |
 | `zitadel-api` | `ghcr.io/zitadel/zitadel:v4.20.0` | Human IAM (OIDC) | via `proxy` |
 | `zitadel-login` | `ghcr.io/zitadel/zitadel-login:v4.20.0` | ZITADEL Login UI | via `proxy` |
-| `proxy` | `traefik:v3.7.16` | One HTTP origin for ZITADEL's API and Login UI | 8080 |
+| `proxy` | built from `traefik/` on `traefik:v3.7.16` | One HTTP origin for ZITADEL's API and Login UI | 8080 |
 | `emqx` | `emqx/emqx:6.3.2` | MQTT broker (gateway listener added in Slice 4) | 18083 (dashboard) |
 | `api` | built from `backend/` (Python 3.14) | MedMusketeer API | 8000 |
 
 Every image is pinned to an exact version with amd64 and arm64 builds, so the same file runs on the cloud Pi. Upgrading an image is a deliberate change with a change-log entry.
 
-Database roles, created on an empty volume by `postgres/init/010-databases.sh`: `zitadel` (owns `zitadel`), `mm_migrator` (owns `medmusketeer`, runs the migrations), `mm_api` (the API's runtime login).
+Configuration is built into the `postgres` and `proxy` images, not bind-mounted: Docker Desktop's file sharing for the repository's drive proved unreliable (stale mount paths), and baked-in config behaves the same on the Pi. Rebuild after editing it (`docker compose up -d --build`). Database roles, created on an empty volume by `postgres/init/010-databases.sh` (copied into the `postgres` image): `zitadel` (owns `zitadel`), `mm_migrator` (owns `medmusketeer`, runs the migrations), `mm_api` (the API's runtime login).
 
 ## Run
 

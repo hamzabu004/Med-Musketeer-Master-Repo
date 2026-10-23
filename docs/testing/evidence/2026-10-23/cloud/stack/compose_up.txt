@@ -1,198 +1,226 @@
 #1 [internal] load local bake definitions
-#1 reading from stdin 635B done
+#1 reading from stdin 2.32kB done
 #1 DONE 0.0s
 
-#2 [internal] load build definition from Dockerfile
-#2 transferring dockerfile: 30B
-#2 transferring dockerfile: 500B done
+#2 [postgres internal] load build definition from Dockerfile
+#2 transferring dockerfile: 339B done
 #2 DONE 0.0s
 
-#3 [internal] load metadata for docker.io/library/python:3.14.9-slim-trixie
-#3 DONE 0.2s
+#3 [migrate internal] load build definition from Dockerfile
+#3 transferring dockerfile: 542B done
+#3 DONE 0.0s
 
-#4 [internal] load .dockerignore
-#4 transferring context: 102B done
+#4 [proxy internal] load build definition from Dockerfile
+#4 transferring dockerfile: 170B done
 #4 DONE 0.0s
 
-#5 [1/7] FROM docker.io/library/python:3.14.9-slim-trixie@sha256:b347e2dcbc7f0b6f9fb7182e9da6a187fb10ae715e0692518c1aed0eec94a700
-#5 resolve docker.io/library/python:3.14.9-slim-trixie@sha256:b347e2dcbc7f0b6f9fb7182e9da6a187fb10ae715e0692518c1aed0eec94a700 0.0s done
+#5 [postgres internal] load metadata for docker.io/timescale/timescaledb:2.31.0-pg18
 #5 DONE 0.0s
 
-#6 [internal] load build context
-#6 transferring context: 38.58kB done
+#6 [api internal] load metadata for docker.io/library/python:3.14.9-slim-trixie
 #6 DONE 0.0s
 
-#7 [2/7] WORKDIR /srv
-#7 CACHED
+#7 [postgres internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
 
-#8 [3/7] COPY requirements.lock .
+#8 [migrate internal] load .dockerignore
+#8 transferring context: 102B done
 #8 DONE 0.0s
 
-#9 [4/7] RUN pip install --require-hashes -r requirements.lock
-#9 2.903 Collecting annotated-doc==0.0.5 (from -r requirements.lock (line 7))
-#9 3.628   Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
-#9 3.850 Collecting annotated-types==0.8.0 (from -r requirements.lock (line 11))
-#9 4.090   Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
-#9 4.307 Collecting anyio==4.15.1 (from -r requirements.lock (line 15))
-#9 4.477   Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
-#9 4.983 Collecting certifi==2026.10.23 (from -r requirements.lock (line 21))
-#9 5.128   Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
-#9 5.375 Collecting click==8.5.0 (from -r requirements.lock (line 27))
-#9 5.626   Downloading click-8.5.0-py3-none-any.whl (125 kB)
-#9 6.034 Collecting fastapi==0.161.1 (from -r requirements.lock (line 31))
-#9 6.245   Downloading fastapi-0.161.1-py3-none-any.whl (149 kB)
-#9 6.831 Collecting greenlet==3.5.6 (from -r requirements.lock (line 35))
-#9 7.064   Downloading greenlet-3.5.6-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (670 kB)
-#9 7.457      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 670.8/670.8 kB 2.1 MB/s  0:00:00
-#9 7.676 Collecting h11==0.16.0 (from -r requirements.lock (line 116))
-#9 7.842   Downloading h11-0.16.0-py3-none-any.whl (37 kB)
-#9 8.091 Collecting httpcore==1.0.9 (from -r requirements.lock (line 122))
-#9 8.288   Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
-#9 8.469 Collecting httpx==0.28.1 (from -r requirements.lock (line 126))
-#9 8.700   Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
-#9 8.871 Collecting idna==3.20 (from -r requirements.lock (line 130))
-#9 9.109   Downloading idna-3.20-py3-none-any.whl (69 kB)
-#9 9.308 Collecting opentelemetry-api==1.45.1 (from -r requirements.lock (line 136))
-#9 9.521   Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
-#9 9.716 Collecting psycopg==3.3.6 (from -r requirements.lock (line 140))
-#9 9.864   Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
-#9 10.35 Collecting psycopg-binary==3.3.6 (from -r requirements.lock (line 144))
-#9 10.53   Downloading psycopg_binary-3.3.6-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
-#9 12.65      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 2.4 MB/s  0:00:02
-#9 13.01 Collecting pydantic==2.14.1 (from -r requirements.lock (line 212))
-#9 13.16   Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
-#9 14.77 Collecting pydantic-core==2.50.1 (from -r requirements.lock (line 218))
-#9 14.95   Downloading pydantic_core-2.50.1-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
-#9 15.49      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 3.8 MB/s  0:00:00
-#9 15.67 Collecting pydantic-settings==2.16.1 (from -r requirements.lock (line 357))
-#9 15.87   Downloading pydantic_settings-2.16.1-py3-none-any.whl (80 kB)
-#9 16.04 Collecting python-dotenv==1.2.4 (from -r requirements.lock (line 361))
-#9 16.28   Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
-#9 16.88 Collecting sqlalchemy==2.1.6 (from -r requirements.lock (line 365))
-#9 17.09   Downloading sqlalchemy-2.1.6-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.6 MB)
-#9 18.18      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.6/4.6 MB 4.1 MB/s  0:00:01
-#9 18.44 Collecting starlette==1.9.0 (from -r requirements.lock (line 439))
-#9 18.62   Downloading starlette-1.9.0-py3-none-any.whl (80 kB)
-#9 19.25 Collecting typing-extensions==4.16.0 (from -r requirements.lock (line 443))
-#9 19.40   Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
-#9 20.38 Collecting typing-inspection==0.4.4 (from -r requirements.lock (line 455))
-#9 20.53   Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
-#9 20.72 Collecting uvicorn==0.54.0 (from -r requirements.lock (line 462))
-#9 20.89   Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
-#9 21.07 Installing collected packages: typing-extensions, python-dotenv, psycopg-binary, psycopg, idna, h11, greenlet, click, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, sqlalchemy, pydantic-core, opentelemetry-api, httpcore, anyio, starlette, pydantic, httpx, pydantic-settings, fastapi
-#9 25.46 
-#9 25.46 Successfully installed annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 certifi-2026.10.23 click-8.5.0 fastapi-0.161.1 greenlet-3.5.6 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.20 opentelemetry-api-1.45.1 psycopg-3.3.6 psycopg-binary-3.3.6 pydantic-2.14.1 pydantic-core-2.50.1 pydantic-settings-2.16.1 python-dotenv-1.2.4 sqlalchemy-2.1.6 starlette-1.9.0 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0
-#9 25.46 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
-#9 DONE 25.7s
+#9 [postgres internal] load build context
+#9 transferring context: 67B done
+#9 DONE 0.0s
 
-#10 [5/7] COPY pyproject.toml .
+#10 [postgres 1/2] FROM docker.io/timescale/timescaledb:2.31.0-pg18@sha256:0fcff5761363809d1242f2261a3482197b5a5337407f8b97a976fb174206d579
+#10 resolve docker.io/timescale/timescaledb:2.31.0-pg18@sha256:0fcff5761363809d1242f2261a3482197b5a5337407f8b97a976fb174206d579 0.0s done
 #10 DONE 0.0s
 
-#11 [6/7] COPY app ./app
-#11 DONE 0.0s
+#11 [proxy internal] load metadata for docker.io/library/traefik:v3.7.16
+#11 DONE 0.1s
 
-#12 [7/7] RUN pip install --no-deps . && useradd --system --no-create-home mm
-#12 1.807 Processing ./.
-#12 1.810   Installing build dependencies: started
-#12 6.176   Installing build dependencies: finished with status 'done'
-#12 6.177   Getting requirements to build wheel: started
-#12 7.455   Getting requirements to build wheel: finished with status 'done'
-#12 7.456   Preparing metadata (pyproject.toml): started
-#12 8.622   Preparing metadata (pyproject.toml): finished with status 'done'
-#12 8.627 Building wheels for collected packages: medmusketeer-cloud
-#12 8.629   Building wheel for medmusketeer-cloud (pyproject.toml): started
-#12 10.04   Building wheel for medmusketeer-cloud (pyproject.toml): finished with status 'done'
-#12 10.04   Created wheel for medmusketeer-cloud: filename=medmusketeer_cloud-0.1.0-py3-none-any.whl size=3724 sha256=d2ec3a491333a615da0e4d727f6a1af823deed0ccdff27db8026b3f1ecdc11b5
-#12 10.05   Stored in directory: /tmp/pip-ephem-wheel-cache-orasfng3/wheels/e1/da/b4/2d6181351f6dd70d0a78d307947ff5ce1a45139a2cd9b623a5
-#12 10.05 Successfully built medmusketeer-cloud
-#12 10.15 Installing collected packages: medmusketeer-cloud
-#12 10.18 Successfully installed medmusketeer-cloud-0.1.0
-#12 10.18 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
-#12 DONE 10.4s
+#12 [api 1/8] FROM docker.io/library/python:3.14.9-slim-trixie@sha256:b347e2dcbc7f0b6f9fb7182e9da6a187fb10ae715e0692518c1aed0eec94a700
+#12 resolve docker.io/library/python:3.14.9-slim-trixie@sha256:b347e2dcbc7f0b6f9fb7182e9da6a187fb10ae715e0692518c1aed0eec94a700 0.0s done
+#12 DONE 0.0s
 
-#13 exporting to image
-#13 exporting layers
-#13 exporting layers 3.4s done
-#13 exporting manifest sha256:62666d6aeba85170280eab74ec1adc8ea698ebfbf81296301405707ee4fe8769 0.0s done
-#13 exporting config sha256:06a04e9053fed16450242d862393c6a9cdf48304dc9d7c5b9ec6e5948e7aa4ab 0.0s done
-#13 exporting attestation manifest sha256:cd699f520cf539f7513c3a8494a02266605c8ec50c1738d363edcefd465ddcc1 0.0s done
-#13 exporting manifest list sha256:9a5a94681031baffe4606774e827f51e6fe4fa8d238e2af75b7224a287d93dab 0.0s done
-#13 naming to docker.io/medmusketeer/cloud-api:dev done
-#13 unpacking to docker.io/medmusketeer/cloud-api:dev
-#13 unpacking to docker.io/medmusketeer/cloud-api:dev 0.9s done
-#13 DONE 4.5s
+#13 [postgres 2/2] COPY --chmod=0755 init/010-databases.sh /docker-entrypoint-initdb.d/010-databases.sh
+#13 CACHED
 
-#14 resolving provenance for metadata file
+#14 [proxy internal] load .dockerignore
+#14 transferring context: 2B done
 #14 DONE 0.0s
+
+#15 [api internal] load build context
+#15 transferring context: 569B 0.0s done
+#15 DONE 0.0s
+
+#16 [api 3/8] COPY requirements.lock .
+#16 CACHED
+
+#17 [api 4/8] RUN pip install --require-hashes -r requirements.lock
+#17 CACHED
+
+#18 [api 5/8] COPY pyproject.toml alembic.ini ./
+#18 CACHED
+
+#19 [api 6/8] COPY app ./app
+#19 CACHED
+
+#20 [api 2/8] WORKDIR /srv
+#20 CACHED
+
+#21 [api 7/8] COPY migrations ./migrations
+#21 CACHED
+
+#22 [api 8/8] RUN pip install --no-deps . && useradd --system --no-create-home mm
+#22 CACHED
+
+#23 [proxy internal] load build context
+#23 transferring context: 934B done
+#23 DONE 0.1s
+
+#24 [postgres] exporting to image
+#24 exporting layers 0.0s done
+#24 exporting manifest sha256:a2fbec239b468469cb3e6839767160b243bd93022dfc0c8b61292bbda482d179 done
+#24 exporting config sha256:66198143656832e4ebf4f64e10167bec9e518df30868067261fdf21b364bfa53 done
+#24 exporting attestation manifest sha256:edc63c3b27b8f5daa0ce65ee9a28146327815b326446adfa318a4ec220fa5717 0.0s done
+#24 exporting manifest list sha256:2c2ca33ea2ff9d550e9fead71b4ce1119b842fafb6a676526e0125ba9aea0447 0.0s done
+#24 naming to docker.io/medmusketeer/cloud-postgres:dev
+#24 naming to docker.io/medmusketeer/cloud-postgres:dev done
+#24 unpacking to docker.io/medmusketeer/cloud-postgres:dev 0.0s done
+#24 DONE 0.2s
+
+#25 [migrate] exporting to image
+#25 exporting layers done
+#25 exporting manifest sha256:290e1ab489f4a46cc6d1fd6d9e457174b22c2f9c3115307e05170161dc110af4 done
+#25 exporting config sha256:349eece902bbfd4e73807f1769114ffd27598e52fb1b6840cc034ba982a2c84d done
+#25 exporting attestation manifest sha256:63900d3cfddbbafd3c0956d29fa171a071688fac2fef2f1b6f0892266529d697 0.0s done
+#25 exporting manifest list sha256:e526d4d5ff5d587a1a1f70d3487c9574e0f92694ae2a24815aeb3ead1669c7c1 0.0s done
+#25 naming to docker.io/medmusketeer/cloud-api:dev done
+#25 unpacking to docker.io/medmusketeer/cloud-api:dev 0.0s done
+#25 DONE 0.1s
+
+#26 [api] exporting to image
+#26 exporting layers done
+#26 exporting manifest sha256:7d21b5499d572b09d38dc0c38da7b405c9262c48058e6b369da28ab6b48433da 0.0s done
+#26 exporting config sha256:9187c065e9ceb40834563b34800b36931f69eb69259861503bcf418a110cc20e 0.0s done
+#26 exporting attestation manifest sha256:7169c3e3e79443c321eb23027a9195eef6c3f6d82a150fa69bc399514e2bad44 0.0s done
+#26 exporting manifest list sha256:145d37e805b1eff6accc339748fc77d832a5419ff416325d44b8561469056cd4 0.0s done
+#26 naming to docker.io/medmusketeer/cloud-api:dev done
+#26 unpacking to docker.io/medmusketeer/cloud-api:dev 0.0s done
+#26 DONE 0.2s
+
+#27 [proxy 1/2] FROM docker.io/library/traefik:v3.7.16@sha256:c8a121e4bb1347e8fd52657fab12f2cb70b68f8a018895e2068f92c9e519b9c2
+#27 resolve docker.io/library/traefik:v3.7.16@sha256:c8a121e4bb1347e8fd52657fab12f2cb70b68f8a018895e2068f92c9e519b9c2 0.1s done
+#27 DONE 0.2s
+
+#28 [proxy 2/2] COPY dynamic.yml /etc/traefik/dynamic/dynamic.yml
+#28 DONE 0.0s
+
+#29 [proxy] exporting to image
+#29 exporting layers 0.1s done
+#29 exporting manifest sha256:f5b886836f82f625b0b6cc4dee32d16e80ba2e2a40a351d76cbfc579a42377aa 0.0s done
+#29 exporting config sha256:64aca92c34f3de86b5315e41c8d4e2e329a239a03ca9935e8a19f1e6513d3c21 0.0s done
+#29 exporting attestation manifest sha256:bd922d6a3a26792d05b70b82ca942f0e5a9c1f099370531ee0911b7523a68f59 0.0s done
+#29 exporting manifest list sha256:a978827c88d59bd80a8a283dd0dd7672c7c1c03dae527c369c59e2952695ab03 0.0s done
+#29 naming to docker.io/medmusketeer/cloud-proxy:dev done
+#29 unpacking to docker.io/medmusketeer/cloud-proxy:dev 0.0s done
+#29 DONE 0.2s
+
+#30 [migrate] resolving provenance for metadata file
+#30 DONE 0.1s
+
+#31 [postgres] resolving provenance for metadata file
+#31 DONE 0.1s
+
+#32 [api] resolving provenance for metadata file
+#32 DONE 0.0s
+
+#33 [proxy] resolving provenance for metadata file
+#33 DONE 0.0s
+ Image medmusketeer/cloud-proxy:dev Building 
  Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-postgres:dev Building 
+ Image medmusketeer/cloud-postgres:dev Built 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-proxy:dev Built 
  Image medmusketeer/cloud-api:dev Built 
  Volume mm-cloud-tc_emqx-data Creating 
- Volume mm-cloud-tc_zitadel-bootstrap Creating 
- Network mm-cloud-tc_default Creating 
- Volume mm-cloud-tc_postgres-data Creating 
- Volume mm-cloud-tc_postgres-data Creating 
- Network mm-cloud-tc_default Creating 
  Volume mm-cloud-tc_emqx-log Creating 
- Volume mm-cloud-tc_emqx-log Creating 
- Volume mm-cloud-tc_zitadel-bootstrap Creating 
  Volume mm-cloud-tc_emqx-data Creating 
- Volume mm-cloud-tc_postgres-data Created 
- Volume mm-cloud-tc_postgres-data Created 
+ Volume mm-cloud-tc_emqx-log Creating 
+ Volume mm-cloud-tc_postgres-data Creating 
+ Volume mm-cloud-tc_postgres-data Creating 
+ Network mm-cloud-tc_default Creating 
+ Network mm-cloud-tc_default Creating 
+ Volume mm-cloud-tc_zitadel-bootstrap Creating 
+ Volume mm-cloud-tc_zitadel-bootstrap Creating 
  Volume mm-cloud-tc_zitadel-bootstrap Created 
  Volume mm-cloud-tc_zitadel-bootstrap Created 
  Volume mm-cloud-tc_emqx-log Created 
  Volume mm-cloud-tc_emqx-log Created 
  Volume mm-cloud-tc_emqx-data Created 
  Volume mm-cloud-tc_emqx-data Created 
+ Volume mm-cloud-tc_postgres-data Created 
+ Volume mm-cloud-tc_postgres-data Created 
  Network mm-cloud-tc_default Created 
  Network mm-cloud-tc_default Created 
- Container mm-cloud-tc-emqx-1 Creating 
  Container mm-cloud-tc-postgres-1 Creating 
+ Container mm-cloud-tc-emqx-1 Creating 
  Container mm-cloud-tc-emqx-1 Created 
  Container mm-cloud-tc-postgres-1 Created 
  Container mm-cloud-tc-zitadel-api-1 Creating 
+ Container mm-cloud-tc-migrate-1 Creating 
  Container mm-cloud-tc-zitadel-api-1 Created 
- Container mm-cloud-tc-api-1 Creating 
  Container mm-cloud-tc-zitadel-login-1 Creating 
- Container mm-cloud-tc-api-1 Created 
+ Container mm-cloud-tc-migrate-1 Created 
+ Container mm-cloud-tc-api-1 Creating 
  Container mm-cloud-tc-zitadel-login-1 Created 
  Container mm-cloud-tc-proxy-1 Creating 
+ Container mm-cloud-tc-api-1 Created 
  Container mm-cloud-tc-proxy-1 Created 
- Container mm-cloud-tc-postgres-1 Starting 
  Container mm-cloud-tc-emqx-1 Starting 
+ Container mm-cloud-tc-postgres-1 Starting 
+ Container mm-cloud-tc-emqx-1 Started 
  Container mm-cloud-tc-postgres-1 Started 
  Container mm-cloud-tc-postgres-1 Waiting 
- Container mm-cloud-tc-emqx-1 Started 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-migrate-1 Starting 
  Container mm-cloud-tc-postgres-1 Healthy 
  Container mm-cloud-tc-zitadel-api-1 Starting 
+ Container mm-cloud-tc-migrate-1 Started 
  Container mm-cloud-tc-zitadel-api-1 Started 
- Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
  Container mm-cloud-tc-zitadel-api-1 Waiting 
  Container mm-cloud-tc-emqx-1 Waiting 
- Container mm-cloud-tc-zitadel-api-1 Waiting 
- Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-migrate-1 Waiting 
+ Container mm-cloud-tc-migrate-1 Exited 
  Container mm-cloud-tc-emqx-1 Healthy 
  Container mm-cloud-tc-zitadel-api-1 Healthy 
  Container mm-cloud-tc-zitadel-login-1 Starting 
  Container mm-cloud-tc-zitadel-api-1 Healthy 
  Container mm-cloud-tc-api-1 Starting 
- Container mm-cloud-tc-api-1 Started 
  Container mm-cloud-tc-zitadel-login-1 Started 
- Container mm-cloud-tc-zitadel-api-1 Waiting 
  Container mm-cloud-tc-zitadel-login-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-api-1 Started 
  Container mm-cloud-tc-zitadel-api-1 Healthy 
  Container mm-cloud-tc-zitadel-login-1 Healthy 
  Container mm-cloud-tc-proxy-1 Starting 
  Container mm-cloud-tc-proxy-1 Started 
- Container mm-cloud-tc-emqx-1 Waiting 
+ Container mm-cloud-tc-migrate-1 Waiting 
  Container mm-cloud-tc-api-1 Waiting 
  Container mm-cloud-tc-postgres-1 Waiting 
  Container mm-cloud-tc-zitadel-api-1 Waiting 
  Container mm-cloud-tc-zitadel-login-1 Waiting 
  Container mm-cloud-tc-proxy-1 Waiting 
- Container mm-cloud-tc-zitadel-api-1 Healthy 
- Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-emqx-1 Waiting 
  Container mm-cloud-tc-api-1 Healthy 
  Container mm-cloud-tc-zitadel-login-1 Healthy 
  Container mm-cloud-tc-emqx-1 Healthy 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-migrate-1 Exited 
  Container mm-cloud-tc-proxy-1 Healthy 

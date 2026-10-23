@@ -6,6 +6,7 @@ import httpx
 from fastapi import FastAPI, Response, status
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from app import registry
 from app.health import check_database, check_http, run_checks
 from app.settings import Settings
 
@@ -29,6 +30,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await app.state.engine.dispose()
 
     app = FastAPI(title="MedMusketeer cloud API", version="0.1.0", lifespan=lifespan)
+    app.include_router(registry.router)
 
     @app.get("/livez")
     async def livez() -> dict[str, str]:

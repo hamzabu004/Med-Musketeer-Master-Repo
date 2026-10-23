@@ -87,7 +87,7 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 - `.env.example`; health checks; `GET /healthz` on the API reporting database, ZITADEL and EMQX reachability.
 - **Tests:** TC-C01 the stack comes up healthy from an empty volume; TC-C02 the API refuses to start without required settings.
 
-### Slice 2 — Database and registry (M)
+### Slice 2 — Database and registry (M) — Done 2026-10-23
 
 - Alembic migration with every table in the report; hypertables on `ecg_chunks.ts` and `security_events.ts`; the TimescaleDB retention policy on `ecg_chunks` (period as a setting).
 - Constraints that enforce the rules: at most one open grant per device, one active wearable per patient, one active doctor per patient (partial unique indexes); sessions take `patient_id`/`org_id` from the active assignment and never change.

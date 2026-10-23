@@ -20,6 +20,7 @@ CLOUD_DIR = Path(__file__).resolve().parents[3]
 PROJECT = "mm-cloud-tc"
 PORTS = {"PROXY_HTTP_PUBLISHED_PORT": "18080", "API_PUBLISHED_PORT": "18000", "EMQX_DASHBOARD_PUBLISHED_PORT": "28083"}
 SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api"}
+JOBS = {"migrate"}
 
 
 def compose(env_file: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
@@ -66,13 +67,17 @@ def service_states(env_file: Path) -> dict[str, str]:
     rows = [json.loads(line) for line in output.splitlines() if line.strip()]
     if len(rows) == 1 and isinstance(rows[0], list):
         rows = rows[0]
-    return {row["Service"]: row.get("Health") or row.get("State", "") for row in rows}
+    return {
+        row["Service"]: row.get("Health") or f"{row.get('State', '')}:{row.get('ExitCode', '')}"
+        for row in rows
+    }
 
 
 def test_tc_c01_every_service_is_healthy(stack):
     states = service_states(stack)
-    assert set(states) == SERVICES
-    assert all(state == "healthy" for state in states.values()), states
+    assert set(states) == SERVICES | JOBS
+    assert all(states[name] == "healthy" for name in SERVICES), states
+    assert all(states[name] == "exited:0" for name in JOBS), states
 
 
 def test_tc_c01_healthz_reports_every_dependency_ok(stack):

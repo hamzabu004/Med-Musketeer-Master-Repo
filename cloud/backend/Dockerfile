@@ -9,8 +9,9 @@ WORKDIR /srv
 COPY requirements.lock .
 RUN pip install --require-hashes -r requirements.lock
 
-COPY pyproject.toml .
+COPY pyproject.toml alembic.ini ./
 COPY app ./app
+COPY migrations ./migrations
 RUN pip install --no-deps . && useradd --system --no-create-home mm
 USER mm
 

@@ -4,9 +4,11 @@ rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-R
 configfile: pyproject.toml
 testpaths: tests
 plugins: anyio-4.15.1, cov-7.1.0
-collected 10 items
+collected 27 items
 
-tests/integration/test_stack.py ...                                      [ 30%]
+tests/integration/test_registry.py .........                             [ 33%]
+tests/integration/test_schema.py ........                                [ 62%]
+tests/integration/test_stack.py ...                                      [ 74%]
 tests/unit/test_app.py .......                                           [100%]
 
 =============================== warnings summary ===============================
@@ -31,13 +33,33 @@ _______________ coverage: platform linux, python 3.14.7-final-0 ________________
 Name              Stmts   Miss Branch BrPart  Cover   Missing
 -------------------------------------------------------------
 app/__init__.py       0      0      0      0   100%
+app/auth.py          19      1      4      1    91%   33
+app/db.py            20      1      2      1    91%   27
 app/health.py        27      6      6      0    76%   16-21, 26-27
-app/main.py          29      0      2      1    97%   45->47
+app/main.py          31      0      2      1    97%   47->49
+app/registry.py     131      4     34      5    95%   226->229, 242, 272, 281, 283
 app/settings.py       5      0      0      0   100%
 -------------------------------------------------------------
-TOTAL                61      6      8      1    87%
+TOTAL               233     12     48      8    92%
 Coverage XML written to file /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-23/cloud/coverage.xml
 =========================== short test summary info ============================
+PASSED tests/integration/test_registry.py::test_tc_c08_registry_round_trip
+PASSED tests/integration/test_registry.py::test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session
+PASSED tests/integration/test_registry.py::test_revoking_a_device_revokes_its_credentials_and_closes_its_grant
+PASSED tests/integration/test_registry.py::test_grants_need_an_existing_active_organisation
+PASSED tests/integration/test_registry.py::test_unknown_records_return_404
+PASSED tests/integration/test_registry.py::test_registry_is_closed_until_authentication_exists
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[org_admin]
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[doctor]
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[patient]
+PASSED tests/integration/test_schema.py::test_tc_c03_migrations_go_down_and_up_on_an_empty_database
+PASSED tests/integration/test_schema.py::test_tc_c03_the_api_login_can_change_rows_but_not_the_schema
+PASSED tests/integration/test_schema.py::test_tc_c04_a_device_has_at_most_one_open_grant
+PASSED tests/integration/test_schema.py::test_tc_c05_one_active_wearable_per_patient_and_one_patient_per_wearable
+PASSED tests/integration/test_schema.py::test_tc_c06_one_active_doctor_per_patient
+PASSED tests/integration/test_schema.py::test_a_monitoring_session_keeps_its_patient_and_organisation
+PASSED tests/integration/test_schema.py::test_users_belong_to_an_organisation_except_the_system_admin
+PASSED tests/integration/test_schema.py::test_a_recording_segment_needs_the_command_that_requested_it
 PASSED tests/integration/test_stack.py::test_tc_c01_every_service_is_healthy
 PASSED tests/integration/test_stack.py::test_tc_c01_healthz_reports_every_dependency_ok
 PASSED tests/integration/test_stack.py::test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy
@@ -48,4 +70,4 @@ PASSED tests/unit/test_app.py::test_database_url_is_not_shown_in_settings_repr
 PASSED tests/unit/test_app.py::test_livez_is_ok_without_dependencies
 PASSED tests/unit/test_app.py::test_healthz_reports_each_failed_dependency_with_503
 PASSED tests/unit/test_app.py::test_a_hanging_check_is_reported_as_error_within_the_timeout
-=================== 10 passed, 1 warning in 82.35s (0:01:22) ===================
+======================== 27 passed, 1 warning in 47.62s ========================

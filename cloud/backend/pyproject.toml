@@ -14,6 +14,7 @@ dependencies = [
   "sqlalchemy[asyncio]>=2.1",
   "psycopg[binary]>=3.3",
   "httpx>=0.28",
+  "alembic>=1.16",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,7 @@ include = ["app*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 markers = [
-  "integration: brings up the compose stack with docker compose (TC-C01)",
+  "integration: needs a container engine (database container, or the full compose stack for TC-C01)",
 ]
