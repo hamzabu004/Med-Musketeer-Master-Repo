@@ -3,7 +3,8 @@
 get_principal accepts a request only when:
 - it carries a valid ZITADEL access token (app.tokens),
 - the token grants exactly one MedMusketeer role, granted by the user's own ZITADEL organisation,
-- the user is registered in `users` with that same role (the mirror is changed only by the API),
+- the user is registered in `users` with that same role (the mirror is changed only by the API)
+  and has not been disabled,
 - and, for organisation users, the user's organisation is the one in the token and is active.
 The system admin's token must come from the ZITADEL instance's default organisation.
 """
@@ -16,6 +17,7 @@ from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy import text
 
 from app.tokens import InvalidToken
+from app.zitadel import ZitadelAdmin
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +29,7 @@ class Principal:
     user_id: UUID
     role: str
     org_id: UUID | None
+    patient_id: UUID | None = None  # set for a patient with a patient record
 
 
 def _unauthorized(detail: str) -> HTTPException:
@@ -61,8 +64,11 @@ async def get_principal(request: Request) -> Principal:
 
     async with request.app.state.engine.connect() as conn:
         row = (await conn.execute(text("""
-            SELECT u.user_id, u.role, u.org_id, o.zitadel_org_id, o.status AS org_status
-            FROM users u LEFT JOIN organisations o ON o.org_id = u.org_id
+            SELECT u.user_id, u.role, u.org_id, u.status, o.zitadel_org_id, o.status AS org_status,
+                   p.patient_id
+            FROM users u
+            LEFT JOIN organisations o ON o.org_id = u.org_id
+            LEFT JOIN patients p ON p.user_id = u.user_id
             WHERE u.zitadel_sub = :sub
         """), {"sub": claims.subject})).mappings().first()
 
@@ -70,6 +76,8 @@ async def get_principal(request: Request) -> Principal:
         raise _forbidden("user not registered")
     if row["role"] != role:
         raise _forbidden("role in token differs from the registered role")
+    if row["status"] != "active":
+        raise _forbidden("user disabled")
     if role == "system_admin":
         if claims.zitadel_org_id != verifier.config.default_org_id:
             raise _forbidden("system admin token from another organisation")
@@ -78,7 +86,7 @@ async def get_principal(request: Request) -> Principal:
             raise _forbidden("organisation in token differs from the registered organisation")
         if row["org_status"] != "active":
             raise _forbidden("organisation suspended")
-    return Principal(user_id=row["user_id"], role=row["role"], org_id=row["org_id"])
+    return Principal(user_id=row["user_id"], role=row["role"], org_id=row["org_id"], patient_id=row["patient_id"])
 
 
 def require_role(*roles: str):
@@ -95,3 +103,18 @@ def require_role(*roles: str):
 
 
 SystemAdmin = Annotated[Principal, Depends(require_role("system_admin"))]
+OrgAdmin = Annotated[Principal, Depends(require_role("org_admin"))]
+Doctor = Annotated[Principal, Depends(require_role("doctor"))]
+OrgMember = Annotated[Principal, Depends(require_role("org_admin", "doctor", "patient"))]
+OrgAdminOrDoctor = Annotated[Principal, Depends(require_role("org_admin", "doctor"))]
+CareReader = Annotated[Principal, Depends(require_role("doctor", "patient"))]  # ECG and alerts (D9)
+
+
+def get_zitadel(request: Request) -> ZitadelAdmin:
+    zitadel = getattr(request.app.state, "zitadel", None)
+    if zitadel is None:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "account management is not configured")
+    return zitadel
+
+
+Zitadel = Annotated[ZitadelAdmin, Depends(get_zitadel)]

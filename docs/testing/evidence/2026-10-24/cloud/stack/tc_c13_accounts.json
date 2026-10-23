@@ -1,0 +1,42 @@
+{
+  "organisation": {
+    "org_id": "edd39570-0ef8-4286-8886-25ea8f9cb392",
+    "zitadel_org_id": "396430628972658693",
+    "project_grant": "396430629006213125"
+  },
+  "org_admin": {
+    "state": "USER_STATE_ACTIVE",
+    "org": "396430628972658693",
+    "roles": [
+      "org_admin"
+    ]
+  },
+  "doctor": {
+    "state": "USER_STATE_ACTIVE",
+    "org": "396430628972658693",
+    "roles": [
+      "doctor"
+    ]
+  },
+  "patient": {
+    "state": "USER_STATE_ACTIVE",
+    "org": "396430628972658693",
+    "roles": [
+      "patient"
+    ]
+  },
+  "doctor_disabled": {
+    "state": "USER_STATE_INACTIVE",
+    "org": "396430628972658693",
+    "roles": [
+      "doctor"
+    ]
+  },
+  "audit": [
+    "account.disabled",
+    "account.created",
+    "account.created",
+    "account.created",
+    "organisation.created"
+  ]
+}

@@ -13,7 +13,8 @@ COPY pyproject.toml alembic.ini ./
 COPY app ./app
 COPY migrations ./migrations
 RUN pip install --no-deps . && useradd --system --no-create-home mm \
-    && install -d -o mm -g mm /var/lib/medmusketeer  # mount point of the mm-config volume
+    && install -d -o mm -g mm /var/lib/medmusketeer \
+    && install -d -o mm -g mm -m 700 /var/lib/medmusketeer-secrets  # mount points of mm-config, mm-secrets
 USER mm
 
 EXPOSE 8000

@@ -1,8 +1,8 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`. Status markers follow `stack.md`. All ten are **Decided** (2026-10-23). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, and D11 and D12 taken while building Slice 3. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 and D12 on 2026-10-24). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
-Last updated: 2026-10-23
+Last updated: 2026-10-24
 
 ## Overview
 
@@ -68,11 +68,13 @@ Token claims the API reads:
 ```
 Postgres (mirror)
 organisations: org_id, name, kind, status, zitadel_org_id   ← column added to the report's schema
-users:         user_id, zitadel_sub, role, org_id           ← mirror for joins; changed only by the API
+users:         user_id, zitadel_sub, role, org_id, status   ← mirror for joins; changed only by the API
 ```
 
 - ZITADEL is the source of truth for the role. The API authorises from the token's role and takes `org_id` from `organisations`.
 - The API is the only path that changes a role: it updates ZITADEL and the `users` row in one operation.
+- `users.status` (`active`/`disabled`, migration 0002, 2026-10-24): disabling an account deactivates the ZITADEL user and sets the row to `disabled`; the API refuses a disabled user's tokens at once, without waiting for them to expire.
+- Creating an organisation creates its ZITADEL organisation and grants it the project with the roles `org_admin`, `doctor`, `patient` (verified against v4.20.0 on 2026-10-24); `organisations.zitadel_org_id` links the two.
 - Verified in Slice 3 (2026-10-24) against ZITADEL v4.20.0: the role claim is project-specific, `urn:zitadel:iam:org:project:{project_id}:roles`, and maps each role to the organisation that granted it; the API also requires that this is the user's own organisation (`resourceowner:id`). `aud` is the project id, tokens are RS256-signed with keys from `/oauth/v2/keys`, and machine users must use `ACCESS_TOKEN_TYPE_JWT` (the API validates JWTs only). A project grant per client organisation plus a user grant gives a client-organisation user their role.
 
 ## D4 — Gateway authentication: mTLS + HTTP hook (Decided)
@@ -163,12 +165,14 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 
 ## D9 — Role × endpoint matrix (Decided)
 
-✔ allowed, ✘ denied. Implemented as one parametrised test (TC-C09).
+✔ allowed, ✘ denied. Implemented as one parametrised test (TC-C09, `cloud/backend/tests/integration/test_access.py`), which also fails if an endpoint of the app has no row. A role denied an endpoint gets 403; an allowed role asking for a patient outside its reach (another organisation, or for a doctor a patient who is not theirs) gets 404, as for a patient that does not exist.
 
 | Endpoint group | System admin | Org admin | Doctor | Patient |
 |---|---|---|---|---|
 | Organisations: create, suspend, list all | ✔ | ✘ | ✘ | ✘ |
+| Organisation admin accounts: create | ✔ | ✘ | ✘ | ✘ |
 | Own organisation: read | — | ✔ | ✔ | ✔ |
+| Patients: list | ✘ | ✔ (own org) | ✔ (own patients) | ✘ |
 | Devices, credentials: register, suspend, revoke | ✔ | ✘ | ✘ | ✘ |
 | Device grants to organisations | ✔ | ✘ | ✘ | ✘ |
 | Devices of own organisation: list, live status | ✔ (all) | ✔ | ✔ (own patients' devices) | ✘ |
@@ -185,10 +189,55 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Audit log (grants, issues, exports) | ✔ (device side) | ✔ (own org) | ✘ | ✘ |
 
 - The organisation admin **cannot read patient ECG data**, classifications or alerts.
-- Open: how a patient export works when the org admin cannot read ECG (whether the export bundle includes ECG, produced by the API without the org admin viewing it).
+- Open: how a patient export works when the org admin cannot read ECG (whether the export bundle includes ECG, produced by the API without the org admin viewing it). Until decided, `POST /patients/{id}/exports` returns the pseudonym, disorders, care and wearable history with `ecg_included: false`, and logs the export.
+- Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3. Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
+
+Endpoints (2026-10-24):
+
+| Endpoint group | Endpoints |
+|---|---|
+| Registry (system admin) | `/admin/organisations[/{id}[/admins]]`, `/admin/devices/...`, `/admin/credentials/{id}/revoke`, `/admin/grants/{id}/revoke`, `GET /admin/audit`, `GET /admin/security-events` |
+| Own organisation, devices | `GET /organisation`, `GET /devices` (org admin: granted devices; doctor: their patients' wearables) |
+| Accounts (org admin) | `GET/POST /accounts`, `POST /accounts/{user_id}/disable` |
+| Patients | `GET /patients`, `PUT /patients/{id}/doctor`, `POST/DELETE /patients/{id}/wearable`, `GET/POST /patients/{id}/disorders`, `POST /patients/{id}/exports` |
+| ECG and alerts (doctor, patient) | `GET /alerts`, `GET /patients/{id}/alerts`, `POST /alerts/{id}/acknowledge`, `GET /patients/{id}/segments`, `GET /segments/{id}` |
+| Audit (org admin) | `GET /audit` |
 
 ## D10 — EMQX 6.3.2, pinned (Decided)
 
 - Image `emqx/emqx:6.3.2` (released 2026-10-16; amd64 and arm64 builds, so the same image runs on the cloud Pi). Pin this exact tag in `compose.yaml`; upgrades are deliberate and get a change-log entry.
 - Licence: Business Source License 1.1 (EMQX 5.9.0 and later). Its Additional Use Grant allows production use of a single node, and unrestricted non-profit use by accredited academic institutions. A single cloud node for this FYP is covered. Each version converts to Apache 2.0 four years after its release.
 - Features this design relies on, confirmed in the EMQX docs: `mqtt.peer_cert_as_username = "cn"`; HTTP authentication with `allow`/`deny`/`ignore` results; rule-engine Republish whose templates reference fields from the rule SQL. Exact v6 configuration syntax is verified in Slice 4.
+
+## D11 — Audit log table (Decided 2026-10-24)
+
+The report's tables record who granted, issued, assigned and exported (`granted_by`, `issued_by`, `assigned_by`, `exported_by`), but not who created or disabled an account, returned a wearable or ended an assignment. A separate append-only table records every registry and organisation action in the same transaction as the action:
+
+```
+audit_log: event_id, at, actor_id → users, scope (registry | organisation), org_id, action, target_id, details jsonb
+```
+
+- `scope = registry`: system-admin actions (organisations, organisation admins, devices, credentials, grants). `GET /admin/audit` shows only these, so the system admin sees no patient or doctor ids (TC-C11).
+- An organisation admin sees every event of their own organisation (`GET /audit`), including the registry events about it (its device grants, its admins).
+- `mm_api` has `INSERT` and `SELECT` only on `audit_log`; it cannot change or delete an entry (TC-C03).
+- Rejected alternative: a view over the actor columns of the report's tables (would miss account and return events, and cannot record who ended something).
+
+## D12 — The API's ZITADEL service account; accounts start with an invite code (Decided 2026-10-24)
+
+```
+zitadel-bootstrap (IAM_OWNER token, bootstrap volume only)
+   └─ creates machine user mm-api, instance role IAM_ORG_MANAGER
+      └─ writes its token to the mm-secrets volume ─────► api (read-only mount)
+
+API (as mm-api)                                     ZITADEL
+ POST /admin/organisations ─────────────────────────► create organisation; grant project (org_admin, doctor, patient)
+ POST /admin/organisations/{id}/admins, POST /accounts ► create human user (e-mail as username), user grant with
+                                                        the role, invite code returned (no e-mail sent)
+ POST /accounts/{id}/disable ───────────────────────► deactivate user
+```
+
+- `IAM_ORG_MANAGER` lets the API manage organisations, their users and user grants and project grants, but not instance settings, instance members or the project's roles. The bootstrap service account (`IAM_OWNER`) stays out of the API's reach.
+- The token lasts a year. The bootstrap job checks it on every `up` and replaces it (deleting the account's old tokens) when it is missing or no longer works. The API starts after the job and reloads the file when ZITADEL refuses the token it holds.
+- ZITADEL is changed first (`users.zitadel_sub` needs its id). If a later ZITADEL step or the database insert fails, the ZITADEL user or organisation is deleted again. Anything left behind is inert: the API refuses ZITADEL users it has not registered.
+- No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. Wiring this into the dashboard's onboarding is Iteration 6.
+- Names and e-mail addresses live only in ZITADEL; the database keeps the role, organisation and, for patients, the pseudonym.

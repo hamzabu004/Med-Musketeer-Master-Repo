@@ -32,7 +32,7 @@ Last updated: 2026-10-23
 - The adapter's code-level interface (the message `ingest-v1` and the `attested_by` source are decided in `cloud-backend.md` D1/D7)
 - Telemetry QoS and the recording payload (the alert payload v1 is decided in `cloud-backend.md` D6); how an on-demand stream starts and stops (the request command, duration or explicit stop, and the `command_ack`)
 - Enforcing wearable↔gateway assignment (observe-only decided for Iteration 3, `cloud-backend.md` D5); the gateway's local wearable allowlist
-- How a patient export works when the organisation admin cannot read ECG data (`cloud-backend.md` D9)
+- How a patient export works when the organisation admin cannot read ECG data (`cloud-backend.md` D9); until decided, exports leave ECG out (`ecg_included: false`)
 - Mode-switch behaviour: buffered data on a switch, persistence across reboot, button handling
 
 ## ECG / model layer
@@ -58,6 +58,8 @@ Last updated: 2026-10-23
 - No OTA/firmware update strategy (`device_updates` exists only if remote updates are adopted) — relevant if credentials ever need pushing to deployed devices
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one domain/cert or separate subdomains
 - No platform ops logging/monitoring (distinct from IDS/IPS event logging)
+- The invite-code onboarding (`cloud-backend.md` D12) is checked as far as ZITADEL issuing the code; a person redeeming it in the Login UI is not tested yet (with the dashboard, Iteration 6)
+- The API returns no names: they live only in ZITADEL. The dashboard needs them for doctors (and patients for their own doctor), so it will read them from ZITADEL or the API will add a lookup (Iteration 6)
 - ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume) before the cloud is exposed beyond Tailscale
 - `is_testbed` exists as a registry field, but physical/logical separation of testbed hardware from anything resembling real patient data isn't specified
 - RSA key size (2048 assumed) and whether an RSA-CA variant is run for the key-type benchmark

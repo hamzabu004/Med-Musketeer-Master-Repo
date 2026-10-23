@@ -145,7 +145,8 @@ services:
         condition: service_healthy
 
   # One-off: sets up the MedMusketeer project and roles in ZITADEL with the bootstrap service
-  # account, and writes the API's non-secret ZITADEL config to the mm-config volume.
+  # account, writes the API's non-secret ZITADEL config to the mm-config volume, and the token of
+  # the API's own service account (mm-api, IAM_ORG_MANAGER) to the mm-secrets volume.
   zitadel-bootstrap:
     image: medmusketeer/cloud-api:dev
     command: ["python", "-m", "app.zitadel_bootstrap"]
@@ -154,9 +155,11 @@ services:
       MM_ZITADEL_ISSUER: http://${ZITADEL_DOMAIN:-localhost}:${PROXY_HTTP_PUBLISHED_PORT:-8080}
       MM_ZITADEL_ADMIN_PAT_FILE: /zitadel/bootstrap/admin.pat
       MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
+      MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
     volumes:
       - zitadel-bootstrap:/zitadel/bootstrap:ro
       - mm-config:/var/lib/medmusketeer
+      - mm-secrets:/var/lib/medmusketeer-secrets
     depends_on:
       zitadel-api:
         condition: service_healthy
@@ -170,10 +173,12 @@ services:
       MM_ZITADEL_URL: http://zitadel-api:8080
       MM_EMQX_STATUS_URL: http://emqx:18083/status
       MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
+      MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
     ports:
       - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
     volumes:
       - mm-config:/var/lib/medmusketeer:ro
+      - mm-secrets:/var/lib/medmusketeer-secrets:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/livez', timeout=3)"]
       interval: 10s
@@ -192,5 +197,6 @@ volumes:
   postgres-data:
   zitadel-bootstrap:
   mm-config:
+  mm-secrets:
   emqx-data:
   emqx-log:

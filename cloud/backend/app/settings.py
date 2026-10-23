@@ -15,3 +15,6 @@ class Settings(BaseSettings):
     dependency_timeout_s: float = Field(default=3.0, gt=0)
     # Written by the zitadel-bootstrap job. Without it every authenticated endpoint answers 503.
     zitadel_config_file: Path = Path("/var/lib/medmusketeer/zitadel.json")
+    # Written by the zitadel-bootstrap job: the mm-api service account's token, used to create
+    # organisations and accounts in ZITADEL (app.zitadel). Without it those endpoints answer 503.
+    zitadel_api_token_file: Path = Path("/var/lib/medmusketeer-secrets/zitadel-api.pat")

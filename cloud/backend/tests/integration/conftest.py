@@ -19,9 +19,10 @@ from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 
-from app.auth import Principal, get_principal
+from app.auth import Principal, get_principal, get_zitadel
 from app.main import create_app
 from app.settings import Settings
+from tests.fake_zitadel import FakeZitadelAdmin
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 CLOUD_DIR = BACKEND_DIR.parent
@@ -108,8 +109,14 @@ def system_admin(db) -> Principal:
 
 
 @pytest.fixture
-def make_client(migrated):
-    """Build a TestClient for the API as the given principal (None: no override, as in production)."""
+def zitadel() -> FakeZitadelAdmin:
+    return FakeZitadelAdmin()
+
+
+@pytest.fixture
+def make_client(migrated, zitadel):
+    """Build a TestClient for the API as the given principal (None: no override, as in production).
+    ZITADEL's management API is the in-memory fake, also for None."""
     clients = []
 
     def build(principal: Principal | None) -> TestClient:
@@ -121,6 +128,7 @@ def make_client(migrated):
         app = create_app(settings)
         if principal is not None:
             app.dependency_overrides[get_principal] = lambda: principal
+        app.dependency_overrides[get_zitadel] = lambda: zitadel
         client = TestClient(app)
         client.__enter__()
         clients.append(client)

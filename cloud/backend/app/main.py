@@ -9,11 +9,12 @@ import httpx
 from fastapi import Depends, FastAPI, Response, status
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app import registry
+from app import accounts, care, organisation, registry
 from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
 from app.settings import Settings
 from app.tokens import TokenVerifier, ZitadelConfig
+from app.zitadel import ZitadelAdmin
 
 log = logging.getLogger(__name__)
 
@@ -31,9 +32,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         app.state.http = httpx.AsyncClient(timeout=settings.dependency_timeout_s)
         app.state.verifier = None
+        app.state.zitadel = None
         if settings.zitadel_config_file.is_file():
             config = ZitadelConfig.load(settings.zitadel_config_file)
             app.state.verifier = TokenVerifier(config, settings.zitadel_url, app.state.http)
+            if settings.zitadel_api_token_file.is_file():
+                app.state.zitadel = ZitadelAdmin(config, settings.zitadel_url, app.state.http,
+                                                 settings.zitadel_api_token_file)
+            else:
+                log.warning("%s not found: account management is disabled", settings.zitadel_api_token_file)
         else:
             log.warning("%s not found: authentication is disabled", settings.zitadel_config_file)
         try:
@@ -44,12 +51,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(title="MedMusketeer cloud API", version="0.1.0", lifespan=lifespan)
     app.include_router(registry.router)
+    app.include_router(accounts.router)
+    app.include_router(organisation.router)
+    app.include_router(care.router)
 
     @app.get("/me")
     async def me(principal: Annotated[Principal, Depends(get_principal)]) -> dict:
-        """Who the caller is, for every role."""
+        """Who the caller is, for every role (a patient also gets their patient id)."""
         return {"user_id": str(principal.user_id), "role": principal.role,
-                "org_id": str(principal.org_id) if principal.org_id else None}
+                "org_id": str(principal.org_id) if principal.org_id else None,
+                "patient_id": str(principal.patient_id) if principal.patient_id else None}
 
     @app.get("/livez")
     async def livez() -> dict[str, str]:

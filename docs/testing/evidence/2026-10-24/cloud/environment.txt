@@ -1,4 +1,4 @@
-run_at: 2026-10-24T00:24:56+05:00
+run_at: 2026-10-24T01:22:48+05:00
 host: Linux 7.2.5-200.fc44.x86_64 x86_64
 python: Python 3.14.7
 packages: fastapi==0.161.1 httpx==0.28.1 psycopg==3.3.6 pydantic-settings==2.16.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
@@ -6,21 +6,42 @@ compose: Docker Compose version v5.4.0
 engine: docker 29.7.2
 images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev emqx/emqx:6.3.2 medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev 
 base images: python:3.14.9-slim-trixie timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
-commit: 2ec0d55596ddca2e8c9f9aabd82694b3fd8a6ff1
+commit: 69ac43e3157fad07492c90df949b208207fa9bf6
 uncommitted changes:
+ M cloud/README.md
  M cloud/backend/Dockerfile
  M cloud/backend/app/auth.py
+ M cloud/backend/app/db.py
  M cloud/backend/app/main.py
+ M cloud/backend/app/registry.py
  M cloud/backend/app/settings.py
- M cloud/backend/pyproject.toml
- M cloud/backend/requirements.lock
- M cloud/backend/tests/integration/test_registry.py
+ M cloud/backend/app/zitadel_bootstrap.py
+ M cloud/backend/tests/integration/conftest.py
+ M cloud/backend/tests/integration/test_auth.py
+ M cloud/backend/tests/integration/test_schema.py
  M cloud/backend/tests/integration/test_stack.py
  M cloud/compose.yaml
-?? cloud/backend/app/manage.py
-?? cloud/backend/app/tokens.py
-?? cloud/backend/app/zitadel_bootstrap.py
-?? cloud/backend/tests/integration/test_auth.py
-?? cloud/backend/tests/tokens.py
-?? cloud/backend/tests/unit/test_tokens.py
-?? docs/testing/evidence/2026-10-24/
+ M docs/decisions/cloud-backend.md
+ M docs/decisions/gaps.md
+ M docs/decisions/stack.md
+ M docs/iterations/iteration-3-cloud.md
+ M docs/testing/evidence/2026-10-24/cloud/coverage.xml
+ M docs/testing/evidence/2026-10-24/cloud/environment.txt
+ M docs/testing/evidence/2026-10-24/cloud/junit.xml
+ M docs/testing/evidence/2026-10-24/cloud/pytest.txt
+ M docs/testing/evidence/2026-10-24/cloud/stack/compose_ps.json
+ M docs/testing/evidence/2026-10-24/cloud/stack/compose_up.txt
+ M docs/testing/test_traceability.md
+?? cloud/backend/app/accounts.py
+?? cloud/backend/app/care.py
+?? cloud/backend/app/organisation.py
+?? cloud/backend/app/zitadel.py
+?? cloud/backend/migrations/versions/0002_accounts_and_audit.py
+?? cloud/backend/tests/fake_zitadel.py
+?? cloud/backend/tests/integration/test_access.py
+?? cloud/backend/tests/integration/test_organisation.py
+?? cloud/backend/tests/integration/world.py
+?? cloud/backend/tests/unit/test_zitadel.py
+?? docs/changelog/2026-10-24-02-org-admin-api.md
+?? docs/testing/evidence/2026-10-24/cloud/stack/tc_c13_accounts.json
+?? docs/testing/review-findings/2026-10-24-slice-3-org-admin.md

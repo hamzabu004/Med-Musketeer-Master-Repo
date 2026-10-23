@@ -17,6 +17,8 @@ REPORT_TABLES = {
     "replay_windows", "security_events", "attack_tests",
 }
 
+ADDED_TABLES = {"audit_log"}  # D11, migration 0002
+
 
 def public_tables(conn) -> set[str]:
     return set(conn.scalars(text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")))
@@ -66,7 +68,7 @@ def test_tc_c03_migrations_go_down_and_up_on_an_empty_database(migrated):
             assert public_tables(conn) == {"alembic_version"}
         command.upgrade(config, "head")
         with engine.connect() as conn:
-            assert public_tables(conn) == REPORT_TABLES | {"alembic_version"}
+            assert public_tables(conn) == REPORT_TABLES | ADDED_TABLES | {"alembic_version"}
             hypertables = set(conn.scalars(text("SELECT hypertable_name FROM timescaledb_information.hypertables")))
             assert hypertables == {"ecg_chunks", "security_events"}
             retention = conn.execute(text(
@@ -88,7 +90,8 @@ def test_tc_c03_the_api_login_can_change_rows_but_not_the_schema(migrated, db):
         with engine.begin() as conn:
             conn.execute(text("INSERT INTO organisations (name, kind) VALUES ('Ward B', 'private')"))
         for statement in ("CREATE TABLE intruder (id int)", "DROP TABLE organisations",
-                          "ALTER TABLE devices ADD COLUMN x int", "DELETE FROM alembic_version"):
+                          "ALTER TABLE devices ADD COLUMN x int", "DELETE FROM alembic_version",
+                          "UPDATE audit_log SET action = 'x'", "DELETE FROM audit_log"):
             with engine.connect() as conn, pytest.raises(ProgrammingError):
                 conn.execute(text(statement))
     finally:

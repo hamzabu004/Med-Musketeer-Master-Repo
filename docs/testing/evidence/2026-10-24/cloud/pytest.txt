@@ -4,14 +4,19 @@ rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-R
 configfile: pyproject.toml
 testpaths: tests
 plugins: anyio-4.15.1, cov-7.1.0
-collected 57 items
+collected 243 items
 
-tests/integration/test_auth.py .............                             [ 22%]
-tests/integration/test_registry.py ..........                            [ 40%]
-tests/integration/test_schema.py ........                                [ 54%]
-tests/integration/test_stack.py ....                                     [ 61%]
-tests/unit/test_app.py .......                                           [ 73%]
-tests/unit/test_tokens.py ...............                                [100%]
+tests/integration/test_access.py ....................................... [ 16%]
+........................................................................ [ 45%]
+.........................................                                [ 62%]
+tests/integration/test_auth.py ...............                           [ 68%]
+tests/integration/test_organisation.py ........................          [ 78%]
+tests/integration/test_registry.py ..........                            [ 82%]
+tests/integration/test_schema.py ........                                [ 86%]
+tests/integration/test_stack.py .....                                    [ 88%]
+tests/unit/test_app.py .......                                           [ 90%]
+tests/unit/test_tokens.py ...............                                [ 97%]
+tests/unit/test_zitadel.py .......                                       [100%]
 
 =============================== warnings summary ===============================
 .venv/lib64/python3.14/site-packages/fastapi/testclient.py:1
@@ -20,81 +25,619 @@ tests/unit/test_tokens.py ...............                                [100%]
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 ==================================== PASSES ====================================
+___ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-system_admin] ____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-org_admin] _____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-doctor] _______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-patient] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-system_admin] ___
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-org_admin] _____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-doctor] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-patient] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /admin/devices-system_admin] _______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[GET /admin/devices-org_admin] ________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /admin/devices-doctor] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /admin/devices-patient] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[POST /admin/devices-system_admin] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______ test_tc_c09_role_endpoint_matrix[POST /admin/devices-org_admin] ________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[POST /admin/devices-doctor] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[POST /admin/devices-patient] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-org_admin] __
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-doctor] ___
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-patient] ___
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-doctor] __
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-patient] __
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______ test_tc_c09_role_endpoint_matrix[GET /admin/audit-system_admin] ________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /admin/audit-org_admin] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /admin/audit-doctor] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /admin/audit-patient] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-system_admin] ___
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-org_admin] ____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-doctor] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-patient] _____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______ test_tc_c09_role_endpoint_matrix[GET /organisation-system_admin] _______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[GET /organisation-org_admin] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /organisation-doctor] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /organisation-patient] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /devices-system_admin] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /devices-org_admin] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /devices-doctor] _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /devices-patient] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /audit-system_admin] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /audit-org_admin] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_tc_c09_role_endpoint_matrix[GET /audit-doctor] ______________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_tc_c09_role_endpoint_matrix[GET /audit-patient] _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /accounts-system_admin] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /accounts-org_admin] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /accounts-doctor] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /accounts-patient] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[POST /accounts-system_admin] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[POST /accounts-org_admin] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[POST /accounts-doctor] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[POST /accounts-patient] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /patients-system_admin] _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /patients-org_admin] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /patients-doctor] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /patients-patient] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /alerts-system_admin] __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /alerts-org_admin] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_tc_c09_role_endpoint_matrix[GET /alerts-doctor] _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /alerts-patient] _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-doctor] __
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-system_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-org_admin] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-doctor] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-system_admin] ___
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-org_admin] _____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-doctor] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-patient] ______
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other doctor's patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other organisation's patient] _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c10_a_doctor_loses_access_when_the_patient_gets_another_doctor ____
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_tc_c10_a_patient_reads_only_their_own_data ________________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c10_an_org_admin_cannot_reach_another_organisation __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c10_an_org_admin_reads_no_ecg_and_exports_without_it _________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c11_the_system_admin_gets_no_patient_or_doctor_data __________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ______________ test_tc_c12_a_registered_system_admin_is_accepted _______________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ______ test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation _______
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 __________ test_tc_c12_requests_without_a_valid_bearer_token_get_401 ___________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ___ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[unregistered] ____
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ___ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role differs] ____
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _____ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[two roles] _____
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ______ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[no role] ______
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role from another org] _
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[other organisation] _
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[suspended organisation] _
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[admin from client org] _
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ____________ test_without_zitadel_config_authentication_answers_503 ____________
 ------------------------------ Captured log call -------------------------------
-WARNING  app.main:main.py:38 /nonexistent.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /nonexistent.json not found: authentication is disabled
 _________________ test_unknown_roles_in_the_token_are_ignored __________________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_a_disabled_user_gets_403_at_once _____________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________________ test_a_patient_sees_their_patient_id _____________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_creating_accounts_registers_them_in_zitadel_and_the_database _______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body0-422] ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body1-422] ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body2-422] ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body3-422] ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_a_zitadel_failure_leaves_no_rows _____________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_a_database_refusal_deletes_the_zitadel_user_again ____________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________________ test_a_pseudonym_is_unique_in_the_organisation ________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_disabling_a_doctor_ends_their_care_assignments ______________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_disabling_a_patient_returns_their_wearable ________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_a_zitadel_failure_keeps_the_account_enabled _______________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_org_admins_and_other_organisations_accounts_cannot_be_disabled ______
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_assigning_a_doctor_replaces_the_previous_one _______________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_issuing_and_returning_a_wearable _____________________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_only_an_active_wearable_granted_to_the_organisation_can_be_issued ____
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_disorders_and_exports_are_recorded_with_the_acting_user _________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________________ test_a_doctor_acknowledges_an_alert_once ___________________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_a_segment_comes_with_its_samples_and_classification ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_an_organisation_and_its_admin_are_created_in_zitadel ___________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________________ test_a_zitadel_failure_creates_no_organisation ________________
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_an_organisation_admin_needs_an_active_organisation_with_a_zitadel_organisation _
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_issuing_a_wearable_waits_for_a_concurrent_grant_revoke __________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_issuing_a_wearable_waits_for_a_concurrent_patient_disable ________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_assigning_a_doctor_waits_for_a_concurrent_doctor_disable _________
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _______________________ test_tc_c08_registry_round_trip ________________________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ______ test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session _______
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _____ test_revoking_a_device_revokes_its_credentials_and_closes_its_grant ______
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _______________ test_grants_need_an_existing_active_organisation _______________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _______________________ test_unknown_records_return_404 ________________________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ____________ test_registry_is_closed_without_authentication_config _____________
 ------------------------------ Captured log call -------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ____________ test_registry_is_for_the_system_admin_only[org_admin] _____________
 ------------------------------ Captured log call -------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ______________ test_registry_is_for_the_system_admin_only[doctor] ______________
 ------------------------------ Captured log call -------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _____________ test_registry_is_for_the_system_admin_only[patient] ______________
 ------------------------------ Captured log call -------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _________ test_a_write_that_fails_at_commit_is_not_reported_as_success _________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ____________________ test_livez_is_ok_without_dependencies _____________________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 _____________ test_healthz_reports_each_failed_dependency_with_503 _____________
 ------------------------------ Captured log setup ------------------------------
-WARNING  app.main:main.py:38 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:45 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
 ------------------------------ Captured log call -------------------------------
 WARNING  app.health:health.py:40 health check database failed: OperationalError
 WARNING  app.health:health.py:40 health check zitadel failed: ConnectError
@@ -109,19 +652,175 @@ _______________ coverage: platform linux, python 3.14.7-final-0 ________________
 Name                       Stmts   Miss Branch BrPart  Cover   Missing
 ----------------------------------------------------------------------
 app/__init__.py                0      0      0      0   100%
-app/auth.py                   58      1     24      1    98%   87
-app/db.py                     20      0      2      0   100%
+app/accounts.py               82      2     24      3    95%   77, 86, 151->153
+app/auth.py                   73      5     28      1    92%   95, 114-117
+app/care.py                   52      1      8      1    97%   109
+app/db.py                     31      0      2      0   100%
 app/health.py                 27      6      6      0    76%   16-21, 26-27
-app/main.py                   44      2      4      2    92%   35-36, 66->68
+app/main.py                   52      5      6      2    84%   37-43, 77->79
 app/manage.py                 32     32      2      0     0%   8-51
-app/registry.py              131      4     34      5    95%   226->229, 242, 272, 281, 283
-app/settings.py                7      0      0      0   100%
+app/organisation.py          116      1     30      1    99%   130
+app/registry.py              158      6     34      4    95%   157-159, 255->258, 272, 316, 318
+app/settings.py                8      0      0      0   100%
 app/tokens.py                 71      2     16      1    97%   40-41, 72->71
-app/zitadel_bootstrap.py      86     47     20      4    41%   48, 52, 55-57, 60-65, 68-73, 76-81, 97, 100, 106-134, 138
+app/zitadel.py                89      5     18      1    94%   62-63, 81-82, 106
+app/zitadel_bootstrap.py     115     67     24      3    38%   55, 59, 62-64, 67-72, 75-80, 83-88, 100, 103-104, 108-112, 120, 129-134, 138-175, 179
 ----------------------------------------------------------------------
-TOTAL                        476     94    108     13    79%
+TOTAL                        906    132    198     17    84%
 Coverage XML written to file /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-24/cloud/coverage.xml
 =========================== short test summary info ============================
+PASSED tests/integration/test_access.py::test_tc_c09_the_matrix_covers_every_endpoint
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-patient]
+PASSED tests/integration/test_access.py::test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other doctor's patient]
+PASSED tests/integration/test_access.py::test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other organisation's patient]
+PASSED tests/integration/test_access.py::test_tc_c10_a_doctor_loses_access_when_the_patient_gets_another_doctor
+PASSED tests/integration/test_access.py::test_tc_c10_a_patient_reads_only_their_own_data
+PASSED tests/integration/test_access.py::test_tc_c10_an_org_admin_cannot_reach_another_organisation
+PASSED tests/integration/test_access.py::test_tc_c10_an_org_admin_reads_no_ecg_and_exports_without_it
+PASSED tests/integration/test_access.py::test_tc_c11_the_system_admin_gets_no_patient_or_doctor_data
 PASSED tests/integration/test_auth.py::test_tc_c12_a_registered_system_admin_is_accepted
 PASSED tests/integration/test_auth.py::test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation
 PASSED tests/integration/test_auth.py::test_tc_c12_requests_without_a_valid_bearer_token_get_401
@@ -135,6 +834,32 @@ PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_matc
 PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[admin from client org]
 PASSED tests/integration/test_auth.py::test_without_zitadel_config_authentication_answers_503
 PASSED tests/integration/test_auth.py::test_unknown_roles_in_the_token_are_ignored
+PASSED tests/integration/test_auth.py::test_a_disabled_user_gets_403_at_once
+PASSED tests/integration/test_auth.py::test_a_patient_sees_their_patient_id
+PASSED tests/integration/test_organisation.py::test_creating_accounts_registers_them_in_zitadel_and_the_database
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body0-422]
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body1-422]
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body2-422]
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body3-422]
+PASSED tests/integration/test_organisation.py::test_a_zitadel_failure_leaves_no_rows
+PASSED tests/integration/test_organisation.py::test_a_database_refusal_deletes_the_zitadel_user_again
+PASSED tests/integration/test_organisation.py::test_a_pseudonym_is_unique_in_the_organisation
+PASSED tests/integration/test_organisation.py::test_disabling_a_doctor_ends_their_care_assignments
+PASSED tests/integration/test_organisation.py::test_disabling_a_patient_returns_their_wearable
+PASSED tests/integration/test_organisation.py::test_a_zitadel_failure_keeps_the_account_enabled
+PASSED tests/integration/test_organisation.py::test_org_admins_and_other_organisations_accounts_cannot_be_disabled
+PASSED tests/integration/test_organisation.py::test_assigning_a_doctor_replaces_the_previous_one
+PASSED tests/integration/test_organisation.py::test_issuing_and_returning_a_wearable
+PASSED tests/integration/test_organisation.py::test_only_an_active_wearable_granted_to_the_organisation_can_be_issued
+PASSED tests/integration/test_organisation.py::test_disorders_and_exports_are_recorded_with_the_acting_user
+PASSED tests/integration/test_organisation.py::test_a_doctor_acknowledges_an_alert_once
+PASSED tests/integration/test_organisation.py::test_a_segment_comes_with_its_samples_and_classification
+PASSED tests/integration/test_organisation.py::test_an_organisation_and_its_admin_are_created_in_zitadel
+PASSED tests/integration/test_organisation.py::test_a_zitadel_failure_creates_no_organisation
+PASSED tests/integration/test_organisation.py::test_an_organisation_admin_needs_an_active_organisation_with_a_zitadel_organisation
+PASSED tests/integration/test_organisation.py::test_issuing_a_wearable_waits_for_a_concurrent_grant_revoke
+PASSED tests/integration/test_organisation.py::test_issuing_a_wearable_waits_for_a_concurrent_patient_disable
+PASSED tests/integration/test_organisation.py::test_assigning_a_doctor_waits_for_a_concurrent_doctor_disable
 PASSED tests/integration/test_registry.py::test_tc_c08_registry_round_trip
 PASSED tests/integration/test_registry.py::test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session
 PASSED tests/integration/test_registry.py::test_revoking_a_device_revokes_its_credentials_and_closes_its_grant
@@ -157,6 +882,7 @@ PASSED tests/integration/test_stack.py::test_tc_c01_every_service_is_healthy
 PASSED tests/integration/test_stack.py::test_tc_c01_healthz_reports_every_dependency_ok
 PASSED tests/integration/test_stack.py::test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy
 PASSED tests/integration/test_stack.py::test_tc_c12_a_real_zitadel_token_works_once_the_user_is_registered
+PASSED tests/integration/test_stack.py::test_tc_c13_account_creation_shows_up_in_zitadel_and_in_users
 PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_DATABASE_URL]
 PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_ZITADEL_URL]
 PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_EMQX_STATUS_URL]
@@ -179,4 +905,11 @@ PASSED tests/unit/test_tokens.py::test_tc_c12_other_algorithms_are_refused[none]
 PASSED tests/unit/test_tokens.py::test_a_garbage_token_is_refused
 PASSED tests/unit/test_tokens.py::test_a_token_without_role_or_organisation_claims_is_refused
 PASSED tests/unit/test_tokens.py::test_rotated_keys_are_picked_up_without_a_restart
-======================== 57 passed, 1 warning in 58.05s ========================
+PASSED tests/unit/test_zitadel.py::test_creating_a_user_grants_the_role_through_the_project_grant
+PASSED tests/unit/test_zitadel.py::test_a_failed_grant_deletes_the_new_user
+PASSED tests/unit/test_zitadel.py::test_only_organisation_roles_can_be_granted
+PASSED tests/unit/test_zitadel.py::test_an_organisation_gets_the_project_granted_or_is_deleted_again
+PASSED tests/unit/test_zitadel.py::test_a_replaced_token_is_reloaded_after_a_401
+PASSED tests/unit/test_zitadel.py::test_an_unreachable_zitadel_is_an_error_with_status_0
+PASSED tests/unit/test_zitadel.py::test_deactivating_an_already_inactive_user_succeeds
+================== 243 passed, 1 warning in 107.80s (0:01:47) ==================

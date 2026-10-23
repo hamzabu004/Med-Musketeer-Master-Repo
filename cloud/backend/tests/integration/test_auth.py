@@ -51,7 +51,7 @@ def test_tc_c12_a_registered_system_admin_is_accepted(client, db, key):
     user_id = register(db, "admin-sub", "system_admin")
     response = client.get("/me", headers=bearer(key.token(sub="admin-sub")))
     assert response.status_code == 200
-    assert response.json() == {"user_id": str(user_id), "role": "system_admin", "org_id": None}
+    assert response.json() == {"user_id": str(user_id), "role": "system_admin", "org_id": None, "patient_id": None}
     assert client.get("/admin/devices", headers=bearer(key.token(sub="admin-sub"))).status_code == 200
 
 
@@ -60,7 +60,7 @@ def test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation(client, db
     user_id = register(db, "doc-sub", "doctor", org_id)
     token = key.token(sub="doc-sub", roles={"doctor": {"z-org-a": "a"}}, org="z-org-a")
     assert client.get("/me", headers=bearer(token)).json() == {
-        "user_id": str(user_id), "role": "doctor", "org_id": str(org_id)}
+        "user_id": str(user_id), "role": "doctor", "org_id": str(org_id), "patient_id": None}
     assert client.get("/admin/devices", headers=bearer(token)).status_code == 403  # D9: registry is system admin only
 
 
@@ -109,3 +109,21 @@ def test_unknown_roles_in_the_token_are_ignored(client, db, key):
     register(db, "admin", "system_admin")
     token = key.token(sub="admin", roles={"system_admin": {DEFAULT_ORG_ID: "d"}, "zitadel_internal": {DEFAULT_ORG_ID: "d"}})
     assert client.get("/me", headers=bearer(token)).status_code == 200
+
+
+def test_a_disabled_user_gets_403_at_once(client, db, key):
+    org_id = org_with_zitadel_id(db, "z-org-a")
+    register(db, "doc-sub", "doctor", org_id)
+    token = key.token(sub="doc-sub", roles={"doctor": {"z-org-a": "a"}}, org="z-org-a")
+    assert client.get("/me", headers=bearer(token)).status_code == 200
+    db.execute(text("UPDATE users SET status = 'disabled' WHERE zitadel_sub = 'doc-sub'"))
+    assert client.get("/me", headers=bearer(token)).status_code == 403
+
+
+def test_a_patient_sees_their_patient_id(client, db, key):
+    org_id = org_with_zitadel_id(db, "z-org-a")
+    user_id = register(db, "pat-sub", "patient", org_id)
+    patient_id = db.scalar(text("INSERT INTO patients (user_id, org_id, pseudonym) VALUES (:u, :o, 'P-1') RETURNING patient_id"),
+                           {"u": user_id, "o": org_id})
+    token = key.token(sub="pat-sub", roles={"patient": {"z-org-a": "a"}}, org="z-org-a")
+    assert client.get("/me", headers=bearer(token)).json()["patient_id"] == str(patient_id)

@@ -36,14 +36,22 @@ curl -s http://127.0.0.1:8000/healthz
 |---|---|
 | `GET /livez` | The process is up (used by the container health check) |
 | `GET /healthz` | Database (with the TimescaleDB extension), ZITADEL and EMQX reachable; 503 if any is not |
-| `GET /me` | The caller's user id, role and organisation (every role) |
-| `/admin/...` | System-admin registry: organisations, devices, credentials, device grants |
+| `GET /me` | The caller's user id, role, organisation and (patients) patient id |
+| `/admin/...` | System admin: organisations and their admins, devices, credentials, device grants, registry audit log, security events |
+| `/organisation`, `/devices`, `/audit` | Own organisation, its devices (doctor: their patients' wearables), its audit log (org admin) |
+| `/accounts` | Org admin: create (in ZITADEL and `users`, returns an invite code), list, disable doctor and patient accounts |
+| `/patients/...` | Org admin: patients, doctor assignment, wearable issue/return, disorders, exports. Doctor: their patients and disorders |
+| `/alerts`, `/patients/{id}/alerts`, `/patients/{id}/segments`, `/segments/{id}` | Doctor (own patients) and patient (self): alerts, acknowledgement (doctor), ECG segments with samples |
 
-Every endpoint except `/livez` and `/healthz` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from a user registered in `users` with the same role (`app/auth.py`).
+Every endpoint except `/livez` and `/healthz` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from an active user registered in `users` with the same role (`app/auth.py`). Who may call what is the D9 matrix in `docs/decisions/cloud-backend.md`, tested in full by TC-C09. The interactive API description is at http://127.0.0.1:8000/docs.
 
 ## ZITADEL set-up
 
 The one-off `zitadel-bootstrap` job runs on every `up`. With the IAM_OWNER service account `mm-bootstrap` (created on ZITADEL's first start; its token stays in the `zitadel-bootstrap` volume, which the API does not mount), it creates the `MedMusketeer` project and its roles `system_admin`, `org_admin`, `doctor`, `patient`, grants `system_admin` to ZITADEL's first admin, and writes `zitadel.json` (issuer, project id, default organisation id) to the `mm-config` volume for the API.
+
+It also creates the API's own service account `mm-api` with the instance role `IAM_ORG_MANAGER` and writes its token to the `mm-secrets` volume (mounted read-only by the API, mode 0600). The API uses it to create organisations, organisation admins, doctors and patients in ZITADEL. The token is valid for a year; the job replaces it when it is missing or no longer works, and the API reloads it when ZITADEL refuses the old one. Without it, account and organisation creation answer 503.
+
+New accounts get no password: the API returns an invite code once, which the person redeems in ZITADEL's login to set their own credentials.
 
 Register the first admin as the MedMusketeer system admin once; the job's log prints the exact command:
 

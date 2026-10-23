@@ -279,7 +279,7 @@ Full table with columns and types: mid report §5 "Data Design" (Table "Cloud sc
 
 | Group | Tables |
 |---|---|
-| People and organisations | `organisations`, `users` (`zitadel_sub`, `role`, `org_id`), `patients` (pseudonym only), `care_assignments`, `patient_disorders`, `patient_exports` |
+| People and organisations | `organisations`, `users` (`zitadel_sub`, `role`, `org_id`, `status`), `patients` (pseudonym only), `care_assignments`, `patient_disorders`, `patient_exports`, `audit_log` (added in Iteration 3, `cloud-backend.md` D11) |
 | Devices | `devices`, `device_grants`, `device_assignments`, `device_credentials`, `device_updates` (only if remote updates are adopted) |
 | ECG and alerts | `monitoring_sessions`, `ecg_segments` (kind alert or recording), `ecg_chunks` (hypertable on `ts`), `classifications`, `alerts` (pushed via NOTIFY), `commands` |
 | Security | `replay_windows`, `security_events` (hypertable on `ts`), `attack_tests` |
@@ -294,7 +294,7 @@ Full table with columns and types: mid report §5 "Data Design" (Table "Cloud sc
 
 **Human IAM is separate from device authentication.** ZITADEL handles **people** — system admin, organisation admins, doctors, patients — including login, OIDC/OAuth tokens, MFA and organisations. Routine IAM operations are exposed through the MedMusketeer admin UI via FastAPI calling ZITADEL's management APIs; admins should not need to open the ZITADEL console during normal operation. MedMusketeer/Postgres references each person by their ZITADEL subject (`users.zitadel_sub`, with `role` and `org_id` as data) and stores the application-domain relationships: organisation membership, device grants to organisations (`device_grants`), patient↔wearable issue history (`device_assignments`), and doctor↔patient care assignments (`care_assignments`).
 
-**Access rules (Decided, report §5 Data security):** the API checks the role, the user's organisation, and the doctor assignment for every patient record, and filters ECG data on the `patient_id` and `org_id` carried by its session and segment. Only the system admin sees the registry, device grants, security events and attack tests, and the system admin sees **no** patient or doctor records. Grants, issues, assignments and exports are logged with the acting user.
+**Access rules (Decided, report §5 Data security):** the API checks the role, the user's organisation, and the doctor assignment for every patient record, and filters ECG data on the `patient_id` and `org_id` carried by its session and segment. Only the system admin sees the registry, device grants, security events and attack tests, and the system admin sees **no** patient or doctor records. Grants, issues, assignments, exports and account changes are logged with the acting user (`audit_log`, `cloud-backend.md` D11). The API's ZITADEL access for account administration is a service account with the instance role `IAM_ORG_MANAGER` (D12).
 
 **Device identity is protocol/authentication-neutral.** The registered MedMusketeer device security principals are the **wearable** and the **fixed gateway**. Each has a stable canonical `device_id` that is independent of whichever credential/authentication scheme is currently under test. The Android mobile relay is deliberately excluded from the device-identity model.
 

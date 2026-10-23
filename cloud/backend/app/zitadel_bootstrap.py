@@ -6,7 +6,9 @@ Idempotent, so it runs on every `compose up`:
 2. the four project roles (D2);
 3. the system_admin role for ZITADEL's first human admin (zitadel-admin@...), so the instance admin
    can act as the MedMusketeer system admin once registered with `python -m app.manage`;
-4. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id"}.
+4. the API's service account `mm-api` with the instance role IAM_ORG_MANAGER (D12), and a token for
+   it in MM_ZITADEL_API_TOKEN_FILE (replaced when it is missing or no longer works);
+5. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id"}.
 
 Uses the IAM_OWNER service account token created by ZITADEL's first start
 (ZITADEL_FIRSTINSTANCE_PATPATH). Run: python -m app.zitadel_bootstrap
@@ -15,6 +17,7 @@ import json
 import logging
 import os
 import sys
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -28,6 +31,10 @@ PROJECT_NAME = "MedMusketeer"
 ROLE_NAMES = {"system_admin": "System admin", "org_admin": "Organisation admin", "doctor": "Doctor", "patient": "Patient"}
 # ZITADEL stores the first admin as zitadel-admin@<organisation domain>.
 FIRST_ADMIN_USERNAME_PREFIX = "zitadel-admin@"
+# The API's service account: organisations, their users and grants, nothing instance-wide.
+API_SERVICE_ACCOUNT = "mm-api"
+API_INSTANCE_ROLE = "IAM_ORG_MANAGER"
+API_TOKEN_LIFETIME = timedelta(days=365)
 
 
 class Zitadel:
@@ -89,6 +96,22 @@ class Zitadel:
         secret = self.call("PUT", f"/management/v1/users/{user_id}/secret", org=org)
         return secret["clientId"], secret["clientSecret"]
 
+    def ensure_instance_member(self, user_id: str, roles: list[str]) -> None:
+        self.call("POST", "/admin/v1/members", ok=(200, 409), json={"userId": user_id, "roles": roles})
+
+    def token_works(self, token: str) -> bool:
+        response = self.http.get("/auth/v1/users/me", headers={"Authorization": f"Bearer {token}"})
+        return response.status_code == 200
+
+    def replace_personal_access_token(self, org: str, user_id: str, lifetime: timedelta) -> str:
+        """A new token for the service account; its earlier tokens are deleted."""
+        existing = self.call("POST", f"/management/v1/users/{user_id}/pats/_search", org=org, json={})
+        for pat in existing.get("result", []):
+            self.call("DELETE", f"/management/v1/users/{user_id}/pats/{pat['id']}", org=org)
+        expires = (datetime.now(UTC) + lifetime).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return self.call("POST", f"/management/v1/users/{user_id}/pats", org=org,
+                         json={"expirationDate": expires})["token"]
+
     def ensure_user_grant(self, org: str, user_id: str, project_id: str, roles: list[str],
                           project_grant_id: str | None = None) -> None:
         found = self.call("POST", "/management/v1/users/grants/_search", org=org, json={"queries": [
@@ -102,12 +125,22 @@ class Zitadel:
         log.info("granted %s to user %s", roles, user_id)
 
 
+def write_private(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".tmp")
+    temporary.unlink(missing_ok=True)
+    temporary.touch(mode=0o600)
+    temporary.write_text(content)
+    temporary.replace(path)
+
+
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     url = os.environ["MM_ZITADEL_URL"]
     issuer = os.environ["MM_ZITADEL_ISSUER"]
     token = Path(os.environ["MM_ZITADEL_ADMIN_PAT_FILE"]).read_text().strip()
     config_file = Path(os.environ["MM_ZITADEL_CONFIG_FILE"])
+    api_token_file = Path(os.environ["MM_ZITADEL_API_TOKEN_FILE"])
 
     if set(ROLE_NAMES) != set(ROLES):
         raise SystemExit("ROLE_NAMES and app.auth.ROLES disagree")
@@ -121,6 +154,14 @@ def main() -> int:
         zitadel.ensure_user_grant(default_org, admin_id, project_id, ["system_admin"])
     else:
         log.warning("first admin %r... not found; no system admin granted", FIRST_ADMIN_USERNAME_PREFIX)
+
+    api_user = zitadel.find_user(default_org, API_SERVICE_ACCOUNT) or zitadel.create_machine_user(
+        default_org, API_SERVICE_ACCOUNT, "MedMusketeer API")
+    zitadel.ensure_instance_member(api_user, [API_INSTANCE_ROLE])
+    if not (api_token_file.is_file() and zitadel.token_works(api_token_file.read_text().strip())):
+        api_token = zitadel.replace_personal_access_token(default_org, api_user, API_TOKEN_LIFETIME)
+        write_private(api_token_file, api_token)
+        log.info("wrote a new token for %s to %s", API_SERVICE_ACCOUNT, api_token_file)
 
     config = {"issuer": issuer, "project_id": project_id, "default_org_id": default_org}
     config_file.parent.mkdir(parents=True, exist_ok=True)
