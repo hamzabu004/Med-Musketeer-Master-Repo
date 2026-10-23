@@ -1,0 +1,6 @@
+{
+  "name": "MedMusketeer Gateway Setup",
+  "description": "Provisions Wi-Fi and MQTT broker connection settings to MedMusketeer ESP32-S3 gateways over BLE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

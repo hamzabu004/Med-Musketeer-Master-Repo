@@ -16,7 +16,7 @@ container that stands in for the Pi; **H** needs the ESP32-S3, phone, or Pi (see
 | TC-P02 | A | `test_report_cases::test_tc_p02_cli_issued_certificate_verifies_against_ca[*]` | Verified independently with `openssl verify`. |
 | TC-P03 | A-mock + H | `test_flash::test_flash_builds_nvs_writes_verifies_then_removes_key` | Real flash: procedure H-P03. |
 | TC-P04 | A-mock + H | `test_ssh::test_deploy_approves_new_host_uploads_and_verifies_gateway_files` | Real Pi: procedure H-P04. |
-| TC-P05 to TC-P10, TC-P12 | H | — | Firmware on the board and the phone app. `apps/provisioner/` is empty in the repo. |
+| TC-P05 to TC-P10, TC-P12 | H | — | Firmware on the board and the phone app (`apps/provisioner/`). |
 | TC-P11 | A | `test_repo_hygiene::*` | Tracked and untracked-not-ignored files; names and PEM content. |
 | TC-A01 | A | `test_ca::test_ca_and_leaf_profiles_and_encrypted_ca_key`, `test_ca::test_gateway_profile_includes_role_san_and_both_ekus`, `test_report_cases::test_tc_a01_leaf_profiles_match_design[*]` | Both key types. |
 | TC-A02 | A | `test_report_cases::test_tc_a02_chain_verification_and_foreign_ca_rejection` | `openssl verify` with purpose and role-name checks; foreign CA rejected. |
