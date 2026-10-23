@@ -1,0 +1,29 @@
+{
+  "case": "erase-tls",
+  "started": "2026-10-22T09:45:02+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "mmca erase esp tls",
+      "seconds": 4.9,
+      "partitions": [
+        {
+          "name": "creds",
+          "offset": "0x1d0000"
+        }
+      ]
+    },
+    {
+      "step": "independent blank check",
+      "creds": true
+    },
+    {
+      "step": "boot log",
+      "creds_loaded": false,
+      "saved_wifi_used": false,
+      "advertising": true
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T09:45:33+00:00"
+}

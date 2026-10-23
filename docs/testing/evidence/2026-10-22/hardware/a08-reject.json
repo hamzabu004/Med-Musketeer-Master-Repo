@@ -1,0 +1,15 @@
+{
+  "case": "a08-reject",
+  "started": "2026-10-22T11:02:20+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "deploy to unknown host, approval refused",
+      "error": "SafetyError: Unknown SSH host was not approved",
+      "known_hosts_created": false,
+      "remote_unchanged": true
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T11:02:21+00:00"
+}

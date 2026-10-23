@@ -1,0 +1,41 @@
+# Pi /etc/mosquitto/certs before TC-P04 (backup /root/mm-certs-backup-20261022.tgz on the Pi):
+2ba7390748ed92412da4eb980c132c7fdd829015a7a27afce741cabffb1580f5  /etc/mosquitto/certs/ca.crt
+c7e7da3bd4dc37f0c8ebf552903aef7b2ef3df52bd14238a73847e7916d99bcb  /etc/mosquitto/certs/gateway.crt
+779b6e617de59b06b4563c553cef721df53d1e2739ae061cc8ef5eed08324a1f  /etc/mosquitto/certs/gateway.key
+
+# After restore:
+$ sudo -S -p '' grep -cE 'from 10.42.0.239' /var/log/mosquitto/mosquitto.log; sudo grep -E '10.42.0.239' /var/log/mosquitto/mosquitto.log | tail -3
+17
+1792666999: New connection from 10.42.0.239:51098 on port 8883.
+1792667010: New connection from 10.42.0.239:51099 on port 8883.
+1792667020: New connection from 10.42.0.239:51100 on port 8883.
+
+$ sudo -S -p '' tar -C /etc/mosquitto -xzf /root/mm-certs-backup-20261022.tgz && sudo rm -f /etc/mosquitto/certs/*.bak.20261022T110232Z-69f7c1f8 && sudo systemctl restart mosquitto && systemctl is-active mosquitto
+active
+
+$ sudo -S -p '' sha256sum /etc/mosquitto/certs/ca.crt /etc/mosquitto/certs/gateway.crt /etc/mosquitto/certs/gateway.key; sudo stat -c '%n %U:%G %a' /etc/mosquitto/certs /etc/mosquitto/certs/*; sudo ls /etc/mosquitto/certs
+2ba7390748ed92412da4eb980c132c7fdd829015a7a27afce741cabffb1580f5  /etc/mosquitto/certs/ca.crt
+c7e7da3bd4dc37f0c8ebf552903aef7b2ef3df52bd14238a73847e7916d99bcb  /etc/mosquitto/certs/gateway.crt
+779b6e617de59b06b4563c553cef721df53d1e2739ae061cc8ef5eed08324a1f  /etc/mosquitto/certs/gateway.key
+/etc/mosquitto/certs root:mosquitto 750
+ca.crt
+ca.crt.bak.20261022T110232Z-69f7c1f8
+gateway.crt
+gateway.crt.bak.20261022T110232Z-69f7c1f8
+gateway.key
+gateway.key.bak.20261022T110232Z-69f7c1f8
+README
+stat: cannot statx '/etc/mosquitto/certs/*': No such file or directory
+
+$ sleep 25; sudo tail -n 4 /var/log/mosquitto/mosquitto.log
+1792667023: Opening ipv4 listen socket on port 1883.
+1792667023: mosquitto version 2.0.21 running
+1792667031: New connection from 10.42.0.239:51101 on port 8883.
+1792667033: New client connected from 10.42.0.239:51101 as ESP32_da7EEC (p2, c1, k20, u'8f0f5194-93bf-4e1d-8e72-f96fa1f3df21').
+
+$ sudo -S -p '' sh -c 'rm -f /etc/mosquitto/certs/*.bak.20261022T110232Z-69f7c1f8; stat -c "%n %U:%G %a" /etc/mosquitto/certs/*'
+/etc/mosquitto/certs/README root:mosquitto 644
+/etc/mosquitto/certs/ca.crt root:mosquitto 640
+/etc/mosquitto/certs/gateway.crt root:mosquitto 640
+/etc/mosquitto/certs/gateway.key root:mosquitto 640
+

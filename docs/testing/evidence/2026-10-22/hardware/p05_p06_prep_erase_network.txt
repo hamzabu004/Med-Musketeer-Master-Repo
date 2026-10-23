@@ -1,0 +1,7 @@
+Chip: ESP32-S3; MAC: B8:1F:3F:DA:7E:EC; flash: 16777216 bytes
+Will erase the `nvs` partition at 0x9000 (24576 bytes) on /dev/ttyACM0.
+This clears the Wi-Fi SSID and password, MQTT broker host and port, Wi-Fi driver state, and BLE bonds.
+TLS credentials in the separate creds partition will be left untouched.
+Type ERASE ESP NETWORK SETTINGS to continue: Erased and verified the ESP nvs partition at 0x9000.
+TLS credentials were left untouched.
+Remove the old gateway pairing on the phone, then provision Wi-Fi again over BLE.

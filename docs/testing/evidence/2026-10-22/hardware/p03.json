@@ -1,0 +1,54 @@
+{
+  "case": "p03",
+  "started": "2026-10-22T09:43:38+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "issued scratch wearable",
+      "device_id": "7221a056-fc9b-4e8c-b820-fe49725a8a09",
+      "cert_sha256": "61a67fc3883fda11005ad7a219b6b5905c1a849892995100233dbf0ed63a4d7e"
+    },
+    {
+      "step": "mmca flash",
+      "seconds": 5.4,
+      "port": "/dev/ttyACM0",
+      "chip_mac": "B8:1F:3F:DA:7E:EC",
+      "flash_size": 16777216,
+      "partition_offset": 1900544,
+      "partition_size": 196608,
+      "fingerprint": "1197F010BA09EDB2D2432781AA31AC6645C9680346863F086F1AD6C33CF08444"
+    },
+    {
+      "step": "local state",
+      "key_removed": true,
+      "flashed": true,
+      "chip_mac": "B8:1F:3F:DA:7E:EC"
+    },
+    {
+      "step": "independent read of creds partition",
+      "sha256": "4cf1d80905539ed44c11f370994666ca0af78fceeb136053a210a8793003c48e",
+      "device_cert_present": true,
+      "ca_cert_present": true
+    },
+    {
+      "step": "audit",
+      "events": [
+        [
+          "issue",
+          "success"
+        ],
+        [
+          "flash",
+          "success"
+        ]
+      ]
+    },
+    {
+      "step": "boot log",
+      "creds_loaded": true,
+      "alert_topic_uses_new_cn": true
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T09:44:10+00:00"
+}

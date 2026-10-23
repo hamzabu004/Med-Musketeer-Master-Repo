@@ -1,0 +1,214 @@
+[
+  {
+    "mode": "pair",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:16:08+00:00"
+      },
+      {
+        "step": "pair (passkey typed by the tester)",
+        "at": "2026-10-22T11:16:18+00:00",
+        "paired_per_bluez": true,
+        "seconds": 10.0
+      }
+    ]
+  },
+  {
+    "mode": "invalid",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:16:18+00:00"
+      },
+      {
+        "step": "invalid: empty SSID",
+        "at": "2026-10-22T11:16:18+00:00",
+        "payload": {
+          "ssid": "",
+          "password": "12345678",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.INVALID_ATTRIBUTE_VALUE_LENGTH: 13>, 'GATT Protocol Error: Invalid Attribute Value Length')",
+        "seconds": 0.11
+      },
+      {
+        "step": "invalid: password too short",
+        "at": "2026-10-22T11:16:20+00:00",
+        "payload": {
+          "ssid": "x",
+          "password": "short",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.INVALID_ATTRIBUTE_VALUE_LENGTH: 13>, 'GATT Protocol Error: Invalid Attribute Value Length')",
+        "seconds": 0.12
+      },
+      {
+        "step": "invalid: bad broker host",
+        "at": "2026-10-22T11:16:21+00:00",
+        "payload": {
+          "ssid": "x",
+          "password": "12345678",
+          "broker_host": "bad host!",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.INVALID_ATTRIBUTE_VALUE_LENGTH: 13>, 'GATT Protocol Error: Invalid Attribute Value Length')",
+        "seconds": 0.12
+      },
+      {
+        "step": "invalid: port out of range",
+        "at": "2026-10-22T11:16:22+00:00",
+        "payload": {
+          "ssid": "x",
+          "password": "12345678",
+          "broker_host": "10.42.0.1",
+          "broker_port": 70000
+        },
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.INVALID_ATTRIBUTE_VALUE_LENGTH: 13>, 'GATT Protocol Error: Invalid Attribute Value Length')",
+        "seconds": 0.12
+      },
+      {
+        "step": "invalid: missing fields",
+        "at": "2026-10-22T11:16:23+00:00",
+        "payload": {
+          "ssid": "x"
+        },
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.INVALID_ATTRIBUTE_VALUE_LENGTH: 13>, 'GATT Protocol Error: Invalid Attribute Value Length')",
+        "seconds": 0.12
+      },
+      {
+        "step": "invalid: not JSON",
+        "at": "2026-10-22T11:16:24+00:00",
+        "payload": "not json",
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.INVALID_ATTRIBUTE_VALUE_LENGTH: 13>, 'GATT Protocol Error: Invalid Attribute Value Length')",
+        "seconds": 0.08
+      }
+    ]
+  },
+  {
+    "mode": "wrong-wifi",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:16:25+00:00"
+      },
+      {
+        "step": "wrong-wifi",
+        "at": "2026-10-22T11:16:25+00:00",
+        "payload": {
+          "ssid": "f-gateway-AP",
+          "password": "wrong-password-123",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": true,
+        "seconds": 0.08
+      }
+    ]
+  },
+  {
+    "mode": "wait:45",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:16:25+00:00"
+      },
+      {
+        "step": "waited 45 s",
+        "at": "2026-10-22T11:17:10+00:00"
+      }
+    ]
+  },
+  {
+    "mode": "restore",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:17:10+00:00"
+      },
+      {
+        "step": "restore",
+        "at": "2026-10-22T11:17:10+00:00",
+        "payload": {
+          "ssid": "f-gateway-AP",
+          "password": "<hotspot password>",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": true,
+        "seconds": 0.09
+      }
+    ]
+  },
+  {
+    "mode": "wait:40",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:17:10+00:00"
+      },
+      {
+        "step": "waited 40 s",
+        "at": "2026-10-22T11:17:50+00:00"
+      }
+    ]
+  },
+  {
+    "mode": "drop",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:17:50+00:00"
+      },
+      {
+        "step": "write then immediate disconnect",
+        "at": "2026-10-22T11:17:52+00:00",
+        "payload": {
+          "ssid": "f-gateway-AP",
+          "password": "<hotspot password>",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": true,
+        "seconds": 0.1
+      }
+    ]
+  },
+  {
+    "mode": "write-unpaired",
+    "steps": [
+      {
+        "step": "connected",
+        "at": "2026-10-22T11:18:47+00:00"
+      },
+      {
+        "step": "pair (passkey typed by the tester)",
+        "at": "2026-10-22T11:18:57+00:00",
+        "error": "BleakDBusError: [org.bluez.Error.AuthenticationFailed] Authentication Failed",
+        "paired_per_bluez": false,
+        "seconds": 9.5
+      },
+      {
+        "step": "write after failed pairing",
+        "at": "2026-10-22T11:18:57+00:00",
+        "payload": {
+          "ssid": "P12-WRONG-PASSKEY",
+          "password": "12345678",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "BleakGATTProtocolError: (<BleakGATTProtocolErrorCode.UNLIKELY_ERROR: 14>, 'GATT Protocol Error: Unlikely Error')",
+        "seconds": 0.04
+      }
+    ]
+  }
+]

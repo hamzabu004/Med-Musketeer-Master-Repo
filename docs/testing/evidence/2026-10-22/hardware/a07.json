@@ -1,0 +1,25 @@
+{
+  "case": "a07",
+  "started": "2026-10-22T09:44:17+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "wrote partition table without creds",
+      "table_sha256": "f561d5678cbd44bf101d2bfca9c38b04f6adb45d0dea499bb1700a6c51a09615"
+    },
+    {
+      "step": "mmca flash",
+      "device_id": "8e37379e-70d0-446b-94bc-388d41e5e951",
+      "error": "SafetyError: No `creds` partition found; flash firmware containing it first",
+      "key_kept": true,
+      "flashed": false,
+      "creds_region_unchanged": true
+    },
+    {
+      "step": "restored original partition table",
+      "identical": true
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T09:44:25+00:00"
+}

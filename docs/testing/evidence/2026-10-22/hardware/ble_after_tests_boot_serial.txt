@@ -1,0 +1,132 @@
+[   0.000] --- host: hard reset via RTS ---
+[   0.301] I (126) esp_image: segment 1: paddr=0003cc5c vaddr=3fc9d900 sizeESP-ROM:esp32s3-20210327
+[   0.302] Build:Mar 27 2021
+[   0.302] rst:0x15 (USB_UART_CHIP_RESET),boot:0x8 (SPI_FAST_FLASH_BOOT)
+[   0.302] Saved PC:0x4038112e
+[   0.302] SPIWP:0xee
+[   0.302] mode:DIO, clock div:1
+[   0.302] load:0x3fce2820,len:0x14f0
+[   0.302] load:0x403c8700,len:0xde4
+[   0.302] load:0x403cb700,len:0x2f58
+[   0.302] entry 0x403c8904
+[   0.302] I (24) boot: ESP-IDF v6.1 2nd stage bootloader
+[   0.302] I (24) boot: compile time Oct 14 2026 01:10:13
+[   0.302] I (25) boot: Multicore bootloader
+[   0.302] I (25) boot: chip revision: v0.2
+[   0.302] I (27) boot: efuse block revision: v1.4
+[   0.302] I (31) boot.esp32s3: Boot SPI Speed : 80MHz
+[   0.302] I (35) boot.esp32s3: SPI Mode       : DIO
+[   0.302] I (39) boot.esp32s3: SPI Flash Size : 2MB
+[   0.302] I (42) boot: Enabling RNG early entropy source...
+[   0.302] I (47) boot: Partition Table:
+[   0.302] I (49) boot: ## Label            Usage          Type ST Offset   Length
+[   0.302] I (56) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+[   0.302] I (62) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+[   0.302] I (69) boot:  2 factory          factory app      00 00 00010000 001c0000
+[   0.302] I (75) boot:  3 creds            WiFi data        01 02 001d0000 00030000
+[   0.302] I (82) boot: End of partition table
+[   0.302] I (85) esp_image: segment 0: paddr=00010020 vaddr=3c0e0020 size=2cc34h (183348) map
+[   0.302] I (126) esp_image: segment 1: paddr=0003cc5c vaddr=3fc9d900 size=033bch ( 13244) load
+[   0.302] I (129) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=d9e40h (892480) map
+[   0.302] I (293) esp_image: segment 3: paddr=00119e68 vaddr=3fca0cbc size=022a0h (  8864) load
+[   0.302] I (295) esp_image: segment 4: paddr=0011c110 vaddr=40374000 size=1984ch (104524) load
+[   0.503] I (320) esp_image: segment 5: paddr=00135964 vaddr=50000000 size=00024h (    36) load
+[   0.503] I (331) boot: Loaded app from partition at offset 0x10000
+[   0.503] I (331) boot: Disabling RNG early entropy source...
+[   0.503] I (342) cpu_start: Multicore app
+[   0.503] I (350) cpu_start: GPIO 44 and 43 are used as console UART I/O pins
+[   0.503] I (351) cpu_start: Pro cpu start user code
+[   0.503] I (351) cpu_start: cpu freq: 160000000 Hz
+[   0.503] I (352) app_init: Application information:
+[   0.503] I (356) app_init: Project name:     medmusketeer_gateway
+[   0.503] I (361) app_init: App version:      ff86c1b-dirty
+[   0.503] I (366) app_init: Compile time:     Oct 22 2026 15:48:19
+[   0.503] I (371) app_init: ELF file SHA256:  0fa938887...
+[   0.503] I (375) app_init: ESP-IDF:          v6.1
+[   0.503] I (379) efuse_init: Min chip rev:     v0.0
+[   0.503] I (383) efuse_init: Max chip rev:     v0.99 
+[   0.503] I (387) efuse_init: Chip rev:         v0.2
+[   0.503] I (390) heap_init: Initializing. RAM available for dynamic allocation:
+[   0.504] I (397) heap_init: At 3FCAB090 len 0003E680 (249 KiB): RAM
+[   0.504] I (402) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+[   0.504] I (407) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+[   0.504] I (412) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM
+[   0.504] I (419) spi_flash: detected chip: generic
+[   0.504] I (421) spi_flash: flash io: dio
+[   0.504] W (424) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+[   0.504] I (437) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[   0.504] I (443) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[   0.504] I (458) main_task: Started on CPU0
+[   0.504] I (458) main_task: Calling app_main()
+[   0.704] I (598) gateway_app: Fixed gateway onboarding build
+[   0.704] I (668) fixed_gateway: Periodic alert topic: mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert
+[   0.704] I (668) fixed_gateway: Loaded TLS credentials from the read-only creds partition
+[   0.704] I (668) pp: pp rom version: e7ae62f
+[   0.704] I (668) net80211: net80211 rom version: e7ae62f
+[   0.704] I (688) wifi:wifi driver task: 3fcb3cdc, prio:23, stack:6656, core=0
+[   0.704] I (688) wifi:wifi firmware version: e12a754
+[   0.704] I (688) wifi:wifi certification version: v7.0
+[   0.704] I (688) wifi:config NVS flash: enabled
+[   0.704] I (698) wifi:config nano formatting: disabled
+[   0.905] I (698) wifi:Init data frame dynamic rx buffer num: 32
+[   0.905] I (698) wifi:Init static rx mgmt buffer num: 5
+[   0.905] I (708) wifi:Init management short buffer num: 32
+[   0.905] I (708) wifi:Init dynamic tx buffer num: 32
+[   0.905] I (718) wifi:Init static tx FG buffer num: 2
+[   0.905] I (718) wifi:Init static rx buffer size: 1600
+[   0.905] I (728) wifi:Init static rx buffer num: 10
+[   0.905] I (728) wifi:Init dynamic rx buffer num: 32
+[   0.905] I (728) wifi_init: rx ba win: 6
+[   0.905] I (738) wifi_init: accept mbox: 6
+[   0.905] I (738) wifi_init: tcpip mbox: 32
+[   0.906] I (738) wifi_init: udp mbox: 6
+[   0.906] I (738) wifi_init: tcp mbox: 6
+[   0.906] I (748) wifi_init: tcp tx win: 5760
+[   0.906] I (748) wifi_init: tcp rx win: 5760
+[   0.906] I (748) wifi_init: tcp mss: 1440
+[   0.906] I (758) wifi_init: WiFi IRAM OP enabled
+[   0.906] I (758) wifi_init: WiFi RX IRAM OP enabled
+[   0.906] I (758) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[   0.906] I (768) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[   0.906] I (848) BLE_INIT: BT controller compile version [51d9dfd]
+[   0.906] I (848) BLE_INIT: Using main XTAL as clock source
+[   0.906] I (848) BLE_INIT: Feature Config, ADV:1, BLE_50:1, DTM:1, SCAN:1, CCA:0, SMP:1, CONNECT:1
+[   0.906] I (858) BLE_INIT: Bluetooth MAC: b8:1f:3f:da:7e:ee
+[   0.906] I (858) phy_init: phy_version 712,87e8c20e,Apr 13 2026,18:51:10
+[   1.106] I (918) NimBLE: GAP procedure initiated: stop advertising.
+[   1.106] 
+[   1.106] I (928) NimBLE: GAP procedure initiated: stop advertising.
+[   1.107] 
+[   1.107] I (928) NimBLE: GAP procedure initiated: advertise; 
+[   1.107] I (928) NimBLE: disc_mode=2
+[   1.107] I (928) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[   1.107] I (938) NimBLE: 
+[   1.107] 
+[   1.107] I (938) fixed_gateway: BLE provisioning active: MM-GW-DA7EEC
+[   1.107] I (948) fixed_gateway: Using saved Wi-Fi provisioning
+[   1.107] W (948) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[   1.107] I (958) wifi:mode : sta (b8:1f:3f:da:7e:ec)
+[   1.107] I (968) wifi:enable tsf
+[   1.107] I (968) main_task: Returned from app_main()
+[   3.513] I (3388) wifi:new:<11,0>, old:<1,0>, ap:<255,255>, sta:<11,0>, prof:1, snd_ch_cfg:0x0
+[   3.513] I (3388) wifi:state: init -> auth (0xb0)
+[   4.114] I (3948) wifi:state: auth -> assoc (0x0)
+[   4.115] I (3958) wifi:state: assoc -> run (0x10)
+[   4.115] I (3978) wifi:connected with f-gateway-AP, aid = 1, channel 11, BW20, bssid = d8:3a:dd:17:1c:aa
+[   4.115] I (3978) wifi:security: WPA3-SAE H2E, phy: bgn, rssi: -43, cipher(pairwise:0x3, group:0x3), pmf:1
+[   4.115] I (3978) wifi:pm start, type: 1
+[   4.115] 
+[   4.115] I (3988) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+[   4.115] I (3988) wifi:set rx beacon pti, rx_bcn_pti: 14, bcn_timeout: 25000, mt_pti: 14, mt_time: 10000
+[   4.115] I (4008) wifi:<ba-add>idx:0 (ifx:0, d8:3a:dd:17:1c:aa), tid:7, ssn:0, winSize:64
+[   4.316] I (4118) wifi:dp: 2, bi: 102400, li: 4, scale listen interval from 307200 us to 409600 us
+[   4.316] I (4118) wifi:AP's beacon interval = 102400 us, DTIM period = 2
+[   5.118] I (5018) esp_netif_handlers: sta ip: 10.42.0.239, mask: 255.255.255.0, gw: 10.42.0.1
+[   5.118] I (5058) wifi:<ba-add>idx:1 (ifx:0, d8:3a:dd:17:1c:aa), tid:0, ssn:2, winSize:64
+[   6.722] I (6698) fixed_gateway: MQTT broker accepted CONNECT (CONNACK received)
+[  10.329] I (10188) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 42584)
+[  12.734] I (12598) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 26881)
+[  15.139] I (14988) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 29338)
+[  19.748] I (19608) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50918)
+[  23.557] I (23508) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 25150)
+[  27.164] I (27048) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 23079)

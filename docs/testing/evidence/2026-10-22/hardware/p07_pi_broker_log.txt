@@ -1,0 +1,11 @@
+# /var/log/mosquitto/mosquitto.log on the Pi, lines for the board (Unix timestamps).
+# 1792666212-213: fixed-firmware run after reset. 1792666680: power removed (keepalive timeout).
+# 1792666688-690: reconnect after the USB power cycle, clock unset at boot.
+1792385173: New connection from 10.42.0.239:51512 on port 8883.
+1792385174: New client connected from 10.42.0.239:51512 as ESP32_da7EEC (p2, c1, k20, u'8f0f5194-93bf-4e1d-8e72-f96fa1f3df21').
+1792385270: Client ESP32_da7EEC has exceeded timeout, disconnecting.
+1792666212: New connection from 10.42.0.239:58260 on port 8883.
+1792666213: New client connected from 10.42.0.239:58260 as ESP32_da7EEC (p2, c1, k20, u'8f0f5194-93bf-4e1d-8e72-f96fa1f3df21').
+1792666680: Client ESP32_da7EEC has exceeded timeout, disconnecting.
+1792666688: New connection from 10.42.0.239:51097 on port 8883.
+1792666690: New client connected from 10.42.0.239:51097 as ESP32_da7EEC (p2, c1, k20, u'8f0f5194-93bf-4e1d-8e72-f96fa1f3df21').

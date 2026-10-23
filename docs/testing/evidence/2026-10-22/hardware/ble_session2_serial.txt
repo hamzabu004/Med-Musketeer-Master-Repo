@@ -1,0 +1,193 @@
+[   1.203] I (126) esp_image: segment 1: paddr=0003cc5c vaddr=3fc9d900 sizeI (26203) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 24226)
+[   5.212] I (30273) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 28138)
+[   9.620] I (34663) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 55198)
+[  13.227] I (38263) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 63006)
+[  17.636] I (42703) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 47435)
+[  21.242] I (46323) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 64971)
+[  23.448] I (48373) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 57263)
+[  28.057] I (53093) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 56743)
+[  30.462] I (55423) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[  30.463] I (55423) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[  30.464] I (55503) NimBLE: GAP procedure initiated: advertise; 
+[  30.464] I (55503) NimBLE: disc_mode=2
+[  30.464] I (55503) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[  30.464] I (55503) NimBLE: 
+[  30.465] 
+[  32.670] I (57733) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 51207)
+[  36.878] I (61863) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 25245)
+[  41.092] I (66163) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 64895)
+[  43.696] I (68763) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 46457)
+[  46.702] I (71773) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 22165)
+[  49.106] I (74043) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 11967)
+[  53.915] I (78843) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 4062)
+[  56.120] I (81113) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 23087)
+[  60.528] I (85523) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 32750)
+[  64.136] I (89183) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 17680)
+[  67.141] I (92093) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61779)
+[  70.549] I (95613) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 2715)
+[  73.756] I (98703) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 56297)
+[  75.760] I (100823) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 25389)
+[  78.966] I (104033) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 5018)
+[  82.573] I (107493) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 2725)
+[  86.181] I (111143) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 11709)
+[  90.190] I (115183) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62684)
+[  92.194] I (117243) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 33247)
+[  96.403] I (121483) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 55330)
+[ 100.211] I (125293) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 49984)
+[ 105.222] I (130233) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 40482)
+[ 107.426] I (132473) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 45428)
+[ 109.833] I (134753) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 21492)
+[ 114.645] I (139653) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61116)
+[ 118.451] I (143383) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61548)
+[ 118.451] I (143393) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[ 118.451] I (143403) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[ 118.451] I (143483) NimBLE: GAP procedure initiated: advertise; 
+[ 118.451] I (143483) NimBLE: disc_mode=2
+[ 118.451] I (143483) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[ 118.451] I (143483) NimBLE: 
+[ 118.451] 
+[ 122.057] I (147143) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 33780)
+[ 126.265] I (151333) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 45904)
+[ 130.471] I (155413) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 19933)
+[ 133.878] I (158943) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 15183)
+[ 136.684] I (161673) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 59886)
+[ 137.686] I (162613) fixed_gateway: BLE passkey displayed on OLED
+[ 139.489] I (164473) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 325)
+[ 143.696] I (168683) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 4930)
+[ 148.307] I (173303) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 43473)
+[ 148.507] W (173463) fixed_gateway: Rejected invalid BLE provisioning payload
+[ 149.509] W (174583) fixed_gateway: Rejected invalid BLE provisioning payload
+[ 150.712] W (175713) fixed_gateway: Rejected invalid BLE provisioning payload
+[ 151.915] W (176833) fixed_gateway: Rejected invalid BLE provisioning payload
+[ 152.717] I (177633) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50979)
+[ 152.917] W (177913) fixed_gateway: Rejected invalid BLE provisioning payload
+[ 154.120] W (179043) fixed_gateway: Rejected invalid BLE provisioning payload
+[ 155.122] I (180183) wifi:state: run -> init (0x0)
+[ 155.122] I (180183) wifi:pm stop, total sleep time: 142736896 us / 167249842 us
+[ 155.122] 
+[ 155.122] I (180183) wifi:<ba-del>idx:1, tid:0
+[ 155.123] I (180183) wifi:<ba-del>idx:0, tid:7
+[ 155.123] W (180183) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[ 155.123] I (180203) wifi:state: init -> auth (0xb0)
+[ 155.723] I (180763) wifi:state: auth -> init (0x600)
+[ 155.724] I (180763) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 155.724] 
+[ 155.724] E (180803) wifi:sta is connecting, return error
+[ 160.332] I (185353) wifi:state: init -> auth (0xb0)
+[ 160.933] I (185913) wifi:state: auth -> init (0x600)
+[ 160.933] I (185913) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 160.934] 
+[ 165.543] I (190523) wifi:state: init -> auth (0xb0)
+[ 166.143] I (191073) wifi:state: auth -> init (0x600)
+[ 166.144] I (191083) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 166.144] 
+[ 170.753] I (195693) wifi:state: init -> auth (0xb0)
+[ 171.154] I (196243) wifi:state: auth -> init (0x600)
+[ 171.354] I (196243) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 171.355] 
+[ 175.965] I (200863) wifi:state: init -> auth (0xb0)
+[ 176.366] I (201413) wifi:state: auth -> init (0x600)
+[ 176.366] I (201413) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 176.366] 
+[ 180.976] I (206033) wifi:state: init -> auth (0xb0)
+[ 181.577] I (206583) wifi:state: auth -> init (0x600)
+[ 181.577] I (206583) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 181.577] 
+[ 186.186] I (211203) wifi:state: init -> auth (0xb0)
+[ 186.787] I (211753) wifi:state: auth -> init (0x600)
+[ 186.788] I (211753) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 186.788] 
+[ 191.396] I (216373) wifi:state: init -> auth (0xb0)
+[ 191.998] I (216923) wifi:state: auth -> init (0x600)
+[ 191.998] I (216923) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 191.998] 
+[ 196.607] I (221533) wifi:state: init -> auth (0xb0)
+[ 197.008] I (222093) wifi:state: auth -> init (0x600)
+[ 197.008] I (222093) wifi:Coexist: Wi-Fi connect fail, apply reconnect coex policy
+[ 197.009] 
+[ 200.215] W (225223) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[ 200.216] E (225273) wifi:sta is connecting, return error
+[ 200.416] I (225463) wifi:state: init -> auth (0xb0)
+[ 201.017] I (226023) wifi:state: auth -> assoc (0x0)
+[ 201.017] I (226033) wifi:state: assoc -> run (0x10)
+[ 201.018] I (226043) wifi:connected with f-gateway-AP, aid = 1, channel 11, BW20, bssid = d8:3a:dd:17:1c:aa
+[ 201.018] I (226043) wifi:security: WPA3-SAE H2E, phy: bgn, rssi: -51, cipher(pairwise:0x3, group:0x3), pmf:1
+[ 201.018] I (226053) wifi:pm start, type: 1
+[ 201.018] 
+[ 201.018] I (226053) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+[ 201.018] I (226063) wifi:set rx beacon pti, rx_bcn_pti: 14, bcn_timeout: 25000, mt_pti: 14, mt_time: 10000
+[ 201.018] I (226073) wifi:dp: 2, bi: 102400, li: 4, scale listen interval from 307200 us to 409600 us
+[ 201.018] I (226083) wifi:AP's beacon interval = 102400 us, DTIM period = 2
+[ 201.218] I (226153) wifi:<ba-add>idx:0 (ifx:0, d8:3a:dd:17:1c:aa), tid:7, ssn:0, winSize:64
+[ 202.622] I (227593) esp_netif_handlers: sta ip: 10.42.0.239, mask: 255.255.255.0, gw: 10.42.0.1
+[ 202.622] I (227683) wifi:<ba-add>idx:1 (ifx:0, d8:3a:dd:17:1c:aa), tid:0, ssn:2, winSize:64
+[ 205.228] I (230163) fixed_gateway: MQTT broker accepted CONNECT (CONNACK received)
+[ 210.237] I (235173) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 43277)
+[ 215.047] I (239943) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 52176)
+[ 219.056] I (243993) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62870)
+[ 223.866] I (248873) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 60584)
+[ 227.672] I (252623) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 57432)
+[ 231.882] I (256973) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50220)
+[ 235.488] I (260553) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 43464)
+[ 237.692] I (262733) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 48771)
+[ 240.298] I (265383) wifi:state: run -> init (0x0)
+[ 240.298] I (265383) wifi:pm stop, total sleep time: 34158938 us / 39330997 us
+[ 240.298] 
+[ 240.298] I (265383) wifi:<ba-del>idx:1, tid:0
+[ 240.298] I (265383) wifi:<ba-del>idx:0, tid:7
+[ 240.499] W (265393) wifi:Password length matches WPA2 standards, authmode threshold changes from OPEN to WPA2
+[ 240.499] I (265403) wifi:state: init -> auth (0xb0)
+[ 240.499] I (265413) wifi:state: auth -> assoc (0x0)
+[ 240.500] I (265413) wifi:state: assoc -> run (0x10)
+[ 240.500] I (265433) wifi:connected with f-gateway-AP, aid = 1, channel 11, BW20, bssid = d8:3a:dd:17:1c:aa
+[ 240.500] I (265433) wifi:security: WPA3-SAE H2E, phy: bgn, rssi: -48, cipher(pairwise:0x3, group:0x3), pmf:1
+[ 240.500] I (265443) wifi:pm start, type: 1
+[ 240.500] 
+[ 240.500] I (265443) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+[ 240.500] I (265453) wifi:set rx beacon pti, rx_bcn_pti: 14, bcn_timeout: 25000, mt_pti: 14, mt_time: 10000
+[ 240.500] I (265473) wifi:dp: 2, bi: 102400, li: 4, scale listen interval from 307200 us to 409600 us
+[ 240.500] I (265473) wifi:AP's beacon interval = 102400 us, DTIM period = 2
+[ 240.500] W (265483) wifi:sta is connected, disconnect before connecting to new ap
+[ 240.500] I (265493) wifi:<ba-add>idx:0 (ifx:0, d8:3a:dd:17:1c:aa), tid:7, ssn:0, winSize:64
+[ 241.502] I (266503) esp_netif_handlers: sta ip: 10.42.0.239, mask: 255.255.255.0, gw: 10.42.0.1
+[ 241.502] I (266543) wifi:<ba-add>idx:1 (ifx:0, d8:3a:dd:17:1c:aa), tid:0, ssn:2, winSize:64
+[ 242.504] I (267473) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[ 242.504] I (267473) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[ 242.505] I (267563) NimBLE: GAP procedure initiated: advertise; 
+[ 242.505] I (267563) NimBLE: disc_mode=2
+[ 242.505] I (267563) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[ 242.505] I (267573) NimBLE: 
+[ 242.505] 
+[ 243.306] I (268263) fixed_gateway: MQTT broker accepted CONNECT (CONNACK received)
+[ 245.910] I (270873) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 41762)
+[ 248.114] I (273093) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 8613)
+[ 250.719] I (275793) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 23210)
+[ 254.928] I (279863) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 38538)
+[ 257.133] I (282033) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61302)
+[ 260.541] I (285533) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 36311)
+[ 262.546] I (287633) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 32643)
+[ 267.357] I (292363) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 26072)
+[ 269.762] I (294763) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 7146)
+[ 273.170] I (298133) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62731)
+[ 276.376] I (301473) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 35850)
+[ 279.182] I (304103) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 56116)
+[ 281.387] I (306393) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 25572)
+[ 284.795] I (309763) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 2049)
+[ 289.807] I (314743) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 57266)
+[ 293.414] I (318483) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 37255)
+[ 295.818] I (320913) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 14394)
+[ 296.419] I (321353) fixed_gateway: BLE passkey displayed on OLED
+[ 298.423] I (323473) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 20016)
+[ 302.831] I (327803) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 19742)
+[ 305.636] I (330693) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 30956)
+[ 306.638] I (331683) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[ 306.639] I (331683) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[ 306.840] I (331763) NimBLE: GAP procedure initiated: advertise; 
+[ 306.840] I (331773) NimBLE: disc_mode=2
+[ 306.840] I (331773) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[ 306.840] I (331773) NimBLE: 
+[ 306.840] 
+[ 308.844] I (333903) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 49613)
+[ 311.249] I (336243) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 17335)
+[ 314.656] I (339613) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54895)
+[ 319.067] I (344153) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 43999)

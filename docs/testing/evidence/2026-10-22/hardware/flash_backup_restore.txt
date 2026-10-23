@@ -1,0 +1,7 @@
+Flash backup and restore around the destructive hardware tests (2026-10-22)
+Board: ESP32-S3 (QFN56) rev v0.2, MAC b8:1f:3f:da:7e:ec, 16 MB flash, /dev/ttyACM0
+Backup: esptool read-flash 0x0 0x200000, read twice, both SHA-256 4d4b57a3517da6bf7c554946237c64c4b171f5073114d1567ecaa5c91649ac11
+Restore after TC-P03, TC-A07 and the erase runs: esptool write-flash 0x0 (hash of data verified),
+then read-flash 0x0 0x200000 again: SHA-256 4d4b57a3517da6bf7c554946237c64c4b171f5073114d1567ecaa5c91649ac11 (identical).
+The backup image holds the board's real private key; it is kept outside the repository.
+Backup image securely deleted (shred -u) on 2026-10-22 after the hardware runs, at the owner's request.

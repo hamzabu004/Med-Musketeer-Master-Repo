@@ -1,0 +1,107 @@
+[   0.000] --- host: hard reset via RTS ---
+[   0.302] I (125) esp_image: segment 1: paddr=0003b904 vaddr=3fc9cc00 sizeESP-ROM:esp32s3-20210327
+[   0.302] Build:Mar 27 2021
+[   0.302] rst:0x15 (USB_UART_CHIP_RESET),boot:0x8 (SPI_FAST_FLASH_BOOT)
+[   0.302] Saved PC:0x403cd9b9
+[   0.302] SPIWP:0xee
+[   0.302] mode:DIO, clock div:1
+[   0.302] load:0x3fce2820,len:0x14f0
+[   0.302] load:0x403c8700,len:0xde4
+[   0.302] load:0x403cb700,len:0x2f58
+[   0.302] entry 0x403c8904
+[   0.302] I (24) boot: ESP-IDF v6.1 2nd stage bootloader
+[   0.302] I (24) boot: compile time Oct 14 2026 01:10:13
+[   0.302] I (25) boot: Multicore bootloader
+[   0.302] I (25) boot: chip revision: v0.2
+[   0.302] I (27) boot: efuse block revision: v1.4
+[   0.302] I (31) boot.esp32s3: Boot SPI Speed : 80MHz
+[   0.302] I (35) boot.esp32s3: SPI Mode       : DIO
+[   0.302] I (39) boot.esp32s3: SPI Flash Size : 2MB
+[   0.302] I (42) boot: Enabling RNG early entropy source...
+[   0.303] I (47) boot: Partition Table:
+[   0.303] I (49) boot: ## Label            Usage          Type ST Offset   Length
+[   0.303] I (56) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+[   0.303] I (62) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+[   0.303] I (69) boot:  2 factory          factory app      00 00 00010000 001c0000
+[   0.303] I (75) boot:  3 creds            WiFi data        01 02 001d0000 00030000
+[   0.303] I (82) boot: End of partition table
+[   0.303] I (85) esp_image: segment 0: paddr=00010020 vaddr=3c0e0020 size=2b8dch (178396) map
+[   0.303] I (125) esp_image: segment 1: paddr=0003b904 vaddr=3fc9cc00 size=04714h ( 18196) load
+[   0.303] I (129) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=d4b90h (871312) map
+[   0.303] I (289) esp_image: segment 3: paddr=00114bb8 vaddr=3fca1314 size=00e48h (  3656) load
+[   0.303] I (290) esp_image: segment 4: paddr=00115a08 vaddr=40374000 size=18b24h (101156) load
+[   0.503] I (316) esp_image: segment 5: paddr=0012e534 vaddr=50000000 size=00024h (    36) load
+[   0.503] I (326) boot: Loaded app from partition at offset 0x10000
+[   0.503] I (327) boot: Disabling RNG early entropy source...
+[   0.504] I (337) cpu_start: Multicore app
+[   0.504] I (345) cpu_start: GPIO 44 and 43 are used as console UART I/O pins
+[   0.504] I (346) cpu_start: Pro cpu start user code
+[   0.504] I (346) cpu_start: cpu freq: 240000000 Hz
+[   0.504] I (347) app_init: Application information:
+[   0.504] I (351) app_init: Project name:     medmusketeer_gateway
+[   0.504] I (356) app_init: App version:      1
+[   0.504] I (360) app_init: Compile time:     Oct 16 2026 11:05:41
+[   0.504] I (365) app_init: ELF file SHA256:  08da95269...
+[   0.504] I (369) app_init: ESP-IDF:          v6.1
+[   0.504] I (373) efuse_init: Min chip rev:     v0.0
+[   0.504] I (377) efuse_init: Max chip rev:     v0.99 
+[   0.504] I (381) efuse_init: Chip rev:         v0.2
+[   0.504] I (384) heap_init: Initializing. RAM available for dynamic allocation:
+[   0.504] I (391) heap_init: At 3FCAA240 len 0003F4D0 (253 KiB): RAM
+[   0.504] I (396) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM
+[   0.504] I (401) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM
+[   0.504] I (406) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM
+[   0.504] I (412) spi_flash: detected chip: generic
+[   0.504] I (415) spi_flash: flash io: dio
+[   0.504] W (418) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.
+[   0.504] I (431) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+[   0.504] I (437) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+[   0.504] I (452) main_task: Started on CPU0
+[   0.504] I (452) main_task: Calling app_main()
+[   0.704] I (592) gateway_app: Fixed gateway onboarding build
+[   0.705] I (642) fixed_gateway: Periodic alert topic: mm/fixed/7221a056-fc9b-4e8c-b820-fe49725a8a09/alert
+[   0.705] I (642) fixed_gateway: Loaded TLS credentials from the read-only creds partition
+[   0.705] I (642) pp: pp rom version: e7ae62f
+[   0.705] I (652) net80211: net80211 rom version: e7ae62f
+[   0.705] I (662) wifi:wifi driver task: 3fcb2c6c, prio:23, stack:6656, core=0
+[   0.705] I (662) wifi:wifi firmware version: e12a754
+[   0.705] I (662) wifi:wifi certification version: v7.0
+[   0.705] I (672) wifi:config NVS flash: enabled
+[   0.705] I (672) wifi:config nano formatting: disabled
+[   0.705] I (672) wifi:Init data frame dynamic rx buffer num: 32
+[   0.705] I (682) wifi:Init static rx mgmt buffer num: 5
+[   0.705] I (682) wifi:Init management short buffer num: 32
+[   0.705] I (692) wifi:Init dynamic tx buffer num: 32
+[   0.705] I (692) wifi:Init static tx FG buffer num: 2
+[   0.705] I (692) wifi:Init static rx buffer size: 1600
+[   0.906] I (702) wifi:Init static rx buffer num: 10
+[   0.906] I (702) wifi:Init dynamic rx buffer num: 32
+[   0.906] I (712) wifi_init: rx ba win: 6
+[   0.907] I (712) wifi_init: accept mbox: 6
+[   0.907] I (712) wifi_init: tcpip mbox: 32
+[   0.907] I (712) wifi_init: udp mbox: 6
+[   0.907] I (722) wifi_init: tcp mbox: 6
+[   0.907] I (722) wifi_init: tcp tx win: 5760
+[   0.907] I (722) wifi_init: tcp rx win: 5760
+[   0.907] I (732) wifi_init: tcp mss: 1440
+[   0.907] I (732) wifi_init: WiFi IRAM OP enabled
+[   0.907] I (732) wifi_init: WiFi RX IRAM OP enabled
+[   0.907] I (742) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[   0.907] I (742) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[   0.907] I (802) BLE_INIT: BT controller compile version [51d9dfd]
+[   0.907] I (802) BLE_INIT: Using main XTAL as clock source
+[   0.907] I (802) BLE_INIT: Feature Config, ADV:1, BLE_50:1, DTM:1, SCAN:1, CCA:0, SMP:1, CONNECT:1
+[   0.907] I (812) BLE_INIT: Bluetooth MAC: b8:1f:3f:da:7e:ee
+[   0.907] I (812) phy_init: phy_version 712,87e8c20e,Apr 13 2026,18:51:10
+[   0.907] W (822) phy_init: failed to load RF calibration data (0x1102), falling back to full calibration
+[   0.907] I (872) phy_init: Saving new calibration data due to checksum failure or outdated calibration data, mode(2)
+[   0.907] I (892) NimBLE: GAP procedure initiated: stop advertising.
+[   0.907] 
+[   0.907] I (902) NimBLE: GAP procedure initiated: advertise; 
+[   0.907] I (902) NimBLE: disc_mode=2
+[   1.107] I (902) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[   1.108] I (902) NimBLE: 
+[   1.108] 
+[   1.108] I (912) fixed_gateway: BLE provisioning active: MM-GW-DA7EEC
+[   1.108] I (912) fixed_gateway: Waiting for BLE Wi-Fi provisioning
+[   1.108] I (922) main_task: Returned from app_main()

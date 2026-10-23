@@ -1,0 +1,4 @@
+[2026-10-22T09:44:20+00:00] wrote partition table without creds: {"table_sha256": "f561d5678cbd44bf101d2bfca9c38b04f6adb45d0dea499bb1700a6c51a09615"}
+[2026-10-22T09:44:21+00:00] Chip: ESP32-S3; MAC: B8:1F:3F:DA:7E:EC; flash: 16777216 bytes
+[2026-10-22T09:44:24+00:00] mmca flash: {"device_id": "8e37379e-70d0-446b-94bc-388d41e5e951", "error": "SafetyError: No `creds` partition found; flash firmware containing it first", "key_kept": true, "flashed": false, "creds_region_unchanged": true}
+[2026-10-22T09:44:25+00:00] restored original partition table: {"identical": true}

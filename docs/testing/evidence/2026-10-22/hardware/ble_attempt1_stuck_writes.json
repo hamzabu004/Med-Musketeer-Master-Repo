@@ -1,0 +1,98 @@
+[
+  {
+    "mode": "pair",
+    "steps": [
+      {
+        "step": "connect",
+        "at": "2026-10-22T11:06:08+00:00",
+        "mtu": 23
+      },
+      {
+        "step": "pair (passkey typed by the tester)",
+        "at": "2026-10-22T11:06:23+00:00",
+        "paired": false,
+        "seconds": 15.3
+      }
+    ]
+  },
+  {
+    "mode": "invalid",
+    "steps": [
+      {
+        "step": "connect",
+        "at": "2026-10-22T11:09:30+00:00",
+        "mtu": 23
+      },
+      {
+        "step": "invalid: empty SSID",
+        "at": "2026-10-22T11:09:30+00:00",
+        "payload": {
+          "ssid": "",
+          "password": "12345678",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "TimeoutError: ",
+        "seconds": 20.0
+      },
+      {
+        "step": "invalid: password too short",
+        "at": "2026-10-22T11:09:51+00:00",
+        "payload": {
+          "ssid": "x",
+          "password": "short",
+          "broker_host": "10.42.0.1",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "TimeoutError: ",
+        "seconds": 20.0
+      },
+      {
+        "step": "invalid: bad broker host",
+        "at": "2026-10-22T11:10:12+00:00",
+        "payload": {
+          "ssid": "x",
+          "password": "12345678",
+          "broker_host": "bad host!",
+          "broker_port": 8883
+        },
+        "accepted": false,
+        "error": "TimeoutError: ",
+        "seconds": 20.0
+      },
+      {
+        "step": "invalid: port out of range",
+        "at": "2026-10-22T11:10:33+00:00",
+        "payload": {
+          "ssid": "x",
+          "password": "12345678",
+          "broker_host": "10.42.0.1",
+          "broker_port": 70000
+        },
+        "accepted": false,
+        "error": "TimeoutError: ",
+        "seconds": 20.0
+      },
+      {
+        "step": "invalid: missing fields",
+        "at": "2026-10-22T11:10:54+00:00",
+        "payload": {
+          "ssid": "x"
+        },
+        "accepted": false,
+        "error": "TimeoutError: ",
+        "seconds": 20.0
+      },
+      {
+        "step": "invalid: not JSON",
+        "at": "2026-10-22T11:11:15+00:00",
+        "payload": "not json",
+        "accepted": false,
+        "error": "TimeoutError: ",
+        "seconds": 20.0
+      }
+    ]
+  }
+]

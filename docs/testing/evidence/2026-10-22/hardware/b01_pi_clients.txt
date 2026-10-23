@@ -1,0 +1,4 @@
+own alert, scratch wearable | exit 0 | <no output>
+foreign-CA wearable | exit 7 | Error: The connection was lost
+no client certificate | exit 7 | Error: The connection was lost
+connect by IP (no role name) | exit 14 | Error: Protocol error

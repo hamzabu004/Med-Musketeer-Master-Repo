@@ -1,0 +1,8 @@
+[2026-10-22T09:44:33+00:00] Chip: ESP32-S3; MAC: B8:1F:3F:DA:7E:EC; flash: 16777216 bytes
+[2026-10-22T09:44:34+00:00] Will erase the `nvs` partition at 0x9000 (24576 bytes) on /dev/ttyACM0.
+[2026-10-22T09:44:34+00:00] This clears the Wi-Fi SSID and password, MQTT broker host and port, Wi-Fi driver state, and BLE bonds.
+[2026-10-22T09:44:34+00:00] TLS credentials in the separate creds partition will be left untouched.
+[2026-10-22T09:44:34+00:00] prompt: Type ERASE ESP NETWORK SETTINGS to continue: -> ERASE ESP NETWORK SETTINGS
+[2026-10-22T09:44:36+00:00] mmca erase esp network: {"seconds": 3.6, "partitions": [{"name": "nvs", "offset": "0x9000"}]}
+[2026-10-22T09:44:36+00:00] independent blank check: {"nvs": true}
+[2026-10-22T09:45:02+00:00] boot log: {"creds_loaded": true, "saved_wifi_used": false, "advertising": true}

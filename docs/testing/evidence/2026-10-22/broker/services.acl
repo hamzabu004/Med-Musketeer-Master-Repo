@@ -1,0 +1,7 @@
+user 2332682a-b5a6-4985-8522-90b0be34f2db
+topic read  mm/fixed/+/telemetry
+topic read  mm/fixed/+/alert
+topic read  mm/fixed/+/status
+topic read  mm/fixed/+/command_ack
+topic write mm/fixed/+/command
+topic write mm/fixed/+/result

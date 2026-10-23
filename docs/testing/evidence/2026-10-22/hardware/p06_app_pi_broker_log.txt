@@ -1,0 +1,2 @@
+1792668839: New connection from 10.42.0.239:60741 on port 8883.
+1792668841: New client connected from 10.42.0.239:60741 as ESP32_da7EEC (p2, c1, k20, u'8f0f5194-93bf-4e1d-8e72-f96fa1f3df21').

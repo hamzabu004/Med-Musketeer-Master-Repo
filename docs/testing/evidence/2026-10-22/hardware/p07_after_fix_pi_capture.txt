@@ -1,0 +1,11 @@
+# Pi-side capture on wlan0/eth0 (DNS 53, NTP 123, MQTT 8883) during the TC-P07 rerun after the hotspot fix.
+# Seconds from capture start; the board was reset about 4 s in. Outgoing copies on eth0 are not shown.
+ 18.37 wlan0 UDP 10.42.0.239:57933 -> 10.42.0.1:53 len=72
+ 18.37 wlan0 UDP 10.42.0.239:56010 -> 103.167.159.26:123 len=90
+ 48.37 wlan0 UDP 10.42.0.239:27003 -> 10.42.0.1:53 len=72
+ 48.38 eth0  UDP 192.168.50.1:53 -> 192.168.50.188:59338 len=147
+ 48.38 wlan0 UDP 10.42.0.239:56010 -> 103.167.159.26:123 len=90
+--- mosquitto
+-- No entries --
+--- wlan0
+100 (connected)

@@ -1,0 +1,150 @@
+[   0.803] I (126) esp_image: segment 1: paddr=0003cc5c vaddr=3fc9d900 sizeI (34383) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 34861)
+[   3.408] I (37043) fixed_gateway: BLE passkey displayed on OLED
+[   4.009] I (37713) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61422)
+[   7.415] I (40993) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 26846)
+[   9.419] I (42993) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54300)
+[  14.029] I (47573) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61049)
+[  16.836] I (50453) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 40817)
+[  21.245] I (54783) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[  21.246] I (54783) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[  21.246] I (54863) NimBLE: GAP procedure initiated: advertise; 
+[  21.246] I (54863) NimBLE: disc_mode=2
+[  21.246] I (54863) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[  21.246] I (54863) NimBLE: 
+[  21.246] 
+[  21.847] I (55403) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 18902)
+[  25.454] I (59083) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 2595)
+[  29.063] I (62693) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 49596)
+[  32.471] I (65993) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 47352)
+[  35.678] I (69283) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 20645)
+[  39.484] I (73143) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 1161)
+[  42.891] I (76453) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 39962)
+[  44.894] I (78483) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54783)
+[  48.501] I (82173) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 56566)
+[  51.908] I (85553) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 42797)
+[  54.914] I (88443) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 13659)
+[  59.121] I (92733) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 8328)
+[  63.927] I (97643) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 33527)
+[  66.531] I (100133) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50104)
+[  70.537] I (104123) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 9478)
+[  74.945] I (108573) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54865)
+[  77.149] I (110863) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 5299)
+[  80.956] I (114523) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 42955)
+[  84.361] I (118063) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 9875)
+[  88.968] I (122623) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54925)
+[  92.173] I (125803) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50959)
+[  94.377] I (127903) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 44068)
+[  97.983] I (131563) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 64094)
+[ 101.588] I (135173) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 28849)
+[ 104.393] I (137993) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50339)
+[ 106.396] I (140073) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 22964)
+[ 109.802] I (143423) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 14192)
+[ 114.211] I (147813) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 48503)
+[ 117.417] I (150943) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 21598)
+[ 120.423] I (154013) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 22783)
+[ 123.629] I (157173) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 46447)
+[ 126.234] I (159913) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 38012)
+[ 130.442] I (164003) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 9421)
+[ 134.451] I (168053) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 33400)
+[ 138.459] I (171983) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 47743)
+[ 143.269] I (176943) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 59901)
+[ 147.476] I (181063) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 15569)
+[ 151.685] I (185273) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 63163)
+[ 154.490] I (188193) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 26533)
+[ 158.495] I (192043) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 38791)
+[ 163.103] I (196783) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 5600)
+[ 166.107] I (199653) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 45357)
+[ 170.113] I (203833) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 52909)
+[ 172.317] I (205953) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 6644)
+[ 175.522] I (209083) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 24906)
+[ 178.327] I (211933) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 15313)
+[ 182.937] I (216653) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 63019)
+[ 186.944] I (220553) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 58757)
+[ 189.348] I (223013) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62442)
+[ 194.156] I (227773) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 11773)
+[ 197.963] I (231493) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 15104)
+[ 200.970] I (234563) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 59482)
+[ 201.171] I (234793) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[ 201.171] I (234793) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[ 201.171] I (234863) NimBLE: GAP procedure initiated: advertise; 
+[ 201.171] I (234873) NimBLE: disc_mode=2
+[ 201.171] I (234873) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[ 201.171] I (234873) NimBLE: 
+[ 201.171] 
+[ 203.375] I (236943) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 3932)
+[ 207.782] I (241463) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 13191)
+[ 210.187] I (243803) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 48891)
+[ 214.395] I (248043) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 48141)
+[ 216.599] I (250153) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 40205)
+[ 221.208] I (254743) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 29403)
+[ 224.214] I (257853) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 40993)
+[ 227.820] I (261493) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 60322)
+[ 232.629] I (266173) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 51303)
+[ 237.438] I (271033) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 45558)
+[ 241.045] I (274643) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 16202)
+[ 243.850] I (277453) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 13743)
+[ 246.655] I (280353) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 6375)
+[ 250.863] I (284433) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 26670)
+[ 253.468] I (287013) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 41869)
+[ 258.277] I (291853) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 55885)
+[ 262.283] I (295923) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 17838)
+[ 264.888] I (298593) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 2657)
+[ 268.293] I (301933) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 15465)
+[ 270.296] I (303933) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 30730)
+[ 273.702] I (307353) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 29330)
+[ 277.710] I (311403) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 60836)
+[ 281.918] I (315593) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 5910)
+[ 284.525] I (318103) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54438)
+[ 289.334] I (323033) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 18971)
+[ 293.141] I (326693) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 54099)
+[ 296.547] I (330113) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 25844)
+[ 301.357] I (334913) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 9871)
+[ 304.964] I (338563) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 58782)
+[ 307.569] I (341243) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 1985)
+[ 312.180] I (345833) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 39419)
+[ 314.785] I (348323) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 3065)
+[ 319.596] I (353133) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 50030)
+[ 321.600] I (355263) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 5452)
+[ 324.806] I (358413) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 29890)
+[ 327.411] I (361033) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 56063)
+[ 330.816] I (364543) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 61534)
+[ 334.222] I (367813) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[ 334.222] I (367813) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[ 334.222] I (367893) NimBLE: GAP procedure initiated: advertise; 
+[ 334.222] I (367893) NimBLE: disc_mode=2
+[ 334.222] I (367893) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[ 334.222] I (367903) NimBLE: 
+[ 334.222] 
+[ 334.422] I (368083) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 12406)
+[ 339.030] I (372723) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 43756)
+[ 342.837] I (376553) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 45326)
+[ 346.645] I (380253) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62354)
+[ 351.455] I (385033) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 10058)
+[ 354.261] I (387843) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 19940)
+[ 358.069] I (391673) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62756)
+[ 360.475] I (394133) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 42981)
+[ 363.881] I (397443) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 30484)
+[ 366.086] I (399723) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 17001)
+[ 368.492] I (402173) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 52364)
+[ 371.900] I (405533) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 59132)
+[ 376.709] I (410373) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 23973)
+[ 381.318] I (414933) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 32103)
+[ 383.924] I (417473) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 52723)
+[ 388.333] I (422013) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 2195)
+[ 391.539] I (425193) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 33308)
+[ 396.548] I (430103) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 57813)
+[ 400.355] I (434063) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 62681)
+[ 404.159] I (437793) QRCODE: Encoding below text with ECC LVL 0 & QR Code Version 4
+[ 404.160] I (437793) QRCODE: MM-GW-DA7EEC|7A2E00012B3C4D5E8F90123456789ABC
+[ 404.160] I (437873) NimBLE: GAP procedure initiated: advertise; 
+[ 404.160] I (437873) NimBLE: disc_mode=2
+[ 404.160] I (437873) NimBLE:  adv_channel_map=0 own_addr_type=0 adv_filter_policy=0 adv_itvl_min=0 adv_itvl_max=0
+[ 404.160] I (437873) NimBLE: 
+[ 404.160] 
+[ 404.961] I (438683) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 17751)
+[ 409.971] I (443633) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 1970)
+[ 412.175] I (445863) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 12346)
+[ 414.379] I (448063) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 37024)
+[ 417.386] I (451023) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 49396)
+[ 420.593] I (454303) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 33401)
+[ 423.198] I (456863) fixed_gateway: Published alert to mm/fixed/8f0f5194-93bf-4e1d-8e72-f96fa1f3df21/alert (message id 3035)

@@ -1,0 +1,7 @@
+[2026-10-22T09:45:03+00:00] Chip: ESP32-S3; MAC: B8:1F:3F:DA:7E:EC; flash: 16777216 bytes
+[2026-10-22T09:45:04+00:00] Will erase the `creds` partition at 0x1D0000 (196608 bytes) on /dev/ttyACM0.
+[2026-10-22T09:45:04+00:00] Wi-Fi, MQTT broker settings, and BLE bonds in the application NVS partition will be left untouched.
+[2026-10-22T09:45:04+00:00] prompt: Type ERASE ESP TLS CREDENTIALS to continue: -> ERASE ESP TLS CREDENTIALS
+[2026-10-22T09:45:07+00:00] mmca erase esp tls: {"seconds": 4.9, "partitions": [{"name": "creds", "offset": "0x1d0000"}]}
+[2026-10-22T09:45:08+00:00] independent blank check: {"creds": true}
+[2026-10-22T09:45:33+00:00] boot log: {"creds_loaded": false, "saved_wifi_used": false, "advertising": true}

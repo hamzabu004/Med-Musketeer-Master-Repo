@@ -1,0 +1,122 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/tools/ca-tool
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0
+collected 56 items
+
+tests/test_broker_interop.py ............                                [ 21%]
+tests/test_ca.py .......                                                 [ 33%]
+tests/test_cli.py .                                                      [ 35%]
+tests/test_flash.py ..............                                       [ 60%]
+tests/test_repo_hygiene.py ...                                           [ 66%]
+tests/test_report_cases.py ............                                  [ 87%]
+tests/test_ssh.py .......                                                [100%]
+
+==================================== PASSES ====================================
+__ test_tc_p02_cli_issued_certificate_verifies_against_ca[wearable-sslclient] __
+----------------------------- Captured stdout call -----------------------------
+CA created. SHA-256 fingerprint: 1141AF1C22CF30E61F609B4B8B375B67569A99AEB672A32A3507ADE091039E68
+Certificate to be signed:
+  Profile:   wearable
+  CN:        adb2958a-f802-438c-9b66-2f6f73898ca7
+  SAN:       adb2958a-f802-438c-9b66-2f6f73898ca7
+  EKU:       clientAuth
+  Key type:  ec_p256
+  Validity:  365 days
+Issued wearable certificate for adb2958a-f802-438c-9b66-2f6f73898ca7.
+SHA-256 fingerprint: 84E52801DFF97264BB446B0F7A073DCD45C92088F1E0E53651904982B0226C5E
+Files: /tmp/pytest-of-hmz-gul/pytest-3/test_tc_p02_cli_issued_certifi0/mmca/issued/adb2958a-f802-438c-9b66-2f6f73898ca7
+__ test_tc_p02_cli_issued_certificate_verifies_against_ca[gateway-sslserver] ___
+----------------------------- Captured stdout call -----------------------------
+CA created. SHA-256 fingerprint: 2EB74831F67BDB547281F0F4F3A108D9851F2F5916842F39A6049D6D4E3EE904
+Certificate to be signed:
+  Profile:   gateway
+  CN:        4b2cb0ce-2717-4142-b650-d96ab324c7af
+  SAN:       gateway.medmusketeer.local, 4b2cb0ce-2717-4142-b650-d96ab324c7af
+  EKU:       serverAuth, clientAuth
+  Key type:  ec_p256
+  Validity:  365 days
+Issued gateway certificate for 4b2cb0ce-2717-4142-b650-d96ab324c7af.
+SHA-256 fingerprint: 079C48CBC86326ADE6EFC527343ABC6B3B7B3128311B5C8132FCB45436BD2FE8
+Files: /tmp/pytest-of-hmz-gul/pytest-3/test_tc_p02_cli_issued_certifi1/mmca/issued/4b2cb0ce-2717-4142-b650-d96ab324c7af
+- generated xml file: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-22/junit.xml -
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.7-final-0 ________________
+
+Name                    Stmts   Miss Branch BrPart  Cover   Missing
+-------------------------------------------------------------------
+mmca/__init__.py            1      0      0      0   100%
+mmca/__main__.py            2      2      0      0     0%   1-3
+mmca/cli.py               167     64     52     11    54%   19-25, 29-35, 97, 110, 114-124, 132, 140-143, 145-156, 158-169, 171-180, 181->187, 184, 188-190, 194
+mmca/core/__init__.py       0      0      0      0   100%
+mmca/core/audit.py         34      5      8      1    86%   33-34, 39, 45-46
+mmca/core/ca.py           188     36     62     20    76%   28, 30, 37, 49-50, 58->56, 60, 76, 84, 109, 111, 125, 134-135, 138, 141, 172-180, 198, 200, 204, 207, 209, 212-213, 217-218, 220, 223, 225, 227
+mmca/core/config.py        50      3      6      1    93%   37-38, 47
+mmca/core/errors.py         2      0      0      0   100%
+mmca/core/files.py         38      2      4      2    90%   21, 31
+mmca/core/flash.py        296     68     92     21    74%   48-50, 58, 60, 64-68, 72-84, 88-95, 101, 104, 109-112, 132-133, 148-152, 155, 164, 167, 174, 186, 189, 194-197, 199, 217, 221, 225, 262-263, 278, 283-284, 286, 291, 312, 317, 379-380, 387
+mmca/core/profiles.py      49      4     12      4    87%   22, 31, 75, 77
+mmca/core/ssh.py          235     97     72      9    56%   49->58, 56, 66-93, 112, 122-123, 128, 139, 155-156, 195, 200-201, 210, 215, 224, 241-242, 250-319, 326-336
+-------------------------------------------------------------------
+TOTAL                    1062    281    308     69    69%
+Coverage XML written to file /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-22/coverage.xml
+=========================== short test summary info ============================
+PASSED tests/test_broker_interop.py::test_tc_b01_wearable_certificate_completes_mutual_tls
+PASSED tests/test_broker_interop.py::test_tc_b01_negative_foreign_ca_and_missing_certificate_are_refused
+PASSED tests/test_broker_interop.py::test_tc_b01_negative_wearable_rejects_broker_without_role_name
+PASSED tests/test_broker_interop.py::test_tc_b02_wearable_publishes_on_own_topics[telemetry]
+PASSED tests/test_broker_interop.py::test_tc_b02_wearable_publishes_on_own_topics[alert]
+PASSED tests/test_broker_interop.py::test_tc_b02_wearable_publishes_on_own_topics[status]
+PASSED tests/test_broker_interop.py::test_tc_b02_wearable_publishes_on_own_topics[command_ack]
+PASSED tests/test_broker_interop.py::test_tc_b02_wearable_receives_command_on_own_topic
+PASSED tests/test_broker_interop.py::test_tc_b03_publish_on_another_devices_topic_is_dropped
+PASSED tests/test_broker_interop.py::test_tc_b03_subscribe_on_another_devices_topic_is_denied[b-command]
+PASSED tests/test_broker_interop.py::test_tc_b03_subscribe_on_another_devices_topic_is_denied[wildcard-alert]
+PASSED tests/test_broker_interop.py::test_tc_b04_wearable_with_services_username_gets_no_services_rights
+PASSED tests/test_ca.py::test_ca_and_leaf_profiles_and_encrypted_ca_key
+PASSED tests/test_ca.py::test_gateway_profile_includes_role_san_and_both_ekus[ec_p256]
+PASSED tests/test_ca.py::test_gateway_profile_includes_role_san_and_both_ekus[rsa_2048]
+PASSED tests/test_ca.py::test_serials_are_unique_and_device_ids_are_uuid4
+PASSED tests/test_ca.py::test_replacement_archives_old_encrypted_key
+PASSED tests/test_ca.py::test_successfully_flashed_wearable_can_be_reissued_for_same_device_id
+PASSED tests/test_ca.py::test_audit_whitelists_details_and_never_records_secret_values
+PASSED tests/test_cli.py::test_cli_ca_issue_and_audit_workflow
+PASSED tests/test_flash.py::test_partition_table_parser_reads_named_nvs_partition
+PASSED tests/test_flash.py::test_serial_port_selection_never_auto_picks_among_multiple_ports
+PASSED tests/test_flash.py::test_flash_builds_nvs_writes_verifies_then_removes_key
+PASSED tests/test_flash.py::test_wrong_chip_stops_without_removing_private_key
+PASSED tests/test_flash.py::test_missing_partition_stops_without_removing_private_key
+PASSED tests/test_flash.py::test_readback_mismatch_retains_private_key_and_metadata
+PASSED tests/test_flash.py::test_erase_esp_erases_selected_partitions_without_rebooting_before_verify[tls-regions0]
+PASSED tests/test_flash.py::test_erase_esp_erases_selected_partitions_without_rebooting_before_verify[network-regions1]
+PASSED tests/test_flash.py::test_erase_esp_erases_selected_partitions_without_rebooting_before_verify[all-regions2]
+PASSED tests/test_flash.py::test_erase_esp_verification_failure_leaves_metadata_unchanged
+PASSED tests/test_flash.py::test_erase_esp_wrong_phrase_erases_nothing
+PASSED tests/test_flash.py::test_erase_esp_requires_app_nvs_partition[network]
+PASSED tests/test_flash.py::test_erase_esp_requires_app_nvs_partition[all]
+PASSED tests/test_flash.py::test_erase_esp_refuses_different_chip_mac
+PASSED tests/test_repo_hygiene.py::test_tc_p11_no_key_or_certificate_files[tracked]
+PASSED tests/test_repo_hygiene.py::test_tc_p11_no_key_or_certificate_files[untracked-not-ignored]
+PASSED tests/test_repo_hygiene.py::test_tc_p11_gitignore_covers_ca_output
+PASSED tests/test_report_cases.py::test_tc_p01_cli_creates_ca_in_designated_location
+PASSED tests/test_report_cases.py::test_tc_p02_cli_issued_certificate_verifies_against_ca[wearable-sslclient]
+PASSED tests/test_report_cases.py::test_tc_p02_cli_issued_certificate_verifies_against_ca[gateway-sslserver]
+PASSED tests/test_report_cases.py::test_tc_a01_leaf_profiles_match_design[ec_p256]
+PASSED tests/test_report_cases.py::test_tc_a01_leaf_profiles_match_design[rsa_2048]
+PASSED tests/test_report_cases.py::test_tc_a02_chain_verification_and_foreign_ca_rejection
+PASSED tests/test_report_cases.py::test_tc_a03_mismatched_gateway_key_is_rejected_by_preflight
+PASSED tests/test_report_cases.py::test_tc_a03_gateway_key_with_open_permissions_is_rejected
+PASSED tests/test_report_cases.py::test_tc_a04_many_certificates_have_unique_recorded_serials
+PASSED tests/test_report_cases.py::test_tc_a06_parses_binary_built_from_firmware_partitions_csv
+PASSED tests/test_report_cases.py::test_tc_a06_default_single_app_table_is_rejected
+PASSED tests/test_report_cases.py::test_tc_a10_audit_log_after_issue_flash_deploy_has_every_action_and_no_secret
+PASSED tests/test_ssh.py::test_gateway_material_preflight_checks_role_san_and_key_match
+PASSED tests/test_ssh.py::test_host_fingerprint_and_explicit_new_host_approval
+PASSED tests/test_ssh.py::test_new_host_rejection_does_not_save_key
+PASSED tests/test_ssh.py::test_deploy_approves_new_host_uploads_and_verifies_gateway_files
+PASSED tests/test_ssh.py::test_deploy_stops_on_known_host_key_mismatch
+PASSED tests/test_ssh.py::test_deploy_requires_confirmation_before_remote_overwrite
+PASSED tests/test_ssh.py::test_deploy_backs_up_confirmed_existing_files
+======================== 56 passed in 60.27s (0:01:00) =========================

@@ -1,0 +1,2 @@
+[2026-10-22T11:02:21+00:00] known_hosts holds a different ed25519 key for the Pi: {"saved_fingerprint": "SHA256:UbXsJ0ht09CIkTgzZRXEcfO+AxJ+o3JuMvE0Ja4RsUA"}
+[2026-10-22T11:02:22+00:00] deploy with changed host key: {"error": "SafetyError: SSH host key mismatch for 192.168.50.188; refusing connection", "remote_unchanged": true}

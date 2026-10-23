@@ -1,0 +1,28 @@
+[2026-10-22T11:02:31+00:00] scratch gateway identity: {"device_id": "20233f35-06be-4f25-a297-f53968b88ac3", "fingerprint": "08A5E9FB05A5D5EB67056221F523953603867F36EE048D886B460AD16BBBDC1D"}
+[2026-10-22T11:02:31+00:00] Unknown SSH host key for 192.168.50.188: SHA256:ZEjqK2vKu8Rbfk3yV/ZKERrb8m14WzCMiKrk1WeyHU0
+[2026-10-22T11:02:31+00:00] prompt: Trust this host key and save it to known_hosts? [y/N] -> y
+[2026-10-22T11:02:31+00:00] prompt: SSH password: -> <entered>
+[2026-10-22T11:02:31+00:00] prompt: Sudo password: -> <entered>
+[2026-10-22T11:02:32+00:00] Existing remote files:
+[2026-10-22T11:02:32+00:00]   ca.crt: 6d9737a8c42e9d9eefefd90e23700721f08bde785a3fa04f14e88cb7d8124511
+[2026-10-22T11:02:32+00:00]   gateway.crt: 4dd0712b044d4ba7b4137ac18cd606ea933e7e16b6753ae464cad0988efb50cd
+[2026-10-22T11:02:32+00:00]   gateway.key: 732a45d4575aef86a2a082f695bbd6a599ec274ed337b65eb6899b97a483aa1b
+[2026-10-22T11:02:32+00:00] prompt: Back up and overwrite these files? [y/N] -> y
+[2026-10-22T11:02:32+00:00] mmca deploy --restart: {"result": {"host": "192.168.50.188", "device_id": "20233f35-06be-4f25-a297-f53968b88ac3", "fingerprint": "08A5E9FB05A5D5EB67056221F523953603867F36EE048D886B460AD16BBBDC1D", "restarted": true}, "error": null, "known_hosts_saved": true}
+[2026-10-22T11:02:33+00:00] remote state:
+09ddf3c7fd7f4f79dfef4ede5ddf7a6c2974083694b34b7ca0967a34a03f41ad  ca.crt
+4b505b7cbe37fa02930134259ee71cb0cb7d348f840ecbbd2fdee08941658653  gateway.crt
+8e0efb915a045fd2557e8e0616447f1023d2e6f973e6ed75338269158b08efef  gateway.key
+. root:mosquitto 750
+ca.crt root:mosquitto 640
+gateway.crt root:mosquitto 640
+gateway.key root:mosquitto 640
+ca.crt
+ca.crt.bak.20261022T110232Z-69f7c1f8
+gateway.crt
+gateway.crt.bak.20261022T110232Z-69f7c1f8
+gateway.key
+gateway.key.bak.20261022T110232Z-69f7c1f8
+README
+
+[2026-10-22T11:02:33+00:00] verification: {"files_match_local": {"ca.crt": true, "gateway.crt": true, "gateway.key": true}, "owner_and_modes_ok": true, "audit_last": ["deploy", "success", "192.168.50.188"]}

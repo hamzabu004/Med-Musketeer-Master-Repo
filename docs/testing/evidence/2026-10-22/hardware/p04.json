@@ -1,0 +1,39 @@
+{
+  "case": "p04",
+  "started": "2026-10-22T11:02:31+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "scratch gateway identity",
+      "device_id": "20233f35-06be-4f25-a297-f53968b88ac3",
+      "fingerprint": "08A5E9FB05A5D5EB67056221F523953603867F36EE048D886B460AD16BBBDC1D"
+    },
+    {
+      "step": "mmca deploy --restart",
+      "result": {
+        "host": "192.168.50.188",
+        "device_id": "20233f35-06be-4f25-a297-f53968b88ac3",
+        "fingerprint": "08A5E9FB05A5D5EB67056221F523953603867F36EE048D886B460AD16BBBDC1D",
+        "restarted": true
+      },
+      "error": null,
+      "known_hosts_saved": true
+    },
+    {
+      "step": "verification",
+      "files_match_local": {
+        "ca.crt": true,
+        "gateway.crt": true,
+        "gateway.key": true
+      },
+      "owner_and_modes_ok": true,
+      "audit_last": [
+        "deploy",
+        "success",
+        "192.168.50.188"
+      ]
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T11:02:33+00:00"
+}

@@ -1,0 +1,263 @@
+1792656219: mosquitto version 2.1.2 starting
+1792656219: Config loaded from /mosquitto/config/mosquitto.conf.
+1792656219: Bridge support available.
+1792656219: Persistence support available.
+1792656219: TLS support available.
+1792656219: TLS-PSK support available.
+1792656219: Websockets support available.
+1792656219: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+
+1792656219: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+
+1792656219: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+
+1792656219: Plugin builtin-security has registered to receive 'basic-auth' events.
+1792656219: Warning: File /mosquitto/config/wearables.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/wearables.acl`.
+
+1792656219: Warning: File /mosquitto/config/wearables.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/wearables.acl`.
+
+1792656219: Warning: File /mosquitto/config/wearables.acl group is not mosquitto. Future versions will refuse to load this file.
+
+1792656219: Plugin builtin-security has registered to receive 'acl-check' events.
+1792656219: Warning: File /mosquitto/config/services.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/services.acl`.
+
+1792656219: Warning: File /mosquitto/config/services.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/services.acl`.
+
+1792656219: Warning: File /mosquitto/config/services.acl group is not mosquitto. Future versions will refuse to load this file.
+
+1792656219: Plugin builtin-security has registered to receive 'acl-check' events.
+1792656219: Opening ipv4 listen socket on port 8883.
+1792656219: Opening ipv6 listen socket on port 8883.
+1792656219: Opening ipv4 listen socket on port 1883.
+1792656219: mosquitto version 2.1.2 running
+1792656219: New connection from 127.0.0.1:34242 on port 1883.
+1792656219: New client connected from 127.0.0.1:34242 as auto-C988F650-704D-EDF4-92F9-98CC7ADE4314 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656219: No will message specified.
+1792656219: Sending CONNACK to auto-C988F650-704D-EDF4-92F9-98CC7ADE4314 (0, 0)
+1792656219: Received SUBSCRIBE from auto-C988F650-704D-EDF4-92F9-98CC7ADE4314
+1792656219: 	mm/fixed/+/alert (QoS 1)
+1792656219: auto-C988F650-704D-EDF4-92F9-98CC7ADE4314 1 mm/fixed/+/alert
+1792656219: Sending SUBACK to auto-C988F650-704D-EDF4-92F9-98CC7ADE4314
+1792656219: New connection from 127.0.0.1:43660 on port 8883.
+1792656219: New client connected from 127.0.0.1:43660 as auto-DA0C2BB0-C759-4130-164F-4FBDEDBC6E27 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656219: No will message specified.
+1792656219: Client auto-DA0C2BB0-C759-4130-164F-4FBDEDBC6E27 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656219: Sending CONNACK to auto-DA0C2BB0-C759-4130-164F-4FBDEDBC6E27 (0, 0)
+1792656219: Received PUBLISH from auto-DA0C2BB0-C759-4130-164F-4FBDEDBC6E27 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert', ... (21 bytes))
+1792656219: Sending PUBLISH to auto-C988F650-704D-EDF4-92F9-98CC7ADE4314 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert', ... (21 bytes))
+1792656219: Sending PUBACK to auto-DA0C2BB0-C759-4130-164F-4FBDEDBC6E27 (m1, rc0)
+1792656219: Received PUBACK from auto-C988F650-704D-EDF4-92F9-98CC7ADE4314 (Mid: 1, RC:0)
+1792656219: Client auto-DA0C2BB0-C759-4130-164F-4FBDEDBC6E27 [127.0.0.1:43660] disconnected: connection closed by client.
+1792656224: Received DISCONNECT from auto-C988F650-704D-EDF4-92F9-98CC7ADE4314
+1792656224: Client auto-C988F650-704D-EDF4-92F9-98CC7ADE4314 [127.0.0.1:34242] disconnected.
+1792656224: New connection from 127.0.0.1:43664 on port 8883.
+1792656224: OpenSSL Error while trying to get the error[0]: error:030000EA:digital envelope routines::provider signature failure
+1792656224: OpenSSL Error while trying to get the error[1]: error:06880006:asn1 encoding routines::EVP lib
+1792656224: OpenSSL Error while trying to get the error[2]: error:0A000086:SSL routines::certificate verify failed
+1792656224: Client 127.0.0.1 [127.0.0.1:43664] disconnected: Protocol error.
+1792656224: New connection from 127.0.0.1:43672 on port 8883.
+1792656224: OpenSSL Error while trying to get the error[0]: error:0A0000C7:SSL routines::peer did not return a certificate
+1792656224: Client 127.0.0.1 [127.0.0.1:43672] disconnected: Protocol error.
+1792656225: New connection from 127.0.0.1:43682 on port 8883.
+1792656225: OpenSSL Error while trying to get the error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1792656225: Client 127.0.0.1 [127.0.0.1:43682] disconnected: Protocol error.
+1792656225: New connection from 127.0.0.1:34252 on port 1883.
+1792656225: New client connected from 127.0.0.1:34252 as auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656225: No will message specified.
+1792656225: Sending CONNACK to auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12 (0, 0)
+1792656225: Received SUBSCRIBE from auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12
+1792656225: 	mm/fixed/+/telemetry (QoS 1)
+1792656225: auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12 1 mm/fixed/+/telemetry
+1792656225: Sending SUBACK to auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12
+1792656225: New connection from 127.0.0.1:43692 on port 8883.
+1792656225: New client connected from 127.0.0.1:43692 as auto-02C62E01-8238-B962-FE6D-9C7CDCE3D5D5 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656225: No will message specified.
+1792656225: Client auto-02C62E01-8238-B962-FE6D-9C7CDCE3D5D5 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656225: Sending CONNACK to auto-02C62E01-8238-B962-FE6D-9C7CDCE3D5D5 (0, 0)
+1792656225: Received PUBLISH from auto-02C62E01-8238-B962-FE6D-9C7CDCE3D5D5 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/telemetry', ... (3 bytes))
+1792656225: Sending PUBLISH to auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/telemetry', ... (3 bytes))
+1792656225: Sending PUBACK to auto-02C62E01-8238-B962-FE6D-9C7CDCE3D5D5 (m1, rc0)
+1792656225: Received PUBACK from auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12 (Mid: 1, RC:0)
+1792656225: Client auto-02C62E01-8238-B962-FE6D-9C7CDCE3D5D5 [127.0.0.1:43692] disconnected: connection closed by client.
+1792656230: Received DISCONNECT from auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12
+1792656230: Client auto-CA6AE86A-A1E1-9C15-E640-F8CF81BD0F12 [127.0.0.1:34252] disconnected.
+1792656230: New connection from 127.0.0.1:43502 on port 1883.
+1792656230: New client connected from 127.0.0.1:43502 as auto-E7378359-A054-734A-662C-D5FB282908AC (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656230: No will message specified.
+1792656230: Sending CONNACK to auto-E7378359-A054-734A-662C-D5FB282908AC (0, 0)
+1792656230: Received SUBSCRIBE from auto-E7378359-A054-734A-662C-D5FB282908AC
+1792656230: 	mm/fixed/+/alert (QoS 1)
+1792656230: auto-E7378359-A054-734A-662C-D5FB282908AC 1 mm/fixed/+/alert
+1792656230: Sending SUBACK to auto-E7378359-A054-734A-662C-D5FB282908AC
+1792656230: New connection from 127.0.0.1:45116 on port 8883.
+1792656230: New client connected from 127.0.0.1:45116 as auto-35ED88FC-B7F8-2812-7FFB-83D920FC9AA8 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656230: No will message specified.
+1792656230: Client auto-35ED88FC-B7F8-2812-7FFB-83D920FC9AA8 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656230: Sending CONNACK to auto-35ED88FC-B7F8-2812-7FFB-83D920FC9AA8 (0, 0)
+1792656230: Received PUBLISH from auto-35ED88FC-B7F8-2812-7FFB-83D920FC9AA8 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert', ... (3 bytes))
+1792656230: Sending PUBLISH to auto-E7378359-A054-734A-662C-D5FB282908AC (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert', ... (3 bytes))
+1792656230: Sending PUBACK to auto-35ED88FC-B7F8-2812-7FFB-83D920FC9AA8 (m1, rc0)
+1792656230: Received PUBACK from auto-E7378359-A054-734A-662C-D5FB282908AC (Mid: 1, RC:0)
+1792656230: Client auto-35ED88FC-B7F8-2812-7FFB-83D920FC9AA8 [127.0.0.1:45116] disconnected: connection closed by client.
+1792656235: Received DISCONNECT from auto-E7378359-A054-734A-662C-D5FB282908AC
+1792656235: Client auto-E7378359-A054-734A-662C-D5FB282908AC [127.0.0.1:43502] disconnected.
+1792656235: New connection from 127.0.0.1:43518 on port 1883.
+1792656235: New client connected from 127.0.0.1:43518 as auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656235: No will message specified.
+1792656235: Sending CONNACK to auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405 (0, 0)
+1792656235: Received SUBSCRIBE from auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405
+1792656235: 	mm/fixed/+/status (QoS 1)
+1792656235: auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405 1 mm/fixed/+/status
+1792656235: Sending SUBACK to auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405
+1792656235: New connection from 127.0.0.1:45118 on port 8883.
+1792656235: New client connected from 127.0.0.1:45118 as auto-8169C47A-DBC7-117E-C7EE-3456BA99D3A0 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656235: No will message specified.
+1792656235: Client auto-8169C47A-DBC7-117E-C7EE-3456BA99D3A0 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656235: Sending CONNACK to auto-8169C47A-DBC7-117E-C7EE-3456BA99D3A0 (0, 0)
+1792656235: Received PUBLISH from auto-8169C47A-DBC7-117E-C7EE-3456BA99D3A0 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/status', ... (3 bytes))
+1792656235: Sending PUBLISH to auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/status', ... (3 bytes))
+1792656235: Sending PUBACK to auto-8169C47A-DBC7-117E-C7EE-3456BA99D3A0 (m1, rc0)
+1792656235: Received PUBACK from auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405 (Mid: 1, RC:0)
+1792656235: Client auto-8169C47A-DBC7-117E-C7EE-3456BA99D3A0 [127.0.0.1:45118] disconnected: connection closed by client.
+1792656240: Received DISCONNECT from auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405
+1792656240: Client auto-F4F5BF04-6FBB-E208-5BEF-60FD202BE405 [127.0.0.1:43518] disconnected.
+1792656240: New connection from 127.0.0.1:40204 on port 1883.
+1792656240: New client connected from 127.0.0.1:40204 as auto-2067FF97-8844-9463-328C-AA975AB8DD59 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656240: No will message specified.
+1792656240: Sending CONNACK to auto-2067FF97-8844-9463-328C-AA975AB8DD59 (0, 0)
+1792656240: Received SUBSCRIBE from auto-2067FF97-8844-9463-328C-AA975AB8DD59
+1792656240: 	mm/fixed/+/command_ack (QoS 1)
+1792656240: auto-2067FF97-8844-9463-328C-AA975AB8DD59 1 mm/fixed/+/command_ack
+1792656240: Sending SUBACK to auto-2067FF97-8844-9463-328C-AA975AB8DD59
+1792656240: New connection from 127.0.0.1:35464 on port 8883.
+1792656240: New client connected from 127.0.0.1:35464 as auto-ACC14314-7936-1F73-E649-3B8C6BCF3F77 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656240: No will message specified.
+1792656240: Client auto-ACC14314-7936-1F73-E649-3B8C6BCF3F77 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656240: Sending CONNACK to auto-ACC14314-7936-1F73-E649-3B8C6BCF3F77 (0, 0)
+1792656240: Received PUBLISH from auto-ACC14314-7936-1F73-E649-3B8C6BCF3F77 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command_ack', ... (3 bytes))
+1792656240: Sending PUBLISH to auto-2067FF97-8844-9463-328C-AA975AB8DD59 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command_ack', ... (3 bytes))
+1792656240: Sending PUBACK to auto-ACC14314-7936-1F73-E649-3B8C6BCF3F77 (m1, rc0)
+1792656240: Received PUBACK from auto-2067FF97-8844-9463-328C-AA975AB8DD59 (Mid: 1, RC:0)
+1792656240: Client auto-ACC14314-7936-1F73-E649-3B8C6BCF3F77 [127.0.0.1:35464] disconnected: connection closed by client.
+1792656245: Received DISCONNECT from auto-2067FF97-8844-9463-328C-AA975AB8DD59
+1792656245: Client auto-2067FF97-8844-9463-328C-AA975AB8DD59 [127.0.0.1:40204] disconnected.
+1792656245: New connection from 127.0.0.1:35468 on port 8883.
+1792656245: New client connected from 127.0.0.1:35468 as auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656245: No will message specified.
+1792656245: Client auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656245: Sending CONNACK to auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 (0, 0)
+1792656245: Received SUBSCRIBE from auto-540AB0AD-7D40-558B-92C7-32E1CC41E672
+1792656245: 	mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command (QoS 1)
+1792656245: auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 1 mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command
+1792656245: Sending SUBACK to auto-540AB0AD-7D40-558B-92C7-32E1CC41E672
+1792656245: New connection from 127.0.0.1:46580 on port 1883.
+1792656245: New client connected from 127.0.0.1:46580 as auto-C2A8FAA2-A878-81E6-6BCD-66F3DCB4A0D5 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656245: No will message specified.
+1792656245: Sending CONNACK to auto-C2A8FAA2-A878-81E6-6BCD-66F3DCB4A0D5 (0, 0)
+1792656245: Received PUBLISH from auto-C2A8FAA2-A878-81E6-6BCD-66F3DCB4A0D5 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command', ... (3 bytes))
+1792656245: Sending PUBLISH to auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command', ... (3 bytes))
+1792656245: Sending PUBACK to auto-C2A8FAA2-A878-81E6-6BCD-66F3DCB4A0D5 (m1, rc0)
+1792656245: Client auto-C2A8FAA2-A878-81E6-6BCD-66F3DCB4A0D5 [127.0.0.1:46580] disconnected: connection closed by client.
+1792656245: Received PUBACK from auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 (Mid: 1, RC:0)
+1792656250: Received DISCONNECT from auto-540AB0AD-7D40-558B-92C7-32E1CC41E672
+1792656250: Client auto-540AB0AD-7D40-558B-92C7-32E1CC41E672 [127.0.0.1:35468] disconnected.
+1792656250: New connection from 127.0.0.1:46596 on port 1883.
+1792656250: New client connected from 127.0.0.1:46596 as auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656250: No will message specified.
+1792656250: Sending CONNACK to auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3 (0, 0)
+1792656250: Received SUBSCRIBE from auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3
+1792656250: 	mm/fixed/+/alert (QoS 1)
+1792656250: auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3 1 mm/fixed/+/alert
+1792656250: Sending SUBACK to auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3
+1792656250: New connection from 127.0.0.1:48096 on port 8883.
+1792656250: New client connected from 127.0.0.1:48096 as auto-E68030EB-1845-A53C-D315-E87006D3D849 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656250: No will message specified.
+1792656250: Client auto-E68030EB-1845-A53C-D315-E87006D3D849 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656250: Sending CONNACK to auto-E68030EB-1845-A53C-D315-E87006D3D849 (0, 0)
+1792656250: Denied PUBLISH from auto-E68030EB-1845-A53C-D315-E87006D3D849 (d0, q1, r0, m1, 'mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/alert', ... (7 bytes))
+1792656250: Sending PUBACK to auto-E68030EB-1845-A53C-D315-E87006D3D849 (m1, rc135)
+1792656250: Client auto-E68030EB-1845-A53C-D315-E87006D3D849 [127.0.0.1:48096] disconnected: connection closed by client.
+1792656255: Received DISCONNECT from auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3
+1792656255: Client auto-0A3248EF-E6E7-8429-5D18-8E327B2A19F3 [127.0.0.1:46596] disconnected.
+1792656255: New connection from 127.0.0.1:55034 on port 8883.
+1792656255: New client connected from 127.0.0.1:55034 as auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656255: No will message specified.
+1792656255: Client auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656255: Sending CONNACK to auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A (0, 0)
+1792656255: Received SUBSCRIBE from auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A
+1792656255: 	mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command (QoS 1)
+1792656255: auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A 1 mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command
+1792656255: Sending SUBACK to auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A
+1792656256: New connection from 127.0.0.1:34846 on port 1883.
+1792656256: New client connected from 127.0.0.1:34846 as auto-DFE6DFA5-C5A7-A131-8870-76C37B6B97BB (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656256: No will message specified.
+1792656256: Sending CONNACK to auto-DFE6DFA5-C5A7-A131-8870-76C37B6B97BB (0, 0)
+1792656256: Received PUBLISH from auto-DFE6DFA5-C5A7-A131-8870-76C37B6B97BB (d0, q1, r0, m1, 'mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command', ... (7 bytes))
+1792656256: Sending PUBACK to auto-DFE6DFA5-C5A7-A131-8870-76C37B6B97BB (m1, rc0)
+1792656256: Client auto-DFE6DFA5-C5A7-A131-8870-76C37B6B97BB [127.0.0.1:34846] disconnected: connection closed by client.
+1792656260: Received DISCONNECT from auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A
+1792656260: Client auto-617E2CBB-4E63-D497-FB5C-BF82F4F3567A [127.0.0.1:55034] disconnected.
+1792656261: New connection from 127.0.0.1:55044 on port 8883.
+1792656261: New client connected from 127.0.0.1:55044 as auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656261: No will message specified.
+1792656261: Client auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656261: Sending CONNACK to auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB (0, 0)
+1792656261: Received SUBSCRIBE from auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB
+1792656261: 	mm/fixed/+/alert (QoS 1)
+1792656261: auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB 1 mm/fixed/+/alert
+1792656261: Sending SUBACK to auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB
+1792656261: New connection from 127.0.0.1:55050 on port 8883.
+1792656261: New client connected from 127.0.0.1:55050 as auto-10E4E1FC-4B3D-896F-260D-04A1C1FF6C39 (p4, c1, k60, u'c01c2ed8-5b6f-4b02-a7ae-3fa602c20813').
+1792656261: No will message specified.
+1792656261: Client auto-10E4E1FC-4B3D-896F-260D-04A1C1FF6C39 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656261: Sending CONNACK to auto-10E4E1FC-4B3D-896F-260D-04A1C1FF6C39 (0, 0)
+1792656261: Received PUBLISH from auto-10E4E1FC-4B3D-896F-260D-04A1C1FF6C39 (d0, q1, r0, m1, 'mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/alert', ... (7 bytes))
+1792656261: Sending PUBACK to auto-10E4E1FC-4B3D-896F-260D-04A1C1FF6C39 (m1, rc0)
+1792656261: Client auto-10E4E1FC-4B3D-896F-260D-04A1C1FF6C39 [127.0.0.1:55050] disconnected: connection closed by client.
+1792656266: Received DISCONNECT from auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB
+1792656266: Client auto-7A36ED9C-3D61-DDFD-D3D2-721B5882A7DB [127.0.0.1:55044] disconnected.
+1792656266: New connection from 127.0.0.1:50280 on port 8883.
+1792656266: New client connected from 127.0.0.1:50280 as auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9 (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656266: No will message specified.
+1792656266: Client auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656266: Sending CONNACK to auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9 (0, 0)
+1792656266: Received SUBSCRIBE from auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9
+1792656266: 	mm/fixed/+/alert (QoS 1)
+1792656266: auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9 1 mm/fixed/+/alert
+1792656266: Sending SUBACK to auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9
+1792656266: New connection from 127.0.0.1:50296 on port 8883.
+1792656266: New client connected from 127.0.0.1:50296 as auto-400BEEAE-27AF-7780-FBAB-984A02E482F4 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656266: No will message specified.
+1792656266: Client auto-400BEEAE-27AF-7780-FBAB-984A02E482F4 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656266: Sending CONNACK to auto-400BEEAE-27AF-7780-FBAB-984A02E482F4 (0, 0)
+1792656266: Received PUBLISH from auto-400BEEAE-27AF-7780-FBAB-984A02E482F4 (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert', ... (7 bytes))
+1792656266: Sending PUBACK to auto-400BEEAE-27AF-7780-FBAB-984A02E482F4 (m1, rc0)
+1792656266: Client auto-400BEEAE-27AF-7780-FBAB-984A02E482F4 [127.0.0.1:50296] disconnected: connection closed by client.
+1792656271: Received DISCONNECT from auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9
+1792656271: Client auto-C1D9BADE-0501-5BEC-FDBD-6CC3DA1C91F9 [127.0.0.1:50280] disconnected.
+1792656271: New connection from 127.0.0.1:50310 on port 8883.
+1792656271: New client connected from 127.0.0.1:50310 as auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149 (p4, c1, k60, u'7e8d751f-22e7-47fd-9503-5f26088a85d8').
+1792656271: No will message specified.
+1792656271: Client auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656271: Sending CONNACK to auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149 (0, 0)
+1792656271: Received SUBSCRIBE from auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149
+1792656271: 	mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command (QoS 1)
+1792656271: auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149 1 mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command
+1792656271: Sending SUBACK to auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149
+1792656271: New connection from 127.0.0.1:50320 on port 8883.
+1792656271: New client connected from 127.0.0.1:50320 as auto-56CD7FF9-543D-919A-4A23-7AA44AB5258B (p4, c1, k60, u'2332682a-b5a6-4985-8522-90b0be34f2db').
+1792656271: No will message specified.
+1792656271: Client auto-56CD7FF9-543D-919A-4A23-7AA44AB5258B negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1792656271: Sending CONNACK to auto-56CD7FF9-543D-919A-4A23-7AA44AB5258B (0, 0)
+1792656271: Denied PUBLISH from auto-56CD7FF9-543D-919A-4A23-7AA44AB5258B (d0, q1, r0, m1, 'mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command', ... (6 bytes))
+1792656271: Sending PUBACK to auto-56CD7FF9-543D-919A-4A23-7AA44AB5258B (m1, rc135)
+1792656271: Client auto-56CD7FF9-543D-919A-4A23-7AA44AB5258B [127.0.0.1:50320] disconnected: connection closed by client.
+1792656276: Received DISCONNECT from auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149
+1792656276: Client auto-4FF0CAEB-0A85-36BB-42CB-49A5C3AD9149 [127.0.0.1:50310] disconnected.
+1792656219: The 'per_listener_settings' option is now deprecated and will be removed in version 3.0. Please see the documentation for how to achieve the same effect.
+1792656219: You are using the 'allow_anonymous' option with 'per_listener_settings true'. Please replace this with 'listener_allow_anonymous'.
+1792656219: You are using the 'allow_anonymous' option with 'per_listener_settings true'. Please replace this with 'listener_allow_anonymous'.
+1792656219: Info: running mosquitto as user: mosquitto.

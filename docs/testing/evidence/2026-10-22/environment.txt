@@ -1,0 +1,18 @@
+run_at: 2026-10-22T13:03:37+05:00
+host: Linux 7.2.5-200.fc44.x86_64 x86_64
+python: Python 3.14.7
+packages: cryptography==50.0.2 esptool==5.5.0 paramiko==5.0.0 pytest==9.1.1 pytest-cov==7.1.0 
+openssl: OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)
+podman: podman version 5.8.4
+commit: ff86c1bc61e56cc3f014f31f97734c0089c240bc
+uncommitted changes:
+ M tools/ca-tool/pyproject.toml
+?? docs/decisions/SKILL.md
+?? docs/decisions/STACK_2_.md
+?? "docs/decisions/ca_tool_spec (1).md"
+?? docs/decisions/mqtt_fixed_path_topics.md
+?? docs/testing/
+?? tools/ca-tool/run_report_tests.sh
+?? tools/ca-tool/tests/test_broker_interop.py
+?? tools/ca-tool/tests/test_repo_hygiene.py
+?? tools/ca-tool/tests/test_report_cases.py

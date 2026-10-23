@@ -1,0 +1,214 @@
+{
+  "image": "docker.io/library/eclipse-mosquitto:2",
+  "image_version": "mosquitto version 2.1.2",
+  "ids": {
+    "gateway": "4bcb063d-4993-4419-bad3-4f679fc7d6b2",
+    "a": "7e8d751f-22e7-47fd-9503-5f26088a85d8",
+    "b": "c01c2ed8-5b6f-4b02-a7ae-3fa602c20813",
+    "collide": "2332682a-b5a6-4985-8522-90b0be34f2db",
+    "foreign": "4ed3551b-5905-4bda-8c62-9ff1fafa13a3"
+  },
+  "services_user": "2332682a-b5a6-4985-8522-90b0be34f2db",
+  "records": [
+    {
+      "case": "TC-B01",
+      "step": "publish own alert",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert -m {\"type\":\"test_alert\"}",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B01",
+      "step": "monitor alerts",
+      "command": "mosquitto_sub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -v -W 5 -t mm/fixed/+/alert",
+      "exit_code": 27,
+      "stdout": "mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert {\"type\":\"test_alert\"}\n",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B01",
+      "step": "foreign-CA client",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/foreign.crt --key /mosquitto/config/certs/foreign.key -q 1 -t mm/fixed/4ed3551b-5905-4bda-8c62-9ff1fafa13a3/alert -m x",
+      "exit_code": 7,
+      "stdout": "",
+      "stderr": "Error: The connection was lost\n"
+    },
+    {
+      "case": "TC-B01",
+      "step": "client without certificate",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt -t x -m x",
+      "exit_code": 7,
+      "stdout": "",
+      "stderr": "Error: The connection was lost\n"
+    },
+    {
+      "case": "TC-B01",
+      "step": "hostname check by IP",
+      "command": "mosquitto_pub -h 127.0.0.1 -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert -m x",
+      "exit_code": 14,
+      "stdout": "",
+      "stderr": "Error: Protocol error\n"
+    },
+    {
+      "case": "TC-B02",
+      "step": "publish own telemetry",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/telemetry -m own",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B02",
+      "step": "monitor telemetry",
+      "command": "mosquitto_sub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -v -W 5 -t mm/fixed/+/telemetry",
+      "exit_code": 27,
+      "stdout": "mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/telemetry own\n",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B02",
+      "step": "publish own alert",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert -m own",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B02",
+      "step": "monitor alert",
+      "command": "mosquitto_sub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -v -W 5 -t mm/fixed/+/alert",
+      "exit_code": 27,
+      "stdout": "mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert own\n",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B02",
+      "step": "publish own status",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/status -m own",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B02",
+      "step": "monitor status",
+      "command": "mosquitto_sub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -v -W 5 -t mm/fixed/+/status",
+      "exit_code": 27,
+      "stdout": "mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/status own\n",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B02",
+      "step": "publish own command_ack",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command_ack -m own",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B02",
+      "step": "monitor command_ack",
+      "command": "mosquitto_sub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -v -W 5 -t mm/fixed/+/command_ack",
+      "exit_code": 27,
+      "stdout": "mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command_ack own\n",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B02",
+      "step": "services send command",
+      "command": "mosquitto_pub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command -m cmd",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B02",
+      "step": "subscribe own command",
+      "command": "mosquitto_sub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -v -W 5 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command",
+      "exit_code": 27,
+      "stdout": "mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command cmd\n",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B03",
+      "step": "A publishes on B's alert",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/alert -m spoofed",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B03",
+      "step": "monitor alerts",
+      "command": "mosquitto_sub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -v -W 5 -t mm/fixed/+/alert",
+      "exit_code": 27,
+      "stdout": "",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B03",
+      "step": "message on mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command",
+      "command": "mosquitto_pub -h 127.0.0.1 -p 1883 -V mqttv311 -u 2332682a-b5a6-4985-8522-90b0be34f2db -P <redacted> -q 1 -t mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command -m private",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B03",
+      "step": "A subscribes mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command",
+      "command": "mosquitto_sub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -v -W 5 -t mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/command",
+      "exit_code": 27,
+      "stdout": "",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B03",
+      "step": "message on mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/alert",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/b.crt --key /mosquitto/config/certs/b.key -q 1 -t mm/fixed/c01c2ed8-5b6f-4b02-a7ae-3fa602c20813/alert -m private",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B03",
+      "step": "A subscribes mm/fixed/+/alert",
+      "command": "mosquitto_sub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -v -W 5 -t mm/fixed/+/alert",
+      "exit_code": 27,
+      "stdout": "",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B04",
+      "step": "A publishes own alert",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/alert -m a-alert",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B04",
+      "step": "colliding CN subscribes all alerts",
+      "command": "mosquitto_sub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/collide.crt --key /mosquitto/config/certs/collide.key -q 1 -v -W 5 -t mm/fixed/+/alert",
+      "exit_code": 27,
+      "stdout": "",
+      "stderr": "Timed out\n"
+    },
+    {
+      "case": "TC-B04",
+      "step": "colliding CN sends command",
+      "command": "mosquitto_pub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/collide.crt --key /mosquitto/config/certs/collide.key -q 1 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command -m forged",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "TC-B04",
+      "step": "A listens for commands",
+      "command": "mosquitto_sub -h gateway.medmusketeer.local -p 8883 -V mqttv311 --cafile /mosquitto/config/certs/ca.crt --cert /mosquitto/config/certs/a.crt --key /mosquitto/config/certs/a.key -q 1 -v -W 5 -t mm/fixed/7e8d751f-22e7-47fd-9503-5f26088a85d8/command",
+      "exit_code": 27,
+      "stdout": "",
+      "stderr": "Timed out\n"
+    }
+  ]
+}

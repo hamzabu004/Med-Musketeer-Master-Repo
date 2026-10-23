@@ -1,0 +1,8 @@
+[2026-10-22T09:45:35+00:00] Chip: ESP32-S3; MAC: B8:1F:3F:DA:7E:EC; flash: 16777216 bytes
+[2026-10-22T09:45:36+00:00] Will erase the `nvs` partition at 0x9000 (24576 bytes) on /dev/ttyACM0.
+[2026-10-22T09:45:36+00:00] Will erase the `creds` partition at 0x1D0000 (196608 bytes) on /dev/ttyACM0.
+[2026-10-22T09:45:36+00:00] This clears TLS credentials, Wi-Fi and MQTT broker settings, and BLE bonds.
+[2026-10-22T09:45:36+00:00] prompt: Type ERASE ESP TLS AND NETWORK to continue: -> ERASE ESP TLS AND NETWORK
+[2026-10-22T09:45:40+00:00] mmca erase esp all: {"seconds": 6.3, "partitions": [{"name": "nvs", "offset": "0x9000"}, {"name": "creds", "offset": "0x1d0000"}]}
+[2026-10-22T09:45:42+00:00] independent blank check: {"nvs": true, "creds": true}
+[2026-10-22T09:46:07+00:00] boot log: {"creds_loaded": false, "saved_wifi_used": false, "advertising": true}

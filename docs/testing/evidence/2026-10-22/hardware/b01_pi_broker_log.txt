@@ -1,0 +1,14 @@
+1792667011: New connection from 192.168.50.1:46632 on port 8883.
+1792667011: New client connected from 192.168.50.1:46632 as auto-303D997A-512C-B597-566B-87342473617F (p2, c1, k60, u'9835d25c-010f-44cb-965f-cfeb9ab0c470').
+1792667011: Client auto-303D997A-512C-B597-566B-87342473617F closed its connection.
+1792667011: New connection from 192.168.50.1:46644 on port 8883.
+1792667011: OpenSSL Error[0]: error:030000EA:digital envelope routines::provider signature failure
+1792667011: OpenSSL Error[1]: error:06880006:asn1 encoding routines::EVP lib
+1792667011: OpenSSL Error[2]: error:0A000086:SSL routines::certificate verify failed
+1792667011: Client <unknown> disconnected: Protocol error.
+1792667011: New connection from 192.168.50.1:46656 on port 8883.
+1792667011: OpenSSL Error[0]: error:0A0000C7:SSL routines::peer did not return a certificate
+1792667011: Client <unknown> disconnected: Protocol error.
+1792667011: New connection from 192.168.50.1:46658 on port 8883.
+1792667011: OpenSSL Error[0]: error:0A000412:SSL routines::ssl/tls alert bad certificate
+1792667011: Client <unknown> disconnected: Protocol error.

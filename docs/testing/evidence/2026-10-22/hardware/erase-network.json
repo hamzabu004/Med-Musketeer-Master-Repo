@@ -1,0 +1,29 @@
+{
+  "case": "erase-network",
+  "started": "2026-10-22T09:44:32+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "mmca erase esp network",
+      "seconds": 3.6,
+      "partitions": [
+        {
+          "name": "nvs",
+          "offset": "0x9000"
+        }
+      ]
+    },
+    {
+      "step": "independent blank check",
+      "nvs": true
+    },
+    {
+      "step": "boot log",
+      "creds_loaded": true,
+      "saved_wifi_used": false,
+      "advertising": true
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T09:45:02+00:00"
+}

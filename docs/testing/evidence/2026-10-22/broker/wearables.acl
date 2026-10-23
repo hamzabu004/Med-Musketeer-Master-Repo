@@ -1,0 +1,5 @@
+pattern write mm/fixed/%u/telemetry
+pattern write mm/fixed/%u/alert
+pattern write mm/fixed/%u/status
+pattern write mm/fixed/%u/command_ack
+pattern read  mm/fixed/%u/command

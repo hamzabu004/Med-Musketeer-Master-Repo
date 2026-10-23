@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "pytest-cov>=6"]
 
 [project.scripts]
 mmca = "mmca.cli:main"
@@ -26,3 +26,6 @@ include = ["mmca*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+  "interop: needs podman and the eclipse-mosquitto:2 image (TC-B01 to TC-B04)",
+]

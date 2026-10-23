@@ -1,0 +1,34 @@
+{
+  "case": "erase-all",
+  "started": "2026-10-22T09:45:33+00:00",
+  "port": "/dev/ttyACM0",
+  "steps": [
+    {
+      "step": "mmca erase esp all",
+      "seconds": 6.3,
+      "partitions": [
+        {
+          "name": "nvs",
+          "offset": "0x9000"
+        },
+        {
+          "name": "creds",
+          "offset": "0x1d0000"
+        }
+      ]
+    },
+    {
+      "step": "independent blank check",
+      "nvs": true,
+      "creds": true
+    },
+    {
+      "step": "boot log",
+      "creds_loaded": false,
+      "saved_wifi_used": false,
+      "advertising": true
+    }
+  ],
+  "result": "pass",
+  "finished": "2026-10-22T09:46:07+00:00"
+}
