@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# MedMusketeer - local Mosquitto setup on the fixed gateway (Raspberry Pi). Run with sudo.
+# Topics and ACLs: docs/decisions/mqtt-fixed-path-topics.md. The same configuration is
+# tested on a container broker (tools/ca-tool/tests/test_broker_interop.py); on the Pi the
+# CN-to-username mapping has been observed, and the ACL denials are still to be repeated.
+# Prereq: ca.crt, gateway.crt, gateway.key already in $CERT_DIR
+#         (gateway cert SAN = gateway.medmusketeer.local). Never put ca.key here.
+set -euo pipefail
+
+CERT_DIR=/etc/mosquitto/certs
+ACL_DIR=/etc/mosquitto/acl
+CONF=/etc/mosquitto/conf.d/medmusketeer.conf
+PASSWD=/etc/mosquitto/passwd
+
+[ "$(id -u)" -eq 0 ] || { echo "Run as root (sudo)."; exit 1; }
+
+for f in ca.crt gateway.crt gateway.key; do
+  [ -f "$CERT_DIR/$f" ] || { echo "Missing $CERT_DIR/$f"; exit 1; }
+done
+
+echo "[1/6] Installing packages"
+apt-get update -qq
+apt-get install -y mosquitto mosquitto-clients
+
+echo "[2/6] Locking down cert permissions"
+chown root:mosquitto "$CERT_DIR"/*
+chmod 640 "$CERT_DIR/ca.crt" "$CERT_DIR/gateway.crt"
+chmod 640 "$CERT_DIR/gateway.key"
+
+echo "[3/6] Writing ACL files (one per listener)"
+mkdir -p "$ACL_DIR"
+cat > "$ACL_DIR/wearables.acl" <<'EOF'
+# Wearables: username = cert CN = device_id
+pattern write mm/fixed/%u/telemetry
+pattern write mm/fixed/%u/alert
+pattern write mm/fixed/%u/status
+pattern write mm/fixed/%u/command_ack
+pattern read  mm/fixed/%u/command
+EOF
+cat > "$ACL_DIR/services.acl" <<'EOF'
+# Local gateway services (loopback listener only)
+user gw_services
+topic read  mm/fixed/+/telemetry
+topic read  mm/fixed/+/alert
+topic read  mm/fixed/+/status
+topic read  mm/fixed/+/command_ack
+topic write mm/fixed/+/command
+topic write mm/fixed/+/result
+EOF
+
+echo "[4/6] Creating gw_services login"
+if [ ! -f "$PASSWD" ]; then
+  mosquitto_passwd -c "$PASSWD" gw_services   # prompts for password
+else
+  echo "  $PASSWD exists, leaving it alone"
+fi
+chown mosquitto: "$PASSWD" "$ACL_DIR"/*
+chmod 600 "$PASSWD" "$ACL_DIR"/*
+
+echo "[5/6] Writing broker config"
+[ -f "$CONF" ] && cp "$CONF" "$CONF.bak.$(date +%s)"
+# Note: persistence and log_dest are already set in the stock mosquitto.conf;
+# repeating them here can cause a "duplicate" startup error.
+cat > "$CONF" <<EOF
+per_listener_settings true
+log_type error
+log_type warning
+log_type notice
+log_type information
+connection_messages true
+
+# Listener 1: wearables (mTLS, cert CN becomes username)
+listener 8883
+protocol mqtt
+cafile $CERT_DIR/ca.crt
+certfile $CERT_DIR/gateway.crt
+keyfile $CERT_DIR/gateway.key
+require_certificate true
+use_identity_as_username true
+allow_anonymous false
+acl_file $ACL_DIR/wearables.acl
+
+# Listener 2: gateway services (loopback only)
+listener 1883 127.0.0.1
+protocol mqtt
+allow_anonymous false
+password_file $PASSWD
+acl_file $ACL_DIR/services.acl
+EOF
+
+echo "[6/6] Restarting broker"
+systemctl enable mosquitto
+systemctl restart mosquitto
+sleep 1
+if systemctl is-active --quiet mosquitto; then
+  echo "Mosquitto is running. Logs: journalctl -u mosquitto -f"
+else
+  echo "Mosquitto failed to start. Check: journalctl -u mosquitto -n 50"
+  exit 1
+fi
+
+echo
+echo "Next: restrict port 8883 to your LAN (e.g. ufw), then run the ACL test plan."

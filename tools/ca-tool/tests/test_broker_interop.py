@@ -1,7 +1,7 @@
 """TC-B01 to TC-B04: mmca-issued certificates against Mosquitto with the fixed-path ACL design.
 
 The broker runs in an eclipse-mosquitto:2 container configured as in
-docs/decisions/mqtt_fixed_path_topics.md: a mutual-TLS wearable listener (8883) with
+docs/decisions/mqtt-fixed-path-topics.md: a mutual-TLS wearable listener (8883) with
 use_identity_as_username, and a loopback services listener (1883) with a password, each with its
 own ACL file. This is a stand-in for the Raspberry Pi gateway, not the Pi itself.
 
