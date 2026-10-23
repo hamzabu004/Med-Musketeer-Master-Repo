@@ -119,3 +119,29 @@ def test_registry_is_for_the_system_admin_only(make_client, db, role):
     client = make_client(Principal(user_id=user_id, role=role, org_id=org_id))
     assert client.get("/admin/devices").status_code == 403
     assert client.post("/admin/organisations", json={"name": "x", "kind": "public"}).status_code == 403
+
+
+
+def test_a_write_that_fails_at_commit_is_not_reported_as_success(admin_client, db):
+    # A deferred constraint trigger fails only at COMMIT. The response can reflect that failure
+    # only if the transaction commits before the response is sent (review finding 1).
+    db.execute(text("""
+        CREATE FUNCTION test_reject_at_commit() RETURNS trigger LANGUAGE plpgsql AS $$
+        BEGIN
+            IF NEW.name = 'fails at commit' THEN
+                RAISE EXCEPTION 'rejected at commit' USING ERRCODE = 'check_violation';
+            END IF;
+            RETURN NULL;
+        END $$
+    """))
+    db.execute(text("""
+        CREATE CONSTRAINT TRIGGER test_reject_at_commit AFTER INSERT ON organisations
+        DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION test_reject_at_commit()
+    """))
+    try:
+        response = admin_client.post("/admin/organisations", json={"name": "fails at commit", "kind": "public"})
+        assert response.status_code == 422
+        assert db.scalar(text("SELECT count(*) FROM organisations WHERE name = 'fails at commit'")) == 0
+    finally:
+        db.execute(text("DROP TRIGGER test_reject_at_commit ON organisations"))
+        db.execute(text("DROP FUNCTION test_reject_at_commit()"))

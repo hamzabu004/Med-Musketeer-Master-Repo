@@ -12,11 +12,12 @@ _INVALID = {"23503": "refers to a record that does not exist", "23514": "violate
 
 
 async def connection(request: Request) -> AsyncIterator[AsyncConnection]:
-    async with request.app.state.engine.begin() as conn:
-        try:
+    # The try covers the commit as well: a deferred constraint fails only when the block exits.
+    try:
+        async with request.app.state.engine.begin() as conn:
             yield conn
-        except IntegrityError as error:
-            raise http_error(error) from error
+    except IntegrityError as error:
+        raise http_error(error) from error
 
 
 def http_error(error: IntegrityError) -> HTTPException:
@@ -30,4 +31,6 @@ def http_error(error: IntegrityError) -> HTTPException:
     )
 
 
-Conn = Annotated[AsyncConnection, Depends(connection)]
+# scope="function": commit (and turn a failed commit into an error response) before the response
+# is sent. With the default request scope the commit would run after the client got its answer.
+Conn = Annotated[AsyncConnection, Depends(connection, scope="function")]
