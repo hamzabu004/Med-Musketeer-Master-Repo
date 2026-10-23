@@ -42,7 +42,7 @@ Publication is an explicit goal. The research has **two strands**:
 - The benchmarking axis is **transport/auth protocols only** — it does NOT extend to comparing IDS/IPS approaches; IDS/IPS remains an implementation deliverable, not a benchmarking/publication axis.
 - **Fixed protocol for FYP-1: MQTT+TLS.** The FYP-1 benchmark varies the **path** (fixed gateway vs mobile relay), with the wearable's screening result triggering each alert. Other protocol/auth candidates are compared against this baseline later as a separate axis; a full factorial across protocols is out of scope for FYP-1 — flag if a future request assumes the full cross was run.
 - Within the baseline, the **certificate key type (RSA vs EC P-256)** is a separate benchmarked variable.
-- There is **no continuous-vs-alert-only transmission axis**: ECG is never streamed continuously (ADR-1 in the report). Only screening-flagged alert segments and doctor-requested recordings leave the wearable.
+- There is **no continuous-vs-alert-only transmission axis**: ECG is streamed continuously **only on demand**, when a doctor requests a recording, and only for that recording (ADR-1 in the report). Otherwise only screening-flagged alert segments leave the wearable.
 - **The mobile-relay-vs-Tethys distinction is a design justification, not a standalone research contribution.** Frame it as "we adopted X because Y, distinct from Tethys's use case," not as a novel Tethys alternative.
 - Because the transport/auth layer is itself the thing being benchmarked, cloud-side ingestion stays **protocol-agnostic/swappable**.
 

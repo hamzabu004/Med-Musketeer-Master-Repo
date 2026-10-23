@@ -89,7 +89,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 
 | msg_type | Fixed path | Mobile path |
 |---|---|---|
-| `telemetry` | Wearable → local broker; gateway classifies and forwards to EMQX. ECG is never streamed continuously (ADR-1), so what this topic carries (e.g. on-demand recordings) is Open | Wearable envelope → phone → EMQX; cloud classifies |
+| `telemetry` | On-demand recordings only (Decided): continuous ECG streamed after a doctor's request command, for that recording. Wearable → local broker; gateway classifies and forwards to EMQX | Wearable envelope → phone → EMQX; cloud classifies |
 | `alert` | Screening-triggered alert with the triggering ECG segment (the main data flow) | Same |
 | `status` | Retained presence; LWT publishes `offline` | Not used — heartbeat envelope instead |
 | `command_ack` | Wearable acknowledges a command | Carried in an envelope (detail Open) |
@@ -124,7 +124,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 ## Benchmark design (current scope)
 
 - **Fixed for FYP-1: MQTT+TLS.** This validates the path benchmark harness; other protocol/auth candidates get compared against this baseline as a separate axis later, not folded into the path comparison now. See the candidate registry below for what is planned and when.
-- **Axis varied for FYP-1:** path (fixed gateway vs mobile relay), with the wearable's TinyDL screening result triggering each alert. There is **no continuous-vs-alert-only mode axis**: ECG is never streamed continuously (ADR-1), so the earlier path × mode 2×2 is dropped. The path is an operator-set variable (mode button).
+- **Axis varied for FYP-1:** path (fixed gateway vs mobile relay), with the wearable's TinyDL screening result triggering each alert. There is **no continuous-vs-alert-only mode axis**: ECG is streamed continuously only on demand, for a doctor-requested recording (ADR-1), so the earlier path × mode 2×2 is dropped. The path is an operator-set variable (mode button).
 - **Methodology requirement:** checkpoint timestamps at each hop — wearable send/detect → gateway receive/classify (fixed path) → cloud arrive/classify (mobile path) → dashboard render — with clock sync (NTP) across devices. Naive wall-clock deltas across hops are invalid without this. On the fixed path the hop list includes wearable → local broker → gateway service. Timestamps used for benchmarking are never trusted by any security decision.
 - **Known confound to report, not normalize away:** multiclass classification runs on the gateway on the fixed path and in the cloud on the mobile path, so end-to-end alert latency includes a different classification step on each path. Report transport latency separately from classification time.
 - **QoS** for telemetry and alerts is held constant across both paths.

@@ -17,7 +17,7 @@ This document covers the **fixed path** only. `{id}` is the wearable's canonical
 | Direction | Topic | Purpose | Notes |
 |---|---|---|---|
 | **Subscribe** | `mm/fixed/{id}/command` | Authenticated on-demand commands | The **only** subscription the wearable needs |
-| Publish | `mm/fixed/{id}/telemetry` | ECG chunks | ECG is never streamed continuously (ADR-1); whether this carries on-demand recordings is Open |
+| Publish | `mm/fixed/{id}/telemetry` | ECG chunks of an on-demand recording | **Decided:** continuous streaming happens only on demand — after a doctor's request command, for the duration of that recording. Outside an on-demand recording nothing is published here (ADR-1) |
 | Publish | `mm/fixed/{id}/alert` | TinyDL-triggered alert with the triggering ECG segment | The main data flow. Today the firmware publishes a periodic test alert here (QoS 1) |
 | Publish | `mm/fixed/{id}/status` | Presence | Retained. `online` on connect; LWT publishes `offline` |
 | Publish | `mm/fixed/{id}/command_ack` | Command acknowledgement | |
@@ -102,7 +102,7 @@ topic write mm/fixed/+/result
 
 - Final QoS for `telemetry` and the other topics.
 - Fixed-path payload format. There is no envelope on this path (mTLS protects the hop). The implemented test alert is `{"device_id", "type": "test_alert", "message", "timestamp"}`. The planned alert segment adds a sequence number, sampling rate, lead, sample count, encoding (little-endian signed integers, Base64 inside JSON) and the samples; a recording also carries its command id. The send timestamp is benchmark-only and never used in a security decision.
-- What `telemetry` carries now that ECG is never streamed continuously (ADR-1).
+- How an on-demand stream starts and stops: request command fields, fixed duration vs explicit stop command, and how `command_ack` reports it.
 - Gateway discovery by the wearable (currently the broker host/port is provisioned over BLE; the Pi hotspot is `10.42.0.1`).
 - Cloud-side ACL: observe vs enforce which wearables a gateway may subscribe to for `command`.
 - Verify the ACL denials on the actual Pi (CN-to-username already observed there).

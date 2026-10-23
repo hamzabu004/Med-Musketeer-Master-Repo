@@ -31,7 +31,7 @@ Last updated: 2026-10-23
 ## Ingestion / messaging (blocks Iteration 3–4)
 - The ingestion API's normalised message: fields, where hop-timestamps live, the `attested_by` field
 - The concrete transport/auth adapter interface (only the normalised result is sketched)
-- Telemetry QoS and payload format; what the `telemetry` topic carries now that ECG is never streamed continuously (ADR-1)
+- Telemetry QoS and payload format; how an on-demand stream starts and stops (the request command, duration or explicit stop, and the `command_ack`)
 - Cloud observe vs enforce for wearable↔gateway assignment; the gateway's local wearable allowlist
 - Mode-switch behaviour: buffered data on a switch, persistence across reboot, button handling
 
