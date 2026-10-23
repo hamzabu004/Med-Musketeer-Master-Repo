@@ -1,7 +1,7 @@
 # Iteration 3 — Cloud backend
 
 - **Owner:** Hamza Tariq (M7 cloud platform; M1 CA tool for the cloud certificate)
-- **Status:** Planned (2026-10-23)
+- **Status:** Planned; Slice 0 decisions taken (2026-10-23, recorded in `docs/decisions/cloud-backend.md`)
 - **Depends on:** `docs/decisions/stack.md`, `gaps.md`, the cloud schema in the mid report §5 "Data Design"
 - **Followed by:** Iteration 4 (uplink bridge on the gateway → this backend)
 
@@ -66,9 +66,9 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 
 ### Slice 0 — Decisions that block the code (S, no code)
 
-Record each in `stack.md` (move it out of `gaps.md`). Proposed answers are given; confirm or change them.
+**Done (2026-10-23).** All ten are Decided as proposed below, with D9 and D10 completed; the designs are in `docs/decisions/cloud-backend.md`, which is authoritative.
 
-| # | Decision | Proposal |
+| # | Decision | Decided |
 |---|---|---|
 | D1 | How the ingestion side learns **which gateway published** a message (an MQTT subscriber cannot see the publisher) | An EMQX rule republishes every `mm/fixed/#` and `mm/gateway/#` message to an internal topic that carries the authenticated username (cert CN), e.g. `ingest/{username}/{original topic}`, readable only by the adapter. `attested_by` then comes from the broker, never from the payload. Alternative: EMQX HTTP action to the API. |
 | D2 | Where the **role** lives (the report has `users.role`; Iteration 3 says "identity provider with the four roles") | Roles are ZITADEL project roles and arrive in the token; `users` keeps `zitadel_sub`, `role`, `org_id` as a mirror for joins, changed only through the API, which updates ZITADEL and the row together. |
@@ -78,12 +78,12 @@ Record each in `stack.md` (move it out of `gaps.md`). Proposed answers are given
 | D6 | **Alert payload v1** (shared with the firmware's Iteration 2 work) | The report's fields: `msg_id`, `seq`, `fs_hz`, `lead`, `n_samples`, `encoding` (little-endian int16, Base64), `samples`, `screening` (label, confidence, model version), `sent_at` (benchmark only). `msg_id` makes QoS 1 redelivery idempotent. |
 | D7 | **Normalised ingestion message** (`ingest-v1`) | The adapter result from `stack.md` (`device_id`, `device_type`, `auth_method`, `attested_by`, `authenticated`, `auth_metadata`) + `msg_type`, `received_at`, hop timestamps, and the validated payload. |
 | D8 | **Database access** | SQLAlchemy 2 (Core) + Alembic + psycopg 3; no ORM-heavy models. |
-| D9 | **Role × endpoint matrix** | Derived from the report's access rules; written as a table in this file, then as one parametrised test. |
-| D10 | **EMQX version and licence** | Pin an exact EMQX 5.x image and check its licence/edition terms for a single self-hosted node before building on it. |
+| D9 | **Role × endpoint matrix** | Table in `cloud-backend.md`, then one parametrised test. The organisation admin cannot read patient ECG data; a doctor sees the live status of their patients' devices and reads their disorders. |
+| D10 | **EMQX version and licence** | `emqx/emqx:6.3.2` pinned (newest, 2026-10-16, amd64 + arm64). Business Source License 1.1: single-node production and academic use are allowed. |
 
 ### Slice 1 — Stack skeleton (S)
 
-- `compose.yaml` with pinned image versions (all must have arm64 builds for the Pi): TimescaleDB on PostgreSQL 17, ZITADEL (using the same Postgres instance, separate database), EMQX, `api`, `adapter`.
+- `compose.yaml` with pinned image versions (all must have arm64 builds for the Pi): TimescaleDB on PostgreSQL 17, ZITADEL (using the same Postgres instance, separate database), `emqx/emqx:6.3.2`, `api`, `adapter`.
 - `.env.example`; health checks; `GET /healthz` on the API reporting database, ZITADEL and EMQX reachability.
 - **Tests:** TC-C01 the stack comes up healthy from an empty volume; TC-C02 the API refuses to start without required settings.
 
@@ -134,7 +134,7 @@ Record each in `stack.md` (move it out of `gaps.md`). Proposed answers are given
 | ZITADEL setup is the largest unknown (bootstrap, token claims, management API) | Start Slice 3's bootstrap early, in parallel with Slice 2; keep the API's auth behind one module so unit tests do not need ZITADEL |
 | The Pi's memory may not hold Postgres + ZITADEL + EMQX + the API | Record its model and RAM before Slice 6; measure idle use on the laptop first; fall back to a VM if needed |
 | The alert payload (D6) must match what the firmware sends | Keep the schema in `shared/contracts/` and share it with the Iteration 2 firmware work before Slice 5 |
-| EMQX licence or edition changes across versions | D10: pin a version and check its terms first |
+| EMQX licence terms change in a later version | D10: 6.3.2 is pinned and its BSL 1.1 terms checked; any upgrade re-checks the licence and gets a change-log entry |
 | Open gaps (on-demand start/stop, `status` semantics) | Out of scope here; ingestion rejects unknown message types with a logged reason |
 
 ## Order

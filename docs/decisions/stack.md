@@ -5,7 +5,7 @@ description: Cloud/platform stack and architecture decisions for MedMusketeer. C
 
 # MedMusketeer — Cloud/Platform Stack & Architecture
 
-This is a **technical decision record**, not the scope-lock file. If a decision here ever conflicts with `scope.md`, that file wins on scope; this file wins on implementation detail. Update this file as stack decisions evolve — it's expected to change more often than the scope-lock file. Companions in this folder: `mqtt-fixed-path-topics.md` (fixed-path topics and ACLs), `ca-tool-spec.md` (CA tool), `gaps.md` (what is still undecided). The FYP-1 mid report (Chapter 5) holds the same decisions as ADR-1 to ADR-8, plus the full cloud schema.
+This is a **technical decision record**, not the scope-lock file. If a decision here ever conflicts with `scope.md`, that file wins on scope; this file wins on implementation detail. Update this file as stack decisions evolve — it's expected to change more often than the scope-lock file. Companions in this folder: `mqtt-fixed-path-topics.md` (fixed-path topics and ACLs), `ca-tool-spec.md` (CA tool), `cloud-backend.md` (Iteration 3 cloud backend decisions D1–D10), `gaps.md` (what is still undecided). The FYP-1 mid report (Chapter 5) holds the same decisions as ADR-1 to ADR-8, plus the full cloud schema.
 
 **Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-23.
 
@@ -105,7 +105,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 
 | Layer | Choice | Why |
 |---|---|---|
-| MQTT broker | **EMQX** (self-hosted, open source) | Native TLS for the FYP-1 baseline; auth-hook/ACL plugin system means swapping in a certificateless scheme later doesn't require replacing the broker; exposes per-client connect/disconnect events useful for latency checkpointing |
+| MQTT broker | **EMQX 6.3.2**, self-hosted single node, pinned (`emqx/emqx:6.3.2`; Business Source License 1.1, whose grant covers a single node and academic use — see `cloud-backend.md` D10) | Native TLS for the FYP-1 baseline; auth-hook/ACL plugin system means swapping in a certificateless scheme later doesn't require replacing the broker; exposes per-client connect/disconnect events useful for latency checkpointing |
 | Local broker on fixed gateway | **Mosquitto** (Decided) on the Raspberry Pi | Terminates wearable mTLS locally so the fixed path keeps working with the cloud unreachable; lightweight; cert-CN-to-username and per-device ACLs built in |
 | Transport/auth adapter layer | Thin Python service(s) between the wire/broker and the ingestion API | Keeps protocol and device-authentication swap-in/out cheap; emits the same normalized authenticated-device contract downstream |
 | Ingestion API | **FastAPI** | Single internal contract regardless of which adapter delivered the message |
@@ -430,9 +430,8 @@ The mid report's list of unsettled design items (§5 "Design items still to be s
 - ECG sampling rate and window length (MIT-BIH is 360 Hz; the device must match training or the data must be resampled)
 - Gateway discovery by the wearable (the broker address is currently provisioned)
 - NTP on the gateway hotspot (required by the benchmark methodology)
-- Cloud observe vs enforce for wearable↔gateway assignment; local wearable allowlist on the gateway
-- Schema details still open within the design above, and the ingestion API's normalised message (fields, where hop-timestamps live, the `attested_by` field)
-- Concrete transport/auth adapter interface
+- Enforcing (not just observing) wearable↔gateway assignment — observe-only is decided for Iteration 3 (`cloud-backend.md` D5); local wearable allowlist on the gateway
+- Schema details still open within the design above (the normalised message, `attested_by` source, alert payload and gateway authentication are decided in `cloud-backend.md`)
 - Envelope wire-format details: field widths, counter-window size, persist-ahead reservation block size, `key_epoch` handling on re-provisioning; confirm AES-GCM and the exact header/derivation
 - BLE details: chunk header layout, MTU target, wearable buffer size, whether alerts get a separate indicate characteristic
 - Mode-switch behaviour (buffered data, persistence across reboot, button handling)

@@ -29,10 +29,10 @@ Last updated: 2026-10-23
 - Cloud data at rest: disk encryption of the cloud server and least-privilege database roles (planned with the cloud platform)
 
 ## Ingestion / messaging (blocks Iteration 3–4)
-- The ingestion API's normalised message: fields, where hop-timestamps live, the `attested_by` field
-- The concrete transport/auth adapter interface (only the normalised result is sketched)
-- Telemetry QoS and payload format; how an on-demand stream starts and stops (the request command, duration or explicit stop, and the `command_ack`)
-- Cloud observe vs enforce for wearable↔gateway assignment; the gateway's local wearable allowlist
+- The adapter's code-level interface (the message `ingest-v1` and the `attested_by` source are decided in `cloud-backend.md` D1/D7)
+- Telemetry QoS and the recording payload (the alert payload v1 is decided in `cloud-backend.md` D6); how an on-demand stream starts and stops (the request command, duration or explicit stop, and the `command_ack`)
+- Enforcing wearable↔gateway assignment (observe-only decided for Iteration 3, `cloud-backend.md` D5); the gateway's local wearable allowlist
+- How a patient export works when the organisation admin cannot read ECG data (`cloud-backend.md` D9)
 - Mode-switch behaviour: buffered data on a switch, persistence across reboot, button handling
 
 ## ECG / model layer
@@ -71,8 +71,9 @@ Last updated: 2026-10-23
 - Role-based view definitions → four roles with defined responsibilities and access rules
 
 ## Suggested priority (highest leverage first)
-1. Ingestion normalised message + adapter interface, and the schema details — needed to start Iteration 3
-2. A role × endpoint access matrix derived from the access rules — needed for IAM in Iteration 3
-3. TinyDL wearable model spec — blocks the alert pipeline and the path benchmark
-4. Phone-to-patient/wearable binding auth — active security gap
-5. Mobile-path envelope wire format + remaining CN/SAN pinning — blocks the mobile path (Iteration 6)
+1. TinyDL wearable model spec — blocks the alert pipeline and the path benchmark
+2. Phone-to-patient/wearable binding auth — active security gap
+3. On-demand recording start/stop — blocks `telemetry` ingestion
+4. Mobile-path envelope wire format + remaining CN/SAN pinning — blocks the mobile path (Iteration 6)
+
+(The Iteration 3 blockers — normalised message, `attested_by` source, role × endpoint matrix — were decided on 2026-10-23 in `cloud-backend.md`.)
