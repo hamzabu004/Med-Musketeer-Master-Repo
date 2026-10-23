@@ -81,9 +81,9 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 | D9 | **Role × endpoint matrix** | Table in `cloud-backend.md`, then one parametrised test. The organisation admin cannot read patient ECG data; a doctor sees the live status of their patients' devices and reads their disorders. |
 | D10 | **EMQX version and licence** | `emqx/emqx:6.3.2` pinned (newest, 2026-10-16, amd64 + arm64). Business Source License 1.1: single-node production and academic use are allowed. |
 
-### Slice 1 — Stack skeleton (S)
+### Slice 1 — Stack skeleton (S) — Done 2026-10-23
 
-- `compose.yaml` with pinned image versions (all must have arm64 builds for the Pi): TimescaleDB on PostgreSQL 17, ZITADEL (using the same Postgres instance, separate database), `emqx/emqx:6.3.2`, `api`, `adapter`.
+- `compose.yaml` with pinned image versions (all must have arm64 builds for the Pi): TimescaleDB 2.31.0 on PostgreSQL 18 (ZITADEL v4 supports 14–18), ZITADEL v4.20.0 (API and Login UI containers, behind Traefik v3.7.16 as in ZITADEL's reference compose, using the same Postgres instance with a separate database), `emqx/emqx:6.3.2`, `api` (Python 3.14.9). The `adapter` service is added in Slice 5.
 - `.env.example`; health checks; `GET /healthz` on the API reporting database, ZITADEL and EMQX reachability.
 - **Tests:** TC-C01 the stack comes up healthy from an empty volume; TC-C02 the API refuses to start without required settings.
 

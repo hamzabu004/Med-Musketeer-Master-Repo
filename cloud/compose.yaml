@@ -1,0 +1,156 @@
+# MedMusketeer cloud backend (Iteration 3). Development stack; the same file is deployed to the
+# cloud Pi in Slice 6. Every image is pinned and has amd64 and arm64 builds. Secrets come from
+# .env (create it with scripts/init-env.sh); published ports bind to 127.0.0.1 only.
+name: medmusketeer-cloud
+
+services:
+  postgres:
+    image: timescale/timescaledb:2.31.0-pg18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?set in .env}
+      POSTGRES_DB: postgres
+      ZITADEL_DB_PASSWORD: ${ZITADEL_DB_PASSWORD:?set in .env}
+      MM_MIGRATOR_PASSWORD: ${MM_MIGRATOR_PASSWORD:?set in .env}
+      MM_API_PASSWORD: ${MM_API_PASSWORD:?set in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      # Mount the script, not the directory: the image keeps its own 000/001 TimescaleDB scripts there.
+      - ./postgres/init/010-databases.sh:/docker-entrypoint-initdb.d/010-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d medmusketeer"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  zitadel-api:
+    image: ghcr.io/zitadel/zitadel:v4.20.0
+    restart: unless-stopped
+    user: "0"
+    command: start-from-init --masterkey "${ZITADEL_MASTERKEY:?set in .env}"
+    environment:
+      ZITADEL_PORT: 8080
+      ZITADEL_EXTERNALDOMAIN: ${ZITADEL_DOMAIN:-localhost}
+      ZITADEL_EXTERNALPORT: ${PROXY_HTTP_PUBLISHED_PORT:-8080}
+      ZITADEL_EXTERNALSECURE: "false"
+      ZITADEL_TLS_ENABLED: "false"
+      ZITADEL_DATABASE_POSTGRES_DSN: postgresql://zitadel:${ZITADEL_DB_PASSWORD}@postgres:5432/zitadel?sslmode=disable
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD:?set in .env}
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
+      ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel/bootstrap/login-client.pat
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: login-client
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: Automatically Initialized IAM_LOGIN_CLIENT
+      ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_PAT_EXPIRATIONDATE: "2099-01-01T00:00:00Z"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: "true"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_BASEURI: http://${ZITADEL_DOMAIN:-localhost}:${PROXY_HTTP_PUBLISHED_PORT:-8080}/ui/v2/login/
+      ZITADEL_OIDC_DEFAULTLOGINURLV2: http://${ZITADEL_DOMAIN:-localhost}:${PROXY_HTTP_PUBLISHED_PORT:-8080}/ui/v2/login/login?authRequest=
+      ZITADEL_OIDC_DEFAULTLOGOUTURLV2: http://${ZITADEL_DOMAIN:-localhost}:${PROXY_HTTP_PUBLISHED_PORT:-8080}/ui/v2/login/logout?post_logout_redirect=
+    volumes:
+      - zitadel-bootstrap:/zitadel/bootstrap:rw
+    healthcheck:
+      test: ["CMD", "/app/zitadel", "ready"]
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  zitadel-login:
+    image: ghcr.io/zitadel/zitadel-login:v4.20.0
+    restart: unless-stopped
+    user: "0"
+    environment:
+      ZITADEL_API_URL: http://zitadel-api:8080
+      NEXT_PUBLIC_BASE_PATH: /ui/v2/login
+      ZITADEL_SERVICE_USER_TOKEN_FILE: /zitadel/bootstrap/login-client.pat
+      ZITADEL_SESSION_COOKIE_SECRET: ${LOGIN_SESSION_COOKIE_SECRET:?set in .env}
+      CUSTOM_REQUEST_HEADERS: Host:${ZITADEL_DOMAIN:-localhost},X-Forwarded-Proto:http
+    volumes:
+      - zitadel-bootstrap:/zitadel/bootstrap:ro
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "node /app/healthcheck.mjs http://localhost:3000/ui/v2/login/healthy"]
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      zitadel-api:
+        condition: service_healthy
+
+  # HTTP entry point for ZITADEL (API and Login UI share one origin). Routes come from a static
+  # file, so no container-engine socket is mounted.
+  proxy:
+    image: traefik:v3.7.16
+    restart: unless-stopped
+    command:
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --entrypoints.web.address=:80
+      - --ping=true
+      - --ping.entrypoint=web
+      - --accesslog=true
+    ports:
+      - 127.0.0.1:${PROXY_HTTP_PUBLISHED_PORT:-8080}:80
+    volumes:
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping", "--ping.entrypoint=web", "--entrypoints.web.address=:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    depends_on:
+      zitadel-api:
+        condition: service_healthy
+      zitadel-login:
+        condition: service_healthy
+
+  emqx:
+    image: emqx/emqx:6.3.2
+    restart: unless-stopped
+    environment:
+      EMQX_NODE__NAME: emqx@127.0.0.1
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_PASSWORD:?set in .env}
+    ports:
+      - 127.0.0.1:${EMQX_DASHBOARD_PUBLISHED_PORT:-18083}:18083
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+    healthcheck:
+      test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 15s
+
+  api:
+    build: ./backend
+    image: medmusketeer/cloud-api:dev
+    restart: unless-stopped
+    environment:
+      MM_DATABASE_URL: postgresql+psycopg://mm_api:${MM_API_PASSWORD}@postgres:5432/medmusketeer
+      MM_ZITADEL_URL: http://zitadel-api:8080
+      MM_EMQX_STATUS_URL: http://emqx:18083/status
+    ports:
+      - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/livez', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      zitadel-api:
+        condition: service_healthy
+      emqx:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  zitadel-bootstrap:
+  emqx-data:
+  emqx-log:

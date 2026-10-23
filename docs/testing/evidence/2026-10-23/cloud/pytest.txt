@@ -1,0 +1,47 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/cloud/backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, cov-7.1.0
+collected 9 items
+
+tests/integration/test_stack.py ...                                      [ 33%]
+tests/unit/test_app.py ......                                            [100%]
+
+=============================== warnings summary ===============================
+.venv/lib64/python3.14/site-packages/fastapi/testclient.py:1
+  /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/cloud/backend/.venv/lib64/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_____________ test_healthz_reports_each_failed_dependency_with_503 _____________
+------------------------------ Captured log call -------------------------------
+WARNING  app.health:health.py:36 health check database failed: OperationalError
+WARNING  app.health:health.py:36 health check zitadel failed: ConnectError
+WARNING  app.health:health.py:36 health check emqx failed: ConnectError
+- generated xml file: /tmp/claude-1000/-run-media-hmz-gul-01DB003D88B96CA0-FYP/8057eac7-eef3-49d8-b214-45c944dcc536/scratchpad/cloud-run2/junit.xml -
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.7-final-0 ________________
+
+Name              Stmts   Miss Branch BrPart  Cover   Missing
+-------------------------------------------------------------
+app/__init__.py       0      0      0      0   100%
+app/health.py        27      7      6      1    70%   16-21, 26-27, 39
+app/main.py          28      0      2      1    97%   43->45
+app/settings.py       5      0      0      0   100%
+-------------------------------------------------------------
+TOTAL                60      7      8      2    84%
+Coverage XML written to file /tmp/claude-1000/-run-media-hmz-gul-01DB003D88B96CA0-FYP/8057eac7-eef3-49d8-b214-45c944dcc536/scratchpad/cloud-run2/coverage.xml
+=========================== short test summary info ============================
+PASSED tests/integration/test_stack.py::test_tc_c01_every_service_is_healthy
+PASSED tests/integration/test_stack.py::test_tc_c01_healthz_reports_every_dependency_ok
+PASSED tests/integration/test_stack.py::test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_DATABASE_URL]
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_ZITADEL_URL]
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_EMQX_STATUS_URL]
+PASSED tests/unit/test_app.py::test_database_url_is_not_shown_in_settings_repr
+PASSED tests/unit/test_app.py::test_livez_is_ok_without_dependencies
+PASSED tests/unit/test_app.py::test_healthz_reports_each_failed_dependency_with_503
+======================== 9 passed, 1 warning in 39.89s =========================

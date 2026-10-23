@@ -31,3 +31,14 @@ container that stands in for the Pi; **H** needs the ESP32-S3, phone, or Pi (see
 | TC-B02 | A-container + H | `test_broker_interop::test_tc_b02_*` | All four own publish topics and the own command subscription. |
 | TC-B03 | A-container + H | `test_broker_interop::test_tc_b03_*` | Judged by a services-listener monitor and `Denied PUBLISH` in the broker log. |
 | TC-B04 | A-container + H | `test_broker_interop::test_tc_b04_*` | The services username is a UUIDv4 so that a wearable CN can equal it. |
+
+## Cloud backend (Iteration 3)
+
+Tests live in `cloud/backend/tests/`. Run them with `cloud/run_cloud_tests.sh`; it writes `environment.txt`, `pytest.txt`, `junit.xml`, `coverage.xml`, and `stack/` (compose output, service states, `/healthz` response) to `docs/testing/evidence/<date>/cloud/`. Planned cases: `docs/iterations/iteration-3-cloud.md`.
+
+Kinds: **A** automated, no containers; **A-stack** automated against the full compose stack (Docker), brought up under its own project name and removed afterwards.
+
+| ID | Kind | Tests | Notes |
+|---|---|---|---|
+| TC-C01 | A-stack | `test_stack::test_tc_c01_every_service_is_healthy`, `test_stack::test_tc_c01_healthz_reports_every_dependency_ok`, `test_stack::test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy` | From empty volumes. Evidence 2026-10-23. |
+| TC-C02 | A | `test_app::test_tc_c02_api_refuses_to_start_without_required_setting[*]` | One case per required `MM_*` setting. |

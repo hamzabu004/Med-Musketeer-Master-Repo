@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medmusketeer-cloud"
+version = "0.1.0"
+description = "MedMusketeer cloud backend: registry, IAM, and ingestion API"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.161",
+  "uvicorn>=0.54",
+  "pydantic-settings>=2.16",
+  "sqlalchemy[asyncio]>=2.1",
+  "psycopg[binary]>=3.3",
+  "httpx>=0.28",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=6"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: brings up the compose stack with docker compose (TC-C01)",
+]
