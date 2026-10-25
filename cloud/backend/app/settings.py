@@ -1,9 +1,9 @@
 """Runtime settings, read from MM_* environment variables. Missing required settings stop startup."""
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, SecretStr, field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -25,3 +25,13 @@ class Settings(BaseSettings):
     emqx_hook_secret: SecretStr | None = None
     # Password of the adapter's account (mm-adapter) on the internal listener.
     emqx_adapter_password: SecretStr | None = None
+    # Browser origins that may call the API (the dashboard), comma-separated, e.g.
+    # "http://localhost:3000,https://med-muskeeter.vercel.app". Empty: no CORS headers at all.
+    cors_origins: Annotated[list[str], NoDecode] = []
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def split_origins(cls, value):
+        if isinstance(value, str):
+            return [origin.strip().rstrip("/") for origin in value.split(",") if origin.strip()]
+        return value

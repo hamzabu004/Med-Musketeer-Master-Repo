@@ -144,6 +144,12 @@ services:
       timeout: 10s
       retries: 12
       start_period: 15s
+    # Every client is authenticated and authorised by the API's hooks. Started before the API, EMQX
+    # cannot resolve `api`, and its HTTP authenticators stay down until their next health check
+    # (about 15 s), refusing every client meanwhile.
+    depends_on:
+      api:
+        condition: service_healthy
 
   # One-off: applies the database migrations as mm_migrator, then exits. The API starts after it.
   migrate:
@@ -168,6 +174,7 @@ services:
       MM_ZITADEL_ADMIN_PAT_FILE: /zitadel/bootstrap/admin.pat
       MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
       MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
+      MM_DASHBOARD_ORIGINS: ${DASHBOARD_ORIGINS:-http://localhost:3000}
     volumes:
       - zitadel-bootstrap:/zitadel/bootstrap:ro
       - mm-config:/var/lib/medmusketeer
@@ -188,6 +195,7 @@ services:
       MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
       MM_EMQX_HOOK_SECRET: ${EMQX_HOOK_SECRET:?set in .env}
       MM_EMQX_ADAPTER_PASSWORD: ${EMQX_ADAPTER_PASSWORD:?set in .env}
+      MM_CORS_ORIGINS: ${DASHBOARD_ORIGINS:-http://localhost:3000}
     ports:
       - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
     volumes:
@@ -204,8 +212,6 @@ services:
         condition: service_completed_successfully
       zitadel-bootstrap:
         condition: service_completed_successfully
-      emqx:
-        condition: service_healthy
 
   # One-off tool, not started by `up`: writes the cloud certificate into the emqx-certs volume.
   # Used by scripts/install-emqx-certs.sh, which streams a tar of the three files to its stdin.

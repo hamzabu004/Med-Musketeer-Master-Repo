@@ -1,15 +1,20 @@
-"""TC-C01 (the compose stack comes up healthy from empty volumes), TC-C12 and TC-C13 end to end.
+"""TC-C01 (the compose stack comes up healthy from empty volumes), TC-C12, TC-C13 and TC-C19 end to end.
 
 The stack itself is the session fixture `stack` (tests.integration.stack, conftest).
 """
+import base64
+import hashlib
 import json
+import secrets
 import urllib.request
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
 
-from tests.integration.stack import API, PORTS, compose, evidence, machine_token, register_user, zitadel_admin
+from tests.integration.stack import (API, PORTS, compose, evidence, machine_token, read_volume_file, register_user,
+                                     zitadel_admin)
 
 pytestmark = pytest.mark.integration
 
@@ -140,3 +145,103 @@ def test_tc_c13_account_creation_shows_up_in_zitadel_and_in_users(stack):
     record["audit"] = [event["action"] for event in httpx.get(f"{API}/audit", headers=oa).json()]
     assert record["audit"][:3] == ["account.disabled", "account.created", "account.created"]
     evidence("tc_c13_accounts.json", json.dumps(record, indent=2))
+
+
+# --- TC-C19: the dashboard signs in through ZITADEL (D14) --------------------------------------
+
+DASHBOARD = "http://localhost:3000"  # compose's default DASHBOARD_ORIGINS
+
+
+def seed_dev(stack, password: str) -> dict:
+    seeded = compose(stack, "exec", "-T", "api", "python", "-m", "app.manage", "seed-dev",
+                     "--password", password, "--allow-existing")
+    return json.loads(seeded.stdout)
+
+
+def login_client(config: dict):
+    """ZITADEL's Login UI service account (IAM_LOGIN_CLIENT): only it may link a session to an
+    authorization request, so the test makes the login's calls with its token."""
+    from app.zitadel_bootstrap import Zitadel
+
+    return Zitadel(config["issuer"], config["issuer"], read_volume_file("zitadel-bootstrap", "login-client.pat").strip())
+
+
+def dashboard_sign_in(login, auth: dict, email: str, password: str) -> str:
+    """What the dashboard and ZITADEL's login do in the browser, step by step: an authorization
+    request with PKCE, a password session for the user, the login linking it to the request, and
+    the code exchange. Returns the access token."""
+    verifier = secrets.token_urlsafe(48)
+    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    authorize = httpx.get(f"{auth['issuer']}/oauth/v2/authorize", follow_redirects=False, params={
+        "client_id": auth["client_id"], "redirect_uri": f"{DASHBOARD}/auth/callback", "response_type": "code",
+        "scope": auth["scope"], "code_challenge": challenge, "code_challenge_method": "S256", "state": "s1"})
+    assert authorize.status_code in (302, 303), authorize.text
+    auth_request = parse_qs(urlsplit(authorize.headers["location"]).query)["authRequest"][0]
+    session = login.call("POST", "/v2/sessions", ok=(200, 201), json={
+        "checks": {"user": {"loginName": email}, "password": {"password": password}}})
+    callback = login.call("POST", f"/v2/oidc/auth_requests/{auth_request}", json={
+        "session": {"sessionId": session["sessionId"], "sessionToken": session["sessionToken"]}})["callbackUrl"]
+    assert callback.startswith(f"{DASHBOARD}/auth/callback?")
+    query = parse_qs(urlsplit(callback).query)
+    assert query["state"] == ["s1"]
+    token = httpx.post(f"{auth['issuer']}/oauth/v2/token", data={
+        "grant_type": "authorization_code", "code": query["code"][0], "redirect_uri": f"{DASHBOARD}/auth/callback",
+        "client_id": auth["client_id"], "code_verifier": verifier}, headers={"Origin": DASHBOARD}, timeout=15)
+    assert token.status_code == 200, token.text
+    assert token.headers.get("access-control-allow-origin") == DASHBOARD
+    return token.json()["access_token"]
+
+
+def test_tc_c19_seeded_accounts_sign_in_to_the_dashboard_and_get_their_role(stack):
+    zitadel, config = zitadel_admin(stack)
+    record = {}
+
+    # The bootstrap created the dashboard's app as a PKCE browser app with JWT access tokens.
+    apps = zitadel.call("POST", f"/management/v1/projects/{config['project_id']}/apps/_search",
+                        org=config["default_org_id"], json={})["result"]
+    app = next(app for app in apps if app["name"] == "MedMusketeer Dashboard")
+    oidc = app["oidcConfig"]
+    record["app"] = {key: oidc.get(key) for key in ("appType", "authMethodType", "accessTokenType", "redirectUris",
+                                                    "postLogoutRedirectUris", "devMode")}
+    assert oidc["clientId"] == config["dashboard_client_id"]
+    assert oidc["appType"] == "OIDC_APP_TYPE_USER_AGENT" and oidc["authMethodType"] == "OIDC_AUTH_METHOD_TYPE_NONE"
+    assert oidc["accessTokenType"] == "OIDC_TOKEN_TYPE_JWT"
+    assert oidc["redirectUris"] == [f"{DASHBOARD}/auth/callback"]
+
+    auth = httpx.get(f"{API}/auth/config").json()
+    assert auth["client_id"] == config["dashboard_client_id"] and auth["issuer"] == config["issuer"]
+
+    seeded = seed_dev(stack, password := f"Tc19-{secrets.token_urlsafe(9)}1a!")
+    people = {person["role"] + ":" + person["email"].split("@")[0]: person for person in seeded["people"]}
+    record["seeded"] = {key: value for key, value in seeded.items() if key not in ("password", "people")}
+
+    login = login_client(config)
+    record["sign_in"] = {}
+    for key in ("system_admin:sysadmin", "org_admin:orgadmin", "doctor:doctor1", "patient:patient1"):
+        person = people[key]
+        token = dashboard_sign_in(login, auth, person["email"], password)
+        headers = {"Authorization": f"Bearer {token}", "Origin": DASHBOARD}
+        me = httpx.get(f"{API}/me", headers=headers)
+        assert me.status_code == 200, me.text
+        assert me.json()["role"] == person["role"] and me.json()["user_id"] == person["user_id"]
+        assert me.headers["access-control-allow-origin"] == DASHBOARD
+        record["sign_in"][key] = me.json()["role"]
+
+        if person["role"] == "doctor":
+            # Names come from ZITADEL: the doctor sees their patients by name, without e-mail.
+            names = {f"{p['given_name']} {p['family_name']}" for p in httpx.get(f"{API}/directory", headers=headers).json()}
+            assert names == {"Sarah Ahmed", "Ali Khan", "Fatima Noor"}
+            alerts = httpx.get(f"{API}/alerts", headers=headers).json()
+            assert len(alerts) == 5 and {alert["label"] for alert in alerts} == {"V", "N", "S", "F"}
+            segment = httpx.get(f"{API}/segments/{alerts[0]['segment_id']}", headers=headers).json()
+            assert segment["fs_hz"] == 360 and sum(chunk["n_samples"] for chunk in segment["chunks"]) == 3600
+            record["doctor"] = {"directory": sorted(names), "alerts": len(alerts)}
+        if person["role"] == "patient":
+            names = {f"{p['given_name']} {p['family_name']}" for p in httpx.get(f"{API}/directory", headers=headers).json()}
+            assert names == {"Ali Khan", "Sarah Ahmed"}  # themselves and their doctor
+            record["patient"] = {"directory": sorted(names)}
+
+    wrong = login.http.post("/v2/sessions", json={"checks": {"user": {"loginName": people["doctor:doctor1"]["email"]},
+                                                               "password": {"password": "wrong-Password1!"}}})
+    assert wrong.status_code >= 400
+    evidence("tc_c19_dashboard_sign_in.json", json.dumps(record, indent=2))

@@ -192,12 +192,13 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Request on-demand ECG | ✘ | ✘ | ✔ (own patients) | ✘ |
 | Security events, attack tests | ✔ | ✘ | ✘ | ✘ |
 | Audit log (grants, issues, exports) | ✔ (device side) | ✔ (own org) | ✘ | ✘ |
+| Directory: names of the people one works with (D14) | ✘ | ✔ (own org, with e-mail) | ✔ (self, own patients) | ✔ (self, own doctor) |
 
 - The organisation admin **cannot read patient ECG data**, classifications or alerts.
 - Open: how a patient export works when the org admin cannot read ECG (whether the export bundle includes ECG, produced by the API without the org admin viewing it). Until decided, `POST /patients/{id}/exports` returns the pseudonym, disorders, care and wearable history with `ecg_included: false`, and logs the export.
-- Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3. Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
+- Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3; "Directory" on 2026-10-25 for the dashboard (D14). Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
 
-Endpoints (2026-10-24):
+Endpoints (2026-10-25):
 
 | Endpoint group | Endpoints |
 |---|---|
@@ -207,6 +208,8 @@ Endpoints (2026-10-24):
 | Patients | `GET /patients`, `PUT /patients/{id}/doctor`, `POST/DELETE /patients/{id}/wearable`, `GET/POST /patients/{id}/disorders`, `POST /patients/{id}/exports` |
 | ECG and alerts (doctor, patient) | `GET /alerts`, `GET /patients/{id}/alerts`, `POST /alerts/{id}/acknowledge`, `GET /patients/{id}/segments`, `GET /segments/{id}` |
 | Audit (org admin) | `GET /audit` |
+| Directory (D14) | `GET /directory` |
+| Public | `GET /livez`, `GET /healthz`, `GET /auth/config` (the dashboard's sign-in settings) |
 
 ## D10 — EMQX 6.3.2, pinned (Decided)
 
@@ -262,3 +265,30 @@ emqx (image built from cloud/emqx/)
 - The cloud server certificate (`mmca issue cloud`) is streamed into the `emqx-certs` volume by `cloud/scripts/install-emqx-certs.sh` (no bind mount). Without it EMQX starts with the gateway listener off and a warning.
 - Published ports: 8883 on `EMQX_GATEWAY_BIND_ADDRESS` (127.0.0.1 on the laptop, the Tailscale address on the cloud Pi), 1883 on 127.0.0.1 only.
 - Rejected alternative: per-listener built-in password database for the adapter (would need a credentials file baked into the image or a bind mount).
+
+## D14 — Dashboard sign-in, CORS and the name directory (Decided 2026-10-25)
+
+```
+browser (web/dashboard) ── GET /auth/config ─────────────────► api   {issuer, client_id, project_id, scope}
+        │ authorization code + PKCE (no secret)
+        ▼
+ZITADEL app "MedMusketeer Dashboard" (created by zitadel-bootstrap)
+        │ JWT access token: project audience, roles, resource owner
+        ▼
+browser ── Authorization: Bearer … (CORS: DASHBOARD_ORIGINS) ──► api   /me, /directory, …
+```
+
+- **The dashboard's OIDC app** is created by the `zitadel-bootstrap` job in the MedMusketeer project: a user-agent app with the authorization-code grant, PKCE and no client secret, refresh tokens allowed, and **JWT access tokens with the roles asserted** (the API validates JWTs only). Its redirect URI is `{origin}/auth/callback` and its post-logout URI `{origin}/` for every origin in `DASHBOARD_ORIGINS` (default `http://localhost:3000`). The job brings it in line with that setting on every `up`. Dev mode (which allows http redirect URIs) is on only when an origin is http.
+- **`GET /auth/config`** (public) returns the issuer, the app's client id, the project id and the scopes a login must request (`openid profile email offline_access`, the project audience, the project roles and the resource owner). The dashboard reads it at start, so the same build works against any stack. The client id is written to `zitadel.json` as `dashboard_client_id`; without it the endpoint answers 503.
+- **CORS**: the API sends CORS headers only to the origins in `MM_CORS_ORIGINS` (compose sets it from `DASHBOARD_ORIGINS`), for GET/POST/PUT/PATCH/DELETE with the `Authorization` and `Content-Type` headers, and without credentials: the dashboard sends a bearer token, never cookies. With no origins configured, no CORS headers are sent.
+- **`GET /directory`** returns `{user_id, role, status, given_name, family_name, email}` for the accounts the caller works with. The names are read from ZITADEL as `mm-api` (one list call per 100 users) and reused for 60 seconds.
+  - Organisation admin: every account of the organisation, with e-mail, since they manage the accounts.
+  - Doctor: themselves and their current patients, without e-mail. A doctor identifies the patients they treat by name; ECG data stays filed under the pseudonym.
+  - Patient: themselves and their current doctor, without e-mail.
+  - System admin: no directory (403). They see no patient or doctor data (D9).
+  - An account ZITADEL returns no profile for is listed with empty names. A ZITADEL failure answers 502.
+- **Development data**: `python -m app.manage seed-dev` creates, on an empty stack, a system admin and the organisation "Dev Hospital" with an org admin, two doctors and three patients. All of them are ZITADEL human users with one printed password. It also adds a gateway and wearables, alert segments of synthetic ECG with classifications and alerts, and IDS events. The ECG is generated and has no clinical meaning. It exists so that the dashboard can be built and tested before ingestion (Slice 5).
+- Rejected alternatives:
+  - The dashboard reading names from ZITADEL itself: a user's token cannot read other users.
+  - A name column in `users`: names would then live in two places (D12 keeps them in ZITADEL).
+  - A same-origin reverse proxy instead of CORS: the dashboard is hosted on Vercel, the API on the cloud Pi.

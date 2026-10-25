@@ -133,3 +133,40 @@ def test_deactivating_an_already_inactive_user_succeeds(token_file):
     with pytest.raises(ZitadelError) as excinfo:
         asyncio.run(admin(ScriptedZitadel(still_active), token_file).deactivate_user("u-1"))
     assert excinfo.value.status == 400
+
+
+# --- profiles (app.directory) ------------------------------------------------------------------
+
+def profile_answer(request: httpx.Request) -> dict:
+    ids = json.loads(request.content)["queries"][0]["inUserIdsQuery"]["userIds"]
+    return {"result": [{"userId": user_id, "human": {"profile": {"givenName": f"G-{user_id}", "familyName": "F"},
+                                                     "email": {"email": f"{user_id}@x.example"}}}
+                       for user_id in ids if user_id != "gone"]}
+
+
+def test_profiles_are_read_in_batches_and_cached(token_file, monkeypatch):
+    monkeypatch.setattr("app.zitadel.PROFILE_BATCH", 2)
+    script = ScriptedZitadel({("POST", "/v2/users"): profile_answer})
+    client = admin(script, token_file)
+    found = asyncio.run(client.profiles(["u1", "u2", "u3", "gone"]))
+    assert set(found) == {"u1", "u2", "u3"}  # a user ZITADEL does not return is left out
+    assert found["u1"].given_name == "G-u1" and found["u1"].email == "u1@x.example"
+    assert len(script.requests) == 2  # four ids in batches of two
+    asyncio.run(client.profiles(["u1", "u2"]))
+    assert len(script.requests) == 2  # cached
+
+
+def test_profiles_are_read_again_after_the_ttl(token_file, monkeypatch):
+    script = ScriptedZitadel({("POST", "/v2/users"): profile_answer})
+    client = admin(script, token_file)
+    asyncio.run(client.profiles(["u1"]))
+    monkeypatch.setattr("app.zitadel.PROFILE_TTL_S", -1)
+    client._profiles = {key: (0.0, value) for key, (_, value) in client._profiles.items()}  # expired
+    asyncio.run(client.profiles(["u1"]))
+    assert len(script.requests) == 2
+
+
+def test_a_zitadel_failure_reading_profiles_is_raised(token_file):
+    script = ScriptedZitadel({("POST", "/v2/users"): 503})
+    with pytest.raises(ZitadelError):
+        asyncio.run(admin(script, token_file).profiles(["u1"]))

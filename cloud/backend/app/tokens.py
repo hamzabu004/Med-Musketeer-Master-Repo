@@ -34,11 +34,20 @@ class ZitadelConfig:
     issuer: str
     project_id: str
     default_org_id: str
+    dashboard_client_id: str | None = None  # the dashboard's OIDC app (D14); None if not set up
 
     @classmethod
     def load(cls, path: Path) -> "ZitadelConfig":
         data = json.loads(path.read_text())
-        return cls(issuer=data["issuer"], project_id=data["project_id"], default_org_id=data["default_org_id"])
+        return cls(issuer=data["issuer"], project_id=data["project_id"], default_org_id=data["default_org_id"],
+                   dashboard_client_id=data.get("dashboard_client_id"))
+
+
+def login_scope(project_id: str) -> str:
+    """The scopes a user login must ask for, so the access token carries what the API checks: the
+    project as audience, the project roles and the user's organisation."""
+    return (f"openid profile email offline_access urn:zitadel:iam:org:project:id:{project_id}:aud "
+            "urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner")
 
 
 @dataclass(frozen=True)

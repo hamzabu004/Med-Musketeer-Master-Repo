@@ -29,6 +29,8 @@ curl -s http://127.0.0.1:8000/healthz
 - ZITADEL: http://localhost:8080 (first admin `zitadel-admin@zitadel.localhost`, password `ZITADEL_ADMIN_PASSWORD` in `.env`).
 - EMQX dashboard: http://127.0.0.1:18083 (user `admin`, password `EMQX_DASHBOARD_PASSWORD`).
 - Keep `.env`: the ZITADEL masterkey cannot change once ZITADEL has been initialised with it. To start from scratch, `docker compose down --volumes` and delete `.env`.
+- The dashboard (`web/dashboard`) signs in through ZITADEL's app "MedMusketeer Dashboard". `DASHBOARD_ORIGINS` in `.env` lists the origins it runs on (default `http://localhost:3000`); it sets the app's redirect URIs and the API's CORS origins on the next `up`.
+- Development data with sign-in accounts for every role: `docker compose exec api python -m app.manage seed-dev` on an empty stack. It prints the accounts and their shared password (`cloud-backend.md` D14).
 - A `.env` made before Slice 4 needs `EMQX_HOOK_SECRET`, `EMQX_ADAPTER_PASSWORD` and `EMQX_NODE_COOKIE` (random letters and digits; see `scripts/init-env.sh`).
 
 ## EMQX gateway listener
@@ -52,6 +54,8 @@ cloud/scripts/install-emqx-certs.sh           # reads ~/medmusketeer-ca; restart
 | `GET /livez` | The process is up (used by the container health check) |
 | `GET /healthz` | Database (with the TimescaleDB extension), ZITADEL and EMQX reachable; 503 if any is not |
 | `GET /me` | The caller's user id, role, organisation and (patients) patient id |
+| `GET /auth/config` | Public: the issuer, client id and scopes the dashboard signs in with |
+| `GET /directory` | Names (from ZITADEL) of the people the caller works with |
 | `/admin/...` | System admin: organisations and their admins, devices, credentials, device grants, registry audit log, security events |
 | `/organisation`, `/devices`, `/audit` | Own organisation, its devices (doctor: their patients' wearables), its audit log (org admin) |
 | `/accounts` | Org admin: create (in ZITADEL and `users`, returns an invite code), list, disable doctor and patient accounts |
@@ -59,11 +63,11 @@ cloud/scripts/install-emqx-certs.sh           # reads ~/medmusketeer-ca; restart
 | `/alerts`, `/patients/{id}/alerts`, `/patients/{id}/segments`, `/segments/{id}` | Doctor (own patients) and patient (self): alerts, acknowledgement (doctor), ECG segments with samples |
 | `/internal/emqx/...` | EMQX's authentication and authorisation hooks; only with the shared `EMQX_HOOK_SECRET`, not in the API description |
 
-Every endpoint except `/livez` and `/healthz` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from an active user registered in `users` with the same role (`app/auth.py`). Who may call what is the D9 matrix in `docs/decisions/cloud-backend.md`, tested in full by TC-C09. The interactive API description is at http://127.0.0.1:8000/docs.
+Every endpoint except `/livez`, `/healthz` and `/auth/config` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from an active user registered in `users` with the same role (`app/auth.py`). Who may call what is the D9 matrix in `docs/decisions/cloud-backend.md`, tested in full by TC-C09. The interactive API description is at http://127.0.0.1:8000/docs.
 
 ## ZITADEL set-up
 
-The one-off `zitadel-bootstrap` job runs on every `up`. With the IAM_OWNER service account `mm-bootstrap` (created on ZITADEL's first start; its token stays in the `zitadel-bootstrap` volume, which the API does not mount), it creates the `MedMusketeer` project and its roles `system_admin`, `org_admin`, `doctor`, `patient`, grants `system_admin` to ZITADEL's first admin, and writes `zitadel.json` (issuer, project id, default organisation id) to the `mm-config` volume for the API.
+The one-off `zitadel-bootstrap` job runs on every `up`. With the IAM_OWNER service account `mm-bootstrap` (created on ZITADEL's first start; its token stays in the `zitadel-bootstrap` volume, which the API does not mount), it creates the `MedMusketeer` project and its roles `system_admin`, `org_admin`, `doctor`, `patient`, grants `system_admin` to ZITADEL's first admin, creates the dashboard's OIDC app (D14), and writes `zitadel.json` (issuer, project id, default organisation id, dashboard client id) to the `mm-config` volume for the API.
 
 It also creates the API's own service account `mm-api` with the instance role `IAM_ORG_MANAGER` and writes its token to the `mm-secrets` volume (mounted read-only by the API, mode 0600). The API uses it to create organisations, organisation admins, doctors and patients in ZITADEL. The token is valid for a year; the job replaces it when it is missing or no longer works, and the API reloads it when ZITADEL refuses the old one. Without it, account and organisation creation answer 503.
 
@@ -89,7 +93,7 @@ python3 -m venv .venv
 ../run_cloud_tests.sh                               # all tests + evidence in docs/testing/evidence/<date>/cloud/
 ```
 
-The stack tests (TC-C01, C12 to C18) bring the stack up once under the compose project `mm-cloud-tc` on ports 18080/18000/28083/28883/21883, with a throwaway CA made by the CA tool in `tools/ca-tool/`, and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
+The stack tests (TC-C01, C12 to C19) bring the stack up once under the compose project `mm-cloud-tc` on ports 18080/18000/28083/28883/21883, with a throwaway CA made by the CA tool in `tools/ca-tool/`, and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
 
 ## Dependencies
 

@@ -6,7 +6,7 @@ a ZITADEL failure leaves no database rows behind.
 """
 import itertools
 
-from app.zitadel import NewUser, ZitadelAdmin, ZitadelError
+from app.zitadel import NewUser, Profile, ZitadelAdmin, ZitadelError
 
 
 class FakeZitadelAdmin:
@@ -15,6 +15,7 @@ class FakeZitadelAdmin:
         self.organisations: dict[str, str] = {}  # zitadel org id -> name
         self.users: dict[str, dict] = {}  # zitadel user id -> {org, role, email, state}
         self.failures: dict[str, ZitadelError] = {}
+        self.names: dict[str, tuple[str, str]] = {}  # zitadel user id -> (given, family); also set by tests
 
     def fail(self, method: str, status: int = 500, message: str = "injected failure") -> None:
         self.failures[method] = ZitadelError(status, message)
@@ -43,6 +44,7 @@ class FakeZitadelAdmin:
             raise ZitadelError(409, "User already exists")
         user_id = f"z-user-{next(self._ids)}"
         self.users[user_id] = {"org": org_id, "role": role, "email": email, "state": "active"}
+        self.names[user_id] = (given_name, family_name)
         return NewUser(user_id=user_id, invite_code=f"INVITE-{user_id}")
 
     async def deactivate_user(self, user_id: str) -> None:
@@ -53,3 +55,8 @@ class FakeZitadelAdmin:
     async def delete_user(self, user_id: str) -> None:
         self._maybe_fail("delete_user")
         self.users.pop(user_id)
+
+    async def profiles(self, user_ids: list[str]) -> dict[str, Profile]:
+        self._maybe_fail("profiles")
+        return {user_id: Profile(*self.names[user_id], email=self.users.get(user_id, {}).get("email"))
+                for user_id in user_ids if user_id in self.names}

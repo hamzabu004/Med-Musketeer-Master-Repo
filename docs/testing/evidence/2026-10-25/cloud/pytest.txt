@@ -1,0 +1,1721 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/cloud/backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, cov-7.1.0
+collected 313 items
+
+tests/integration/test_access.py ....................................... [ 12%]
+........................................................................ [ 35%]
+.............................................                            [ 49%]
+tests/integration/test_auth.py ...............                           [ 54%]
+tests/integration/test_broker.py ....................                    [ 61%]
+tests/integration/test_directory.py ......                               [ 62%]
+tests/integration/test_gateway.py .....                                  [ 64%]
+tests/integration/test_organisation.py ........................          [ 72%]
+tests/integration/test_registry.py ..........                            [ 75%]
+tests/integration/test_schema.py ........                                [ 77%]
+tests/integration/test_stack.py ......                                   [ 79%]
+tests/unit/test_app.py .............                                     [ 84%]
+tests/unit/test_broker_rules.py .....................                    [ 90%]
+tests/unit/test_tokens.py ...............                                [ 95%]
+tests/unit/test_zitadel.py ..........                                    [ 98%]
+tests/unit/test_zitadel_bootstrap.py ....                                [100%]
+
+=============================== warnings summary ===============================
+.venv/lib64/python3.14/site-packages/fastapi/testclient.py:1
+  /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/cloud/backend/.venv/lib64/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+___ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-system_admin] ____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:46.606 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-org_admin] _____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:46.925 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-doctor] _______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:47.199 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /admin/organisations-patient] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:47.555 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-system_admin] ___
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:47.856 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-org_admin] _____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:48.196 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-doctor] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:48.481 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[POST /admin/organisations-patient] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:48.806 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:49.107 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:49.504 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:49.842 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:50.138 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:50.430 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:50.788 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:51.073 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:51.352 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /admin/devices-system_admin] _______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:51.630 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[GET /admin/devices-org_admin] ________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:51.948 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /admin/devices-doctor] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:52.237 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /admin/devices-patient] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:52.546 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[POST /admin/devices-system_admin] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:52.851 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______ test_tc_c09_role_endpoint_matrix[POST /admin/devices-org_admin] ________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:53.245 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[POST /admin/devices-doctor] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:53.552 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[POST /admin/devices-patient] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:53.841 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:54.111 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-org_admin] __
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:54.407 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-doctor] ___
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:54.685 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-patient] ___
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:54.972 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:55.274 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:55.615 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:55.913 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:56.187 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:56.440 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:56.769 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:57.065 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:57.382 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:57.686 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:58.030 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:58.310 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:58.580 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:58.872 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:59.183 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:59.444 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:59.683 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:04:59.913 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:00.218 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:00.494 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:00.768 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:01.039 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:01.370 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:01.627 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:01.875 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:02.132 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:02.426 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:02.678 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:02.936 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:03.220 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:03.583 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:03.874 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:04.157 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:04.428 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:04.749 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-doctor] __
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:05.020 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-patient] __
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:05.281 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______ test_tc_c09_role_endpoint_matrix[GET /admin/audit-system_admin] ________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:05.668 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /admin/audit-org_admin] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:06.002 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /admin/audit-doctor] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:06.270 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /admin/audit-patient] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:06.532 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-system_admin] ___
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:06.794 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-org_admin] ____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:07.096 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-doctor] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:07.367 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /admin/security-events-patient] _____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:07.646 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______ test_tc_c09_role_endpoint_matrix[GET /organisation-system_admin] _______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:07.935 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[GET /organisation-org_admin] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:08.274 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /organisation-doctor] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:08.635 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /organisation-patient] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:08.970 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /devices-system_admin] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:09.281 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /devices-org_admin] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:09.549 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /devices-doctor] _____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:09.853 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /devices-patient] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:10.159 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /audit-system_admin] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:10.437 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /audit-org_admin] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:10.726 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_tc_c09_role_endpoint_matrix[GET /audit-doctor] ______________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:11.082 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_tc_c09_role_endpoint_matrix[GET /audit-patient] _____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:11.382 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[GET /directory-system_admin] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:11.669 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /directory-org_admin] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:11.953 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /directory-doctor] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:12.274 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /directory-patient] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:12.584 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /accounts-system_admin] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:12.887 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /accounts-org_admin] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:13.141 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /accounts-doctor] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:13.449 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /accounts-patient] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:13.753 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_tc_c09_role_endpoint_matrix[POST /accounts-system_admin] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:14.142 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[POST /accounts-org_admin] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:14.434 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[POST /accounts-doctor] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:14.760 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[POST /accounts-patient] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:15.023 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:15.272 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:15.525 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:15.839 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:16.144 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c09_role_endpoint_matrix[GET /patients-system_admin] _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:16.436 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /patients-org_admin] ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:16.719 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /patients-doctor] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:17.028 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /patients-patient] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:17.323 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:17.578 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:17.834 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:18.145 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:18.409 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:18.735 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:19.078 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:19.475 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:19.756 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:20.050 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:20.331 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:20.665 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:20.955 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:21.233 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:21.501 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:21.808 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:22.107 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:22.378 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:22.641 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:23.013 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:23.285 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:23.558 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:23.840 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:24.205 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:24.491 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c09_role_endpoint_matrix[GET /alerts-system_admin] __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:24.755 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_tc_c09_role_endpoint_matrix[GET /alerts-org_admin] ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:25.022 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_tc_c09_role_endpoint_matrix[GET /alerts-doctor] _____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:25.292 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_tc_c09_role_endpoint_matrix[GET /alerts-patient] _____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:25.754 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:26.071 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:26.389 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:26.710 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:27.046 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:27.370 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:27.635 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-doctor] __
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:27.968 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:28.389 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-system_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:28.706 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-org_admin] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:29.003 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-doctor] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:29.300 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:29.700 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-system_admin] ___
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:30.113 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-org_admin] _____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:30.454 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-doctor] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:30.778 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-patient] ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:31.154 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other doctor's patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:31.523 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other organisation's patient] _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:31.936 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_tc_c10_a_doctor_loses_access_when_the_patient_gets_another_doctor ____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:32.366 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+2026-10-25T21:05:32.380 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+2026-10-25T21:05:32.567 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_tc_c10_a_patient_reads_only_their_own_data ________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:32.909 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c10_an_org_admin_cannot_reach_another_organisation __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:33.306 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c10_an_org_admin_reads_no_ecg_and_exports_without_it _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:33.719 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_tc_c11_the_system_admin_gets_no_patient_or_doctor_data __________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:34.053 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+2026-10-25T21:05:34.188 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_tc_c12_a_registered_system_admin_is_accepted _______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:34.565 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation _______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:34.852 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_tc_c12_requests_without_a_valid_bearer_token_get_401 ___________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:35.132 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:35.175 INFO app.auth: token rejected: malformed token
+2026-10-25T21:05:35.240 INFO app.auth: token rejected: unknown signing key
+2026-10-25T21:05:35.244 INFO app.auth: token rejected: InvalidAudienceError
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:55 token rejected: malformed token
+INFO     app.auth:auth.py:55 token rejected: unknown signing key
+INFO     app.auth:auth.py:55 token rejected: InvalidAudienceError
+___ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[unregistered] ____
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:35.382 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:35.526 INFO app.auth: request refused: user not registered
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: user not registered
+___ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role differs] ____
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:35.561 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:35.750 INFO app.auth: request refused: role in token differs from the registered role
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: role in token differs from the registered role
+_____ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[two roles] _____
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:35.837 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:35.965 INFO app.auth: request refused: token grants 2 MedMusketeer roles
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: token grants 2 MedMusketeer roles
+______ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[no role] ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:36.058 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:36.280 INFO app.auth: request refused: token grants 0 MedMusketeer roles
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: token grants 0 MedMusketeer roles
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role from another org] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:36.343 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:36.487 INFO app.auth: request refused: role not granted by the user's own organisation
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: role not granted by the user's own organisation
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[other organisation] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:36.563 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:36.737 INFO app.auth: request refused: organisation in token differs from the registered organisation
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: organisation in token differs from the registered organisation
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[suspended organisation] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:36.798 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:36.988 INFO app.auth: request refused: organisation suspended
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: organisation suspended
+_ test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[admin from client org] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:37.151 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:37.321 INFO app.auth: request refused: system admin token from another organisation
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: system admin token from another organisation
+____________ test_without_zitadel_config_authentication_answers_503 ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:37.340 WARNING app.main: /nonexistent.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /nonexistent.json not found: authentication is disabled
+_________________ test_unknown_roles_in_the_token_are_ignored __________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:37.478 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_a_disabled_user_gets_403_at_once _____________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:37.655 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:37.805 INFO app.auth: request refused: user disabled
+------------------------------ Captured log call -------------------------------
+INFO     app.auth:auth.py:40 request refused: user disabled
+_____________________ test_a_patient_sees_their_patient_id _____________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:37.860 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___ test_tc_c15_an_active_gateway_with_its_registered_certificate_is_allowed ___
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:38.045 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:38.192 INFO app.broker: emqx authn gateway=f8cea739-4d17-454a-8c85-08f0dff240f0 clientid=c1 result=allow reason=- check_ms=6.0
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=f8cea739-4d17-454a-8c85-08f0dff240f0 clientid=c1 result=allow reason=- check_ms=6.0
+_____________ test_tc_c15_c16_refused_gateways[credential revoked] _____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:38.211 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:38.357 INFO app.broker: emqx authn gateway=d77c17e4-7d76-43e9-9f2f-73d82ab87e04 clientid=c1 result=deny reason=credential is revoked check_ms=5.4
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=d77c17e4-7d76-43e9-9f2f-73d82ab87e04 clientid=c1 result=deny reason=credential is revoked check_ms=5.4
+_____________ test_tc_c15_c16_refused_gateways[credential expired] _____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:38.377 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:38.522 INFO app.broker: emqx authn gateway=9bff92e5-37ce-4ef7-aec6-3ca8834d8c8f clientid=c1 result=deny reason=credential has expired check_ms=5.4
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=9bff92e5-37ce-4ef7-aec6-3ca8834d8c8f clientid=c1 result=deny reason=credential has expired check_ms=5.4
+______________ test_tc_c15_c16_refused_gateways[device suspended] ______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:38.540 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:38.686 INFO app.broker: emqx authn gateway=c3c746e4-65af-487f-b819-2f65f04029f7 clientid=c1 result=deny reason=device is suspended check_ms=5.8
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=c3c746e4-65af-487f-b819-2f65f04029f7 clientid=c1 result=deny reason=device is suspended check_ms=5.8
+_______________ test_tc_c15_c16_refused_gateways[device revoked] _______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:38.707 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:38.866 INFO app.broker: emqx authn gateway=71efc3b6-dc8a-446e-94d3-84f3ac0e1224 clientid=c1 result=deny reason=device is revoked check_ms=6.1
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=71efc3b6-dc8a-446e-94d3-84f3ac0e1224 clientid=c1 result=deny reason=device is revoked check_ms=6.1
+__ test_tc_c15_c16_refused_gateways[another certificate of the same gateway] ___
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:38.886 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:39.036 INFO app.broker: emqx authn gateway=e396c7a6-2be3-4fdb-aa74-838037694be9 clientid=c1 result=deny reason=certificate is not a registered credential of this device check_ms=6.1
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=e396c7a6-2be3-4fdb-aa74-838037694be9 clientid=c1 result=deny reason=certificate is not a registered credential of this device check_ms=6.1
+____________ test_tc_c15_c16_refused_gateways[wearable certificate] ____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:39.057 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:39.201 INFO app.broker: emqx authn gateway=78cac02b-b050-4ac0-ab34-16963c3676eb clientid=c1 result=deny reason=device is a wearable check_ms=6.1
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=78cac02b-b050-4ac0-ab34-16963c3676eb clientid=c1 result=deny reason=device is a wearable check_ms=6.1
+____________ test_tc_c15_c16_refused_gateways[unregistered gateway] ____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:39.221 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:39.363 INFO app.broker: emqx authn gateway=f56c20fb-4a5a-4358-bcdc-02e1cccf2a0a clientid=c1 result=deny reason=unknown device check_ms=5.6
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=f56c20fb-4a5a-4358-bcdc-02e1cccf2a0a clientid=c1 result=deny reason=unknown device check_ms=5.6
+____ test_a_revoked_certificate_is_refused_while_the_gateways_new_one_works ____
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:39.387 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:39.775 INFO app.broker: emqx authn gateway=70797299-9eb4-4a2f-b078-e4f1bb8af9f2 clientid=c1 result=deny reason=credential is revoked check_ms=6.0
+2026-10-25T21:05:39.784 INFO app.broker: emqx authn gateway=70797299-9eb4-4a2f-b078-e4f1bb8af9f2 clientid=c1 result=allow reason=- check_ms=3.0
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=70797299-9eb4-4a2f-b078-e4f1bb8af9f2 clientid=c1 result=deny reason=credential is revoked check_ms=6.0
+INFO     app.broker:broker.py:120 emqx authn gateway=70797299-9eb4-4a2f-b078-e4f1bb8af9f2 clientid=c1 result=allow reason=- check_ms=3.0
+_______ test_inconsistent_or_malformed_requests_are_refused[overrides0] ________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:39.804 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:39.959 INFO app.broker: emqx authn gateway=0dc6bd2a-8e7f-4b43-ba4d-7afa2653f8d2 clientid=c1 result=deny reason=wrong listener check_ms=0.0
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=0dc6bd2a-8e7f-4b43-ba4d-7afa2653f8d2 clientid=c1 result=deny reason=wrong listener check_ms=0.0
+_______ test_inconsistent_or_malformed_requests_are_refused[overrides1] ________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:39.979 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:40.127 INFO app.broker: emqx authn gateway=5655c201-7dc5-47bf-bf49-ff8b27006822 clientid=c1 result=deny reason=certificate CN differs from the username check_ms=0.1
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=5655c201-7dc5-47bf-bf49-ff8b27006822 clientid=c1 result=deny reason=certificate CN differs from the username check_ms=0.1
+_______ test_inconsistent_or_malformed_requests_are_refused[overrides2] ________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:40.148 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:40.292 INFO app.broker: emqx authn gateway=6ecacce2-79e5-47e5-a7b0-0c1e19a4e228 clientid=c1 result=deny reason=malformed username or certificate check_ms=0.1
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=6ecacce2-79e5-47e5-a7b0-0c1e19a4e228 clientid=c1 result=deny reason=malformed username or certificate check_ms=0.1
+_______ test_inconsistent_or_malformed_requests_are_refused[overrides3] ________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:40.315 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:40.505 INFO app.broker: emqx authn gateway=63185a92-d4e1-4e18-bf39-7a0fa1a47460 clientid=c1 result=deny reason=malformed username or certificate check_ms=0.1
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=63185a92-d4e1-4e18-bf39-7a0fa1a47460 clientid=c1 result=deny reason=malformed username or certificate check_ms=0.1
+_______ test_inconsistent_or_malformed_requests_are_refused[overrides4] ________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:40.532 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:40.702 INFO app.broker: emqx authn gateway=mm-adapter clientid=c1 result=deny reason=malformed username or certificate check_ms=0.0
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:120 emqx authn gateway=mm-adapter clientid=c1 result=deny reason=malformed username or certificate check_ms=0.0
+______________________ test_hooks_answer_only_the_broker _______________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:40.725 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:40.816 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_the_adapter_logs_in_with_its_password_on_the_internal_listener[mm-adapter-adapter-password-0123456789-tcp:internal-allow] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:40.889 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:40.937 INFO app.broker: emqx authn service=mm-adapter result=allow
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:131 emqx authn service=mm-adapter result=allow
+_ test_the_adapter_logs_in_with_its_password_on_the_internal_listener[mm-adapter-wrong-tcp:internal-deny] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:40.959 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:41.014 INFO app.broker: emqx authn service=mm-adapter result=deny
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:131 emqx authn service=mm-adapter result=deny
+_ test_the_adapter_logs_in_with_its_password_on_the_internal_listener[mm-adapter-adapter-password-0123456789-ssl:gateway-deny] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:41.033 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:41.084 INFO app.broker: emqx authn service=mm-adapter result=deny
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:131 emqx authn service=mm-adapter result=deny
+_ test_the_adapter_logs_in_with_its_password_on_the_internal_listener[someone-adapter-password-0123456789-tcp:internal-deny] _
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:41.106 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:41.155 INFO app.broker: emqx authn service=someone result=deny
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:131 emqx authn service=someone result=deny
+____________ test_tc_c17_topic_access_also_needs_an_active_gateway _____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:05:41.178 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:41.371 INFO app.broker: emqx authz denied 85376a31-0f74-450d-bab2-3a63c4687e36 publish mm/fixed/3b7dcbd2-1f1a-43b9-bec3-10e0cda735cd/command
+2026-10-25T21:05:41.375 INFO app.broker: emqx authz denied 85376a31-0f74-450d-bab2-3a63c4687e36 publish mm/fixed/3b7dcbd2-1f1a-43b9-bec3-10e0cda735cd/alert
+2026-10-25T21:05:41.385 INFO app.broker: emqx authz denied mm-adapter subscribe ingest/#
+2026-10-25T21:05:41.396 INFO app.broker: emqx authz denied 85376a31-0f74-450d-bab2-3a63c4687e36 publish mm/fixed/3b7dcbd2-1f1a-43b9-bec3-10e0cda735cd/alert
+------------------------------ Captured log call -------------------------------
+INFO     app.broker:broker.py:185 emqx authz denied 85376a31-0f74-450d-bab2-3a63c4687e36 publish mm/fixed/3b7dcbd2-1f1a-43b9-bec3-10e0cda735cd/command
+INFO     app.broker:broker.py:185 emqx authz denied 85376a31-0f74-450d-bab2-3a63c4687e36 publish mm/fixed/3b7dcbd2-1f1a-43b9-bec3-10e0cda735cd/alert
+INFO     app.broker:broker.py:185 emqx authz denied mm-adapter subscribe ingest/#
+INFO     app.broker:broker.py:185 emqx authz denied 85376a31-0f74-450d-bab2-3a63c4687e36 publish mm/fixed/3b7dcbd2-1f1a-43b9-bec3-10e0cda735cd/alert
+_____ test_an_org_admin_sees_every_account_of_the_organisation_with_email ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:41.667 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_a_doctor_sees_themselves_and_their_current_patients_without_email ____
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:42.026 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_a_patient_sees_themselves_and_their_current_doctor ____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:42.405 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_a_reassigned_patient_sees_the_new_doctor_only ______________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:42.743 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+2026-10-25T21:05:42.860 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+2026-10-25T21:05:42.982 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_an_account_zitadel_has_no_profile_for_is_listed_without_a_name ______
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:43.339 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________________ test_a_zitadel_failure_is_a_502 ________________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:05:43.708 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_creating_accounts_registers_them_in_zitadel_and_the_database _______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:31.519 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body0-422] ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:31.938 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body1-422] ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:32.284 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body2-422] ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:32.637 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_invalid_account_requests_are_refused_before_zitadel[body3-422] ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:33.028 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_a_zitadel_failure_leaves_no_rows _____________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:33.352 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_a_database_refusal_deletes_the_zitadel_user_again ____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:33.680 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________________ test_a_pseudonym_is_unique_in_the_organisation ________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:34.049 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_disabling_a_doctor_ends_their_care_assignments ______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:34.384 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_disabling_a_patient_returns_their_wearable ________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:34.724 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_a_zitadel_failure_keeps_the_account_enabled _______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:35.046 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_org_admins_and_other_organisations_accounts_cannot_be_disabled ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:35.327 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_assigning_a_doctor_replaces_the_previous_one _______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:35.632 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_issuing_and_returning_a_wearable _____________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:36.117 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____ test_only_an_active_wearable_granted_to_the_organisation_can_be_issued ____
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:36.690 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:36.709 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_disorders_and_exports_are_recorded_with_the_acting_user _________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:37.228 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:37.343 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________________ test_a_doctor_acknowledges_an_alert_once ___________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:37.701 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+___________ test_a_segment_comes_with_its_samples_and_classification ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:38.065 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+__________ test_an_organisation_and_its_admin_are_created_in_zitadel ___________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:38.423 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________________ test_a_zitadel_failure_creates_no_organisation ________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:38.759 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_ test_an_organisation_admin_needs_an_active_organisation_with_a_zitadel_organisation _
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:39.046 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_issuing_a_wearable_waits_for_a_concurrent_grant_revoke __________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:39.347 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_issuing_a_wearable_waits_for_a_concurrent_patient_disable ________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:39.747 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+________ test_assigning_a_doctor_waits_for_a_concurrent_doctor_disable _________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:40.061 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________________ test_tc_c08_registry_round_trip ________________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:40.238 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______ test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session _______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:40.565 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____ test_revoking_a_device_revokes_its_credentials_and_closes_its_grant ______
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:40.869 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________ test_grants_need_an_existing_active_organisation _______________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:41.158 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_______________________ test_unknown_records_return_404 ________________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:41.365 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_registry_is_closed_without_authentication_config _____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:41.465 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________ test_registry_is_for_the_system_admin_only[org_admin] _____________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:41.574 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_registry_is_for_the_system_admin_only[doctor] ______________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:41.677 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_registry_is_for_the_system_admin_only[patient] ______________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:06:41.784 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_________ test_a_write_that_fails_at_commit_is_not_reported_as_success _________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:06:41.878 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+____________________ test_livez_is_ok_without_dependencies _____________________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:07:11.251 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_healthz_reports_each_failed_dependency_with_503 _____________
+---------------------------- Captured stderr setup -----------------------------
+2026-10-25T21:07:11.334 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log setup ------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:11.675 WARNING app.health: health check database failed: OperationalError
+2026-10-25T21:07:11.675 WARNING app.health: health check zitadel failed: ConnectError
+2026-10-25T21:07:11.675 WARNING app.health: health check emqx failed: ConnectError
+------------------------------ Captured log call -------------------------------
+WARNING  app.health:health.py:40 health check database failed: OperationalError
+WARNING  app.health:health.py:40 health check zitadel failed: ConnectError
+WARNING  app.health:health.py:40 health check emqx failed: ConnectError
+_________ test_a_hanging_check_is_reported_as_error_within_the_timeout _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:11.881 WARNING app.health: health check slow failed: TimeoutError
+------------------------------ Captured log call -------------------------------
+WARNING  app.health:health.py:40 health check slow failed: TimeoutError
+_________________ test_cors_allows_only_the_configured_origins _________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:11.900 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+______________ test_without_cors_origins_no_cors_headers_are_sent ______________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:11.924 WARNING app.main: /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /var/lib/medmusketeer/zitadel.json not found: authentication is disabled
+_____________ test_auth_config_is_503_until_zitadel_is_configured ______________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:11.991 WARNING app.main: /tmp/pytest-of-hmz-gul/pytest-7/test_auth_config_is_503_until_0/missing.json not found: authentication is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:60 /tmp/pytest-of-hmz-gul/pytest-7/test_auth_config_is_503_until_0/missing.json not found: authentication is disabled
+___________________ test_auth_config_needs_the_dashboard_app ___________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:12.057 WARNING app.main: /var/lib/medmusketeer-secrets/zitadel-api.pat not found: account management is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:58 /var/lib/medmusketeer-secrets/zitadel-api.pat not found: account management is disabled
+________ test_auth_config_gives_the_dashboard_what_it_needs_to_sign_in _________
+----------------------------- Captured stderr call -----------------------------
+2026-10-25T21:07:12.118 WARNING app.main: /var/lib/medmusketeer-secrets/zitadel-api.pat not found: account management is disabled
+------------------------------ Captured log call -------------------------------
+WARNING  app.main:main.py:58 /var/lib/medmusketeer-secrets/zitadel-api.pat not found: account management is disabled
+- generated xml file: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-25/cloud/junit.xml -
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.7-final-0 ________________
+
+Name                       Stmts   Miss Branch BrPart  Cover   Missing
+----------------------------------------------------------------------
+app/__init__.py                0      0      0      0   100%
+app/accounts.py               82      2     24      3    95%   77, 86, 151->153
+app/auth.py                   73      5     28      1    92%   95, 114-117
+app/broker.py                114      1     34      1    99%   164
+app/care.py                   52      1      8      1    97%   109
+app/db.py                     31      0      2      0   100%
+app/dev_seed.py              127    127     30      0     0%   15-252
+app/directory.py              22      0      2      0   100%
+app/health.py                 27      6      6      0    76%   16-21, 26-27
+app/main.py                   74      1     12      2    97%   55, 110->112
+app/manage.py                 39     39      4      0     0%   11-63
+app/organisation.py          116      1     30      1    99%   130
+app/registry.py              167      6     38      5    95%   90->95, 169-171, 267->270, 284, 328, 330
+app/settings.py               19      0      2      0   100%
+app/tokens.py                 74      0     16      1    99%   81->80
+app/zitadel.py               106      5     22      1    95%   73-74, 92-93, 117
+app/zitadel_bootstrap.py     135     72     30      3    44%   60, 64, 67-69, 72-77, 80-85, 88-93, 105, 108-109, 113-117, 158, 167-172, 176-222, 226
+----------------------------------------------------------------------
+TOTAL                       1258    266    288     19    78%
+Coverage XML written to file /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/docs/testing/evidence/2026-10-25/cloud/coverage.xml
+=========================== short test summary info ============================
+PASSED tests/integration/test_access.py::test_tc_c09_the_matrix_covers_every_endpoint
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/organisations-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PATCH /admin/organisations/{a.org_id}-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/organisations/{a.org_id}/admins-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/activate-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/suspend-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{a.wearable}/revoke-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/credentials-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/credentials-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/credentials/{credential}/revoke-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/devices/{pending_device}/grants-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/devices/{a.wearable}/grants-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /admin/grants/{grant}/revoke-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/audit-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /admin/security-events-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /organisation-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /devices-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /audit-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /directory-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /directory-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /directory-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /directory-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /accounts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /accounts/{spare_doctor}/disable-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[PUT /patients/{spare_patient}/doctor-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{spare_patient}/wearable-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[DELETE /patients/{a.patient_id}/wearable-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/disorders-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/disorders-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /patients/{a.patient_id}/exports-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /alerts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/alerts-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[POST /alerts/{a.alert}/acknowledge-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /patients/{a.patient_id}/segments-patient]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-system_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-org_admin]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-doctor]
+PASSED tests/integration/test_access.py::test_tc_c09_role_endpoint_matrix[GET /segments/{a.segment}-patient]
+PASSED tests/integration/test_access.py::test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other doctor's patient]
+PASSED tests/integration/test_access.py::test_tc_c10_a_doctor_cannot_read_a_patient_who_is_not_theirs[other organisation's patient]
+PASSED tests/integration/test_access.py::test_tc_c10_a_doctor_loses_access_when_the_patient_gets_another_doctor
+PASSED tests/integration/test_access.py::test_tc_c10_a_patient_reads_only_their_own_data
+PASSED tests/integration/test_access.py::test_tc_c10_an_org_admin_cannot_reach_another_organisation
+PASSED tests/integration/test_access.py::test_tc_c10_an_org_admin_reads_no_ecg_and_exports_without_it
+PASSED tests/integration/test_access.py::test_tc_c11_the_system_admin_gets_no_patient_or_doctor_data
+PASSED tests/integration/test_auth.py::test_tc_c12_a_registered_system_admin_is_accepted
+PASSED tests/integration/test_auth.py::test_tc_c12_a_registered_doctor_is_accepted_in_their_organisation
+PASSED tests/integration/test_auth.py::test_tc_c12_requests_without_a_valid_bearer_token_get_401
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[unregistered]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role differs]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[two roles]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[no role]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[role from another org]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[other organisation]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[suspended organisation]
+PASSED tests/integration/test_auth.py::test_tc_c12_valid_tokens_that_do_not_match_a_user_get_403[admin from client org]
+PASSED tests/integration/test_auth.py::test_without_zitadel_config_authentication_answers_503
+PASSED tests/integration/test_auth.py::test_unknown_roles_in_the_token_are_ignored
+PASSED tests/integration/test_auth.py::test_a_disabled_user_gets_403_at_once
+PASSED tests/integration/test_auth.py::test_a_patient_sees_their_patient_id
+PASSED tests/integration/test_broker.py::test_tc_c15_an_active_gateway_with_its_registered_certificate_is_allowed
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[credential revoked]
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[credential expired]
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[device suspended]
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[device revoked]
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[another certificate of the same gateway]
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[wearable certificate]
+PASSED tests/integration/test_broker.py::test_tc_c15_c16_refused_gateways[unregistered gateway]
+PASSED tests/integration/test_broker.py::test_a_revoked_certificate_is_refused_while_the_gateways_new_one_works
+PASSED tests/integration/test_broker.py::test_inconsistent_or_malformed_requests_are_refused[overrides0]
+PASSED tests/integration/test_broker.py::test_inconsistent_or_malformed_requests_are_refused[overrides1]
+PASSED tests/integration/test_broker.py::test_inconsistent_or_malformed_requests_are_refused[overrides2]
+PASSED tests/integration/test_broker.py::test_inconsistent_or_malformed_requests_are_refused[overrides3]
+PASSED tests/integration/test_broker.py::test_inconsistent_or_malformed_requests_are_refused[overrides4]
+PASSED tests/integration/test_broker.py::test_hooks_answer_only_the_broker
+PASSED tests/integration/test_broker.py::test_the_adapter_logs_in_with_its_password_on_the_internal_listener[mm-adapter-adapter-password-0123456789-tcp:internal-allow]
+PASSED tests/integration/test_broker.py::test_the_adapter_logs_in_with_its_password_on_the_internal_listener[mm-adapter-wrong-tcp:internal-deny]
+PASSED tests/integration/test_broker.py::test_the_adapter_logs_in_with_its_password_on_the_internal_listener[mm-adapter-adapter-password-0123456789-ssl:gateway-deny]
+PASSED tests/integration/test_broker.py::test_the_adapter_logs_in_with_its_password_on_the_internal_listener[someone-adapter-password-0123456789-tcp:internal-deny]
+PASSED tests/integration/test_broker.py::test_tc_c17_topic_access_also_needs_an_active_gateway
+PASSED tests/integration/test_directory.py::test_an_org_admin_sees_every_account_of_the_organisation_with_email
+PASSED tests/integration/test_directory.py::test_a_doctor_sees_themselves_and_their_current_patients_without_email
+PASSED tests/integration/test_directory.py::test_a_patient_sees_themselves_and_their_current_doctor
+PASSED tests/integration/test_directory.py::test_a_reassigned_patient_sees_the_new_doctor_only
+PASSED tests/integration/test_directory.py::test_an_account_zitadel_has_no_profile_for_is_listed_without_a_name
+PASSED tests/integration/test_directory.py::test_a_zitadel_failure_is_a_502
+PASSED tests/integration/test_gateway.py::test_tc_c14_an_active_gateway_connects_and_its_messages_reach_ingestion
+PASSED tests/integration/test_gateway.py::test_tc_c15_a_revoked_credential_is_refused_on_the_next_connect
+PASSED tests/integration/test_gateway.py::test_tc_c16_foreign_missing_and_wearable_certificates_are_refused
+PASSED tests/integration/test_gateway.py::test_tc_c17_publish_and_subscribe_outside_the_acl_are_denied
+PASSED tests/integration/test_gateway.py::test_tc_c18_the_gateway_verifies_the_cloud_by_its_pinned_name
+PASSED tests/integration/test_organisation.py::test_creating_accounts_registers_them_in_zitadel_and_the_database
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body0-422]
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body1-422]
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body2-422]
+PASSED tests/integration/test_organisation.py::test_invalid_account_requests_are_refused_before_zitadel[body3-422]
+PASSED tests/integration/test_organisation.py::test_a_zitadel_failure_leaves_no_rows
+PASSED tests/integration/test_organisation.py::test_a_database_refusal_deletes_the_zitadel_user_again
+PASSED tests/integration/test_organisation.py::test_a_pseudonym_is_unique_in_the_organisation
+PASSED tests/integration/test_organisation.py::test_disabling_a_doctor_ends_their_care_assignments
+PASSED tests/integration/test_organisation.py::test_disabling_a_patient_returns_their_wearable
+PASSED tests/integration/test_organisation.py::test_a_zitadel_failure_keeps_the_account_enabled
+PASSED tests/integration/test_organisation.py::test_org_admins_and_other_organisations_accounts_cannot_be_disabled
+PASSED tests/integration/test_organisation.py::test_assigning_a_doctor_replaces_the_previous_one
+PASSED tests/integration/test_organisation.py::test_issuing_and_returning_a_wearable
+PASSED tests/integration/test_organisation.py::test_only_an_active_wearable_granted_to_the_organisation_can_be_issued
+PASSED tests/integration/test_organisation.py::test_disorders_and_exports_are_recorded_with_the_acting_user
+PASSED tests/integration/test_organisation.py::test_a_doctor_acknowledges_an_alert_once
+PASSED tests/integration/test_organisation.py::test_a_segment_comes_with_its_samples_and_classification
+PASSED tests/integration/test_organisation.py::test_an_organisation_and_its_admin_are_created_in_zitadel
+PASSED tests/integration/test_organisation.py::test_a_zitadel_failure_creates_no_organisation
+PASSED tests/integration/test_organisation.py::test_an_organisation_admin_needs_an_active_organisation_with_a_zitadel_organisation
+PASSED tests/integration/test_organisation.py::test_issuing_a_wearable_waits_for_a_concurrent_grant_revoke
+PASSED tests/integration/test_organisation.py::test_issuing_a_wearable_waits_for_a_concurrent_patient_disable
+PASSED tests/integration/test_organisation.py::test_assigning_a_doctor_waits_for_a_concurrent_doctor_disable
+PASSED tests/integration/test_registry.py::test_tc_c08_registry_round_trip
+PASSED tests/integration/test_registry.py::test_tc_c07_revoking_a_grant_ends_the_open_assignment_and_session
+PASSED tests/integration/test_registry.py::test_revoking_a_device_revokes_its_credentials_and_closes_its_grant
+PASSED tests/integration/test_registry.py::test_grants_need_an_existing_active_organisation
+PASSED tests/integration/test_registry.py::test_unknown_records_return_404
+PASSED tests/integration/test_registry.py::test_registry_is_closed_without_authentication_config
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[org_admin]
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[doctor]
+PASSED tests/integration/test_registry.py::test_registry_is_for_the_system_admin_only[patient]
+PASSED tests/integration/test_registry.py::test_a_write_that_fails_at_commit_is_not_reported_as_success
+PASSED tests/integration/test_schema.py::test_tc_c03_migrations_go_down_and_up_on_an_empty_database
+PASSED tests/integration/test_schema.py::test_tc_c03_the_api_login_can_change_rows_but_not_the_schema
+PASSED tests/integration/test_schema.py::test_tc_c04_a_device_has_at_most_one_open_grant
+PASSED tests/integration/test_schema.py::test_tc_c05_one_active_wearable_per_patient_and_one_patient_per_wearable
+PASSED tests/integration/test_schema.py::test_tc_c06_one_active_doctor_per_patient
+PASSED tests/integration/test_schema.py::test_a_monitoring_session_keeps_its_patient_and_organisation
+PASSED tests/integration/test_schema.py::test_users_belong_to_an_organisation_except_the_system_admin
+PASSED tests/integration/test_schema.py::test_a_recording_segment_needs_the_command_that_requested_it
+PASSED tests/integration/test_stack.py::test_tc_c01_every_service_is_healthy
+PASSED tests/integration/test_stack.py::test_tc_c01_healthz_reports_every_dependency_ok
+PASSED tests/integration/test_stack.py::test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy
+PASSED tests/integration/test_stack.py::test_tc_c12_a_real_zitadel_token_works_once_the_user_is_registered
+PASSED tests/integration/test_stack.py::test_tc_c13_account_creation_shows_up_in_zitadel_and_in_users
+PASSED tests/integration/test_stack.py::test_tc_c19_seeded_accounts_sign_in_to_the_dashboard_and_get_their_role
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_DATABASE_URL]
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_ZITADEL_URL]
+PASSED tests/unit/test_app.py::test_tc_c02_api_refuses_to_start_without_required_setting[MM_EMQX_STATUS_URL]
+PASSED tests/unit/test_app.py::test_database_url_is_not_shown_in_settings_repr
+PASSED tests/unit/test_app.py::test_livez_is_ok_without_dependencies
+PASSED tests/unit/test_app.py::test_healthz_reports_each_failed_dependency_with_503
+PASSED tests/unit/test_app.py::test_a_hanging_check_is_reported_as_error_within_the_timeout
+PASSED tests/unit/test_app.py::test_cors_origins_are_read_comma_separated
+PASSED tests/unit/test_app.py::test_cors_allows_only_the_configured_origins
+PASSED tests/unit/test_app.py::test_without_cors_origins_no_cors_headers_are_sent
+PASSED tests/unit/test_app.py::test_auth_config_is_503_until_zitadel_is_configured
+PASSED tests/unit/test_app.py::test_auth_config_needs_the_dashboard_app
+PASSED tests/unit/test_app.py::test_auth_config_gives_the_dashboard_what_it_needs_to_sign_in
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/alert]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/result]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/status]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/command_ack]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/telemetry]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/gateway/0fb8e24e-51c6-434d-9de0-86f62c60cbc3/ids_event]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/gateway/0fb8e24e-51c6-434d-9de0-86f62c60cbc3/status]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_publish_these[mm/gateway/0fb8e24e-51c6-434d-9de0-86f62c60cbc3/backlog]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/command]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/other]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/alert/extra]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/fixed/not-a-uuid/alert]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/fixed/6AAD6681-E308-48F1-BB58-65BE24687DD1/alert]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/gateway/555b425f-5cf7-44bc-a635-96ed316ec84a/status]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/gateway/0fb8e24e-51c6-434d-9de0-86f62c60cbc3]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[mm/gateway/0fb8e24e-51c6-434d-9de0-86f62c60cbc3/]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[ingest/0fb8e24e-51c6-434d-9de0-86f62c60cbc3/mm/fixed/6aad6681-e308-48f1-bb58-65be24687dd1/alert]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[$SYS/brokers]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_may_not_publish_these[anything]
+PASSED tests/unit/test_broker_rules.py::test_a_gateway_subscribes_only_to_commands
+PASSED tests/unit/test_broker_rules.py::test_the_adapter_only_reads_ingest
+PASSED tests/unit/test_tokens.py::test_a_valid_token_yields_its_subject_roles_and_organisation
+PASSED tests/unit/test_tokens.py::test_keys_are_fetched_with_the_public_host_name
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides0-InvalidIssuerError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides1-InvalidAudienceError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides2-ExpiredSignatureError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides3-ImmatureSignatureError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides4-MissingRequiredClaimError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_wrong_issuer_audience_or_time_is_refused[overrides5-MissingRequiredClaimError]
+PASSED tests/unit/test_tokens.py::test_tc_c12_a_token_signed_by_another_key_is_refused
+PASSED tests/unit/test_tokens.py::test_tc_c12_a_token_with_an_unknown_key_id_is_refused
+PASSED tests/unit/test_tokens.py::test_tc_c12_other_algorithms_are_refused[HS256]
+PASSED tests/unit/test_tokens.py::test_tc_c12_other_algorithms_are_refused[none]
+PASSED tests/unit/test_tokens.py::test_a_garbage_token_is_refused
+PASSED tests/unit/test_tokens.py::test_a_token_without_role_or_organisation_claims_is_refused
+PASSED tests/unit/test_tokens.py::test_rotated_keys_are_picked_up_without_a_restart
+PASSED tests/unit/test_zitadel.py::test_creating_a_user_grants_the_role_through_the_project_grant
+PASSED tests/unit/test_zitadel.py::test_a_failed_grant_deletes_the_new_user
+PASSED tests/unit/test_zitadel.py::test_only_organisation_roles_can_be_granted
+PASSED tests/unit/test_zitadel.py::test_an_organisation_gets_the_project_granted_or_is_deleted_again
+PASSED tests/unit/test_zitadel.py::test_a_replaced_token_is_reloaded_after_a_401
+PASSED tests/unit/test_zitadel.py::test_an_unreachable_zitadel_is_an_error_with_status_0
+PASSED tests/unit/test_zitadel.py::test_deactivating_an_already_inactive_user_succeeds
+PASSED tests/unit/test_zitadel.py::test_profiles_are_read_in_batches_and_cached
+PASSED tests/unit/test_zitadel.py::test_profiles_are_read_again_after_the_ttl
+PASSED tests/unit/test_zitadel.py::test_a_zitadel_failure_reading_profiles_is_raised
+PASSED tests/unit/test_zitadel_bootstrap.py::test_the_dashboard_app_is_created_as_a_pkce_browser_app_with_jwt_tokens
+PASSED tests/unit/test_zitadel_bootstrap.py::test_an_existing_app_is_updated_to_the_current_origins[200-body0]
+PASSED tests/unit/test_zitadel_bootstrap.py::test_an_existing_app_is_updated_to_the_current_origins[400-body1]
+PASSED tests/unit/test_zitadel_bootstrap.py::test_a_refused_update_stops_the_bootstrap
+================== 313 passed, 1 warning in 159.92s (0:02:39) ==================

@@ -61,8 +61,8 @@ Last updated: 2026-10-24
 - No OTA/firmware update strategy (`device_updates` exists only if remote updates are adopted) — relevant if credentials ever need pushing to deployed devices
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one domain/cert or separate subdomains
 - No platform ops logging/monitoring (distinct from IDS/IPS event logging)
-- The invite-code onboarding (`cloud-backend.md` D12) is checked as far as ZITADEL issuing the code; a person redeeming it in the Login UI is not tested yet (with the dashboard, Iteration 6)
-- The API returns no names: they live only in ZITADEL. The dashboard needs them for doctors (and patients for their own doctor), so it will read them from ZITADEL or the API will add a lookup (Iteration 6)
+- The invite-code onboarding (`cloud-backend.md` D12) is checked as far as ZITADEL issuing the code; a person redeeming it in the Login UI is not tested yet (with the dashboard, Iteration 6). A password sign-in through the dashboard's OIDC app is tested end to end (TC-C19)
+- ~~The API returns no names~~ — resolved 2026-10-25: `GET /directory` reads them from ZITADEL (`cloud-backend.md` D14)
 - ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume) before the cloud is exposed beyond Tailscale
 - `is_testbed` exists as a registry field, but physical/logical separation of testbed hardware from anything resembling real patient data isn't specified
 - RSA key size (2048 assumed) and whether an RSA-CA variant is run for the key-type benchmark

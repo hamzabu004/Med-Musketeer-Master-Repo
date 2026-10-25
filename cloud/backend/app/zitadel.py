@@ -10,6 +10,7 @@ Accounts get no password from the API: ZITADEL returns an invite code, which the
 admin hands to the person, who then sets their own password or passkey in ZITADEL's login.
 """
 import logging
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -21,6 +22,8 @@ from app.tokens import ZitadelConfig
 log = logging.getLogger(__name__)
 
 ORG_ROLES = ("org_admin", "doctor", "patient")  # granted to every client organisation (D3)
+PROFILE_TTL_S = 60  # how long a name read from ZITADEL is reused (app.directory)
+PROFILE_BATCH = 100
 
 
 class ZitadelError(Exception):
@@ -38,6 +41,13 @@ class NewUser:
     invite_code: str
 
 
+@dataclass(frozen=True)
+class Profile:
+    given_name: str | None
+    family_name: str | None
+    email: str | None
+
+
 class ZitadelAdmin:
     def __init__(self, config: ZitadelConfig, zitadel_url: str, http: httpx.AsyncClient, token_file: Path):
         self.config = config
@@ -47,6 +57,7 @@ class ZitadelAdmin:
         self._http = http
         self._token_file = token_file
         self._token = token_file.read_text().strip()
+        self._profiles: dict[str, tuple[float, Profile]] = {}  # user id -> (expires, profile)
 
     async def _call(self, method: str, path: str, org: str | None = None, **kwargs) -> dict:
         response = await self._send(method, path, org, **kwargs)
@@ -144,3 +155,21 @@ class ZitadelAdmin:
 
     async def delete_user(self, user_id: str) -> None:
         await self._call("DELETE", f"/v2/users/{user_id}")
+
+    async def profiles(self, user_ids: list[str]) -> dict[str, Profile]:
+        """Names and e-mail of the given users. Users ZITADEL does not return are left out. Each
+        profile is reused for PROFILE_TTL_S, so a change in ZITADEL shows within a minute."""
+        now = time.monotonic()
+        missing = sorted({user_id for user_id in user_ids
+                          if user_id not in self._profiles or self._profiles[user_id][0] <= now})
+        for start in range(0, len(missing), PROFILE_BATCH):
+            batch = missing[start:start + PROFILE_BATCH]
+            found = await self._call("POST", "/v2/users", json={
+                "query": {"limit": len(batch)}, "queries": [{"inUserIdsQuery": {"userIds": batch}}]})
+            for user in found.get("result", []):
+                human = user.get("human") or {}
+                profile = human.get("profile") or {}
+                self._profiles[user["userId"]] = (now + PROFILE_TTL_S, Profile(
+                    given_name=profile.get("givenName"), family_name=profile.get("familyName"),
+                    email=(human.get("email") or {}).get("email")))
+        return {user_id: self._profiles[user_id][1] for user_id in user_ids if user_id in self._profiles}

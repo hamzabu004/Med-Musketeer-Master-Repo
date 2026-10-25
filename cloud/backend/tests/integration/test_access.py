@@ -21,7 +21,8 @@ pytestmark = pytest.mark.integration
 
 ROLES = ("system_admin", "org_admin", "doctor", "patient")
 SA, OA, DR, PT = ROLES
-PUBLIC = {("GET", "/livez"), ("GET", "/healthz"), ("GET", "/me")}  # /me: every authenticated role
+# /me: every authenticated role; /auth/config: the dashboard's sign-in settings, before any token
+PUBLIC = {("GET", "/livez"), ("GET", "/healthz"), ("GET", "/me"), ("GET", "/auth/config")}
 
 # (method, path, allowed roles, body). Paths and bodies may use the World's fields, e.g. {a.patient_id}.
 MATRIX = [
@@ -49,6 +50,7 @@ MATRIX = [
     ("GET", "/organisation", {OA, DR, PT}, None),
     ("GET", "/devices", {OA, DR}, None),
     ("GET", "/audit", {OA}, None),
+    ("GET", "/directory", {OA, DR, PT}, None),
     # accounts (organisation admin)
     ("GET", "/accounts", {OA}, None),
     ("POST", "/accounts", {OA}, {"role": "doctor", "email": "doc@a.example", "given_name": "Dee", "family_name": "Doc"}),
