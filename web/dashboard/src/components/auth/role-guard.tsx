@@ -1,44 +1,31 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { roleHome, type Role } from "@/auth/roles";
-import { getSession } from "@/auth/session";
+import { useSession } from "@/auth/session";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const ACCESS_DENIED_MESSAGE_KEY = "medmusketeer:dashboard:access-denied";
 
-export function RoleGuard({
-  role,
-  children,
-}: {
-  role: Role;
-  children: React.ReactNode;
-}) {
+/** Renders a role's area only for that role; anyone else goes to sign-in or their own area. A UX
+ * guard only: the API refuses what a role may not do (D9). */
+export function RoleGuard({ role, children }: { role: Role; children: React.ReactNode }) {
   const router = useRouter();
-  const [authorized, setAuthorized] = useState(false);
+  const { state } = useSession();
+  const allowed = state.status === "signedIn" && state.session.role === role;
 
   useEffect(() => {
-    const session = getSession();
-    if (!session) {
+    if (state.status === "loading" || allowed) return;
+    if (state.status === "signedIn") {
+      window.sessionStorage.setItem(ACCESS_DENIED_MESSAGE_KEY, "That page belongs to another role. You were returned to your dashboard.");
+      router.replace(roleHome(state.session.role));
+    } else {
       router.replace("/login");
-      return;
     }
+  }, [state, allowed, router]);
 
-    if (session.role !== role) {
-      window.sessionStorage.setItem(
-        ACCESS_DENIED_MESSAGE_KEY,
-        "Access denied. You were returned to your dashboard.",
-      );
-      router.replace(roleHome(session.role));
-      return;
-    }
-
-    const timer = window.setTimeout(() => setAuthorized(true), 0);
-    return () => window.clearTimeout(timer);
-  }, [role, router]);
-
-  if (!authorized) {
+  if (!allowed) {
     return (
       <main className="grid min-h-screen place-items-center bg-[var(--color-bg)] p-6" aria-busy="true">
         <div className="w-full max-w-sm space-y-3" aria-label="Checking session">

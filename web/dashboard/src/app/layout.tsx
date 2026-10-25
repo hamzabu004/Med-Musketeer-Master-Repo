@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
+import { SessionProvider } from "@/auth/session";
 import "./globals.css";
 
 // Product typography.
@@ -20,7 +21,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={productFont.variable}>{children}</body>
+      <body className={productFont.variable}>
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,12 @@
+api-e2e: starting the cloud stack (mm-dashboard-e2e)
+
+Running 6 tests using 1 worker
+
+  ✓  1 e2e/api/sign-in.spec.ts:34:7 › sysadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (5.1s)
+  ✓  2 e2e/api/sign-in.spec.ts:34:7 › orgadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (4.9s)
+  ✓  3 e2e/api/sign-in.spec.ts:34:7 › doctor1@medmusketeer.example signs in through ZITADEL and lands in their own area (3.9s)
+  ✓  4 e2e/api/sign-in.spec.ts:34:7 › patient1@medmusketeer.example signs in through ZITADEL and lands in their own area (4.0s)
+  ✓  5 e2e/api/sign-in.spec.ts:51:5 › the API answers the signed-in doctor with their own data, and refuses what D9 forbids (4.3s)
+  ✓  6 e2e/api/sign-in.spec.ts:64:5 › signing out ends the ZITADEL session as well (4.8s)
+
+  6 passed (39.6s)

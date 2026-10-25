@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react";
 import type { Role } from "@/auth/roles";
+import { dataSource } from "@/config/capabilities";
 import { AccountMenu } from "./account-menu";
 
 export function AppHeader({
@@ -24,7 +25,17 @@ export function AppHeader({
         </button>
         <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">{title}</h1>
       </div>
-      <AccountMenu role={role} />
+      <div className="flex items-center">
+        {dataSource === "mock" && (
+          <span
+            className="rounded-[var(--radius-xs)] border border-[var(--color-warning)] px-2 py-0.5 text-xs font-medium text-[var(--color-warning)]"
+            title="This deployment shows sample data, not real patients."
+          >
+            Sample data
+          </span>
+        )}
+        <AccountMenu role={role} />
+      </div>
     </header>
   );
 }

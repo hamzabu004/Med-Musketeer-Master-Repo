@@ -1,17 +1,11 @@
 "use client";
 
 import { ChevronDown, CircleUserRound, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { roleLabels, type Role } from "@/auth/roles";
-import { signOut } from "@/auth/session";
+import { useSession } from "@/auth/session";
 
 export function AccountMenu({ role }: { role: Role }) {
-  const router = useRouter();
-
-  async function logout() {
-    await signOut();
-    router.replace("/login");
-  }
+  const { signOut } = useSession();
 
   return (
     <details className="group relative ml-3 shrink-0">
@@ -24,7 +18,7 @@ export function AccountMenu({ role }: { role: Role }) {
       <div className="absolute right-0 z-40 mt-2 w-48 rounded-[var(--radius-sm)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-1 [box-shadow:var(--shadow-hard)]">
         <button
           type="button"
-          onClick={logout}
+          onClick={() => void signOut()}
           className="flex h-9 w-full items-center gap-2 rounded-[var(--radius-sm)] px-2 text-left text-sm hover:bg-[var(--color-surface-subtle)]"
         >
           <LogOut size={16} strokeWidth={1.8} aria-hidden />
