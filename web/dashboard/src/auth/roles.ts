@@ -23,8 +23,12 @@ export function roleHome(role: Role): string {
   return `/${roleArea[role]}/dashboard`;
 }
 
+/** Whether `pathname` is `base` or a page below it. */
+export function isWithin(pathname: string, base: string): boolean {
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
 /** Whether `pathname` lies in the role's area. A UX guard only: the API decides access. */
 export function canAccessRoute(role: Role, pathname: string): boolean {
-  const area = `/${roleArea[role]}`;
-  return pathname === area || pathname.startsWith(`${area}/`);
+  return isWithin(pathname, `/${roleArea[role]}`);
 }

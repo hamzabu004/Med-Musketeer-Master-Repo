@@ -5,6 +5,8 @@ export interface Session {
   userId: string;
   role: Role;
   orgId: string | null;
+  /** Set for a patient only. */
+  patientId: string | null;
 }
 
 /** The current session, or null when nobody is signed in. Sign-in (OIDC with ZITADEL) arrives with

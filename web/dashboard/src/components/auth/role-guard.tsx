@@ -1,8 +1,8 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { canAccessRoute, roleHome, type Role } from "@/auth/roles";
+import { roleHome, type Role } from "@/auth/roles";
 import { getSession } from "@/auth/session";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -15,7 +15,6 @@ export function RoleGuard({
   role: Role;
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
 
@@ -26,7 +25,7 @@ export function RoleGuard({
       return;
     }
 
-    if (session.role !== role || !canAccessRoute(session.role, pathname)) {
+    if (session.role !== role) {
       window.sessionStorage.setItem(
         ACCESS_DENIED_MESSAGE_KEY,
         "Access denied. You were returned to your dashboard.",
@@ -37,7 +36,7 @@ export function RoleGuard({
 
     const timer = window.setTimeout(() => setAuthorized(true), 0);
     return () => window.clearTimeout(timer);
-  }, [pathname, role, router]);
+  }, [role, router]);
 
   if (!authorized) {
     return (

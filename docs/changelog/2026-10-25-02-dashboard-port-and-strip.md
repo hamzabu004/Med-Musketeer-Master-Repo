@@ -31,7 +31,19 @@ Phase 2 of the dashboard rebuild: the POC modelled a system that no longer exist
 
 ## Evidence
 `docs/testing/evidence/2026-10-25/dashboard/`:
-- `checks.txt`: typecheck, lint, 7 unit tests and the production build;
+- `checks.txt`: typecheck, lint, 8 unit tests and the production build;
 - `e2e.txt`: 12 Playwright tests, desktop and phone (sign-in page, signed-out redirects for all four areas, no horizontal scroll).
 
 The navigation test fails if a sidebar link points to a page that does not exist or lies outside its role's area.
+
+## Review
+`/code-review high` found ten issues (`docs/testing/review-findings/2026-10-26-dashboard-phase-2-port-and-strip.md`). Seven are fixed in a follow-up commit:
+- a cross-platform `gen:api`;
+- a dedicated e2e port, with no server reuse;
+- `patientId` in the session;
+- the doctor's segment viewer moved under the patient, with one shared path helper;
+- ESM config files;
+- `next-env.d.ts` untracked;
+- one `RoleArea` layout.
+
+The ECG scale, the signed-in redirect from `/login` and the unused kit wait for the phases that rewrite them.

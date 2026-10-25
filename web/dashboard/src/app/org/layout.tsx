@@ -1,10 +1,5 @@
-import { AppShell } from "@/components/app-shell/app-shell";
-import { RoleGuard } from "@/components/auth/role-guard";
+import { RoleArea } from "@/components/app-shell/role-area";
 
 export default function OrgLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <RoleGuard role="org_admin">
-      <AppShell role="org_admin" title="Organisation Administration">{children}</AppShell>
-    </RoleGuard>
-  );
+  return <RoleArea role="org_admin">{children}</RoleArea>;
 }

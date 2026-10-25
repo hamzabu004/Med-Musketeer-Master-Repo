@@ -1,10 +1,5 @@
-import { AppShell } from "@/components/app-shell/app-shell";
-import { RoleGuard } from "@/components/auth/role-guard";
+import { RoleArea } from "@/components/app-shell/role-area";
 
 export default function PatientLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <RoleGuard role="patient">
-      <AppShell role="patient" title="My Monitoring">{children}</AppShell>
-    </RoleGuard>
-  );
+  return <RoleArea role="patient">{children}</RoleArea>;
 }

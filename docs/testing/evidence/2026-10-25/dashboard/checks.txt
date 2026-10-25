@@ -1,7 +1,9 @@
 
 > medmusketeer-dashboard@0.1.0 typecheck
-> tsc --noEmit
+> next typegen && tsc --noEmit
 
+Generating route types...
+✓ Types generated successfully
 
 > medmusketeer-dashboard@0.1.0 lint
 > eslint .
@@ -10,35 +12,32 @@
 > medmusketeer-dashboard@0.1.0 test
 > vitest run
 
-(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
-  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
-Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 
  RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
 
 
  Test Files  2 passed (2)
-      Tests  7 passed (7)
-   Start at  23:41:49
-   Duration  2.72s (environment 72%, setup 23%, import 3%, transform 1%)
+      Tests  8 passed (8)
+   Start at  00:21:21
+   Duration  2.95s (environment 73%, setup 22%, import 3%, transform 1%)
 
 
 > medmusketeer-dashboard@0.1.0 build
 > next build
 
 ▲ Next.js 16.4.3 (Turbopack)
-✓ Running next.config.ts took 61ms
+✓ Running next.config.ts took 56ms
 
   Creating an optimized production build ...
-✓ Compiled successfully in 863ms
+✓ Compiled successfully in 1346ms
   Running TypeScript ...
-  Finished TypeScript in 3.4s ...
+  Finished TypeScript in 5.0s ...
   Collecting page data using 7 workers ...
   Generating static pages using 7 workers (0/29) ...
   Generating static pages using 7 workers (7/29) 
   Generating static pages using 7 workers (14/29) 
   Generating static pages using 7 workers (21/29) 
-✓ Generating static pages using 7 workers (29/29) in 547ms
+✓ Generating static pages using 7 workers (29/29) in 510ms
   Finalizing page optimization ...
 
 Route (app)
@@ -51,7 +50,7 @@ Route (app)
 ├ ○ /doctor/dashboard
 ├ ○ /doctor/patients
 ├ ƒ /doctor/patients/[patientId]
-├ ƒ /doctor/segments/[segmentId]
+├ ƒ /doctor/patients/[patientId]/segments/[segmentId]
 ├ ○ /login
 ├ ○ /org
 ├ ○ /org/account

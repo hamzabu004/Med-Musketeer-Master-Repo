@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = Number(process.env.PORT ?? 3100);
+// Its own variable and no server reuse: the tests always run against a fresh build of this tree.
+const port = Number(process.env.DASHBOARD_E2E_PORT ?? 3100);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -15,7 +16,7 @@ export default defineConfig({
   webServer: {
     command: `npm run build && npm run start -- --port ${port}`,
     url: `http://localhost:${port}/login`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 180_000,
   },
 });

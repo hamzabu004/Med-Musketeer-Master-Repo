@@ -26,7 +26,7 @@ npm run lint
 npm test           # unit tests (Vitest)
 npm run build
 npx playwright install chromium   # once
-npm run test:e2e   # browser tests, desktop and phone (builds and starts the app on port 3100)
+npm run test:e2e   # browser tests, desktop and phone (builds and starts the app on DASHBOARD_E2E_PORT, default 3100)
 ```
 
 ## API types
@@ -35,14 +35,14 @@ npm run test:e2e   # browser tests, desktop and phone (builds and starts the app
 
 ```bash
 npm run gen:api                                   # from a running API at http://localhost:8000
-OPENAPI_SOURCE=path/to/openapi.json npm run gen:api
+OPENAPI_SOURCE=path/to/openapi.json npm run gen:api   # or from a file (scripts/gen-api.mjs)
 ```
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `src/app/{system,org,doctor,patient}/` | One area per role, each behind `RoleGuard` |
+| `src/app/{system,org,doctor,patient}/` | One area per role, each laid out by `RoleArea` (guard + shell) |
 | `src/auth/` | Roles and the session |
 | `src/config/navigation.ts` | The sidebar of each role |
 | `src/components/ui/`, `app-shell/` | Design system and shell, kept from the POC |
