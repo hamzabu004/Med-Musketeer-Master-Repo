@@ -2,16 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { roleHome } from "@/config/authorization";
-import { services } from "@/services";
+import { roleHome } from "@/auth/roles";
+import { getSession } from "@/auth/session";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const session = services.auth.getSession();
-    router.replace(session ? roleHome[session.role] : "/login");
+    const session = getSession();
+    router.replace(session ? roleHome(session.role) : "/login");
   }, [router]);
 
   return (

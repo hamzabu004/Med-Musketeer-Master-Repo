@@ -1,19 +1,17 @@
 import {
-  Activity,
   Bell,
+  Building2,
   CircleUserRound,
+  FlaskConical,
   HeartPulse,
-  History,
   LayoutDashboard,
   MonitorCog,
-  RadioTower,
-  Settings,
+  ScrollText,
   ShieldCheck,
-  SlidersHorizontal,
-  Stethoscope,
+  UserCog,
   Users,
 } from "lucide-react";
-import type { Role } from "@/types";
+import type { Role } from "@/auth/roles";
 
 export interface NavItem {
   label: string;
@@ -22,30 +20,33 @@ export interface NavItem {
 }
 
 export const navigationByRole: Record<Role, NavItem[]> = {
-  patient: [
-    { label: "Dashboard", href: "/patient/dashboard", icon: LayoutDashboard },
-    { label: "My Monitoring", href: "/patient/monitoring", icon: HeartPulse },
-    { label: "My History", href: "/patient/history", icon: History },
-    { label: "Alerts", href: "/patient/alerts", icon: Bell },
-    { label: "Settings", href: "/patient/settings", icon: Settings },
+  system_admin: [
+    { label: "Dashboard", href: "/system/dashboard", icon: LayoutDashboard },
+    { label: "Organisations", href: "/system/organisations", icon: Building2 },
+    { label: "Devices", href: "/system/devices", icon: MonitorCog },
+    { label: "Security Events", href: "/system/security-events", icon: ShieldCheck },
+    { label: "Attack Tests", href: "/system/attack-tests", icon: FlaskConical },
+    { label: "Audit Log", href: "/system/audit", icon: ScrollText },
+    { label: "Account", href: "/system/account", icon: UserCog },
+  ],
+  org_admin: [
+    { label: "Dashboard", href: "/org/dashboard", icon: LayoutDashboard },
+    { label: "Accounts", href: "/org/accounts", icon: Users },
+    { label: "Patients", href: "/org/patients", icon: CircleUserRound },
+    { label: "Devices", href: "/org/devices", icon: MonitorCog },
+    { label: "Audit Log", href: "/org/audit", icon: ScrollText },
+    { label: "Account", href: "/org/account", icon: UserCog },
   ],
   doctor: [
     { label: "Dashboard", href: "/doctor/dashboard", icon: LayoutDashboard },
     { label: "Patients", href: "/doctor/patients", icon: CircleUserRound },
     { label: "Alerts", href: "/doctor/alerts", icon: Bell },
-    { label: "Monitoring Stations", href: "/doctor/monitoring-stations", icon: RadioTower },
-    { label: "History", href: "/doctor/history", icon: History },
-    { label: "Settings", href: "/doctor/settings", icon: Settings },
+    { label: "Account", href: "/doctor/account", icon: UserCog },
   ],
-  admin: [
-    { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Users & Identity", href: "/admin/identities", icon: Users },
-    { label: "Patients", href: "/admin/patients", icon: Activity },
-    { label: "Clinicians", href: "/admin/clinicians", icon: Stethoscope },
-    { label: "Devices", href: "/admin/devices", icon: MonitorCog },
-    { label: "Monitoring Stations", href: "/admin/monitoring-stations", icon: RadioTower },
-    { label: "Security", href: "/admin/security", icon: ShieldCheck },
-    { label: "Organization Configuration", href: "/admin/system-configuration", icon: SlidersHorizontal },
-    { label: "Settings", href: "/admin/settings", icon: Settings },
+  patient: [
+    { label: "Dashboard", href: "/patient/dashboard", icon: LayoutDashboard },
+    { label: "Alerts", href: "/patient/alerts", icon: Bell },
+    { label: "ECG Recordings", href: "/patient/ecg", icon: HeartPulse },
+    { label: "Account", href: "/patient/account", icon: UserCog },
   ],
 };

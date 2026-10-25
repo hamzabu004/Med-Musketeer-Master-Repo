@@ -2,12 +2,11 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { canAccessRoute, roleHome } from "@/config/authorization";
-import { services } from "@/services";
-import type { Role } from "@/types";
+import { canAccessRoute, roleHome, type Role } from "@/auth/roles";
+import { getSession } from "@/auth/session";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const ACCESS_DENIED_MESSAGE_KEY = "medmusketeer:poc:access-denied";
+export const ACCESS_DENIED_MESSAGE_KEY = "medmusketeer:dashboard:access-denied";
 
 export function RoleGuard({
   role,
@@ -21,7 +20,7 @@ export function RoleGuard({
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    const session = services.auth.getSession();
+    const session = getSession();
     if (!session) {
       router.replace("/login");
       return;
@@ -32,7 +31,7 @@ export function RoleGuard({
         ACCESS_DENIED_MESSAGE_KEY,
         "Access denied. You were returned to your dashboard.",
       );
-      router.replace(roleHome[session.role]);
+      router.replace(roleHome(session.role));
       return;
     }
 

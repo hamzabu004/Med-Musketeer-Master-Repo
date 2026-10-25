@@ -12,3 +12,7 @@
 # environment overrides
 .env*
 !.env.example
+
+# test output
+/playwright-report
+/test-results

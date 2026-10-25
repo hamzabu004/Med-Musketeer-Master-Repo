@@ -2,20 +2,14 @@
 
 import { ChevronDown, CircleUserRound, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { Role } from "@/types";
-import { services } from "@/services";
-
-const roleLabels: Record<Role, string> = {
-  patient: "Patient",
-  doctor: "Doctor",
-  admin: "Organization Administrator",
-};
+import { roleLabels, type Role } from "@/auth/roles";
+import { signOut } from "@/auth/session";
 
 export function AccountMenu({ role }: { role: Role }) {
   const router = useRouter();
 
   async function logout() {
-    await services.auth.logout();
+    await signOut();
     router.replace("/login");
   }
 
@@ -34,7 +28,7 @@ export function AccountMenu({ role }: { role: Role }) {
           className="flex h-9 w-full items-center gap-2 rounded-[var(--radius-sm)] px-2 text-left text-sm hover:bg-[var(--color-surface-subtle)]"
         >
           <LogOut size={16} strokeWidth={1.8} aria-hidden />
-          Logout
+          Sign out
         </button>
       </div>
     </details>

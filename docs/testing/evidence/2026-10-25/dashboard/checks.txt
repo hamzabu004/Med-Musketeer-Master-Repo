@@ -1,0 +1,84 @@
+
+> medmusketeer-dashboard@0.1.0 typecheck
+> tsc --noEmit
+
+
+> medmusketeer-dashboard@0.1.0 lint
+> eslint .
+
+
+> medmusketeer-dashboard@0.1.0 test
+> vitest run
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  23:41:49
+   Duration  2.72s (environment 72%, setup 23%, import 3%, transform 1%)
+
+
+> medmusketeer-dashboard@0.1.0 build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 61ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 863ms
+  Running TypeScript ...
+  Finished TypeScript in 3.4s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/29) ...
+  Generating static pages using 7 workers (7/29) 
+  Generating static pages using 7 workers (14/29) 
+  Generating static pages using 7 workers (21/29) 
+✓ Generating static pages using 7 workers (29/29) in 547ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /doctor
+├ ○ /doctor/account
+├ ○ /doctor/alerts
+├ ƒ /doctor/alerts/[alertId]
+├ ○ /doctor/dashboard
+├ ○ /doctor/patients
+├ ƒ /doctor/patients/[patientId]
+├ ƒ /doctor/segments/[segmentId]
+├ ○ /login
+├ ○ /org
+├ ○ /org/account
+├ ○ /org/accounts
+├ ○ /org/audit
+├ ○ /org/dashboard
+├ ○ /org/devices
+├ ○ /org/patients
+├ ƒ /org/patients/[patientId]
+├ ○ /patient
+├ ○ /patient/account
+├ ○ /patient/alerts
+├ ○ /patient/dashboard
+├ ○ /patient/ecg
+├ ƒ /patient/ecg/[segmentId]
+├ ○ /system
+├ ○ /system/account
+├ ○ /system/attack-tests
+├ ○ /system/audit
+├ ○ /system/dashboard
+├ ○ /system/devices
+├ ƒ /system/devices/[deviceId]
+├ ○ /system/organisations
+├ ƒ /system/organisations/[orgId]
+└ ○ /system/security-events
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

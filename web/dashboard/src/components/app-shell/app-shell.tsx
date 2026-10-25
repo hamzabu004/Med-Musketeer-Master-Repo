@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Role } from "@/types";
+import type { Role } from "@/auth/roles";
 import { ACCESS_DENIED_MESSAGE_KEY } from "@/components/auth/role-guard";
 import { AppHeader } from "./app-header";
 import { Sidebar } from "./sidebar";

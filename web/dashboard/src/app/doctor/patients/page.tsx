@@ -1,5 +1,5 @@
-import { DoctorPatients } from "@/features/doctor/doctor-patients";
+import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
 
 export default function Page() {
-  return <DoctorPatients />;
+  return <ScreenPlaceholder title="Patients" description="Your patients." />;
 }

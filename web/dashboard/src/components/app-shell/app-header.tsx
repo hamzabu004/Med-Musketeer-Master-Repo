@@ -1,5 +1,5 @@
 import { Menu } from "lucide-react";
-import type { Role } from "@/types";
+import type { Role } from "@/auth/roles";
 import { AccountMenu } from "./account-menu";
 
 export function AppHeader({

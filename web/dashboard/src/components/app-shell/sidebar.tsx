@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, HeartPulse, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { navigationByRole } from "@/config/navigation";
-import type { Role } from "@/types";
+import type { Role } from "@/auth/roles";
 import { cn } from "@/lib/cn";
 
-const STORAGE_KEY = "medmusketeer:poc:sidebar-collapsed";
+const STORAGE_KEY = "medmusketeer:dashboard:sidebar-collapsed";
 
 function NavigationLinks({
   role,
@@ -22,7 +22,7 @@ function NavigationLinks({
   onNavigate?: () => void;
 }) {
   return (
-    <nav className="flex-1 space-y-1 p-2" aria-label={`${role} navigation`}>
+    <nav className="flex-1 space-y-1 p-2" aria-label="Main navigation">
       {navigationByRole[role].map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;

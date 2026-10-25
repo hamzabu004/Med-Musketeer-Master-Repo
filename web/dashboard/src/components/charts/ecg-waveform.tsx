@@ -2,12 +2,10 @@
 
 export function ECGWaveform({
   values,
-  label = "Simulated ECG",
-  live = false,
+  label = "ECG",
 }: {
   values: number[];
   label?: string;
-  live?: boolean;
 }) {
   const width = 900;
   const height = 220;
@@ -25,7 +23,7 @@ export function ECGWaveform({
     <div className="overflow-hidden rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)]">
       <div className="flex items-center justify-between border-b border-[var(--color-border)] px-3 py-2 text-xs text-[var(--color-text-muted)]">
         <span>{label}</span>
-        <span>{live ? "Live-style signal" : "Recorded signal"}</span>
+        <span>Recorded signal</span>
       </div>
       <div className="clinical-grid relative">
         <svg viewBox={`0 0 ${width} ${height}`} className="block h-56 w-full" role="img" aria-label={label}>
@@ -35,8 +33,6 @@ export function ECGWaveform({
             stroke="var(--color-brand)"
             strokeWidth="2"
             vectorEffect="non-scaling-stroke"
-            pathLength={live ? 1 : undefined}
-            className={live ? "ecg-live-path" : undefined}
           />
         </svg>
         {values.length === 0 && (

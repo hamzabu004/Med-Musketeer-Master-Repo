@@ -1,5 +1,5 @@
 import { HeartPulse } from "lucide-react";
-import { LoginForm } from "@/components/auth/login-form";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   return (
@@ -12,9 +12,11 @@ export default function LoginPage() {
             <p className="text-xs text-[var(--color-text-muted)]">Clinical monitoring</p>
           </div>
         </div>
-        <LoginForm />
+        <Button className="w-full" disabled>
+          Sign in
+        </Button>
         <p className="mt-5 border-t border-[var(--color-border)] pt-4 text-xs text-[var(--color-text-muted)]">
-          Clinical monitoring environment with simulated data.
+          Research prototype, not a medical device. Sign-in is not connected yet.
         </p>
       </section>
     </main>

@@ -1,5 +1,5 @@
-import { DoctorAlerts } from "@/features/doctor/doctor-alerts";
+import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
 
 export default function Page() {
-  return <DoctorAlerts />;
+  return <ScreenPlaceholder title="Alerts" description="Alerts across your patients; acknowledge them." />;
 }
