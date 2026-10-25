@@ -1,4 +1,4 @@
-run_at: 2026-10-25T21:04:38+05:00
+run_at: 2026-10-25T23:21:19+05:00
 host: Linux 7.2.5-200.fc44.x86_64 x86_64
 python: Python 3.14.7
 packages: cryptography==50.0.2 fastapi==0.161.1 httpx==0.28.1 paho-mqtt==2.1.0 psycopg==3.3.6 pydantic-settings==2.16.1 PyJWT==2.15.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
@@ -6,28 +6,15 @@ compose: Docker Compose version v5.4.0
 engine: docker 29.7.2
 images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev medmusketeer/cloud-emqx:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev alpine:3.22.2 
 base images: python:3.14.9-slim-trixie emqx/emqx:6.3.2 timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
-commit: 4ffd22bca8e7e57b101b0dce0d454ba81aca3a57
+commit: bc761048c8b5a84a2d3ede5dee48e21c19f38ba1
 uncommitted changes:
- M cloud/.env.example
- M cloud/README.md
- M cloud/backend/app/main.py
- M cloud/backend/app/manage.py
+ M cloud/backend/app/dev_seed.py
  M cloud/backend/app/settings.py
- M cloud/backend/app/tokens.py
  M cloud/backend/app/zitadel.py
  M cloud/backend/app/zitadel_bootstrap.py
- M cloud/backend/tests/fake_zitadel.py
- M cloud/backend/tests/integration/test_access.py
- M cloud/backend/tests/integration/test_stack.py
- M cloud/backend/tests/unit/test_app.py
  M cloud/backend/tests/unit/test_zitadel.py
+ M cloud/backend/tests/unit/test_zitadel_bootstrap.py
  M cloud/compose.yaml
- M docs/decisions/cloud-backend.md
- M docs/decisions/gaps.md
- M docs/testing/test_traceability.md
-?? cloud/backend/app/dev_seed.py
-?? cloud/backend/app/directory.py
-?? cloud/backend/tests/integration/test_directory.py
-?? cloud/backend/tests/unit/test_zitadel_bootstrap.py
-?? docs/changelog/2026-10-25-01-dashboard-cloud-enablers.md
-?? docs/testing/evidence/2026-10-25/
+ M cloud/emqx/mm-entrypoint.sh
+ M docs/testing/evidence/2026-10-25/cloud/environment.txt
+?? cloud/backend/tests/unit/test_dev_seed.py

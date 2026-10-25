@@ -37,4 +37,15 @@ if grep -q '@MM_' "$ETC/emqx.conf"; then
     exit 1
 fi
 
+# Every client is authenticated by the API's hooks. If EMQX starts while `api` does not resolve,
+# its HTTP authenticators stay down until their next health check (about 15 s) and refuse every
+# client meanwhile. compose orders the start, but not Docker's restarts (unless-stopped, after a
+# reboot), so wait here too; after MM_API_WAIT_S EMQX starts anyway and recovers on its own.
+readonly API_LIVEZ="${MM_API_LIVEZ_URL:-http://api:8000/livez}"
+for ((waited = 0; waited < ${MM_API_WAIT_S:-120}; waited += 2)); do
+    curl -fsS -o /dev/null --max-time 2 "$API_LIVEZ" && break
+    ((waited % 20 == 0)) && echo "mm-entrypoint: waiting for $API_LIVEZ" >&2
+    sleep 2
+done
+
 exec /usr/bin/docker-entrypoint.sh "$@"

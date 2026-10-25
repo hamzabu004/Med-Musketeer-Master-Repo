@@ -10,17 +10,20 @@
 
 The ECG is generated, not recorded: it exists to exercise the screens and carries no clinical
 meaning. The command refuses to run when the database already has an organisation (unless told otherwise,
-for the stack tests).
+for the stack tests). If any step fails, what it created in ZITADEL is deleted again, so the guard
+(which looks at the database) stays truthful and the command can be re-run.
 """
 import json
 import math
 import random
 import secrets
 import struct
+import sys
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 
+import httpx
 from sqlalchemy import create_engine, text
 
 from app.settings import Settings
@@ -50,7 +53,8 @@ class Person:
         return f"{self.key}@{EMAIL_DOMAIN}"
 
 
-PEOPLE = [
+# Templates: seed() works on fresh copies, so nothing carries over between runs in one process.
+PEOPLE = (
     Person("sysadmin", "system_admin", "Sana", "Sysadmin"),
     Person("orgadmin", "org_admin", "Omar", "Admin"),
     Person("doctor1", "doctor", "Sarah", "Ahmed"),
@@ -58,7 +62,7 @@ PEOPLE = [
     Person("patient1", "patient", "Ali", "Khan", pseudonym="P-1001"),
     Person("patient2", "patient", "Fatima", "Noor", pseudonym="P-1002"),
     Person("patient3", "patient", "Usman", "Iqbal", pseudonym="P-1003"),
-]
+)
 
 
 # --- synthetic ECG ---------------------------------------------------------------------------
@@ -94,12 +98,16 @@ def pack(samples: list[int]) -> bytes:
 
 # --- ZITADEL ---------------------------------------------------------------------------------
 
-def create_zitadel_people(zitadel: Zitadel, config: ZitadelConfig, password: str) -> str:
-    """Creates the organisation and every person in ZITADEL; returns the ZITADEL organisation id."""
+def create_zitadel_people(zitadel: Zitadel, config: ZitadelConfig, people: list[Person], password: str,
+                          created: list[str]) -> str:
+    """Creates the organisation and every person in ZITADEL; returns the ZITADEL organisation id.
+    Appends to `created` what to delete if seeding fails: the organisation (which takes its users
+    with it) and the system admin, who lives in the default organisation."""
     zitadel_org = zitadel.call("POST", "/v2/organizations", ok=(200, 201), json={"name": ORG_NAME})["organizationId"]
+    created.append(f"/v2/organizations/{zitadel_org}")
     grant_id = zitadel.call("POST", f"/management/v1/projects/{config.project_id}/grants", org=config.default_org_id,
                             json={"grantedOrgId": zitadel_org, "roleKeys": list(ORG_ROLES)})["grantId"]
-    for person in PEOPLE:
+    for person in people:
         org = config.default_org_id if person.role == "system_admin" else zitadel_org
         person.zitadel_sub = zitadel.call("POST", "/v2/users/human", ok=(200, 201), json={
             "organization": {"orgId": org},
@@ -108,6 +116,8 @@ def create_zitadel_people(zitadel: Zitadel, config: ZitadelConfig, password: str
             "email": {"email": person.email, "isVerified": True},
             "password": {"password": password, "changeRequired": False},
         })["userId"]
+        if person.role == "system_admin":
+            created.append(f"/v2/users/{person.zitadel_sub}")
         zitadel.ensure_user_grant(org, person.zitadel_sub, config.project_id, [person.role],
                                   None if person.role == "system_admin" else grant_id)
     return zitadel_org
@@ -119,17 +129,25 @@ def insert(conn, sql: str, **params):
     return conn.execute(text(sql), params).scalar()
 
 
-def seed_database(conn, zitadel_org: str, rng: random.Random) -> dict:
+def undo(zitadel: Zitadel, created: list[str]) -> None:
+    for path in reversed(created):
+        try:
+            zitadel.call("DELETE", path)
+        except (RuntimeError, httpx.HTTPError) as error:
+            print(f"seed-dev: could not delete {path} from ZITADEL, delete it by hand: {error}", file=sys.stderr)
+
+
+def seed_database(conn, zitadel_org: str, people: list[Person], rng: random.Random) -> dict:
     now = datetime.now(UTC)
-    by = {person.key: person for person in PEOPLE}
-    for person in PEOPLE:
+    by = {person.key: person for person in people}
+    for person in people:
         person.user_id = insert(conn, "INSERT INTO users (zitadel_sub, role, org_id) VALUES (:s, :r, NULL) RETURNING user_id",
                                 s=person.zitadel_sub, r=person.role) if person.role == "system_admin" else None
     sysadmin = by["sysadmin"].user_id
     org_id = insert(conn, """INSERT INTO organisations (name, kind, zitadel_org_id, registered_by)
                              VALUES (:n, 'public', :z, :by) RETURNING org_id""", n=ORG_NAME, z=zitadel_org, by=sysadmin)
     patients = {}
-    for person in PEOPLE:
+    for person in people:
         if person.role == "system_admin":
             continue
         person.user_id = insert(conn, "INSERT INTO users (zitadel_sub, role, org_id) VALUES (:s, :r, :o) RETURNING user_id",
@@ -237,14 +255,20 @@ def seed(settings: Settings, password: str | None = None, allow_existing: bool =
         zitadel = Zitadel(settings.zitadel_url, config.issuer, token)
         # ZITADEL's default password policy needs upper and lower case, a digit and a symbol.
         password = password or f"Dev-{secrets.token_urlsafe(9)}1a!"
-        zitadel_org = create_zitadel_people(zitadel, config, password)
-        with engine.begin() as conn:
-            created = seed_database(conn, zitadel_org, random.Random(1))
+        people = [replace(person) for person in PEOPLE]
+        in_zitadel: list[str] = []
+        try:
+            zitadel_org = create_zitadel_people(zitadel, config, people, password, in_zitadel)
+            with engine.begin() as conn:
+                created = seed_database(conn, zitadel_org, people, random.Random(1))
+        except BaseException:
+            undo(zitadel, in_zitadel)
+            raise
     finally:
         engine.dispose()
     created["password"] = password
     created["people"] = [{"email": p.email, "role": p.role, "name": f"{p.given_name} {p.family_name}",
-                          "user_id": str(p.user_id), "pseudonym": p.pseudonym} for p in PEOPLE]
+                          "user_id": str(p.user_id), "pseudonym": p.pseudonym} for p in people]
     return created
 
 

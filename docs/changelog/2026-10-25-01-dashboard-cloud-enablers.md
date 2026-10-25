@@ -25,7 +25,7 @@
   - Seven ZITADEL human users across the four roles, sharing one printed password.
   - "Dev Hospital" with a gateway and wearables.
   - Alert segments of synthetic ECG (360 Hz) with classifications and alerts, and IDS events.
-- **Start order fix:** EMQX now starts after the API is healthy (`compose.yaml`); the API no longer waits for EMQX.
+- **Start order fix:** EMQX now starts after the API is healthy (`compose.yaml`), and its entrypoint also waits for the API's `/livez` (Docker's restarts ignore `depends_on`); the API no longer waits for EMQX.
   - Before, EMQX started first and could not resolve `api`, so its HTTP authenticators stayed down until their next health check (about 15 s) and refused every client.
   - The longer bootstrap made this window long enough to fail TC-C14 and TC-C17 in two runs (the adapter monitor was refused).
   - The API needed EMQX only for `/healthz`, which still reports it.
@@ -38,7 +38,7 @@ Phase 1 of the dashboard rebuild (the POC-Lite proof of concept is being replace
 - with ingestion (Slice 5) not built, it had no data to show.
 
 ## Evidence
-313 cloud tests pass (`docs/testing/evidence/2026-10-25/cloud/`). TC-C19 signs in each seeded role through the dashboard app, scripting the browser's steps (PKCE authorization request, password session, linking the session to the request, code exchange). It then checks `/me`, the CORS headers, the directory names and the seeded ECG (`stack/tc_c19_dashboard_sign_in.json`).
+317 cloud tests pass (`docs/testing/evidence/2026-10-25/cloud/`). TC-C19 signs in each seeded role through the dashboard app, scripting the browser's steps (PKCE authorization request, password session, linking the session to the request, code exchange). It then checks `/me`, the CORS headers, the directory names and the seeded ECG (`stack/tc_c19_dashboard_sign_in.json`).
 
 New tests:
 - `test_directory` (role visibility, missing profiles, ZITADEL failure);
@@ -46,3 +46,13 @@ New tests:
 - CORS and `/auth/config` unit tests;
 - the bootstrap's app creation and update;
 - profile batching and caching.
+
+## Review
+`/code-review high` found ten issues (`docs/testing/review-findings/2026-10-25-dashboard-phase-1-cloud-enablers.md`); seven are fixed in a follow-up commit:
+- seed-dev deletes what it created in ZITADEL when it fails;
+- expired profiles are evicted;
+- http and https dashboard origins can no longer be mixed (dev mode);
+- only ZITADEL's "No changes" reply is ignored;
+- EMQX waits for the API on every start;
+- one shared origin parser;
+- the seed no longer mutates module state.

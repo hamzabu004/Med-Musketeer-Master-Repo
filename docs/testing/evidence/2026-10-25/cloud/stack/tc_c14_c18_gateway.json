@@ -1,14 +1,14 @@
 {
   "tc_c14": {
-    "gateway": "2c77aabf-57d1-4d15-9b3c-e7c3dfc602db",
+    "gateway": "5a6029c0-ed44-4286-9985-2cdea3807004",
     "republished": {
-      "username": "2c77aabf-57d1-4d15-9b3c-e7c3dfc602db",
-      "topic": "mm/fixed/c4b0082e-4a5a-42dc-affe-26f3d61152b4/alert",
+      "username": "5a6029c0-ed44-4286-9985-2cdea3807004",
+      "topic": "mm/fixed/630d1454-fe01-4f08-a915-88b3a14035b1/alert",
       "qos": 1,
-      "publish_received_at": 1792944390259,
-      "payload": "{\"v\": 1, \"msg_id\": \"3a32ba5a-1750-4bb5-8673-d042ca4d8860\", \"seq\": 1, \"type\": \"alert\", \"fs_hz\": 360}",
-      "id": "00065EAC657BC208F445000016A70002",
-      "clientid": "test-b9e3f39a"
+      "publish_received_at": 1792952589498,
+      "payload": "{\"v\": 1, \"msg_id\": \"b55ee90b-8260-4a92-a582-0dd5cc332add\", \"seq\": 1, \"type\": \"alert\", \"fs_hz\": 360}",
+      "id": "00065EAE4E323A20F445000016A70002",
+      "clientid": "test-4f21dd92"
     }
   },
   "tc_c15": {
@@ -24,10 +24,10 @@
   },
   "tc_c17": {
     "publish": {
-      "mm/fixed/17e2643b-4577-4c27-bf4e-203bda3a81ef/command": "Not authorized",
-      "mm/fixed/17e2643b-4577-4c27-bf4e-203bda3a81ef/other": "Not authorized",
-      "mm/gateway/5bd8516c-4460-4d64-8e9a-dba1378e59e9/status": "Not authorized",
-      "ingest/2c77aabf-57d1-4d15-9b3c-e7c3dfc602db/mm/fixed/17e2643b-4577-4c27-bf4e-203bda3a81ef/alert": "Not authorized",
+      "mm/fixed/97065d63-17be-49ad-9497-5bf81d4c97c6/command": "Not authorized",
+      "mm/fixed/97065d63-17be-49ad-9497-5bf81d4c97c6/other": "Not authorized",
+      "mm/gateway/b1ca73e5-6e31-4462-b557-e4ad6259da89/status": "Not authorized",
+      "ingest/5a6029c0-ed44-4286-9985-2cdea3807004/mm/fixed/97065d63-17be-49ad-9497-5bf81d4c97c6/alert": "Not authorized",
       "anything": "Not authorized"
     },
     "subscribe": {
@@ -35,7 +35,7 @@
       "mm/fixed/+/alert": "Not authorized",
       "ingest/#": "Not authorized",
       "#": "Not authorized",
-      "mm/gateway/5bd8516c-4460-4d64-8e9a-dba1378e59e9/#": "Not authorized"
+      "mm/gateway/b1ca73e5-6e31-4462-b557-e4ad6259da89/#": "Not authorized"
     }
   },
   "tc_c18": {

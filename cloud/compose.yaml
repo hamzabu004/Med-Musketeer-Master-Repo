@@ -144,9 +144,8 @@ services:
       timeout: 10s
       retries: 12
       start_period: 15s
-    # Every client is authenticated and authorised by the API's hooks. Started before the API, EMQX
-    # cannot resolve `api`, and its HTTP authenticators stay down until their next health check
-    # (about 15 s), refusing every client meanwhile.
+    # Every client is authenticated and authorised by the API's hooks, so EMQX starts after the API
+    # (mm-entrypoint.sh also waits for it, for restarts that ignore depends_on).
     depends_on:
       api:
         condition: service_healthy

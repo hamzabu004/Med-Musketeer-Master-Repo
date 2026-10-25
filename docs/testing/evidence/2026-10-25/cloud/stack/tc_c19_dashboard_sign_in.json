@@ -12,13 +12,13 @@
     "devMode": true
   },
   "seeded": {
-    "org_id": "24d8f31f-e9d8-470d-bf69-25696e624d08",
-    "gateway": "849d22be-bbb8-40c4-8197-fc2f8fc6b367",
+    "org_id": "13ec564d-3295-46f6-a2e4-0ea43f3d2460",
+    "gateway": "7f7d2e3f-0a18-485b-b8e3-5aab00ac5986",
     "wearables": [
-      "d8c9c5cd-6d1f-42c0-b0bd-938ea1387516",
-      "a17981c4-e46e-4213-a001-2dfff79f120a",
-      "e61b0cc9-944c-44b3-8677-3a5ce16d1aa1",
-      "85b21ff4-b09d-4e68-ac5b-adafe37baa03"
+      "9edc7bf3-3d0d-4ce8-b54e-53844ae907f1",
+      "5fbbf4e5-9c70-4a63-b405-59601aa4b0b7",
+      "856de047-a3cb-454e-85d8-661399adcb50",
+      "87e30229-f264-4b69-a6e2-cfa23a4abd7c"
     ],
     "alerts": 5
   },

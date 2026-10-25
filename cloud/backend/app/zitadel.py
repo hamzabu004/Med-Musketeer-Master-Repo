@@ -160,8 +160,11 @@ class ZitadelAdmin:
         """Names and e-mail of the given users. Users ZITADEL does not return are left out. Each
         profile is reused for PROFILE_TTL_S, so a change in ZITADEL shows within a minute."""
         now = time.monotonic()
-        missing = sorted({user_id for user_id in user_ids
-                          if user_id not in self._profiles or self._profiles[user_id][0] <= now})
+        # Expired entries go first, so a user ZITADEL stops returning is dropped, and the cache
+        # holds only what was looked up in the last PROFILE_TTL_S.
+        for user_id in [user_id for user_id, (expires, _) in self._profiles.items() if expires <= now]:
+            del self._profiles[user_id]
+        missing = sorted({user_id for user_id in user_ids if user_id not in self._profiles})
         for start in range(0, len(missing), PROFILE_BATCH):
             batch = missing[start:start + PROFILE_BATCH]
             found = await self._call("POST", "/v2/users", json={

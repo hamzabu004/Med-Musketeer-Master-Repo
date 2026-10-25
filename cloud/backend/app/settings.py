@@ -6,6 +6,12 @@ from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
+def parse_origins(value: str) -> list[str]:
+    """Comma-separated browser origins, without a trailing slash. Shared by the CORS allow-list and
+    the dashboard app's redirect URIs (zitadel_bootstrap), which come from the same setting."""
+    return [origin.strip().rstrip("/") for origin in value.split(",") if origin.strip()]
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="MM_", extra="ignore")
 
@@ -26,12 +32,10 @@ class Settings(BaseSettings):
     # Password of the adapter's account (mm-adapter) on the internal listener.
     emqx_adapter_password: SecretStr | None = None
     # Browser origins that may call the API (the dashboard), comma-separated, e.g.
-    # "http://localhost:3000,https://med-muskeeter.vercel.app". Empty: no CORS headers at all.
+    # "https://med-muskeeter.vercel.app" or "http://localhost:3000". Empty: no CORS headers at all.
     cors_origins: Annotated[list[str], NoDecode] = []
 
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_origins(cls, value):
-        if isinstance(value, str):
-            return [origin.strip().rstrip("/") for origin in value.split(",") if origin.strip()]
-        return value
+        return parse_origins(value) if isinstance(value, str) else value

@@ -7,7 +7,7 @@ import json
 import httpx
 import pytest
 
-from app.zitadel import ZitadelAdmin, ZitadelError
+from app.zitadel import Profile, ZitadelAdmin, ZitadelError
 from tests.tokens import CONFIG, DEFAULT_ORG_ID, PROJECT_ID
 
 CLIENT_ORG = "400000000000000001"
@@ -164,6 +164,14 @@ def test_profiles_are_read_again_after_the_ttl(token_file, monkeypatch):
     client._profiles = {key: (0.0, value) for key, (_, value) in client._profiles.items()}  # expired
     asyncio.run(client.profiles(["u1"]))
     assert len(script.requests) == 2
+
+
+def test_an_expired_profile_zitadel_no_longer_returns_is_dropped(token_file):
+    script = ScriptedZitadel({("POST", "/v2/users"): profile_answer})
+    client = admin(script, token_file)
+    client._profiles = {"gone": (0.0, Profile("Old", "Name", "old@x.example")), "u9": (0.0, Profile("U", "9", None))}
+    assert asyncio.run(client.profiles(["gone"])) == {}
+    assert client._profiles == {}  # u9 expired as well: evicted, not kept forever
 
 
 def test_a_zitadel_failure_reading_profiles_is_raised(token_file):
