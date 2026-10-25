@@ -10,12 +10,13 @@ closes its grant; closing a grant ends the device's open assignment and monitori
 data arriving afterwards cannot be attributed to the previous patient.
 """
 import json
+import re
 from datetime import datetime
 from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -78,9 +79,20 @@ class Device(BaseModel):
 class CredentialIn(BaseModel):
     auth_method: str = Field(min_length=1, max_length=64)
     key_type: str | None = Field(default=None, max_length=32)
-    credential_ref: str = Field(min_length=1, max_length=256)  # serial or fingerprint, never key material
+    credential_ref: str = Field(min_length=1, max_length=256)  # never key material
     expires_at: datetime | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def x509_is_referenced_by_fingerprint(self):
+        """An x509_mtls credential is the certificate's SHA-256 fingerprint (as `mmca issue` prints
+        it, colons allowed), which the broker's authentication hook matches (app.broker)."""
+        if self.auth_method == "x509_mtls":
+            fingerprint = self.credential_ref.replace(":", "").upper()
+            if not re.fullmatch(r"[0-9A-F]{64}", fingerprint):
+                raise ValueError("an x509_mtls credential_ref is the certificate's SHA-256 fingerprint (64 hex digits)")
+            self.credential_ref = fingerprint
+        return self
 
 
 class Credential(BaseModel):

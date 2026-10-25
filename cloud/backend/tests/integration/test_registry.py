@@ -13,7 +13,7 @@ pytestmark = pytest.mark.integration
 def register_active_device(client, device_type: str = "wearable") -> str:
     device_id = str(uuid.uuid4())
     assert client.post("/admin/devices", json={"device_id": device_id, "type": device_type, "is_testbed": True}).status_code == 201
-    credential = {"auth_method": "x509_mtls", "key_type": "ec_p256", "credential_ref": f"serial-{uuid.uuid4().hex}"}
+    credential = {"auth_method": "x509_mtls", "key_type": "ec_p256", "credential_ref": uuid.uuid4().hex * 2}
     assert client.post(f"/admin/devices/{device_id}/credentials", json=credential).status_code == 201
     assert client.post(f"/admin/devices/{device_id}/activate").json()["status"] == "active"
     return device_id
@@ -35,10 +35,13 @@ def test_tc_c08_registry_round_trip(admin_client, system_admin):
     # a device cannot be activated before it has a credential
     assert admin_client.post(f"/admin/devices/{device_id}/activate").status_code == 409
     credential = admin_client.post(f"/admin/devices/{device_id}/credentials", json={
-        "auth_method": "x509_mtls", "key_type": "rsa_2048", "credential_ref": "serial-01", "metadata": {"cn": device_id},
+        "auth_method": "x509_mtls", "key_type": "rsa_2048", "credential_ref": "ab:" * 31 + "ab", "metadata": {"cn": device_id},
     })
     assert credential.status_code == 201
     assert credential.json()["metadata"] == {"cn": device_id}
+    assert credential.json()["credential_ref"] == "AB" * 32  # an x509 fingerprint, normalised
+    assert admin_client.post(f"/admin/devices/{device_id}/credentials", json={
+        "auth_method": "x509_mtls", "credential_ref": "serial-01"}).status_code == 422
     assert admin_client.post(f"/admin/devices/{device_id}/activate").json()["status"] == "active"
     assert admin_client.post(f"/admin/devices/{device_id}/activate").status_code == 409  # already active
     assert admin_client.post(f"/admin/devices/{device_id}/suspend").json()["status"] == "suspended"
@@ -85,7 +88,7 @@ def test_revoking_a_device_revokes_its_credentials_and_closes_its_grant(admin_cl
     for action in ("activate", "suspend", "revoke"):
         assert admin_client.post(f"/admin/devices/{device_id}/{action}").status_code == 409
     assert admin_client.post(f"/admin/devices/{device_id}/credentials",
-                             json={"auth_method": "x509_mtls", "credential_ref": "new"}).status_code == 409
+                             json={"auth_method": "x509_mtls", "credential_ref": "EF" * 32}).status_code == 409
 
 
 def test_grants_need_an_existing_active_organisation(admin_client):

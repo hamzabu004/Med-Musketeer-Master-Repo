@@ -13,6 +13,7 @@ class Settings:
     root: Path
     ca_dir: Path
     issued_dir: Path
+    cloud_dir: Path
     audit_path: Path
     serial_db: Path
     default_key_type: str = "ec_p256"
@@ -49,6 +50,7 @@ def load_settings(root: Path | None = None) -> Settings:
         root=base,
         ca_dir=base / "ca",
         issued_dir=base / "issued",
+        cloud_dir=base / "cloud",
         audit_path=base / "audit.log.jsonl",
         serial_db=base / "ca" / "serial_db",
         default_key_type=defaults.get("tls_key_type", "ec_p256"),

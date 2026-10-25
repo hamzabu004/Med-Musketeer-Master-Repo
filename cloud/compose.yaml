@@ -115,17 +115,29 @@ services:
       zitadel-login:
         condition: service_healthy
 
+  # MQTT broker (D1, D4, D5): the gateway mTLS listener on 8883 and the internal service listener
+  # on 1883, both authenticated by the API; topic access decided by the API. Configuration is
+  # baked into the image (emqx/), the cloud certificate comes from the emqx-certs volume
+  # (scripts/install-emqx-certs.sh). Without it the gateway listener stays off.
   emqx:
-    image: emqx/emqx:6.3.2
+    build: ./emqx  # emqx/emqx:6.3.2 + emqx.conf.template + mm-entrypoint.sh
+    image: medmusketeer/cloud-emqx:dev
     restart: unless-stopped
     environment:
       EMQX_NODE__NAME: emqx@127.0.0.1
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_PASSWORD:?set in .env}
+      MM_EMQX_HOOK_SECRET: ${EMQX_HOOK_SECRET:?set in .env}
+      MM_EMQX_NODE_COOKIE: ${EMQX_NODE_COOKIE:?set in .env}
     ports:
       - 127.0.0.1:${EMQX_DASHBOARD_PUBLISHED_PORT:-18083}:18083
+      # Gateways connect here. On the cloud Pi, bind to its Tailscale address.
+      - ${EMQX_GATEWAY_BIND_ADDRESS:-127.0.0.1}:${EMQX_GATEWAY_PUBLISHED_PORT:-8883}:8883
+      # Service listener, for the adapter and tests on this machine only.
+      - 127.0.0.1:${EMQX_INTERNAL_PUBLISHED_PORT:-1883}:1883
     volumes:
       - emqx-data:/opt/emqx/data
       - emqx-log:/opt/emqx/log
+      - emqx-certs:/opt/emqx/etc/certs/mm:ro
     healthcheck:
       test: ["CMD", "/opt/emqx/bin/emqx", "ctl", "status"]
       interval: 10s
@@ -174,6 +186,8 @@ services:
       MM_EMQX_STATUS_URL: http://emqx:18083/status
       MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
       MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
+      MM_EMQX_HOOK_SECRET: ${EMQX_HOOK_SECRET:?set in .env}
+      MM_EMQX_ADAPTER_PASSWORD: ${EMQX_ADAPTER_PASSWORD:?set in .env}
     ports:
       - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
     volumes:
@@ -193,6 +207,16 @@ services:
       emqx:
         condition: service_healthy
 
+  # One-off tool, not started by `up`: writes the cloud certificate into the emqx-certs volume.
+  # Used by scripts/install-emqx-certs.sh, which streams a tar of the three files to its stdin.
+  emqx-certs-install:
+    image: alpine:3.22.2
+    profiles: [tools]
+    network_mode: none
+    entrypoint: ["sh", "-c", "rm -f /certs/* && tar -x -C /certs && chown -R 1000:1000 /certs && chmod 644 /certs/ca.crt /certs/server.crt && chmod 600 /certs/server.key && ls -l /certs"]
+    volumes:
+      - emqx-certs:/certs
+
 volumes:
   postgres-data:
   zitadel-bootstrap:
@@ -200,3 +224,4 @@ volumes:
   mm-secrets:
   emqx-data:
   emqx-log:
+  emqx-certs:

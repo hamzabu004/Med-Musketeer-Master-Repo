@@ -1,0 +1,54 @@
+{
+  "tc_c14": {
+    "gateway": "02e39b29-9663-42cf-959b-123953de2323",
+    "republished": {
+      "username": "02e39b29-9663-42cf-959b-123953de2323",
+      "topic": "mm/fixed/422da15b-a912-45a2-bf54-44424f5e8803/alert",
+      "qos": 1,
+      "publish_received_at": 1792788848841,
+      "payload": "{\"v\": 1, \"msg_id\": \"39053875-fd4a-4521-b005-ae166d11b10c\", \"seq\": 1, \"type\": \"alert\", \"fs_hz\": 360}",
+      "id": "00065E882E7E125DF445000016FF0002",
+      "clientid": "test-5944688f"
+    }
+  },
+  "tc_c15": {
+    "after_revoke": "Not authorized",
+    "new_certificate": "Success",
+    "after_suspend": "Not authorized"
+  },
+  "tc_c16": {
+    "foreign CA": "disconnected: Unspecified error",
+    "no certificate": "disconnected: Unspecified error",
+    "wearable certificate": "Not authorized",
+    "unregistered gateway": "Not authorized"
+  },
+  "tc_c17": {
+    "publish": {
+      "mm/fixed/d285897f-d2be-45a6-b2e2-4b61ed06f914/command": "Not authorized",
+      "mm/fixed/d285897f-d2be-45a6-b2e2-4b61ed06f914/other": "Not authorized",
+      "mm/gateway/ca1f93c8-c402-45d3-a533-360a97affc14/status": "Not authorized",
+      "ingest/02e39b29-9663-42cf-959b-123953de2323/mm/fixed/d285897f-d2be-45a6-b2e2-4b61ed06f914/alert": "Not authorized",
+      "anything": "Not authorized"
+    },
+    "subscribe": {
+      "mm/fixed/#": "Not authorized",
+      "mm/fixed/+/alert": "Not authorized",
+      "ingest/#": "Not authorized",
+      "#": "Not authorized",
+      "mm/gateway/ca1f93c8-c402-45d3-a533-360a97affc14/#": "Not authorized"
+    }
+  },
+  "tc_c18": {
+    "presented": {
+      "cn": "cloud.medmusketeer.local",
+      "san": [
+        [
+          "DNS",
+          "cloud.medmusketeer.local"
+        ]
+      ]
+    },
+    "wrong pinned name": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'other.medmusketeer.local'. (_ssl.c:1082)",
+    "trusting another CA": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1082)"
+  }
+}

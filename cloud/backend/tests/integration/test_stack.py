@@ -1,66 +1,20 @@
-"""TC-C01: the compose stack comes up healthy from empty volumes.
+"""TC-C01 (the compose stack comes up healthy from empty volumes), TC-C12 and TC-C13 end to end.
 
-Runs under its own compose project name and ports, so a running development stack is not
-touched, and removes its containers and volumes afterwards. Needs Docker with Compose v2
-(override the command with MM_COMPOSE, e.g. MM_COMPOSE="podman compose").
+The stack itself is the session fixture `stack` (tests.integration.stack, conftest).
 """
 import json
-import os
-import shlex
-import shutil
-import subprocess
 import urllib.request
 from pathlib import Path
 
 import httpx
 import pytest
 
+from tests.integration.stack import API, PORTS, compose, evidence, machine_token, register_user, zitadel_admin
+
 pytestmark = pytest.mark.integration
 
-CLOUD_DIR = Path(__file__).resolve().parents[3]
-PROJECT = "mm-cloud-tc"
-PORTS = {"PROXY_HTTP_PUBLISHED_PORT": "18080", "API_PUBLISHED_PORT": "18000", "EMQX_DASHBOARD_PUBLISHED_PORT": "28083"}
 SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api"}
 JOBS = {"migrate", "zitadel-bootstrap"}
-
-
-def compose(env_file: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
-    command = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))
-    return subprocess.run(
-        [*command, "-p", PROJECT, "--env-file", str(env_file), *args],
-        cwd=CLOUD_DIR, capture_output=True, text=True, check=check, timeout=900,
-    )
-
-
-def evidence(name: str, content: str) -> None:
-    directory = os.environ.get("MM_EVIDENCE_DIR")
-    if directory:
-        Path(directory).mkdir(parents=True, exist_ok=True)
-        (Path(directory) / name).write_text(content)
-
-
-@pytest.fixture(scope="module")
-def stack(tmp_path_factory):
-    engine = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))[0]
-    if shutil.which(engine) is None:
-        pytest.skip(f"{engine} not found; TC-C01 needs a container engine with Compose")
-    env_file = tmp_path_factory.mktemp("cloud") / "test.env"
-    subprocess.run([str(CLOUD_DIR / "scripts" / "init-env.sh"), str(env_file)], check=True, capture_output=True)
-    with env_file.open("a") as handle:
-        handle.writelines(f"{name}={value}\n" for name, value in PORTS.items())
-    compose(env_file, "down", "--volumes", "--remove-orphans", check=False)
-    try:
-        up = compose(env_file, "up", "--detach", "--wait", "--build", check=False)
-        evidence("compose_up.txt", up.stdout + up.stderr)
-        if up.returncode != 0:
-            logs = compose(env_file, "logs", "--no-color", check=False)
-            evidence("compose_logs.txt", logs.stdout + logs.stderr)
-            pytest.fail(f"compose up failed:\n{up.stderr[-4000:]}")
-        yield env_file
-    finally:
-        ps = compose(env_file, "ps", "--all", "--format", "json", check=False)
-        evidence("compose_ps.json", ps.stdout)
-        compose(env_file, "down", "--volumes", "--remove-orphans", check=False)
 
 
 def service_states(env_file: Path) -> dict[str, str]:
@@ -97,45 +51,6 @@ def test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy(stack):
 
 
 # --- TC-C12 end to end: a real ZITADEL token ---------------------------------------------------
-
-def read_volume_file(volume: str, path: str) -> str:
-    engine = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))[0]
-    return subprocess.run([engine, "run", "--rm", "-v", f"{PROJECT}_{volume}:/v:ro", "alpine:3.22", "cat", f"/v/{path}"],
-                          capture_output=True, text=True, check=True).stdout
-
-
-def zitadel_admin(stack):
-    """The bootstrap's IAM_OWNER client (stands in for ZITADEL's console) and the API's config."""
-    from app.zitadel_bootstrap import Zitadel
-
-    issuer = f"http://localhost:{PORTS['PROXY_HTTP_PUBLISHED_PORT']}"
-    config = json.loads(read_volume_file("mm-config", "zitadel.json"))
-    assert config["issuer"] == issuer
-    return Zitadel(issuer, issuer, read_volume_file("zitadel-bootstrap", "admin.pat").strip()), config
-
-
-def machine_token(zitadel, config: dict, org: str, username: str, role: str, project_grant_id: str | None = None):
-    """A machine user in `org` with `role`, and a client-credentials access token for it."""
-    user_id = zitadel.create_machine_user(org, username, username)
-    zitadel.ensure_user_grant(org, user_id, config["project_id"], [role], project_grant_id)
-    client_id, secret = zitadel.client_secret(org, user_id)
-    scope = (f"openid urn:zitadel:iam:org:project:id:{config['project_id']}:aud "
-             "urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner")
-    issued = httpx.post(f"{config['issuer']}/oauth/v2/token", data={"grant_type": "client_credentials", "scope": scope},
-                        auth=(client_id, secret), timeout=15)
-    assert issued.status_code == 200, issued.text
-    return user_id, {"Authorization": f"Bearer {issued.json()['access_token']}"}
-
-
-def register_user(stack, zitadel_sub: str, role: str, org_id: str | None = None) -> str:
-    args = ["--org-id", org_id] if org_id else []
-    registered = compose(stack, "exec", "-T", "api", "python", "-m", "app.manage", "register-user",
-                         "--zitadel-sub", zitadel_sub, "--role", role, *args)
-    return registered.stdout.strip()
-
-
-API = f"http://127.0.0.1:{PORTS['API_PUBLISHED_PORT']}"
-
 
 def test_tc_c12_a_real_zitadel_token_works_once_the_user_is_registered(stack):
     zitadel, config = zitadel_admin(stack)

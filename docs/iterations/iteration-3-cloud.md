@@ -105,7 +105,10 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 - Organisation-admin API: create doctor and patient accounts (through ZITADEL's management API), record disorders, issue a wearable to a patient, assign a doctor, export a patient. Every grant, issue, assignment and export is logged with the acting user.
 - **Tests:** TC-C09 the role × endpoint matrix (every role × every endpoint, allowed or denied); TC-C10 a doctor cannot read a patient of another doctor or organisation; TC-C11 the system admin gets no patient or doctor data; TC-C12 expired, wrongly signed and wrong-audience tokens are refused; TC-C13 account creation shows up in ZITADEL and in `users`. Unit tests use locally signed tokens; integration tests use the ZITADEL container.
 
-### Slice 4 — EMQX gateway listener (M)
+### Slice 4 — EMQX gateway listener (M) — Done 2026-10-24
+
+**Done:** `mmca issue cloud`, and key identifiers on every certificate (found while testing: strict TLS clients refused mmca chains); an EMQX image with the configuration baked in and secrets rendered at start (D13); the gateway mTLS listener with the API's authentication hook matching the presented certificate to an active credential (D4, refined), the authorisation hook (D5) and the republish rule (D1), all verified on EMQX 6.3.2; an internal listener for the adapter; `scripts/install-emqx-certs.sh`; authentication decisions logged with their check time. TC-C14 to TC-C18. Not built: disconnecting a live gateway when its credential is revoked (`gaps.md`).
+
 
 - CA tool: `mmca issue cloud` (server profile `cloud.medmusketeer.local`, serverAuth, EC P-256), with its own unit tests.
 - EMQX: mTLS listener on 8883 with the private CA, cert CN as username, the authentication and authorisation hooks from D4/D5, the republish rule from D1. Connection events logged with timestamps (benchmark checkpoints later).

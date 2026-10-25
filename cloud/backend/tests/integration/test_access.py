@@ -37,7 +37,7 @@ MATRIX = [
     ("POST", "/admin/devices/{pending_device}/activate", {SA}, None),
     ("POST", "/admin/devices/{a.wearable}/suspend", {SA}, None),
     ("POST", "/admin/devices/{a.wearable}/revoke", {SA}, None),
-    ("POST", "/admin/devices/{pending_device}/credentials", {SA}, {"auth_method": "x509_mtls", "credential_ref": "s-2"}),
+    ("POST", "/admin/devices/{pending_device}/credentials", {SA}, {"auth_method": "x509_mtls", "credential_ref": "CD" * 32}),
     ("GET", "/admin/devices/{a.wearable}/credentials", {SA}, None),
     ("POST", "/admin/credentials/{credential}/revoke", {SA}, None),
     ("POST", "/admin/devices/{pending_device}/grants", {SA}, {"org_id": "{a.org_id}"}),

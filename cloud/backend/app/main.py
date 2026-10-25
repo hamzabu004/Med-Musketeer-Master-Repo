@@ -9,7 +9,7 @@ import httpx
 from fastapi import Depends, FastAPI, Response, status
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app import accounts, care, organisation, registry
+from app import accounts, broker, care, organisation, registry
 from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
 from app.settings import Settings
@@ -19,8 +19,22 @@ from app.zitadel import ZitadelAdmin
 log = logging.getLogger(__name__)
 
 
+def configure_logging(level: str) -> None:
+    """INFO lines from app.* (refused requests, broker hook decisions with their check time) with
+    millisecond timestamps. Uvicorn configures only its own loggers, so without this they are lost."""
+    logger = logging.getLogger("app")
+    logger.setLevel(level)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s",
+                                               datefmt="%Y-%m-%dT%H:%M:%S"))
+        logger.addHandler(handler)
+        logger.propagate = False
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()  # raises if a required MM_* variable is missing
+    configure_logging(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -50,10 +64,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await app.state.engine.dispose()
 
     app = FastAPI(title="MedMusketeer cloud API", version="0.1.0", lifespan=lifespan)
+    app.state.settings = settings
     app.include_router(registry.router)
     app.include_router(accounts.router)
     app.include_router(organisation.router)
     app.include_router(care.router)
+    app.include_router(broker.router)
 
     @app.get("/me")
     async def me(principal: Annotated[Principal, Depends(get_principal)]) -> dict:

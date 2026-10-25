@@ -15,7 +15,7 @@ from .audit import append_event
 from .config import Settings, ensure_layout
 from .errors import MMCAError, SafetyError
 from .files import write_json_private, write_private, write_public
-from .profiles import (KEY_TYPES, build_ca_certificate, build_leaf_certificate,
+from .profiles import (CLOUD_NAME, KEY_TYPES, build_ca_certificate, build_leaf_certificate,
                        cert_fingerprint, make_key, random_serial, validate_device_id)
 
 REPLACE_PHRASE = "REPLACE MEDMUSKETEER CA"
@@ -105,6 +105,8 @@ def init_ca(settings: Settings, cn: str, validity_days: int, passphrase: str,
 
 
 def cert_preview(profile: str, device_id: str, key_type: str, validity_days: int) -> dict:
+    if profile == "cloud":
+        return cloud_preview(key_type, validity_days)
     if profile not in {"wearable", "gateway"}:
         raise MMCAError(f"Unknown certificate profile: {profile}")
     if key_type not in KEY_TYPES:
@@ -180,6 +182,76 @@ def issue_device(settings: Settings, profile: str, device_id: str, key_type: str
         raise
     fingerprint = cert_fingerprint(cert)
     append_event(settings.audit_path, "issue", device_id=device_id, fingerprint=fingerprint)
+    return fingerprint, output_dir
+
+
+def cloud_preview(key_type: str, validity_days: int) -> dict:
+    if key_type != "ec_p256":
+        raise MMCAError("The cloud server certificate uses an ec_p256 key")
+    return {"profile": "cloud", "cn": CLOUD_NAME, "san": [CLOUD_NAME], "eku": ["serverAuth"],
+            "key_type": key_type, "validity_days": validity_days}
+
+
+def issue_cloud(settings: Settings, validity_days: int, passphrase: str, *, confirm,
+                replace: bool = False) -> tuple[str, Path]:
+    """The server certificate of the cloud's EMQX gateway listener, written to <root>/cloud/.
+
+    An existing certificate is replaced only with replace=True: its certificate and metadata
+    move to cloud/history/<serial>/ and its key is removed once the new material is written.
+    """
+    if validity_days < 1:
+        raise MMCAError("Certificate validity must be positive")
+    preview = cloud_preview("ec_p256", validity_days)
+    output_dir = settings.cloud_dir
+    previous_meta = None
+    if (output_dir / "server.crt").exists():
+        if not replace:
+            raise SafetyError("A cloud certificate already exists; use --replace to issue a new one")
+        try:
+            previous_meta = json.loads((output_dir / "meta.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise SafetyError("Existing cloud issuance record is unreadable") from exc
+    if not confirm(preview):
+        raise MMCAError("Issuance cancelled")
+    ca_key, ca_cert = _load_ca(settings, passphrase)
+    leaf_key = make_key("ec_p256")
+    csr = x509.CertificateSigningRequestBuilder().subject_name(
+        x509.Name([x509.NameAttribute(x509.oid.NameOID.COMMON_NAME, CLOUD_NAME)])
+    ).sign(leaf_key, hashes.SHA256())
+    serial = _unique_serial(settings)
+    cert = build_leaf_certificate(csr, ca_cert, ca_key, CLOUD_NAME, "cloud", "ec_p256", validity_days, serial)
+    key_data = leaf_key.private_bytes(serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8, serialization.NoEncryption())
+    output_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    archive_dir = None
+    if previous_meta is not None:
+        archive_dir = output_dir / "history" / str(previous_meta.get("serial", "unknown"))
+        archive_dir.mkdir(mode=0o700, parents=True, exist_ok=False)
+        for name in ("server.crt", "meta.json"):
+            os.replace(output_dir / name, archive_dir / name)
+        os.replace(output_dir / "server.key", archive_dir / ".server.key.old")
+    try:
+        write_private(output_dir / "server.key", key_data)
+        write_public(output_dir / "server.crt", cert.public_bytes(serialization.Encoding.PEM))
+        write_json_private(output_dir / "meta.json", {
+            **preview, "serial": f"{serial:032X}",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "fingerprint_sha256": cert_fingerprint(cert),
+            "replaced": previous_meta.get("serial") if previous_meta else None,
+        })
+        _record_serial(settings, serial, None, "cloud")
+    except Exception:
+        for name in ("server.key", "server.crt", "meta.json"):
+            (output_dir / name).unlink(missing_ok=True)
+        if archive_dir:
+            for name in ("server.crt", "meta.json"):
+                os.replace(archive_dir / name, output_dir / name)
+            os.replace(archive_dir / ".server.key.old", output_dir / "server.key")
+        raise
+    if archive_dir:
+        (archive_dir / ".server.key.old").unlink()
+    fingerprint = cert_fingerprint(cert)
+    append_event(settings.audit_path, "issue_cloud", fingerprint=fingerprint)
     return fingerprint, output_dir
 
 

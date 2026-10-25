@@ -7,13 +7,15 @@ description: Open architecture gaps for MedMusketeer, identified but not yet res
 
 This file is a **gap tracker**, not a decision record. Items move out of this file and into `stack.md` (or get flagged against `scope.md` if they imply a scope question) once actually decided. Don't treat anything listed here as resolved just because it's written down. The mid report's own list is in §5 "Design items still to be settled"; this file is the wider working list.
 
-Last updated: 2026-10-23
+Last updated: 2026-10-24
 
 ## Identity, crypto, provisioning
 - **Revocation:** `revoke` and the registry link are not built in the CA tool; whether fixed-path (wearable↔gateway) revocation is built in FYP-1 at all is undecided (candidate design in `stack.md`)
 - **CN/SAN pinning, remaining sides:** the wearable's role-name pin of the gateway is implemented. Still to do: confirm the ESP32-S3 `common_name` check does a literal match for UUID-style names; the gateway's outbound check of the cloud identity; the cloud-side checks
 - **Mobile-path envelope wire format:** construction is Proposed in `stack.md`; field widths, counter-window size, persist-ahead reservation block size and `key_epoch` handling are open
-- **Envelope keys and cloud certificate profiles** are not issued by the CA tool yet
+- **Envelope keys and the cloud envelope certificate** are not issued by the CA tool yet (the cloud TLS server certificate is, since 2026-10-24)
+- **The existing MedMusketeer CA has no key identifiers.** CAs made by `mmca` before 2026-10-24 have no Subject Key Identifier, so strict X.509 verifiers (Python 3.13+'s default TLS context, which the gateway's uplink would use) refuse every chain from them. Decide before Iteration 4: replace the CA (`mmca replace-ca`, then re-issue, re-flash and re-deploy every device), or have the gateway's uplink turn off strict checking for this CA
+- **Revoking a credential does not disconnect a live gateway**: it is refused at its next connect. Suspending or revoking the device also removes its topic access within EMQX's 1-minute authorisation cache. Disconnecting at once through EMQX's REST API (D4 "may") is not built
 - **Credential rotation trigger:** manual rotation accepted for FYP-1, but the trigger condition (schedule vs on-suspicion) is undefined
 
 ## Mobile relay app
@@ -27,6 +29,7 @@ Last updated: 2026-10-23
 - Heartbeat envelope interval/timeout thresholds for mobile-path liveness
 - Raw ECG retention period (only `ecg_chunks` are dropped; the migration uses a 90-day placeholder)
 - Cloud data at rest: disk encryption of the cloud server and least-privilege database roles (planned with the cloud platform)
+- EMQX starts before the API, so its HTTP authenticators are briefly down at start; gateways connecting then are refused and must retry (they do, with MQTT reconnect)
 
 ## Ingestion / messaging (blocks Iteration 3–4)
 - The adapter's code-level interface (the message `ingest-v1` and the `attested_by` source are decided in `cloud-backend.md` D1/D7)

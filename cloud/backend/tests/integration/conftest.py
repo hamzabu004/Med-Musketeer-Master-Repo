@@ -22,7 +22,9 @@ from sqlalchemy import create_engine, text
 from app.auth import Principal, get_principal, get_zitadel
 from app.main import create_app
 from app.settings import Settings
+from tests.certs import TestCA
 from tests.fake_zitadel import FakeZitadelAdmin
+from tests.integration import stack as stack_module
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 CLOUD_DIR = BACKEND_DIR.parent
@@ -119,11 +121,12 @@ def make_client(migrated, zitadel):
     ZITADEL's management API is the in-memory fake, also for None."""
     clients = []
 
-    def build(principal: Principal | None) -> TestClient:
+    def build(principal: Principal | None, **settings_overrides) -> TestClient:
         settings = Settings(
             database_url=migrated["api"],
             zitadel_url="http://127.0.0.1:1",
             emqx_status_url="http://127.0.0.1:1/status",
+            **settings_overrides,
         )
         app = create_app(settings)
         if principal is not None:
@@ -142,3 +145,47 @@ def make_client(migrated, zitadel):
 @pytest.fixture
 def admin_client(make_client, system_admin) -> TestClient:
     return make_client(system_admin)
+
+
+# --- the full compose stack (A-stack tests) ----------------------------------------------------
+
+@pytest.fixture(scope="session")
+def stack_ca(tmp_path_factory) -> TestCA:
+    """A throwaway MedMusketeer CA (the real CA tool) for the stack's certificates."""
+    return TestCA(tmp_path_factory.mktemp("stack-ca"))
+
+
+@pytest.fixture(scope="session")
+def stack(tmp_path_factory, stack_ca) -> Path:
+    """Brings the compose stack up once per test session, with the cloud certificate installed;
+    yields its env file. Logs of EMQX and the API are kept as evidence."""
+    engine = engine_command()
+    if shutil.which(engine) is None:
+        pytest.skip(f"{engine} not found; the stack tests need a container engine with Compose")
+    env_file = tmp_path_factory.mktemp("cloud") / "test.env"
+    subprocess.run([str(CLOUD_DIR / "scripts" / "init-env.sh"), str(env_file)], check=True, capture_output=True)
+    with env_file.open("a") as handle:
+        handle.writelines(f"{name}={value}\n" for name, value in stack_module.PORTS.items())
+    stack_module.compose(env_file, "down", "--volumes", "--remove-orphans", check=False)
+    try:
+        stack_ca.issue_cloud()
+        installed = subprocess.run(
+            [str(CLOUD_DIR / "scripts" / "install-emqx-certs.sh"), str(stack_ca.root), "--",
+             "-p", stack_module.PROJECT, "--env-file", str(env_file)],
+            cwd=CLOUD_DIR, capture_output=True, text=True)
+        stack_module.evidence("install_emqx_certs.txt", installed.stdout + installed.stderr)
+        assert installed.returncode == 0, installed.stderr
+        up = stack_module.compose(env_file, "up", "--detach", "--wait", "--build", check=False)
+        stack_module.evidence("compose_up.txt", up.stdout + up.stderr)
+        if up.returncode != 0:
+            logs = stack_module.compose(env_file, "logs", "--no-color", check=False)
+            stack_module.evidence("compose_logs.txt", logs.stdout + logs.stderr)
+            pytest.fail(f"compose up failed:\n{up.stderr[-4000:]}")
+        yield env_file
+    finally:
+        ps = stack_module.compose(env_file, "ps", "--all", "--format", "json", check=False)
+        stack_module.evidence("compose_ps.json", ps.stdout)
+        for service in ("emqx", "api"):
+            logs = stack_module.compose(env_file, "logs", "--no-color", "--timestamps", service, check=False)
+            stack_module.evidence(f"{service}.log", logs.stdout + logs.stderr)
+        stack_module.compose(env_file, "down", "--volumes", "--remove-orphans", check=False)

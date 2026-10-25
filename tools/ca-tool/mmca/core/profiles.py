@@ -11,6 +11,9 @@ from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 from .errors import MMCAError
 
 KEY_TYPES = {"ec_p256", "rsa_2048"}
+GATEWAY_ROLE_NAME = "gateway.medmusketeer.local"
+# The cloud's EMQX gateway listener. Gateways pin this name (CN and SAN), not an address.
+CLOUD_NAME = "cloud.medmusketeer.local"
 
 
 def validate_device_id(value: str) -> str:
@@ -49,6 +52,7 @@ def build_ca_certificate(private_key, cn: str, validity_days: int, serial: int) 
         .add_extension(x509.KeyUsage(digital_signature=True, content_commitment=False,
             key_encipherment=False, data_encipherment=False, key_agreement=False,
             key_cert_sign=True, crl_sign=True, encipher_only=None, decipher_only=None), critical=True)
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(private_key.public_key()), critical=False)
         .sign(private_key, hashes.SHA256())
     )
 
@@ -60,8 +64,16 @@ def build_leaf_certificate(csr: x509.CertificateSigningRequest, ca_cert: x509.Ce
     now = datetime.now(timezone.utc)
     subject = _name(device_id)
     sans = [x509.DNSName(device_id)]
-    if profile == "gateway":
-        sans.append(x509.DNSName("gateway.medmusketeer.local"))
+    if profile == "cloud":
+        # device_id is the cloud's name here; the server certificate has no device identity.
+        if device_id != CLOUD_NAME:
+            raise MMCAError(f"The cloud certificate is issued for {CLOUD_NAME} only")
+        eku = [ExtendedKeyUsageOID.SERVER_AUTH]
+        usage = x509.KeyUsage(digital_signature=True, content_commitment=False,
+            key_encipherment=False, data_encipherment=False, key_agreement=False,
+            key_cert_sign=False, crl_sign=False, encipher_only=None, decipher_only=None)
+    elif profile == "gateway":
+        sans.append(x509.DNSName(GATEWAY_ROLE_NAME))
         eku = [ExtendedKeyUsageOID.SERVER_AUTH, ExtendedKeyUsageOID.CLIENT_AUTH]
         usage = x509.KeyUsage(digital_signature=True, content_commitment=False,
             key_encipherment=True, data_encipherment=False, key_agreement=False,
@@ -87,6 +99,11 @@ def build_leaf_certificate(csr: x509.CertificateSigningRequest, ca_cert: x509.Ce
         .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
         .add_extension(usage, critical=True)
         .add_extension(x509.ExtendedKeyUsage(eku), critical=False)
+        # Key identifiers (RFC 5280 4.2.1.1/4.2.1.2): strict verifiers, such as Python 3.13+'s
+        # default TLS context, refuse a leaf without an Authority Key Identifier. Derived from the
+        # CA's public key, so CAs created before this change still get matching identifiers.
+        .add_extension(x509.SubjectKeyIdentifier.from_public_key(csr.public_key()), critical=False)
+        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_cert.public_key()), critical=False)
         .sign(ca_key, hashes.SHA256())
     )
 

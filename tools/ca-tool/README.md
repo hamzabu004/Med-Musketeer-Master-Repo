@@ -24,6 +24,7 @@ mmca init-ca [--cn TEXT] [--validity-days DAYS]
 mmca replace-ca --confirm-phrase 'REPLACE MEDMUSKETEER CA'
 mmca issue wearable [--device-id UUID] [--key-type ec_p256|rsa_2048] [--validity-days DAYS]
 mmca issue gateway [--device-id UUID] [--key-type ec_p256|rsa_2048] [--validity-days DAYS]
+mmca issue cloud [--validity-days DAYS] [--replace]
 mmca flash --device-id UUID [--port PORT]
 mmca deploy --device-id UUID --host HOST [--port 22] [--user pi] [--remote-cert-dir PATH] [--restart]
 mmca erase esp tls|network|all --device-id UUID [--port PORT]
@@ -58,6 +59,12 @@ mmca deploy --device-id "$GATEWAY_ID" --host "$BROKER_HOST" --user pi --restart
 lacing the ESP32 `creds` partition and removes the local ESP32 private-key file only after read-back verification succeeds. On first SSH connection, verify and approve the host-key fingerprint; deployment also asks before backing up and overwriting existing remote files.
 
 Configure Mosquitto to use the deployed certificate files and require client certificates before using `--restart`; `deploy` installs credentials but does not configure the broker listener. The ESP-COM firmware defines the dedicated `creds` NVS partition and reads its certificate values for MQTT mTLS. Flashing writes only this partition. The private key in device flash is not protected by flash encryption, and removing its local file is not secure erasure.
+
+## Cloud server certificate
+
+`mmca issue cloud` issues the server certificate of the cloud's EMQX gateway listener: CN and SAN `cloud.medmusketeer.local` (the name gateways pin), serverAuth only, EC P-256, signed by the same CA. The files go to `cloud/` in the data directory (`server.key` mode 600, `server.crt`, `meta.json`). An existing certificate is replaced only with `--replace`; the old certificate and metadata move to `cloud/history/<serial>/` and the old key is removed. Install it with `cloud/scripts/install-emqx-certs.sh` from the repository.
+
+Every certificate carries key identifiers (SKI and AKI), which strict TLS clients such as Python 3.13+ require. A CA created before 2026-10-24 has no SKI; chains from it fail strict verification until the CA is replaced.
 
 ## Erase device credentials
 

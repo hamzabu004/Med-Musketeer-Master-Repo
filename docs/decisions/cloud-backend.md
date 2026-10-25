@@ -1,6 +1,6 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, and D11 and D12 taken while building Slice 3. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 and D12 on 2026-10-24). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, and D13 from Slice 4. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
 Last updated: 2026-10-24
 
@@ -46,7 +46,8 @@ gateway (CN = gw-7f3a…)                 EMQX                          adapter
 - Only the adapter's account may subscribe to `ingest/#`; no device may publish to it.
 - The adapter takes `attested_by` from the `ingest/{username}/…` prefix.
 - Rejected alternative: an EMQX HTTP action per message to the API (one HTTP call per message; the adapter would stop being an MQTT subscriber like the other adapters).
-- Verify in Slice 4: the republish topic template with `${username}` and `${topic}` from the rule SQL.
+- Verified in Slice 4 (2026-10-24, EMQX 6.3.2): rule `mm_ingest` selects `id, username, clientid, topic, qos, payload, publish_received_at` from both topic filters and republishes to `ingest/${username}/${topic}` with the same QoS. The republished payload is that selection as JSON: the original payload as a string, `username` (the gateway's CN) and `publish_received_at` (broker receive time, ms since the epoch, the `broker_at` hop of D7).
+- The adapter logs in on a separate internal listener (D13) and may only subscribe to `ingest/#`; gateways may not read or write `ingest/` (TC-C17).
 
 ## D2 + D3 — Roles in ZITADEL, one ZITADEL organisation per client organisation (Decided)
 
@@ -94,6 +95,8 @@ API checks:
 ```
 
 - Listener: `verify = verify_peer`, `fail_if_no_peer_cert = true`, `cacertfile` = the MedMusketeer CA.
+- **Refined in Slice 4 (2026-10-24): the presented certificate itself must be the credential.** EMQX passes the client certificate (`${cert_pem}`) to the hook; the API requires its SHA-256 fingerprint to be an active, unexpired `x509_mtls` credential of that device, so revoking one certificate refuses it at once even if the gateway has another. For `x509_mtls`, `device_credentials.credential_ref` is therefore the certificate's SHA-256 fingerprint as `mmca issue` prints it (64 hex digits; the registry API checks the format and normalises it). The hook also checks that the certificate CN equals the username and that the request came from the gateway listener.
+- EMQX calls the hooks with a shared secret (`Authorization: Bearer`, `EMQX_HOOK_SECRET`); without it, or on any API error, EMQX treats the hook as "ignore" and the client is refused (verified: with the API unreachable, connections are refused). Each decision is logged by the API with its reason and check time in ms.
 - A revoked credential is refused at the next connect. The revoke endpoint may also disconnect the client through EMQX's API.
 - The API must answer with HTTP 200/204; a 4xx/5xx is ignored by EMQX and the chain continues, so the chain must end in deny.
 - Rejected alternative: EMQX's built-in PostgreSQL backends (logic split between EMQX config SQL and the API).
@@ -112,6 +115,8 @@ API checks:
 | Everything else | — | Denied |
 
 Observe-only: any active gateway may forward for any wearable; the cloud records `current_gateway_id`. Enforcing a pre-assigned wearable↔gateway mapping stays open (`gaps.md`).
+
+Implemented in Slice 4 by the API's authorisation hook: the wearable level must be a canonical UUID; a subscription may name one wearable instead of `+`; the gateway must still be an active `fixed_gateway`. A denied publish or subscription gets MQTT 5 reason code 0x87 and the connection stays up (`deny_action = ignore`). EMQX caches authorisation results for 1 minute (its default), so a suspended or revoked gateway that stays connected loses topic access within a minute; a revoked credential alone takes effect at the next connect (`gaps.md`).
 
 ## D6 — Fixed-path alert payload v1 (Decided; shared with the firmware)
 
@@ -241,3 +246,19 @@ API (as mm-api)                                     ZITADEL
 - ZITADEL is changed first (`users.zitadel_sub` needs its id). If a later ZITADEL step or the database insert fails, the ZITADEL user or organisation is deleted again. Anything left behind is inert: the API refuses ZITADEL users it has not registered.
 - No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. Wiring this into the dashboard's onboarding is Iteration 6.
 - Names and e-mail addresses live only in ZITADEL; the database keeps the role, organisation and, for patients, the pseudonym.
+
+## D13 — EMQX configuration and the internal service listener (Decided 2026-10-24)
+
+```
+emqx (image built from cloud/emqx/)
+├── ssl:gateway  8883  mTLS, zone gateway (username = cert CN), authn → API /internal/emqx/authn/gateway
+├── tcp:internal 1883  password, authn → API /internal/emqx/authn/service   (adapter: mm-adapter)
+├── authorization: HTTP → API /internal/emqx/authz, no_match = deny
+├── rule mm_ingest: mm/fixed/#, mm/gateway/# → ingest/{username}/{topic}
+└── defaults (tcp 1883, ssl 8883 with demo certs, ws, wss) disabled
+```
+
+- The configuration is `etc/emqx.conf`, which takes precedence over dashboard changes, so nothing can be loosened at runtime. EMQX 6 does not substitute environment variables in it (verified), so `mm-entrypoint.sh` renders it from a template at start with the hook secret and the Erlang cookie (both from `.env`, alphanumeric only).
+- The cloud server certificate (`mmca issue cloud`) is streamed into the `emqx-certs` volume by `cloud/scripts/install-emqx-certs.sh` (no bind mount). Without it EMQX starts with the gateway listener off and a warning.
+- Published ports: 8883 on `EMQX_GATEWAY_BIND_ADDRESS` (127.0.0.1 on the laptop, the Tailscale address on the cloud Pi), 1883 on 127.0.0.1 only.
+- Rejected alternative: per-listener built-in password database for the adapter (would need a credentials file baked into the image or a bind mount).

@@ -44,7 +44,7 @@ def make_device(db, device_type: str, org_id, granted_by, status: str = "active"
                               VALUES (:d, :t, :s, true, :by) RETURNING device_id""",
                        d=uuid.uuid4(), t=device_type, s=status, by=granted_by)
     insert(db, """INSERT INTO device_credentials (device_id, auth_method, credential_ref)
-                  VALUES (:d, 'x509_mtls', :ref) RETURNING credential_id""", d=device_id, ref=f"serial-{device_id}")
+                  VALUES (:d, 'x509_mtls', :ref) RETURNING credential_id""", d=device_id, ref=uuid.uuid4().hex * 2)
     if org_id is not None:
         insert(db, "INSERT INTO device_grants (device_id, org_id, granted_by) VALUES (:d, :o, :by) RETURNING grant_id",
                d=device_id, o=org_id, by=granted_by)
