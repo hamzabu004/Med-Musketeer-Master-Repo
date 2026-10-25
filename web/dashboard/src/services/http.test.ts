@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/api/errors";
-import { createHttp } from "./http";
+import { createHttp, singleFlight } from "./http";
 
 const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
 const fail = (status: number, detail: unknown) => new Response(JSON.stringify({ detail }), { status });
@@ -37,5 +37,19 @@ describe("http", () => {
     await expect(down("GET", "/me")).rejects.toEqual(new ApiError(0, "the server could not be reached"));
     const refused = createHttp({ baseUrl: "", getToken: () => "t", refresh: async () => null, fetch: vi.fn().mockResolvedValue(fail(403, "not allowed for this role")) });
     await expect(refused("GET", "/accounts")).rejects.toMatchObject({ status: 403, message: "not allowed for this role" });
+  });
+});
+
+describe("http, review findings (Phase 3)", () => {
+  it("share one renewal between requests that got 401 at the same time", async () => {
+    let release: (token: string) => void = () => {};
+    const renew = vi.fn(() => new Promise<string | null>((resolve) => (release = resolve)));
+    const refresh = singleFlight(renew);
+    const both = Promise.all([refresh(), refresh()]);
+    release("new");
+    expect(await both).toEqual(["new", "new"]);
+    expect(renew).toHaveBeenCalledOnce();
+    void refresh(); // a later expiry renews again
+    expect(renew).toHaveBeenCalledTimes(2);
   });
 });

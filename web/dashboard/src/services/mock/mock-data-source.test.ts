@@ -121,3 +121,20 @@ describe("sample data, state rules", () => {
     expect(await statusOf(as("doctor2").care.segment(alert.segment_id!))).toBe(404);
   });
 });
+
+describe("sample data, review findings (Phase 3)", () => {
+  it("refuses a duplicate disorder and a pseudonym for a doctor, as the API does", async () => {
+    const admin = as("orgadmin");
+    expect(await statusOf(admin.org.recordDisorder(patientId("P-1001"), "Premature ventricular contractions"))).toBe(409);
+    expect(await statusOf(admin.org.createAccount({ role: "doctor", email: "d@x.example", given_name: "D", family_name: "R", pseudonym: "X-1" }))).toBe(422);
+  });
+
+  it("shows the org admin registry actions on their organisation in its audit log", async () => {
+    const free = world.devices.find((d) => d.status === "pending")!;
+    const sys = as("sysadmin");
+    await sys.registry.addCredential(free.device_id, { auth_method: "x509_mtls", credential_ref: "CD".repeat(32) });
+    await sys.registry.grantDevice(free.device_id, world.organisations[0].org_id);
+    const actions = (await as("orgadmin").org.audit()).map((e) => e.action);
+    expect(actions).toContain("grant.created");
+  });
+});

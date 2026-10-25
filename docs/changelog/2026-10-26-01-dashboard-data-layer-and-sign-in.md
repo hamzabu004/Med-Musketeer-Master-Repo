@@ -43,7 +43,7 @@ Phase 3 of the dashboard rebuild: the screens (Phases 4–6) need sign-in, a rol
 
 ## Evidence
 `docs/testing/evidence/2026-10-26/dashboard/`:
-- `checks.txt`: typecheck, lint, 70 unit tests, production build. The tests cover:
+- `checks.txt`: typecheck, lint, 74 unit tests, production build. The tests cover:
   - error mapping and the HTTP client (refresh and retry);
   - every API call against the OpenAPI document;
   - the sample data's D9 and state rules;
@@ -55,6 +55,15 @@ Phase 3 of the dashboard rebuild: the screens (Phases 4–6) need sign-in, a rol
   - tokens are not in `localStorage`;
   - the doctor's API calls pass CORS and D9 (5 alerts, `/accounts` 403);
   - signing out ends the ZITADEL session.
+
+## Review
+`/code-review high` found ten issues (`docs/testing/review-findings/2026-10-26-dashboard-phase-3-data-layer-and-sign-in.md`); all are fixed in a follow-up commit:
+- a session that can no longer be renewed now signs out;
+- one token renewal at a time;
+- the first load can no longer undo the sign-in callback;
+- 503 messages are passed through;
+- three places where sample data differed from the API now match it;
+- smaller error-handling fixes.
 
 ## Noticed
 ZITADEL's login page offers "Register new user". A self-registered user gets no project role, so the API refuses them and the dashboard shows "no access". Whether to turn self-registration off in the bootstrap is a cloud decision, not made here.

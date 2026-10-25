@@ -14,6 +14,17 @@ export interface RequestOptions {
   body?: unknown;
 }
 
+/** Runs `fn` once for all callers that ask while it is running, and again for later callers. */
+export function singleFlight<T>(fn: () => Promise<T>): () => Promise<T> {
+  let running: Promise<T> | null = null;
+  return () => {
+    running ??= fn().finally(() => {
+      running = null;
+    });
+    return running;
+  };
+}
+
 export type Http = <T>(method: string, path: string, options?: RequestOptions) => Promise<T>;
 
 /** JSON over fetch with the bearer token. A 401 renews the token once and retries; any other

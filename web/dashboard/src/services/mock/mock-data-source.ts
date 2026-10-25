@@ -272,7 +272,9 @@ export function createMockDataSource(world: World, principal: Principal, onChang
       accounts: () => answer(["org_admin"], () => world.users.filter((u) => u.org_id === principal.org_id).map(accountView)),
       createAccount: (body) =>
         answer(["org_admin"], () => {
-          if (body.role === "patient" && !body.pseudonym) throw invalid("a patient needs a pseudonym");
+          // AccountIn's validator: a pseudonym for a patient, and only for a patient
+          if (body.pseudonym === "") throw invalid("pseudonym: String should have at least 1 character");
+          if ((body.role === "patient") !== (body.pseudonym != null)) throw invalid("a pseudonym is required for a patient and not allowed otherwise");
           return createAccount(principal.org_id!, body.role, body, body.role === "patient" ? body.pseudonym : null);
         }, true),
       disableAccount: (userId) =>
@@ -333,6 +335,9 @@ export function createMockDataSource(world: World, principal: Principal, onChang
       recordDisorder: (patientId, disorder) =>
         answer(["org_admin"], () => {
           patientInScope(patientId);
+          if (world.disorders.some((d) => d.patient_id === patientId && d.disorder === disorder)) {
+            throw new ApiError(409, "conflicts with an existing record", { error: "conflicts with an existing record", constraint: "patient_disorders_pkey" });
+          }
           const row = { patient_id: patientId, disorder, recorded_by: principal.user_id, recorded_at: now() };
           world.disorders.push(row);
           audit("organisation", "disorder.recorded", principal.org_id, patientId, { disorder });
@@ -353,7 +358,7 @@ export function createMockDataSource(world: World, principal: Principal, onChang
             ecg_included: false,
           };
         }, true),
-      audit: (limit) => answer(["org_admin"], () => newest(world.audit.filter((e) => e.org_id === principal.org_id && e.scope === "organisation"), limit)),
+      audit: (limit) => answer(["org_admin"], () => newest(world.audit.filter((e) => e.org_id === principal.org_id), limit)),
     },
 
     patients: () =>

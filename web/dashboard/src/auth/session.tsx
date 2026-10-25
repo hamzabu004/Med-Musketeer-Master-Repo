@@ -2,12 +2,12 @@
 
 /** Who is signed in, and the data source for them. In API mode the user signs in with ZITADEL and
  * the role comes from the API's /me; in sample-data mode they pick a sample account. */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, userMessage } from "@/api/errors";
 import { apiUrl, dataSource } from "@/config/capabilities";
 import { createApiDataSource } from "@/services/api";
 import type { DataSource } from "@/services/contracts";
-import { createHttp } from "@/services/http";
+import { createHttp, singleFlight } from "@/services/http";
 import { createMockDataSource, principalOf } from "@/services/mock/mock-data-source";
 import { sampleUserId, sampleWorld, saveSampleWorld, signInSample, signOutSample } from "@/services/mock/sample-session";
 import { userManager } from "./oidc";
@@ -59,6 +59,8 @@ async function loadSample(): Promise<SessionState> {
 /** The access token in use; kept current by the manager's automatic renewal. */
 let accessToken: string | null = null;
 let following = false;
+/** Set by the provider: moves the state to signed out when the session can no longer be renewed. */
+let sessionEnded: () => void = () => {};
 
 async function loadApi(): Promise<SessionState> {
   const manager = await userManager();
@@ -70,7 +72,15 @@ async function loadApi(): Promise<SessionState> {
     manager.events.addUserUnloaded(() => {
       accessToken = null;
     });
+    manager.events.addSilentRenewError(() => sessionEnded());
   }
+  /** One renewal at a time: ZITADEL rotates refresh tokens, so parallel renewals would refuse each other. */
+  const renew = singleFlight(async () => {
+    const renewed = await manager.signinSilent().catch(() => null);
+    accessToken = renewed?.access_token ?? null;
+    if (!accessToken) sessionEnded();
+    return accessToken;
+  });
   let user = await manager.getUser();
   if (user?.expired) user = await manager.signinSilent().catch(() => null);
   accessToken = user?.access_token ?? null;
@@ -79,11 +89,7 @@ async function loadApi(): Promise<SessionState> {
   const http = createHttp({
     baseUrl: apiUrl,
     getToken: () => accessToken,
-    refresh: async () => {
-      const renewed = await manager.signinSilent().catch(() => null);
-      accessToken = renewed?.access_token ?? null;
-      return accessToken;
-    },
+    refresh: renew,
   });
   const data = createApiDataSource(http);
   try {
@@ -108,24 +114,38 @@ async function load(): Promise<SessionState> {
     return await (dataSource === "mock" ? loadSample() : loadApi());
   } catch (error) {
     if (error instanceof ApiError && error.status === 503) {
-      return { status: "error", message: "Sign-in is not set up on the server yet: it has no dashboard app (DASHBOARD_ORIGINS)." };
+      // e.g. "authentication is not configured": no ZITADEL config, or no dashboard app (DASHBOARD_ORIGINS)
+      return { status: "error", message: `Sign-in is unavailable: the server answered "${error.message}".` };
     }
-    return { status: "error", message: error instanceof ApiError ? userMessage(error) : "Sign-in is unavailable: the server could not be reached." };
+    return { status: "error", message: userMessage(error) };
   }
 }
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<SessionState>({ status: "loading" });
 
-  const reload = useCallback(async () => setState(await load()), []);
+  // Only the latest load may set the state: the first load on /auth/callback runs before the code
+  // exchange has stored the tokens, and must not overwrite the reload that follows it.
+  const latest = useRef(0);
+  const reload = useCallback(async () => {
+    const mine = ++latest.current;
+    const loaded = await load();
+    if (mine === latest.current) setState(loaded);
+  }, []);
 
   useEffect(() => {
-    let current = true;
+    const generation = latest; // a counter, not a DOM node
+    const mine = ++generation.current;
     void load().then((loaded) => {
-      if (current) setState(loaded);
+      if (mine === generation.current) setState(loaded);
     });
+    sessionEnded = () => {
+      generation.current++;
+      setState({ status: "signedOut", message: "Your session has ended. Sign in again." });
+    };
     return () => {
-      current = false;
+      generation.current++;
+      sessionEnded = () => {};
     };
   }, []);
 

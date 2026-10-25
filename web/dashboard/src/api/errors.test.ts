@@ -27,3 +27,10 @@ describe("API errors", () => {
     expect(userMessage(new ApiError(0, "unreachable"))).toMatch(/could not be reached/);
   });
 });
+
+describe("API errors, review findings (Phase 3)", () => {
+  it("fall back to the status when HTTP/2 sends no status text", async () => {
+    const error = await errorFromResponse(new Response("", { status: 429 }));
+    expect(error.message).toBe("HTTP 429");
+  });
+});

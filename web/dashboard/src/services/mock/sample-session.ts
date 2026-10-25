@@ -23,6 +23,8 @@ function write(key: string, value: string | null) {
 }
 
 let world: World | null = null;
+/** Also kept here, so sample sign-in works when storage is blocked (until the page reloads). */
+let userId: string | null = null;
 
 export function sampleWorld(): World {
   if (!world) {
@@ -37,14 +39,16 @@ export function saveSampleWorld() {
 }
 
 export function sampleUserId(): string | null {
-  return read(USER_KEY);
+  return userId ?? read(USER_KEY);
 }
 
-export function signInSample(userId: string) {
-  write(USER_KEY, userId);
+export function signInSample(id: string) {
+  userId = id;
+  write(USER_KEY, id);
 }
 
 export function signOutSample() {
+  userId = null;
   write(USER_KEY, null);
   write(WORLD_KEY, null);
   world = null;

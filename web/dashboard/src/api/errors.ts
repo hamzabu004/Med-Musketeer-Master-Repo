@@ -37,7 +37,7 @@ export async function errorFromResponse(response: Response): Promise<ApiError> {
   } catch {
     detail = undefined;
   }
-  return new ApiError(response.status, detailMessage(detail) ?? response.statusText ?? `HTTP ${response.status}`, detail);
+  return new ApiError(response.status, detailMessage(detail) || response.statusText || `HTTP ${response.status}`, detail);
 }
 
 /** What to tell the user. The API answers 404 both for something that does not exist and for
