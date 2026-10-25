@@ -5,7 +5,7 @@ import { ApiError } from "@/api/errors";
 import type { Account, Alert, AuditEvent, Me, NewAccount, PatientSummary, Person, SegmentDetail } from "@/api/types";
 import type { Role } from "@/auth/roles";
 import { encodeSamples } from "@/lib/ecg";
-import type { AlertQuery, DataSource } from "../contracts";
+import type { AlertQuery, AttackTest, DataSource } from "../contracts";
 import { seededRandom, syntheticEcg } from "./synthetic-ecg";
 import type { MockPatient, MockUser, World } from "./world";
 
@@ -40,6 +40,10 @@ export function createMockDataSource(world: World, principal: Principal, onChang
 
   async function answer<T>(roles: Role[], run: () => T, write = false): Promise<T> {
     await delay();
+    // auth.get_principal: members of a suspended organisation are refused on every call.
+    if (principal.org_id && world.organisations.find((o) => o.org_id === principal.org_id)?.status !== "active") {
+      throw new ApiError(403, "organisation suspended", "organisation suspended");
+    }
     if (!roles.includes(principal.role)) throw forbidden();
     const result = run();
     if (write) onChange();
@@ -228,6 +232,9 @@ export function createMockDataSource(world: World, principal: Principal, onChang
             ref = ref.replaceAll(":", "").toUpperCase();
             if (!/^[0-9A-F]{64}$/.test(ref)) throw invalid("an x509_mtls credential_ref is the certificate's SHA-256 fingerprint (64 hex digits)");
           }
+          if (world.credentials.some((c) => c.auth_method === body.auth_method && c.credential_ref === ref)) {
+            throw new ApiError(409, "conflicts with an existing record", { error: "conflicts with an existing record", constraint: "device_credentials_auth_method_credential_ref_key" });
+          }
           const credential = { credential_id: newId(), device_id: deviceId, auth_method: body.auth_method, key_type: body.key_type ?? null, credential_ref: ref, status: "active", created_at: now(), expires_at: body.expires_at ?? null, metadata: body.metadata ?? {} };
           world.credentials.push(credential);
           audit("registry", "credential.added", null, deviceId, { credential_id: credential.credential_id, auth_method: body.auth_method });
@@ -266,6 +273,42 @@ export function createMockDataSource(world: World, principal: Principal, onChang
         }, true),
       audit: (limit) => answer(["system_admin"], () => newest(world.audit.filter((e) => e.scope === "registry"), limit)),
       securityEvents: (limit = 200) => answer(["system_admin"], () => [...world.securityEvents].sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, limit)),
+    },
+
+    attackTests: {
+      list: () => answer(["system_admin"], () => [...(world.attackTests ?? [])].sort((a, b) => b.started_at.localeCompare(a.started_at))),
+      start: (body) =>
+        answer(["system_admin"], () => {
+          const target = device(body.target_device_id);
+          if (!target.is_testbed) throw conflict("attack tests run only against testbed devices");
+          if (target.status === "revoked") throw conflict("the device is revoked");
+          world.attackTests ??= [];
+          if (world.attackTests.some((t) => t.target_device_id === target.device_id && t.ended_at === null)) {
+            throw conflict("an attack test is already running against this device");
+          }
+          const test: AttackTest = {
+            test_id: newId(), target_device_id: target.device_id, triggered_by: principal.user_id, attack_type: body.attack_type,
+            parameters: body.params, started_at: now(), ended_at: null,
+          };
+          world.attackTests.push(test);
+          // Sample only: the gateway's IDS "detects" it at once, so the window has an event to correlate.
+          const gateway = world.devices.find((d) => d.type === "fixed_gateway" && d.status === "active");
+          if (gateway) {
+            world.securityEvents.push({
+              event_id: newId(), ts: now(), gateway_id: gateway.device_id, device_id: target.device_id, mode: "ids",
+              predicted_class: body.attack_type, outcome: "detected", action: null, action_result: null,
+            });
+          }
+          return test;
+        }, true),
+      stop: (testId) =>
+        answer(["system_admin"], () => {
+          const test = (world.attackTests ?? []).find((t) => t.test_id === testId);
+          if (!test) throw notFound("attack test");
+          if (test.ended_at !== null) throw conflict("the attack test has already stopped");
+          test.ended_at = now();
+          return test;
+        }, true),
     },
 
     org: {
@@ -317,7 +360,7 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           if (d.type !== "wearable") throw invalid("only a wearable can be issued to a patient");
           if (d.status !== "active") throw conflict(`the wearable is ${d.status}`);
           if (world.wearableAssignments.some((w) => (w.device_id === deviceId || w.patient_id === patientId) && w.unassigned_at === null)) {
-            throw new ApiError(409, "conflicts with an existing record", { error: "conflicts with an existing record", constraint: "device_assignments_one_open" });
+            throw new ApiError(409, "conflicts with an existing record", { error: "conflicts with an existing record", constraint: world.wearableAssignments.some((w) => w.device_id === deviceId && w.unassigned_at === null) ? "device_assignments_one_active_per_device" : "device_assignments_one_active_per_patient" });
           }
           const assignment = { device_id: deviceId, patient_id: patientId, issued_by: principal.user_id, assigned_at: now(), unassigned_at: null };
           world.wearableAssignments.push(assignment);

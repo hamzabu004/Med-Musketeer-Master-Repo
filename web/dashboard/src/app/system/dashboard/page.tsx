@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { SystemDashboard } from "@/features/system/system-dashboard";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Dashboard" description="Organisation and device counts, recent security events and registry audit." />;
+  return <SystemDashboard />;
 }

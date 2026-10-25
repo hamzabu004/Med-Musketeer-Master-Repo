@@ -138,3 +138,27 @@ describe("sample data, review findings (Phase 3)", () => {
     expect(actions).toContain("grant.created");
   });
 });
+
+describe("sample data, suspension", () => {
+  it("refuses every member of a suspended organisation, as auth.get_principal does", async () => {
+    await as("sysadmin").registry.setOrganisationStatus(world.organisations[0].org_id, "suspended");
+    expect(await statusOf(as("doctor1").me())).toBe(403);
+    expect(await statusOf(as("orgadmin").patients())).toBe(403);
+    expect(await statusOf(as("northside-doctor").patients())).toBe(200); // other organisations are unaffected
+    expect(await statusOf(as("sysadmin").registry.organisations())).toBe(200);
+  });
+});
+
+describe("sample data, attack tests", () => {
+  it("refuses a production device and a second run against the same device", async () => {
+    const sys = as("sysadmin");
+    const production = "22222222-3333-4444-8555-666666666666";
+    await sys.registry.registerDevice({ device_id: production, type: "wearable", is_testbed: false });
+    expect(await statusOf(sys.attackTests.start({ attack_type: "syn_flood", target_device_id: production, params: {} }))).toBe(409);
+    const testbed = world.devices.find((d) => d.is_testbed && d.status === "active")!.device_id;
+    const run = await sys.attackTests.start({ attack_type: "syn_flood", target_device_id: testbed, params: { rate_pps: 100 } });
+    expect(await statusOf(sys.attackTests.start({ attack_type: "port_scan", target_device_id: testbed, params: {} }))).toBe(409);
+    expect((await sys.attackTests.stop(run.test_id)).ended_at).not.toBeNull();
+    expect(await statusOf(as("orgadmin").attackTests.list())).toBe(403);
+  });
+});

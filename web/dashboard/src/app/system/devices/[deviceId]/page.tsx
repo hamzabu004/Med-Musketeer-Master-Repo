@@ -1,5 +1,6 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { DeviceDetail } from "@/features/system/device-detail";
 
-export default function Page() {
-  return <ScreenPlaceholder title="Device" description="Credentials (add, revoke), lifecycle (activate, suspend, revoke) and grants to organisations." />;
+export default async function Page({ params }: { params: Promise<{ deviceId: string }> }) {
+  const { deviceId } = await params;
+  return <DeviceDetail deviceId={deviceId} />;
 }

@@ -1,0 +1,85 @@
+
+> medmusketeer-dashboard@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> medmusketeer-dashboard@0.1.0 lint
+> eslint .
+
+
+> medmusketeer-dashboard@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
+
+
+ Test Files  8 passed (8)
+      Tests  77 passed (77)
+   Start at  01:36:43
+   Duration  17.30s (environment 49%, tests 28%, setup 20%, import 1%, transform 1%)
+
+
+> medmusketeer-dashboard@0.1.0 build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 53ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.3s
+  Running TypeScript ...
+  Finished TypeScript in 6.0s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/31) ...
+  Generating static pages using 7 workers (7/31) 
+  Generating static pages using 7 workers (15/31) 
+  Generating static pages using 7 workers (23/31) 
+✓ Generating static pages using 7 workers (31/31) in 630ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /auth/callback
+├ ○ /doctor
+├ ○ /doctor/account
+├ ○ /doctor/alerts
+├ ƒ /doctor/alerts/[alertId]
+├ ○ /doctor/dashboard
+├ ○ /doctor/patients
+├ ƒ /doctor/patients/[patientId]
+├ ƒ /doctor/patients/[patientId]/segments/[segmentId]
+├ ○ /invite
+├ ○ /login
+├ ○ /org
+├ ○ /org/account
+├ ○ /org/accounts
+├ ○ /org/audit
+├ ○ /org/dashboard
+├ ○ /org/devices
+├ ○ /org/patients
+├ ƒ /org/patients/[patientId]
+├ ○ /patient
+├ ○ /patient/account
+├ ○ /patient/alerts
+├ ○ /patient/dashboard
+├ ○ /patient/ecg
+├ ƒ /patient/ecg/[segmentId]
+├ ○ /system
+├ ○ /system/account
+├ ○ /system/attack-tests
+├ ○ /system/audit
+├ ○ /system/dashboard
+├ ○ /system/devices
+├ ƒ /system/devices/[deviceId]
+├ ○ /system/organisations
+├ ƒ /system/organisations/[orgId]
+└ ○ /system/security-events
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

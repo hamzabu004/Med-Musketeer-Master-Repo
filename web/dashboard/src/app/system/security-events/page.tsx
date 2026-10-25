@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { SecurityEvents } from "@/features/system/security-events";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Security Events" description="IDS/IPS events reported by the gateways, read-only." />;
+  return <SecurityEvents />;
 }

@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { AccountScreen } from "@/features/account/account-screen";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Account" description="Your profile and sign-out." />;
+  return <AccountScreen />;
 }

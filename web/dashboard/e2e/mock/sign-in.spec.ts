@@ -1,9 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-
-async function signInAs(page: Page, name: string) {
-  await page.goto("/login");
-  await page.getByRole("button", { name: new RegExp(name) }).click();
-}
+import { expect, test } from "@playwright/test";
+import { expectFitsViewport, signInAs } from "./helpers";
 
 const roles = [
   { name: "Sana Sysadmin", home: "/system/dashboard", nav: ["Organisations", "Devices", "Security Events"], foreign: "/doctor/alerts" },
@@ -55,9 +51,9 @@ for (const area of ["system", "org", "doctor", "patient"]) {
 test("pages have no horizontal scroll", async ({ page }) => {
   for (const path of ["/login", "/invite"]) {
     await page.goto(path);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await expectFitsViewport(page);
   }
   await signInAs(page, "Omar Admin");
   await expect(page).toHaveURL(/\/org\/dashboard$/);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  await expectFitsViewport(page);
 });

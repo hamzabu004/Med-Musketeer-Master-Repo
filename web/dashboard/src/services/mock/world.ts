@@ -13,6 +13,7 @@ import type {
   WearableAssignment,
 } from "@/api/types";
 import type { Role } from "@/auth/roles";
+import type { AttackTest } from "../contracts";
 
 export interface MockUser {
   user_id: string;
@@ -85,16 +86,18 @@ export interface World {
   alerts: MockAlert[];
   securityEvents: SecurityEvent[];
   audit: AuditEvent[];
+  attackTests: AttackTest[];
   exports: number;
 }
 
 /** A deterministic UUID-shaped id, so links into sample data stay valid across reloads. */
 export function mockId(kind: number, n: number): string {
   const hex = (value: number, width: number) => value.toString(16).padStart(width, "0");
-  return `${hex(kind, 8)}-0000-4000-8000-${hex(n, 12)}`;
+  // The record number leads, since screens show a UUID's first block.
+  return `${hex(n * 0x9e37 + kind, 8).slice(-8)}-${hex(kind, 4)}-4000-8000-${hex(n, 12)}`;
 }
 
-const ID = { org: 1, user: 2, patient: 3, device: 4, credential: 5, grant: 6, care: 7, segment: 8, session: 9, classification: 10, alert: 11, security: 12, audit: 13 };
+const ID = { org: 1, user: 2, patient: 3, device: 4, credential: 5, grant: 6, care: 7, segment: 8, session: 9, classification: 10, alert: 11, security: 12, audit: 13, attack: 14 };
 
 export function createWorld(now = Date.now()): World {
   const at = (minutesAgo: number) => new Date(now - minutesAgo * 60_000).toISOString();
@@ -228,10 +231,17 @@ export function createWorld(now = Date.now()): World {
     event_id: mockId(ID.security, i + 1), ts: at(minutesAgo), gateway_id: gateway, device_id, mode, predicted_class, outcome, action, action_result,
   }));
 
+  // A finished attack test whose window holds the dos_flood detection above.
+  const attackTests: AttackTest[] = [{
+    test_id: mockId(ID.attack, 1), target_device_id: wearables[2], triggered_by: sysadmin, attack_type: "dos_flood",
+    parameters: { rate_pps: 500, duration_s: 120 }, started_at: at(4), ended_at: at(2),
+  }];
+
   const audit: AuditEvent[] = [];
   const log = (minutesAgo: number, actor_id: string, scope: string, action: string, org_id: string | null, target_id: string | null, details = {}) =>
     audit.push({ event_id: next(ID.audit), at: at(minutesAgo), actor_id, scope, org_id, action, target_id, details });
   for (const org of organisations) log(60 * 24 * 30, sysadmin, "registry", "organisation.created", org.org_id, org.org_id, { name: org.name });
+  for (const admin of users.filter((u) => u.role === "org_admin")) log(60 * 24 * 30 - 5, sysadmin, "registry", "account.created", admin.org_id, admin.user_id, { role: "org_admin" });
   for (const d of devices) log(60 * 24 * 29, sysadmin, "registry", "device.registered", null, d.device_id, { type: d.type });
   for (const g of grants) log(60 * 24 * 28, sysadmin, "registry", "grant.created", g.org_id, g.device_id, { grant_id: g.grant_id });
   for (const c of careAssignments) {
@@ -245,6 +255,6 @@ export function createWorld(now = Date.now()): World {
 
   return {
     organisations, users, patients, devices, credentials, grants, careAssignments, wearableAssignments,
-    disorders, segments, classifications, alerts, securityEvents, audit, exports: 0,
+    disorders, segments, classifications, alerts, securityEvents, audit, attackTests, exports: 0,
   };
 }

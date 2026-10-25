@@ -1,28 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { signIn } from "./zitadel";
 
 /** Against a cloud stack seeded with seed-dev (scripts/api-e2e.sh): each role signs in through
  * ZITADEL's login (authorization code + PKCE), lands in its own area by the role /me reports, and
  * signs out of ZITADEL too. */
-const password = process.env.E2E_PASSWORD ?? "";
-
-/** Fills a field of ZITADEL's login and submits. The login page is a React app: text typed before
- * it has hydrated is dropped and Continue stays disabled, so fill again until Continue enables. */
-async function fillAndContinue(page: Page, testId: string, value: string) {
-  const submit = page.getByTestId("submit-button");
-  await expect(async () => {
-    await page.getByTestId(testId).fill(value);
-    await expect(submit).toBeEnabled({ timeout: 1000 });
-  }).toPass({ timeout: 20_000 });
-  await submit.click();
-}
-
-async function signIn(page: Page, email: string) {
-  await page.goto("/login");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await fillAndContinue(page, "username-text-input", email);
-  await fillAndContinue(page, "password-text-input", password);
-}
-
 const roles = [
   { email: "sysadmin@medmusketeer.example", home: "/system/dashboard", foreign: "/org/accounts" },
   { email: "orgadmin@medmusketeer.example", home: "/org/dashboard", foreign: "/doctor/alerts" },

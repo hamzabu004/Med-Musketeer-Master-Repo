@@ -20,7 +20,9 @@ describe("API data source", () => {
     else for (const [inner, fn] of Object.entries(value as Record<string, Method>)) methods.push([`${name}.${inner}`, fn]);
   }
 
-  it.each(methods)("%s matches an endpoint", async (_name, fn) => {
+  const served = methods.filter(([name]) => !name.startsWith("attackTests."));
+
+  it.each(served)("%s matches an endpoint", async (_name, fn) => {
     calls.length = 0;
     await fn(ID, ID);
     const [{ method, path }] = calls;
@@ -29,6 +31,12 @@ describe("API data source", () => {
       ([documented, operations]) => documented.replace(/\{[^}]+\}/g, "{id}") === template && method.toLowerCase() in operations,
     );
     expect(known, `${method} ${path}`).toBe(true);
+  });
+
+  it("refuses what the cloud does not serve yet, without calling it", async () => {
+    calls.length = 0;
+    await expect(source.attackTests.list()).rejects.toMatchObject({ status: 501 });
+    expect(calls).toEqual([]);
   });
 
   it("sends the bodies the API expects", async () => {

@@ -41,3 +41,13 @@ export function filterByRange<T>(
   const cutoff = reference - rangeMilliseconds[range];
   return items.filter((item) => Date.parse(timestampOf(item)) >= cutoff);
 }
+
+/** "just now", "5 min ago", "3 h ago", "2 d ago"; a missing time reads "never". */
+export function formatAgo(value: string | null, now = Date.now()): string {
+  if (!value) return "never";
+  const seconds = Math.max(0, Math.round((now - Date.parse(value)) / 1000));
+  if (seconds < 45) return "just now";
+  if (seconds < 3600) return `${Math.round(seconds / 60)} min ago`;
+  if (seconds < 86_400) return `${Math.round(seconds / 3600)} h ago`;
+  return `${Math.round(seconds / 86_400)} d ago`;
+}

@@ -24,3 +24,28 @@ export function Status({
     </span>
   );
 }
+
+/** The tone of a status code from the API (device, organisation, account, credential, alert). */
+export function statusTone(value: string | null | undefined): StatusTone {
+  switch (value) {
+    case "active":
+    case "acked":
+    case "applied":
+    case "no_threat":
+      return "healthy";
+    case "pending":
+    case "suspended":
+    case "sent":
+    case "detected":
+      return "warning";
+    case "revoked":
+    case "disabled":
+    case "blocked":
+    case "failed":
+      return "critical";
+    case "expired":
+      return "offline";
+    default:
+      return "info";
+  }
+}

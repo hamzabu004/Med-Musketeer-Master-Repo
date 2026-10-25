@@ -1,5 +1,6 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { OrganisationDetail } from "@/features/system/organisation-detail";
 
-export default function Page() {
-  return <ScreenPlaceholder title="Organisation" description="The organisation's details, its administrators (with a one-time invite code) and the devices granted to it." />;
+export default async function Page({ params }: { params: Promise<{ orgId: string }> }) {
+  const { orgId } = await params;
+  return <OrganisationDetail orgId={orgId} />;
 }

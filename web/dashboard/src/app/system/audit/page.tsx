@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { AuditLog } from "@/features/system/audit-log";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Audit Log" description="Registry audit: who registered, activated, suspended, granted or revoked what." />;
+  return <AuditLog />;
 }

@@ -29,6 +29,24 @@ import type {
   WearableAssignment,
 } from "@/api/types";
 
+/** An attack test (docs/decisions/stack.md, "Attack-testing"): an attack run against a testbed
+ * device, whose window is the ground truth for the IDS/IPS metrics. Not served by the cloud yet. */
+export interface AttackTest {
+  test_id: string;
+  target_device_id: string;
+  triggered_by: string;
+  attack_type: string;
+  parameters: Record<string, unknown>;
+  started_at: string;
+  ended_at: string | null;
+}
+
+export interface AttackTestIn {
+  attack_type: string;
+  target_device_id: string;
+  params: Record<string, unknown>;
+}
+
 export interface AlertQuery {
   unacknowledged?: boolean;
   limit?: number;
@@ -62,6 +80,13 @@ export interface DataSource {
     revokeGrant(grantId: string): Promise<Grant>;
     audit(limit?: number): Promise<AuditEvent[]>;
     securityEvents(limit?: number): Promise<SecurityEvent[]>;
+  };
+
+  /** System admin: attack tests (capability "attackTests"). Refused for a production device. */
+  attackTests: {
+    list(): Promise<AttackTest[]>;
+    start(body: AttackTestIn): Promise<AttackTest>;
+    stop(testId: string): Promise<AttackTest>;
   };
 
   /** Org admin: people, patients and devices of the own organisation. */

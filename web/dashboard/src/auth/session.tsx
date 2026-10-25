@@ -53,7 +53,12 @@ async function loadSample(): Promise<SessionState> {
   const user = world.users.find((u) => u.user_id === userId && u.status === "active");
   if (!user) return { status: "signedOut" };
   const data = createMockDataSource(world, principalOf(world, user), saveSampleWorld);
-  return { status: "signedIn", session: await sessionFromMe(data), data };
+  try {
+    return { status: "signedIn", session: await sessionFromMe(data), data };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 403) return noAccess(error);
+    throw error;
+  }
 }
 
 /** The access token in use; kept current by the manager's automatic renewal. */
@@ -99,14 +104,19 @@ async function loadApi(): Promise<SessionState> {
       await manager.removeUser();
       return { status: "signedOut", message: "Your session has ended. Sign in again." };
     }
-    if (error instanceof ApiError && error.status === 403) {
-      return {
-        status: "noAccess",
-        message: "You are signed in, but this account has no access to MedMusketeer. Ask your administrator to check your account.",
-      };
-    }
+    if (error instanceof ApiError && error.status === 403) return noAccess(error);
     throw error;
   }
+}
+
+function noAccess(error: ApiError): SessionState {
+  return {
+    status: "noAccess",
+    message:
+      error.message === "organisation suspended"
+        ? "Your organisation is suspended, so MedMusketeer cannot be used for now. Ask your administrator."
+        : "You are signed in, but this account has no access to MedMusketeer. Ask your administrator to check your account.",
+  };
 }
 
 async function load(): Promise<SessionState> {

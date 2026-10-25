@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { Devices } from "@/features/system/devices";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Devices" description="The device registry: register wearables and gateways, filter by type, status and testbed." />;
+  return <Devices />;
 }

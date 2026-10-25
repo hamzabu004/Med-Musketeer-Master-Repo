@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { AttackTests } from "@/features/system/attack-tests";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Attack Tests" description="Start and stop attack tests against testbed devices (not yet served by the cloud)." />;
+  return <AttackTests />;
 }

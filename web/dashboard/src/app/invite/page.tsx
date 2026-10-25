@@ -10,7 +10,7 @@ export default function InvitePage() {
         <li>
           Open <Link href="/login" className="text-[var(--color-info)] underline">sign-in</Link> and enter the e-mail address your administrator used.
         </li>
-        <li>When asked, enter the invite code, then choose a password.</li>
+        <li>When asked, enter the invite code. Then choose how to sign in from now on: a password, or a passkey on this device.</li>
         <li>You return here signed in, to the pages your role allows.</li>
       </ol>
       <p className="mt-4 text-sm text-[var(--color-text-muted)]">

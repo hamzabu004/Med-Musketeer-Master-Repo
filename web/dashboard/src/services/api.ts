@@ -1,7 +1,10 @@
+import { ApiError } from "@/api/errors";
 import type { DataSource } from "./contracts";
 import type { Http } from "./http";
 
 const id = encodeURIComponent;
+
+const notServed = (): Promise<never> => Promise.reject(new ApiError(501, "not served by the cloud yet"));
 
 /** The data source backed by the cloud API. */
 export function createApiDataSource(http: Http): DataSource {
@@ -33,6 +36,13 @@ export function createApiDataSource(http: Http): DataSource {
       revokeGrant: (grantId) => post(`/admin/grants/${id(grantId)}/revoke`),
       audit: (limit) => get("/admin/audit", { limit }),
       securityEvents: (limit) => get("/admin/security-events", { limit }),
+    },
+
+    // Not served by the cloud yet (Iteration 5); screens check isAvailable("attackTests") first.
+    attackTests: {
+      list: notServed,
+      start: notServed,
+      stop: notServed,
     },
 
     org: {

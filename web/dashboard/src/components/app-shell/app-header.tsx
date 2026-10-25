@@ -28,7 +28,7 @@ export function AppHeader({
       <div className="flex items-center">
         {dataSource === "mock" && (
           <span
-            className="rounded-[var(--radius-xs)] border border-[var(--color-warning)] px-2 py-0.5 text-xs font-medium text-[var(--color-warning)]"
+            className="whitespace-nowrap rounded-[var(--radius-xs)] border border-[var(--color-warning)] px-2 py-0.5 text-xs font-medium text-[var(--color-warning)]"
             title="This deployment shows sample data, not real patients."
           >
             Sample data

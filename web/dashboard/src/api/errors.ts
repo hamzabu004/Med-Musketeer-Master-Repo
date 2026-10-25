@@ -40,6 +40,26 @@ export async function errorFromResponse(response: Response): Promise<ApiError> {
   return new ApiError(response.status, detailMessage(detail) || response.statusText || `HTTP ${response.status}`, detail);
 }
 
+/** What a database rule the API reports as {error, constraint} means for the user
+ * (constraint names from cloud/backend/migrations/versions/0001_initial_schema.py). */
+const CONSTRAINTS: Record<string, string> = {
+  devices_pkey: "A device with this id is already registered.",
+  device_credentials_auth_method_credential_ref_key: "This certificate is already registered, possibly for another device.",
+  device_grants_one_open: "The device is already granted to an organisation. End that grant first.",
+  device_assignments_one_active_per_device: "This wearable is already issued to a patient.",
+  device_assignments_one_active_per_patient: "This patient already has a wearable. Return it first.",
+  patient_disorders_pkey: "This disorder is already recorded for the patient.",
+  patients_org_id_pseudonym_key: "This pseudonym is already used in the organisation.",
+  care_assignments_one_active: "The patient's doctor changed at the same time. Reload and try again.",
+};
+
+function constraintMessage(detail: unknown): string | null {
+  if (detail && typeof detail === "object" && "constraint" in detail) {
+    return CONSTRAINTS[String((detail as { constraint: unknown }).constraint)] ?? null;
+  }
+  return null;
+}
+
 /** What to tell the user. The API answers 404 both for something that does not exist and for
  * something outside the caller's reach (D9), so the message does not claim which. */
 export function userMessage(error: unknown): string {
@@ -55,7 +75,7 @@ export function userMessage(error: unknown): string {
       return "Not found, or not available to you.";
     case 409:
     case 422:
-      return error.message;
+      return constraintMessage(error.detail) ?? error.message;
     case 502:
     case 503:
       return "A service the server depends on is unavailable. Try again shortly.";

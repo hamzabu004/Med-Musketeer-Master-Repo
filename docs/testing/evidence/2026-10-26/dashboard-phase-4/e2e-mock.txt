@@ -1,0 +1,39 @@
+
+> medmusketeer-dashboard@0.1.0 test:e2e
+> playwright test
+
+
+Running 30 tests using 4 workers
+
+  ✓   1 [desktop] › e2e/mock/sign-in.spec.ts:11:5 › the sign-in page says it shows sample data (1.2s)
+  ✓   2 [desktop] › e2e/mock/sign-in.spec.ts:18:7 › Omar Admin lands in their own area and is kept out of others (2.8s)
+  ✓   4 [desktop] › e2e/mock/sign-in.spec.ts:18:7 › Sarah Ahmed lands in their own area and is kept out of others (2.9s)
+  ✓   3 [desktop] › e2e/mock/sign-in.spec.ts:18:7 › Sana Sysadmin lands in their own area and is kept out of others (3.3s)
+  ✓   5 [desktop] › e2e/mock/sign-in.spec.ts:18:7 › Ali Khan lands in their own area and is kept out of others (2.5s)
+  ✓   7 [desktop] › e2e/mock/sign-in.spec.ts:45:7 › the system area sends a signed-out visitor to sign in (865ms)
+  ✓   8 [desktop] › e2e/mock/sign-in.spec.ts:45:7 › the org area sends a signed-out visitor to sign in (964ms)
+  ✓   9 [desktop] › e2e/mock/sign-in.spec.ts:45:7 › the doctor area sends a signed-out visitor to sign in (1.0s)
+  ✓  10 [desktop] › e2e/mock/sign-in.spec.ts:45:7 › the patient area sends a signed-out visitor to sign in (1.2s)
+  ✓   6 [desktop] › e2e/mock/sign-in.spec.ts:32:5 › a signed-in user who opens sign-in goes to their dashboard, and signing out returns to sign-in (2.5s)
+  ✓  11 [desktop] › e2e/mock/sign-in.spec.ts:51:5 › pages have no horizontal scroll (2.2s)
+  ✓  14 [desktop] › e2e/mock/system-admin.spec.ts:55:5 › an attack test runs against a testbed device and its window is compared with the IDS events (2.8s)
+  ✓  12 [desktop] › e2e/mock/system-admin.spec.ts:9:5 › creates an organisation and its administrator, showing the invite code once (3.9s)
+  ✓  13 [desktop] › e2e/mock/system-admin.spec.ts:28:5 › registers a device, adds its certificate, activates it and grants it (4.1s)
+  ✓  16 [phone] › e2e/mock/sign-in.spec.ts:11:5 › the sign-in page says it shows sample data (699ms)
+  ✓  15 [desktop] › e2e/mock/system-admin.spec.ts:68:5 › security events open a detail, and every system page fits the screen (4.2s)
+  ✓  18 [phone] › e2e/mock/sign-in.spec.ts:18:7 › Sarah Ahmed lands in their own area and is kept out of others (1.5s)
+  ✓  17 [phone] › e2e/mock/sign-in.spec.ts:18:7 › Sana Sysadmin lands in their own area and is kept out of others (1.8s)
+  ✓  19 [phone] › e2e/mock/sign-in.spec.ts:18:7 › Omar Admin lands in their own area and is kept out of others (1.7s)
+  ✓  21 [phone] › e2e/mock/sign-in.spec.ts:45:7 › the system area sends a signed-out visitor to sign in (748ms)
+  ✓  22 [phone] › e2e/mock/sign-in.spec.ts:45:7 › the org area sends a signed-out visitor to sign in (824ms)
+  ✓  24 [phone] › e2e/mock/sign-in.spec.ts:45:7 › the doctor area sends a signed-out visitor to sign in (982ms)
+  ✓  20 [phone] › e2e/mock/sign-in.spec.ts:32:5 › a signed-in user who opens sign-in goes to their dashboard, and signing out returns to sign-in (2.0s)
+  ✓  25 [phone] › e2e/mock/sign-in.spec.ts:45:7 › the patient area sends a signed-out visitor to sign in (780ms)
+  ✓  23 [phone] › e2e/mock/sign-in.spec.ts:18:7 › Ali Khan lands in their own area and is kept out of others (1.9s)
+  ✓  26 [phone] › e2e/mock/sign-in.spec.ts:51:5 › pages have no horizontal scroll (1.4s)
+  ✓  27 [phone] › e2e/mock/system-admin.spec.ts:9:5 › creates an organisation and its administrator, showing the invite code once (3.0s)
+  ✓  29 [phone] › e2e/mock/system-admin.spec.ts:55:5 › an attack test runs against a testbed device and its window is compared with the IDS events (2.4s)
+  ✓  28 [phone] › e2e/mock/system-admin.spec.ts:28:5 › registers a device, adds its certificate, activates it and grants it (3.5s)
+  ✓  30 [phone] › e2e/mock/system-admin.spec.ts:68:5 › security events open a detail, and every system page fits the screen (3.0s)
+
+  30 passed (32.7s)

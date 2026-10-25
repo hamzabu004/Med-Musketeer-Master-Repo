@@ -24,6 +24,8 @@ describe("API errors", () => {
   it("do not tell the user whether a 404 exists or is out of reach", () => {
     expect(userMessage(new ApiError(404, "patient not found"))).toBe("Not found, or not available to you.");
     expect(userMessage(new ApiError(409, "the wearable is suspended"))).toBe("the wearable is suspended");
+    expect(userMessage(new ApiError(409, "conflicts with an existing record", { error: "x", constraint: "device_credentials_auth_method_credential_ref_key" }))).toMatch(/certificate is already registered/);
+    expect(userMessage(new ApiError(409, "conflicts with an existing record", { error: "x", constraint: "something_new" }))).toBe("conflicts with an existing record");
     expect(userMessage(new ApiError(0, "unreachable"))).toMatch(/could not be reached/);
   });
 });
