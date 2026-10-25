@@ -23,25 +23,24 @@ import { deviceType, labelize } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
 
-function CreateAdmin({ orgId, disabled, onCreated }: { orgId: string; disabled: boolean; onCreated: () => void }) {
+/** The API's largest page of audit rows. */
+const AUDIT_LIMIT = 1000;
+
+type Invite = { account: NewAccount; recipient: string };
+
+function CreateAdmin({ orgId, disabled, onCreated }: { orgId: string; disabled: boolean; onCreated: (invite: Invite) => void }) {
   const { data } = useData();
   const { busy, notice, run } = useAction();
   const [form, setForm] = useState({ email: "", given_name: "", family_name: "" });
-  const [created, setCreated] = useState<{ account: NewAccount; recipient: string } | null>(null);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     const body = { email: form.email.trim(), given_name: form.given_name.trim(), family_name: form.family_name.trim() };
     const account = await run("create", () => data.registry.createOrganisationAdmin(orgId, body));
     if (account) {
-      setCreated({ account, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
       setForm({ email: "", given_name: "", family_name: "" });
-      onCreated();
+      onCreated({ account, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
     }
-  }
-
-  if (created) {
-    return <OneTimeCode code={created.account.invite_code} recipient={created.recipient} onDone={() => setCreated(null)} />;
   }
 
   return (
@@ -73,8 +72,10 @@ function CreateAdmin({ orgId, disabled, onCreated }: { orgId: string; disabled: 
 export function OrganisationDetail({ orgId }: { orgId: string }) {
   const { data } = useData();
   const { busy, notice, run } = useAction();
+  // Held above <Loaded>: the code is returned once, so a failed reload must not unmount it.
+  const [invite, setInvite] = useState<Invite | null>(null);
   const resource = useResource(async () => {
-    const [organisations, devices, audit] = await Promise.all([data.registry.organisations(), data.registry.devices(), data.registry.audit(1000)]);
+    const [organisations, devices, audit] = await Promise.all([data.registry.organisations(), data.registry.devices(), data.registry.audit(AUDIT_LIMIT)]);
     const org = organisations.find((o) => o.org_id === orgId);
     if (!org) throw new ApiError(404, "organisation not found");
     // The registry has no grants-by-organisation endpoint: read each device's grants.
@@ -85,19 +86,22 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
       devices: granted.map((g) => ({ grant: g, device: devices.find((d) => d.device_id === g.device_id)! })),
       // No endpoint lists an organisation's administrators to the system admin; the audit log records each one created.
       admins: audit.filter((e) => e.action === "account.created" && e.org_id === orgId && e.details?.role === "org_admin"),
+      auditFull: audit.length >= AUDIT_LIMIT,
     };
   }, [orgId]);
 
   async function setStatus(status: "active" | "suspended") {
     if (await run(status, () => data.registry.setOrganisationStatus(orgId, status), status === "suspended" ? "Organisation suspended." : "Organisation reactivated.")) {
-      if (resource.status === "ready") resource.reload();
+      resource.reload();
     }
   }
 
   return (
-    <Loaded resource={resource} label="Loading the organisation">
-      {({ org, devices, admins }) => (
-        <section className="mx-auto max-w-6xl space-y-5">
+    <div className="mx-auto max-w-6xl space-y-5">
+      {invite && <OneTimeCode code={invite.account.invite_code} recipient={invite.recipient} onDone={() => setInvite(null)} />}
+      <Loaded resource={resource} label="Loading the organisation">
+      {({ org, devices, admins, auditFull }) => (
+        <section className="space-y-5">
           <PageIntro
             title={org.name}
             description={`${labelize(org.kind)} organisation, created ${formatDateTime(org.created_at)}.`}
@@ -130,9 +134,21 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
             <Link href="/system/organisations" className="text-[var(--color-info)] underline">All organisations</Link>
           </p>
 
-          <CreateAdmin orgId={orgId} disabled={org.status !== "active"} onCreated={() => resource.status === "ready" && resource.reload()} />
+          {!invite && (
+            <CreateAdmin
+              orgId={orgId}
+              disabled={org.status !== "active"}
+              onCreated={(created) => {
+                setInvite(created);
+                resource.reload();
+              }}
+            />
+          )}
 
           <SectionTitle>Administrators created</SectionTitle>
+          {auditFull && (
+            <p className="text-xs text-[var(--color-text-muted)]">Searched the newest {AUDIT_LIMIT} registry changes only; administrators created before them are not listed.</p>
+          )}
           {admins.length ? (
             <Table label="Administrators created" minWidth={480}>
               <THead columns={["Account", "Created"]} />
@@ -170,6 +186,7 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
           )}
         </section>
       )}
-    </Loaded>
+      </Loaded>
+    </div>
   );
 }

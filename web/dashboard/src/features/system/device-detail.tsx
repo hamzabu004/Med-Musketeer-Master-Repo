@@ -17,7 +17,7 @@ import { RecordId } from "@/components/ui/record-id";
 import { Status, statusTone } from "@/components/ui/status";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
 import { formatAgo, formatDateTime } from "@/lib/date-time";
-import { deviceType, labelize } from "@/lib/labels";
+import { deviceType, labelize, shortId } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
 
@@ -68,7 +68,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
 
   async function change<T>(name: string, task: () => Promise<T>, success: string) {
     const done = await action.run(name, task, success);
-    if (done !== undefined && resource.status === "ready") resource.reload();
+    if (done !== undefined) resource.reload();
     return done;
   }
 
@@ -87,7 +87,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
         return (
           <section className="mx-auto max-w-6xl space-y-5">
             <PageIntro
-              title={`${deviceType(device.type)} ${device.device_id.split("-")[0]}`}
+              title={`${deviceType(device.type)} ${shortId(device.device_id)}`}
               description={device.device_id}
               actions={<Status label={labelize(device.status)} tone={statusTone(device.status)} />}
             />
@@ -144,7 +144,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
                 <tbody>
                   {credentials.map((c) => (
                     <Tr key={c.credential_id}>
-                      <Td>{c.auth_method === "x509_mtls" ? "Certificate (mTLS)" : labelize(c.auth_method)}</Td>
+                      <Td>{labelize(c.auth_method)}</Td>
                       <Td className="max-w-[18rem] break-all font-mono text-xs">{c.credential_ref}</Td>
                       <Td>{c.key_type ?? "—"}</Td>
                       <Td><Status label={labelize(c.status)} tone={statusTone(c.status)} /></Td>

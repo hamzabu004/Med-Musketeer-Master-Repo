@@ -50,7 +50,8 @@ export function SecurityEvents() {
   const [filter, setFilter] = useState({ mode: "", outcome: "", predicted: "" });
   const [selected, setSelected] = useState<SecurityEvent | null>(null);
 
-  const events = useMemo(() => (resource.status === "ready" ? resource.data : []), [resource]);
+  const loaded = resource.status === "ready" ? resource.data : null;
+  const events = useMemo(() => loaded ?? [], [loaded]);
   const options = (key: "outcome" | "predicted_class") => [...new Set(events.map((e) => e[key]))].sort();
   const filtered = useMemo(
     () => events.filter((e) => (!filter.mode || e.mode === filter.mode) && (!filter.outcome || e.outcome === filter.outcome) && (!filter.predicted || e.predicted_class === filter.predicted)),

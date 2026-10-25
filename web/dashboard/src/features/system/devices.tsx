@@ -77,21 +77,22 @@ export function Devices() {
   const resource = useResource(() => data.registry.devices(), []);
   const [filter, setFilter] = useState({ query: "", type: "", status: "", testbed: "" });
 
+  const devices = resource.status === "ready" ? resource.data : null;
   const filtered = useMemo(() => {
-    if (resource.status !== "ready") return [];
-    return resource.data.filter(
+    if (!devices) return [];
+    return devices.filter(
       (d) =>
         d.device_id.includes(filter.query.trim().toLowerCase()) &&
         (!filter.type || d.type === filter.type) &&
         (!filter.status || d.status === filter.status) &&
         (!filter.testbed || String(d.is_testbed) === filter.testbed),
     );
-  }, [resource, filter]);
+  }, [devices, filter]);
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
       <PageIntro title="Devices" description="Every wearable and fixed gateway known to the cloud. Status here decides whether the broker lets a device in." />
-      <RegisterDevice onRegistered={() => resource.status === "ready" && resource.reload()} />
+      <RegisterDevice onRegistered={() => resource.reload()} />
       <div className="grid gap-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label="Search by id">
           <TextInput value={filter.query} onChange={(e) => setFilter({ ...filter, query: e.target.value })} placeholder="Part of the UUID" className="font-mono" />

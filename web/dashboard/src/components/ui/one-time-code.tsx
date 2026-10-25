@@ -6,7 +6,7 @@ import { Button } from "./button";
 
 /** An invite code the API returns once: shown until the admin confirms they passed it on. */
 export function OneTimeCode({ code, recipient, onDone }: { code: string; recipient: string; onDone: () => void }) {
-  const [copied, setCopied] = useState(false);
+  const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
   return (
     <div role="status" className="space-y-3 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[var(--color-surface)] p-4">
       <p className="text-sm">
@@ -21,14 +21,21 @@ export function OneTimeCode({ code, recipient, onDone }: { code: string; recipie
           type="button"
           variant="secondary"
           onClick={async () => {
-            await navigator.clipboard?.writeText(code).catch(() => undefined);
-            setCopied(true);
+            // The clipboard exists only on https (or localhost) and may be refused: say so rather than claim it.
+            try {
+              if (!navigator.clipboard) throw new Error("no clipboard");
+              await navigator.clipboard.writeText(code);
+              setCopy("copied");
+            } catch {
+              setCopy("failed");
+            }
           }}
         >
-          {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
-          {copied ? "Copied" : "Copy"}
+          {copy === "copied" ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
+          {copy === "copied" ? "Copied" : "Copy"}
         </Button>
       </div>
+      {copy === "failed" && <p className="text-sm text-[var(--color-critical)]">Copying is not available here. Write the code down before closing this.</p>}
       <Button type="button" onClick={onDone}>
         I have passed it on
       </Button>

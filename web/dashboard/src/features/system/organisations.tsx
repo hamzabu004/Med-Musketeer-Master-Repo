@@ -62,7 +62,7 @@ export function Organisations() {
   return (
     <section className="mx-auto max-w-6xl space-y-5">
       <PageIntro title="Organisations" description="Hospitals and clinics using MedMusketeer. Each has its own administrators, doctors, patients and granted devices." />
-      <CreateOrganisation onCreated={() => resource.status === "ready" && resource.reload()} />
+      <CreateOrganisation onCreated={() => resource.reload()} />
       <Loaded resource={resource} label="Loading organisations">
         {(organisations) =>
           organisations.length ? (

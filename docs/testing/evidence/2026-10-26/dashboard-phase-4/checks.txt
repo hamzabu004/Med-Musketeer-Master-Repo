@@ -16,28 +16,31 @@ Generating route types...
  RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
 
 
- Test Files  8 passed (8)
-      Tests  77 passed (77)
-   Start at  01:36:43
-   Duration  17.30s (environment 49%, tests 28%, setup 20%, import 1%, transform 1%)
+ Test Files  9 passed (9)
+      Tests  79 passed (79)
+   Start at  01:46:38
+   Duration  17.24s (environment 54%, tests 27%, setup 17%, import 2%, transform 1%)
+
+    Isolate  9 workers spawned · ~3.19s startup each (spawn + environment, per file)
+             at least ~910ms faster with isolate: false — reuses workers across files instead of one per file
 
 
 > medmusketeer-dashboard@0.1.0 build
 > next build
 
 ▲ Next.js 16.4.3 (Turbopack)
-✓ Running next.config.ts took 53ms
+✓ Running next.config.ts took 45ms
 
   Creating an optimized production build ...
-✓ Compiled successfully in 2.3s
+✓ Compiled successfully in 1202ms
   Running TypeScript ...
-  Finished TypeScript in 6.0s ...
+  Finished TypeScript in 4.1s ...
   Collecting page data using 7 workers ...
   Generating static pages using 7 workers (0/31) ...
   Generating static pages using 7 workers (7/31) 
   Generating static pages using 7 workers (15/31) 
   Generating static pages using 7 workers (23/31) 
-✓ Generating static pages using 7 workers (31/31) in 630ms
+✓ Generating static pages using 7 workers (31/31) in 613ms
   Finalizing page optimization ...
 
 Route (app)

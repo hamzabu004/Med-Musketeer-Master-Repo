@@ -17,7 +17,7 @@ import { Table, Td, THead, Tr } from "@/components/ui/table";
 import { Unavailable } from "@/components/ui/unavailable";
 import { isAvailable } from "@/config/capabilities";
 import { formatDateTime } from "@/lib/date-time";
-import { deviceType, labelize } from "@/lib/labels";
+import { deviceType, labelize, shortId } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
 import type { AttackTest } from "@/services/contracts";
@@ -36,18 +36,29 @@ function windowEvents(test: AttackTest, events: SecurityEvent[]) {
     .sort((a, b) => a.ts.localeCompare(b.ts));
 }
 
+/** The API's largest page of security events. */
+const EVENT_LIMIT = 1000;
+
+/** Whether the loaded events reach back to the test's start: if the page of events is full and its
+ * oldest event is newer than the start, older events were not loaded and nothing can be concluded. */
+export function covers(test: AttackTest, events: SecurityEvent[]): boolean {
+  if (events.length < EVENT_LIMIT) return true;
+  const oldest = Math.min(...events.map((e) => Date.parse(e.ts)));
+  return oldest <= Date.parse(test.started_at);
+}
+
 function AttackTestsScreen() {
   const { data } = useData();
   const action = useAction();
   const [form, setForm] = useState({ target: "", type: ATTACK_TYPES[0], rate: "500" });
   const resource = useResource(async () => {
-    const [tests, devices, events] = await Promise.all([data.attackTests.list(), data.registry.devices(), data.registry.securityEvents(1000)]);
+    const [tests, devices, events] = await Promise.all([data.attackTests.list(), data.registry.devices(), data.registry.securityEvents(EVENT_LIMIT)]);
     return { tests, devices, events };
   }, []);
 
   async function change<T>(name: string, task: () => Promise<T>, success: string) {
     const done = await action.run(name, task, success);
-    if (done !== undefined && resource.status === "ready") resource.reload();
+    if (done !== undefined) resource.reload();
     return done;
   }
 
@@ -75,7 +86,7 @@ function AttackTestsScreen() {
                   <Select value={form.target} onChange={(e) => setForm({ ...form, target: e.target.value })} required>
                     <option value="">Choose a testbed device</option>
                     {targets.map((d) => (
-                      <option key={d.device_id} value={d.device_id}>{deviceType(d.type)} {d.device_id.split("-")[0]}</option>
+                      <option key={d.device_id} value={d.device_id}>{deviceType(d.type)} {shortId(d.device_id)}</option>
                     ))}
                   </Select>
                 </Field>
@@ -85,9 +96,9 @@ function AttackTestsScreen() {
                   </Select>
                 </Field>
                 <Field label="Rate (packets/s)">
-                  <TextInput type="number" min={1} value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} />
+                  <TextInput type="number" min={1} step={1} required value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} />
                 </Field>
-                <Button type="submit" variant="danger" className="md:mt-6" disabled={action.busy !== null || !form.target}>Start</Button>
+                <Button type="submit" variant="danger" className="md:mt-6" disabled={action.busy !== null || !form.target || !(Number(form.rate) >= 1)}>Start</Button>
               </form>
               <Notice notice={action.notice} />
             </Card>
@@ -118,13 +129,22 @@ function AttackTestsScreen() {
                 <tbody>
                   {tests.map((t) => {
                     const inWindow = windowEvents(t, events);
+                    const covered = covers(t, events);
                     const latency = inWindow.length ? Math.round((Date.parse(inWindow[0].ts) - Date.parse(t.started_at)) / 1000) : null;
                     return (
                       <Tr key={t.test_id}>
                         <Td className="font-medium">{labelize(t.attack_type)}</Td>
                         <Td><RecordId id={t.target_device_id} /></Td>
                         <Td className="metric-number text-xs">{formatDateTime(t.started_at)} – {t.ended_at ? formatDateTime(t.ended_at) : "running"}</Td>
-                        <Td>{inWindow.length ? `${inWindow.length} (${[...new Set(inWindow.map((e) => labelize(e.predicted_class)))].join(", ")})` : <span className="text-[var(--color-critical)]">None: a missed detection</span>}</Td>
+                        <Td>
+                          {inWindow.length ? (
+                            `${inWindow.length} (${[...new Set(inWindow.map((e) => labelize(e.predicted_class)))].join(", ")})`
+                          ) : covered ? (
+                            <span className="text-[var(--color-critical)]">None: a missed detection</span>
+                          ) : (
+                            <span className="text-[var(--color-text-muted)]">Not covered: older than the newest {EVENT_LIMIT} events</span>
+                          )}
+                        </Td>
                         <Td className="metric-number">{latency === null ? "—" : `${latency} s`}</Td>
                       </Tr>
                     );

@@ -2,12 +2,12 @@ api-e2e: starting the cloud stack (mm-dashboard-e2e)
 
 Running 7 tests using 1 worker
 
-  ✓  1 e2e/api/sign-in.spec.ts:15:7 › sysadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (4.9s)
-  ✓  2 e2e/api/sign-in.spec.ts:15:7 › orgadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (4.7s)
-  ✓  3 e2e/api/sign-in.spec.ts:15:7 › doctor1@medmusketeer.example signs in through ZITADEL and lands in their own area (4.4s)
-  ✓  4 e2e/api/sign-in.spec.ts:15:7 › patient1@medmusketeer.example signs in through ZITADEL and lands in their own area (4.1s)
-  ✓  5 e2e/api/sign-in.spec.ts:32:5 › the API answers the signed-in doctor with their own data, and refuses what D9 forbids (5.1s)
-  ✓  6 e2e/api/sign-in.spec.ts:45:5 › signing out ends the ZITADEL session as well (5.0s)
-  ✓  7 e2e/api/system-admin.spec.ts:7:5 › organisation, its administrator through the invite code, and a device from registration to grant (14.4s)
+  ✓  1 e2e/api/sign-in.spec.ts:15:7 › sysadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (4.5s)
+  ✓  2 e2e/api/sign-in.spec.ts:15:7 › orgadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (4.1s)
+  ✓  3 e2e/api/sign-in.spec.ts:15:7 › doctor1@medmusketeer.example signs in through ZITADEL and lands in their own area (4.1s)
+  ✓  4 e2e/api/sign-in.spec.ts:15:7 › patient1@medmusketeer.example signs in through ZITADEL and lands in their own area (3.9s)
+  ✓  5 e2e/api/sign-in.spec.ts:32:5 › the API answers the signed-in doctor with their own data, and refuses what D9 forbids (4.3s)
+  ✓  6 e2e/api/sign-in.spec.ts:45:5 › signing out ends the ZITADEL session as well (5.1s)
+  ✓  7 e2e/api/system-admin.spec.ts:7:5 › organisation, its administrator through the invite code, and a device from registration to grant (13.0s)
 
-  7 passed (55.0s)
+  7 passed (52.1s)

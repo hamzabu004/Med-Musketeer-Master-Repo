@@ -53,7 +53,9 @@ export function SystemDashboard() {
                 Latest registry changes
               </SectionTitle>
               <AuditTable events={audit} organisations={organisations} />
-              <p className="text-xs text-[var(--color-text-muted)]">Loaded {formatDateTime(new Date().toISOString())}.</p>
+              {resource.status === "ready" && (
+                <p className="text-xs text-[var(--color-text-muted)]">Loaded {formatDateTime(new Date(resource.fetchedAt).toISOString())}.</p>
+              )}
             </>
           );
         }}

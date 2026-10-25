@@ -48,7 +48,7 @@ Phase 4 of the dashboard rebuild: the system administrator's screens over the re
 
 ## Evidence
 `docs/testing/evidence/2026-10-26/dashboard-phase-4/`:
-- `checks.txt`: typecheck, lint, 77 unit tests, production build.
+- `checks.txt`: typecheck, lint, 79 unit tests, production build.
 - `e2e-mock.txt`: 30 browser tests, desktop and phone. The system admin flows:
   - organisation and administrator, with the invite code gone after confirmation;
   - device registration, certificate, activation, grant, and the revoke confirmation;
@@ -60,3 +60,13 @@ Phase 4 of the dashboard rebuild: the system administrator's screens over the re
   - registers a device, adds a certificate, activates and grants it;
   - checks the audit log and the unavailable attack tests;
   - then the new administrator **redeems the invite code in ZITADEL's login** (e-mail, code, choose password) and lands on the organisation dashboard.
+
+## Review
+`/code-review high` found ten issues (`docs/testing/review-findings/2026-10-26-dashboard-phase-4-system-admin-screens.md`); nine are fixed in a follow-up commit:
+- the one-time invite code can no longer be lost to a failed reload or a silent copy failure;
+- attack-test windows older than the loaded events are "not covered" rather than "missed";
+- the rate is required;
+- "Loaded" shows the fetch time;
+- smaller fixes.
+
+The per-device grants requests stay until the cloud offers grants by organisation.
