@@ -1,0 +1,55 @@
+"use client";
+
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { canAccessRoute, roleHome } from "@/config/authorization";
+import { services } from "@/services";
+import type { Role } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export const ACCESS_DENIED_MESSAGE_KEY = "medmusketeer:poc:access-denied";
+
+export function RoleGuard({
+  role,
+  children,
+}: {
+  role: Role;
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const session = services.auth.getSession();
+    if (!session) {
+      router.replace("/login");
+      return;
+    }
+
+    if (session.role !== role || !canAccessRoute(session.role, pathname)) {
+      window.sessionStorage.setItem(
+        ACCESS_DENIED_MESSAGE_KEY,
+        "Access denied. You were returned to your dashboard.",
+      );
+      router.replace(roleHome[session.role]);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setAuthorized(true), 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname, role, router]);
+
+  if (!authorized) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[var(--color-bg)] p-6" aria-busy="true">
+        <div className="w-full max-w-sm space-y-3" aria-label="Checking session">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </main>
+    );
+  }
+
+  return children;
+}
