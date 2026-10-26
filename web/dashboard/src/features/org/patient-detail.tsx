@@ -18,7 +18,7 @@ import { RecordId } from "@/components/ui/record-id";
 import { Status, statusTone } from "@/components/ui/status";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
 import { formatAgo, formatDateTime } from "@/lib/date-time";
-import { labelize } from "@/lib/labels";
+import { labelize, shortId } from "@/lib/labels";
 import { loadPeople, NAMES_UNAVAILABLE, peopleById, personName } from "@/lib/people";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
@@ -47,9 +47,12 @@ function ExportResult({ record, onClose }: { record: PatientExport; onClose: () 
           type="button"
           onClick={() => {
             const file = exportFile(record);
+            // In the document, and revoked later: some browsers fetch the file after click() returns.
             const link = Object.assign(document.createElement("a"), { href: file.url, download: file.name });
+            document.body.append(link);
             link.click();
-            setTimeout(() => URL.revokeObjectURL(file.url), 0);
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(file.url), 60_000);
           }}
         >
           Download JSON
@@ -73,7 +76,8 @@ export function PatientDetail({ patientId }: { patientId: string }) {
   const [wearableId, setWearableId] = useState("");
   const [disorder, setDisorder] = useState("");
   const [destination, setDestination] = useState("");
-  // Held above <Loaded>, like an invite code: a reload must not lose a finished export.
+  // Held above <Loaded>, like an invite code: a reload must not lose a finished export. While the
+  // page cannot load, the export is shown on its own so it can still be downloaded.
   const [exported, setExported] = useState<PatientExport | null>(null);
 
   const resource = useResource(async () => {
@@ -99,12 +103,14 @@ export function PatientDetail({ patientId }: { patientId: string }) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
+      {exported && resource.status === "error" && <ExportResult record={exported} onClose={() => setExported(null)} />}
       <Loaded resource={resource} label="Loading the patient">
         {({ patient, patients, disorders, devices, accounts, audit, people, named }) => {
           const byId = peopleById(people);
           const name = patient.user_id ? personName(byId.get(patient.user_id)) : null;
-          const doctorName = (id: string) => personName(byId.get(id)) ?? `Doctor ${id.slice(0, 8)}`;
-          const disabled = patient.account_status !== "active";
+          const doctorName = (id: string) => personName(byId.get(id)) ?? `Doctor ${shortId(id)}`;
+          // Only a disabled account blocks (require_active_account); a patient without an account does not.
+          const disabled = patient.account_status === "disabled";
           const doctors = accounts.filter((a) => a.role === "doctor" && a.status === "active" && a.user_id !== patient.doctor_id);
           const wearable = devices.find((d) => d.device_id === patient.wearable_id);
           const issuable = devices.filter((d) => d.type === "wearable" && d.status === "active" && d.patient_id === null);
@@ -115,7 +121,7 @@ export function PatientDetail({ patientId }: { patientId: string }) {
               <PageIntro
                 title={patient.pseudonym}
                 description={`${name ?? "Name not available"} · patient since ${formatDateTime(patient.created_at)}`}
-                actions={<Status label={`Account ${labelize(patient.account_status ?? "none").toLowerCase()}`} tone={statusTone(patient.account_status)} />}
+                actions={<Status label={patient.account_status ? `Account ${patient.account_status}` : "No account"} tone={statusTone(patient.account_status)} />}
               />
               <p className="text-sm">
                 <Link href="/org/patients" className="text-[var(--color-info)] underline">All patients</Link>
@@ -201,7 +207,7 @@ export function PatientDetail({ patientId }: { patientId: string }) {
                         <Select value={wearableId} onChange={(e) => setWearableId(e.target.value)}>
                           <option value="">{issuable.length ? "Choose a wearable" : "No wearable free to issue"}</option>
                           {issuable.map((d) => (
-                            <option key={d.device_id} value={d.device_id}>Wearable {d.device_id.slice(0, 8)}</option>
+                            <option key={d.device_id} value={d.device_id}>Wearable {shortId(d.device_id)}</option>
                           ))}
                         </Select>
                       </Field>

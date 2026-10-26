@@ -31,9 +31,9 @@ export function Patients() {
       .map((p) => ({ patient: p, name: p.user_id ? personName(byId.get(p.user_id)) : null, doctor: p.doctor_id ? personName(byId.get(p.doctor_id)) : null }))
       .filter(({ patient: p, name }) => {
         if (query && !p.pseudonym.toLowerCase().includes(query) && !name?.toLowerCase().includes(query)) return false;
-        if (filter.show === "no_doctor") return p.account_status === "active" && !p.doctor_id;
-        if (filter.show === "no_wearable") return p.account_status === "active" && !p.wearable_id;
-        if (filter.show === "disabled") return p.account_status !== "active";
+        if (filter.show === "no_doctor") return p.account_status !== "disabled" && !p.doctor_id;
+        if (filter.show === "no_wearable") return p.account_status !== "disabled" && !p.wearable_id;
+        if (filter.show === "disabled") return p.account_status === "disabled";
         return true;
       });
   }, [loaded, filter]);
@@ -70,7 +70,7 @@ export function Patients() {
                       <Td>{name ?? "—"}</Td>
                       <Td>{p.doctor_id ? (doctor ?? <RecordId id={p.doctor_id} />) : <span className="text-[var(--color-warning)]">None</span>}</Td>
                       <Td>{p.wearable_id ? <RecordId id={p.wearable_id} /> : <span className="text-[var(--color-text-muted)]">None</span>}</Td>
-                      <Td><Status label={labelize(p.account_status ?? "none")} tone={statusTone(p.account_status)} /></Td>
+                      <Td><Status label={p.account_status ? labelize(p.account_status) : "No account"} tone={statusTone(p.account_status)} /></Td>
                     </Tr>
                   ))}
                 </tbody>

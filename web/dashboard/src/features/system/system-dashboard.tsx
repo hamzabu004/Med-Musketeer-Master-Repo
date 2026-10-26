@@ -31,7 +31,7 @@ export function SystemDashboard() {
     <section className="mx-auto max-w-7xl space-y-5">
       <PageIntro title="Dashboard" description="The registry at a glance. The system administrator sees devices and organisations, never patient data." />
       <Loaded resource={resource} label="Loading the registry">
-        {({ organisations, devices, events, audit }) => {
+        {({ organisations, devices, events, audit }, { fetchedAt }) => {
           const count = (status: string) => devices.filter((d) => d.status === status).length;
           return (
             <>
@@ -53,9 +53,7 @@ export function SystemDashboard() {
                 Latest registry changes
               </SectionTitle>
               <AuditTable events={audit} organisations={organisations} />
-              {resource.status === "ready" && (
-                <p className="text-xs text-[var(--color-text-muted)]">Loaded {formatDateTime(new Date(resource.fetchedAt).toISOString())}.</p>
-              )}
+              <p className="text-xs text-[var(--color-text-muted)]">Loaded {formatDateTime(new Date(fetchedAt).toISOString())}.</p>
             </>
           );
         }}

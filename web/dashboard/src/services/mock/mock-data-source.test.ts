@@ -154,6 +154,17 @@ describe("sample data, org admin (Phase 5)", () => {
     expect(logged).toMatchObject({ action: "patient.exported", target_id: patientId("P-1003"), details: { destination: "City Hospital" } });
   });
 
+  it("gives a patient without an account a doctor and a wearable: only a disabled account blocks", async () => {
+    world.patients.push({ patient_id: "00000000-0000-4000-8000-0000000005ae", user_id: null, org_id: world.organisations[0].org_id, pseudonym: "P-spare", created_at: world.patients[0].created_at });
+    const admin = as("orgadmin");
+    const spare = (await admin.patients()).find((p) => p.pseudonym === "P-spare")!;
+    expect(spare.account_status).toBeNull();
+    const doctor2 = world.users.find((u) => u.email.startsWith("doctor2@"))!.user_id;
+    expect(await statusOf(admin.org.assignDoctor(spare.patient_id, doctor2))).toBe(200);
+    const free = (await admin.devices()).find((d) => d.type === "wearable" && d.patient_id === null)!;
+    expect(await statusOf(admin.org.issueWearable(spare.patient_id, free.device_id))).toBe(200);
+  });
+
   it("refuses to disable an administrator, as the API does (404)", async () => {
     const admin = as("orgadmin");
     expect(await statusOf(admin.org.disableAccount(world.users.find((u) => u.email.startsWith("orgadmin@"))!.user_id))).toBe(404);

@@ -23,18 +23,21 @@ import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
 
 type Invite = { account: NewAccount; recipient: string };
-const EMPTY = { role: "doctor" as "doctor" | "patient", email: "", given_name: "", family_name: "", pseudonym: "" };
+type Role = "doctor" | "patient";
+const EMPTY = { email: "", given_name: "", family_name: "", pseudonym: "" };
 
-function CreateAccount({ onCreated }: { onCreated: (invite: Invite) => void }) {
+/** `role` lives in Accounts: the form unmounts while an invite code is shown, and the next account
+ * is usually of the same role (several patients in a row). */
+function CreateAccount({ role, onRole, onCreated }: { role: Role; onRole: (role: Role) => void; onCreated: (invite: Invite) => void }) {
   const { data } = useData();
   const { busy, notice, run } = useAction();
   const [form, setForm] = useState(EMPTY);
-  const patient = form.role === "patient";
+  const patient = role === "patient";
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     const body = {
-      role: form.role,
+      role,
       email: form.email.trim(),
       given_name: form.given_name.trim(),
       family_name: form.family_name.trim(),
@@ -43,7 +46,6 @@ function CreateAccount({ onCreated }: { onCreated: (invite: Invite) => void }) {
     };
     const account = await run("create", () => data.org.createAccount(body));
     if (account) {
-      setForm({ ...EMPTY, role: form.role });
       onCreated({ account, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
     }
   }
@@ -53,7 +55,7 @@ function CreateAccount({ onCreated }: { onCreated: (invite: Invite) => void }) {
       <h3 className="font-semibold">New account</h3>
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Role">
-          <Select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value as "doctor" | "patient" })}>
+          <Select value={role} onChange={(e) => onRole(e.target.value as Role)}>
             <option value="doctor">Doctor</option>
             <option value="patient">Patient</option>
           </Select>
@@ -111,6 +113,7 @@ export function Accounts() {
   const { busy, notice, run } = useAction();
   // Held above <Loaded>: the code is returned once, so a failed reload must not unmount it.
   const [invite, setInvite] = useState<Invite | null>(null);
+  const [role, setRole] = useState<Role>("doctor");
   const [filter, setFilter] = useState({ role: "", status: "" });
   const resource = useResource(async () => {
     const [accounts, patients, { people, named }] = await Promise.all([data.org.accounts(), data.patients(), loadPeople(data.directory)]);
@@ -134,6 +137,8 @@ export function Accounts() {
         <OneTimeCode code={invite.account.invite_code} recipient={invite.recipient} onDone={() => setInvite(null)} />
       ) : (
         <CreateAccount
+          role={role}
+          onRole={setRole}
           onCreated={(created) => {
             setInvite(created);
             resource.reload();

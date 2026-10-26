@@ -51,9 +51,10 @@ export function OrgDashboard() {
   return (
     <section className="mx-auto max-w-7xl space-y-5">
       <Loaded resource={resource} label="Loading your organisation">
-        {({ organisation, accounts, patients, devices, audit, people }) => {
+        {({ organisation, accounts, patients, devices, audit, people }, { fetchedAt }) => {
           const doctors = accounts.filter((a) => a.role === "doctor");
-          const active = patients.filter((p) => p.account_status === "active");
+          // A patient without an account (user_id null) is not disabled: they can have a doctor and a wearable.
+          const active = patients.filter((p) => p.account_status !== "disabled");
           const wearables = devices.filter((d) => d.type === "wearable");
           const gateways = devices.filter((d) => d.type === "fixed_gateway");
           const issuable = wearables.filter((d) => d.status === "active" && d.patient_id === null);
@@ -79,9 +80,7 @@ export function OrgDashboard() {
                 Latest changes
               </SectionTitle>
               <OrgAuditTable events={audit} patients={patients} people={people} />
-              {resource.status === "ready" && (
-                <p className="text-xs text-[var(--color-text-muted)]">Loaded {formatDateTime(new Date(resource.fetchedAt).toISOString())}.</p>
-              )}
+              <p className="text-xs text-[var(--color-text-muted)]">Loaded {formatDateTime(new Date(fetchedAt).toISOString())}.</p>
             </>
           );
         }}

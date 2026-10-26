@@ -5,7 +5,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { RecordId } from "@/components/ui/record-id";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/date-time";
-import { labelize, shortId } from "@/lib/labels";
+import { formatAuditDetails } from "@/lib/audit";
+import { labelize } from "@/lib/labels";
 import { peopleById, personName } from "@/lib/people";
 
 /** Actions whose target is a patient (organisation.py audits them with target_id = patient_id). */
@@ -41,17 +42,6 @@ export function OrgAuditTable({ events, people, patients, empty }: AuditContext 
     return name(event.actor_id) ?? (event.scope === "registry" ? "System administrator" : <RecordId id={event.actor_id} />);
   }
 
-  function details(event: AuditEvent): string {
-    return Object.entries(event.details ?? {})
-      .filter(([, value]) => value !== null && value !== undefined)
-      .map(([key, value]) => {
-        const text = String(value);
-        const shown = key.endsWith("doctor_id") ? (name(text) ?? shortId(text)) : key.endsWith("_id") ? shortId(text) : key === "role" ? labelize(text) : text;
-        return `${labelize(key.replace(/_id$/, ""))}: ${shown}`;
-      })
-      .join(" · ");
-  }
-
   if (!events.length) return <EmptyState title="No changes yet" description={empty ?? "Changes in your organisation are logged here with who made them."} />;
   return (
     <Table label="Audit log" minWidth={820}>
@@ -63,7 +53,7 @@ export function OrgAuditTable({ events, people, patients, empty }: AuditContext 
             <Td className="font-medium">{labelize(event.action)}</Td>
             <Td>{target(event)}</Td>
             <Td>{actor(event)}</Td>
-            <Td className="text-xs text-[var(--color-text-muted)]">{details(event) || "—"}</Td>
+            <Td className="text-xs text-[var(--color-text-muted)]">{formatAuditDetails(event, (key, id) => (key.endsWith("doctor_id") ? name(id) : null)) || "—"}</Td>
           </Tr>
         ))}
       </tbody>

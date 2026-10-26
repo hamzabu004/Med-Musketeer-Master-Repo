@@ -61,3 +61,13 @@ Phase 5 of the dashboard rebuild: the organisation admin's screens over the D9 o
   - creates a patient and a doctor, then disables the doctor;
   - assigns a doctor, issues a wearable, records a disorder, exports, and checks the audit trail;
   - the new patient redeems their invite code in ZITADEL's login and lands in the patient area.
+
+## Review
+`/code-review high` found ten issues (`docs/testing/review-findings/2026-10-26-dashboard-phase-5-org-admin-screens.md`). Nine are fixed in a follow-up commit:
+- a patient with no account is no longer treated as disabled;
+- the export download is reliable, and stays available if a reload fails;
+- nested audit details are readable;
+- the create form remembers the last role;
+- the audit formatter is shared, plus smaller cleanups.
+
+One is accepted: the patient page loads the organisation-wide lists, for want of single-patient and patient-scoped audit endpoints.

@@ -17,11 +17,11 @@ export function PageSkeleton({ label = "Loading" }: { label?: string }) {
   );
 }
 
-/** Renders `children(data)` once the resource is ready; loading and failure in between. */
-export function Loaded<T>({ resource, children, label }: { resource: Resource<T>; children: (data: T) => React.ReactNode; label?: string }) {
+/** Renders `children(data, { fetchedAt })` once the resource is ready; loading and failure in between. */
+export function Loaded<T>({ resource, children, label }: { resource: Resource<T>; children: (data: T, meta: { fetchedAt: number }) => React.ReactNode; label?: string }) {
   if (resource.status === "loading") return <PageSkeleton label={label} />;
   if (resource.status === "error") {
     return <ErrorState title="Could not load this page" description={userMessage(resource.error)} onRetry={resource.reload} />;
   }
-  return <>{children(resource.data)}</>;
+  return <>{children(resource.data, { fetchedAt: resource.fetchedAt })}</>;
 }
