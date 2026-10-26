@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { OrgAuditLog } from "@/features/org/org-audit-log";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Audit Log" description="Your organisation's audit trail." />;
+  return <OrgAuditLog />;
 }

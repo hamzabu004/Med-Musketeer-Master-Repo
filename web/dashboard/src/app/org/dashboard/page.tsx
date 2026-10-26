@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { OrgDashboard } from "@/features/org/org-dashboard";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Dashboard" description="Your organisation, account and patient counts, device states and recent audit." />;
+  return <OrgDashboard />;
 }

@@ -2,7 +2,7 @@
 
 The web dashboard for MedMusketeer (module M8). It is rebuilt from the POC-Lite proof of concept on top of the cloud API (`cloud/`), and serves four roles: system admin, organisation admin, doctor and patient. The API enforces what each role may do (D9 in `docs/decisions/cloud-backend.md`); the dashboard shows each role its own area.
 
-**Status:** being rebuilt. Sign-in, the data layer and the system admin screens work in both modes; the org admin, doctor and patient screens are still placeholders. See the dashboard entries in `docs/changelog/`.
+**Status:** being rebuilt. Sign-in, the data layer, and the system admin and organisation admin screens work in both modes; the doctor and patient screens are still placeholders. See the dashboard entries in `docs/changelog/`.
 
 ## Stack
 

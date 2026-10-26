@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { Accounts } from "@/features/org/accounts";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Accounts" description="Doctors, patients and administrators: create one (with a one-time invite code) or disable one." />;
+  return <Accounts />;
 }

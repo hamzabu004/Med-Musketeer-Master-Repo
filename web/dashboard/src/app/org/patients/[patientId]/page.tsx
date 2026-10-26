@@ -1,5 +1,6 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { PatientDetail } from "@/features/org/patient-detail";
 
-export default function Page() {
-  return <ScreenPlaceholder title="Patient" description="Assign a doctor, issue or return a wearable, record disorders and export the patient's data." />;
+export default async function Page({ params }: { params: Promise<{ patientId: string }> }) {
+  const { patientId } = await params;
+  return <PatientDetail patientId={patientId} />;
 }

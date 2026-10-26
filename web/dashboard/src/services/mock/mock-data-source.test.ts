@@ -139,6 +139,27 @@ describe("sample data, review findings (Phase 3)", () => {
   });
 });
 
+describe("sample data, org admin (Phase 5)", () => {
+  it("returns a wearable so another patient can have it, and logs an export with its destination", async () => {
+    const admin = as("orgadmin");
+    const issued = (await admin.patients()).find((p) => p.pseudonym === "P-1001")!.wearable_id!;
+    await admin.org.returnWearable(patientId("P-1001"));
+    expect(await statusOf(admin.org.returnWearable(patientId("P-1001")))).toBe(404); // nothing left to return
+    await admin.org.issueWearable(patientId("P-1003"), issued);
+    expect((await admin.devices()).find((d) => d.device_id === issued)!.patient_id).toBe(patientId("P-1003"));
+
+    const record = await admin.org.exportPatient(patientId("P-1003"), "City Hospital");
+    expect(record.wearable_assignments.map((w) => w.device_id)).toEqual([issued]);
+    const [logged] = await admin.org.audit(1);
+    expect(logged).toMatchObject({ action: "patient.exported", target_id: patientId("P-1003"), details: { destination: "City Hospital" } });
+  });
+
+  it("refuses to disable an administrator, as the API does (404)", async () => {
+    const admin = as("orgadmin");
+    expect(await statusOf(admin.org.disableAccount(world.users.find((u) => u.email.startsWith("orgadmin@"))!.user_id))).toBe(404);
+  });
+});
+
 describe("sample data, suspension", () => {
   it("refuses every member of a suspended organisation, as auth.get_principal does", async () => {
     await as("sysadmin").registry.setOrganisationStatus(world.organisations[0].org_id, "suspended");
