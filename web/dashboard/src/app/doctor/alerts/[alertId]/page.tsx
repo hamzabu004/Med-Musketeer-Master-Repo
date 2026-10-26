@@ -1,5 +1,6 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { AlertDetail } from "@/features/doctor/alert-detail";
 
-export default function Page() {
-  return <ScreenPlaceholder title="Alert" description="The alert, its classification and its ECG segment." />;
+export default async function Page({ params }: { params: Promise<{ alertId: string }> }) {
+  const { alertId } = await params;
+  return <AlertDetail alertId={alertId} />;
 }

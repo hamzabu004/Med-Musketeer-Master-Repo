@@ -1,0 +1,15 @@
+api-e2e: starting the cloud stack (mm-dashboard-e2e)
+
+Running 9 tests using 1 worker
+
+  ✓  1 e2e/api/doctor-patient.spec.ts:7:5 › the doctor reads an alert's real ECG and acknowledges it; the patient then sees who did (9.8s)
+  ✓  2 e2e/api/org-admin.spec.ts:6:5 › a patient from account to export, a doctor disabled, and the patient's first sign-in (12.8s)
+  ✓  3 e2e/api/sign-in.spec.ts:15:7 › sysadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (2.9s)
+  ✓  4 e2e/api/sign-in.spec.ts:15:7 › orgadmin@medmusketeer.example signs in through ZITADEL and lands in their own area (3.0s)
+  ✓  5 e2e/api/sign-in.spec.ts:15:7 › doctor1@medmusketeer.example signs in through ZITADEL and lands in their own area (3.3s)
+  ✓  6 e2e/api/sign-in.spec.ts:15:7 › patient1@medmusketeer.example signs in through ZITADEL and lands in their own area (3.3s)
+  ✓  7 e2e/api/sign-in.spec.ts:32:5 › the API answers the signed-in doctor with their own data, and refuses what D9 forbids (2.9s)
+  ✓  8 e2e/api/sign-in.spec.ts:45:5 › signing out ends the ZITADEL session as well (3.7s)
+  ✓  9 e2e/api/system-admin.spec.ts:7:5 › organisation, its administrator through the invite code, and a device from registration to grant (11.5s)
+
+  9 passed (1.1m)

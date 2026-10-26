@@ -47,6 +47,24 @@ export interface AttackTestIn {
   params: Record<string, unknown>;
 }
 
+/** An on-demand ECG recording a doctor requested (stack.md ADR-1): a `commands` row sent to the
+ * patient's wearable (sent, acked by the wearable, or expired), and the `recording` segment that
+ * references it once the wearable has streamed it. Not served by the cloud yet: how a recording
+ * starts and stops is open (gaps.md), so this shape is provisional, modelled on the schema. */
+export interface RecordingRequest {
+  command_id: string;
+  patient_id: string;
+  device_id: string;
+  issued_by: string;
+  type: "ecg_recording";
+  path: "fixed" | "mobile";
+  status: "sent" | "acked" | "expired";
+  created_at: string;
+  acked_at: string | null;
+  duration_s: number;
+  segment_id: string | null;
+}
+
 export interface AlertQuery {
   unacknowledged?: boolean;
   limit?: number;
@@ -116,5 +134,11 @@ export interface DataSource {
     acknowledge(alertId: string): Promise<Alert>;
     segments(patientId: string, limit?: number): Promise<Segment[]>;
     segment(segmentId: string): Promise<SegmentDetail>;
+  };
+
+  /** Doctor: on-demand recordings of their own patients (capability "ecgRequests"). */
+  recordings: {
+    list(patientId: string): Promise<RecordingRequest[]>;
+    request(patientId: string, durationS: number): Promise<RecordingRequest>;
   };
 }

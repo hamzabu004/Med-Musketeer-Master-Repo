@@ -26,3 +26,24 @@ export function deviceType(value: string): string {
 export function shortId(id: string | null | undefined): string {
   return id ? id.split("-")[0] : "—";
 }
+
+/** Classification labels: AAMI beat classes from the gateway/cloud model, or the wearable's binary
+ * screen. Other labels are shown as sent. */
+const BEAT_CLASSES: Record<string, string> = {
+  N: "Normal beat (N)",
+  S: "Supraventricular ectopic (S)",
+  V: "Ventricular ectopic (V)",
+  F: "Fusion beat (F)",
+  Q: "Unclassifiable (Q)",
+  normal: "Normal (screen)",
+  abnormal: "Abnormal (screen)",
+};
+
+export function beatLabel(label: string | null | undefined): string {
+  if (!label) return "Not classified";
+  return BEAT_CLASSES[label] ?? label;
+}
+
+export function confidence(value: number | null | undefined): string {
+  return value === null || value === undefined ? "—" : `${Math.round(value * 100)}%`;
+}

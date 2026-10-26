@@ -1,5 +1,6 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { SegmentPage } from "@/features/care/segment-viewer";
 
-export default function Page() {
-  return <ScreenPlaceholder title="ECG Segment" description="The segment's ECG and its classifications." />;
+export default async function Page({ params }: { params: Promise<{ segmentId: string }> }) {
+  const { segmentId } = await params;
+  return <SegmentPage segmentId={segmentId} back={{ href: "/patient/ecg", label: "All your ECG" }} />;
 }

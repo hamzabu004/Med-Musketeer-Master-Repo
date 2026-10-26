@@ -20,7 +20,7 @@ describe("API data source", () => {
     else for (const [inner, fn] of Object.entries(value as Record<string, Method>)) methods.push([`${name}.${inner}`, fn]);
   }
 
-  const served = methods.filter(([name]) => !name.startsWith("attackTests."));
+  const served = methods.filter(([name]) => !name.startsWith("attackTests.") && !name.startsWith("recordings."));
 
   it.each(served)("%s matches an endpoint", async (_name, fn) => {
     calls.length = 0;
@@ -36,6 +36,7 @@ describe("API data source", () => {
   it("refuses what the cloud does not serve yet, without calling it", async () => {
     calls.length = 0;
     await expect(source.attackTests.list()).rejects.toMatchObject({ status: 501 });
+    await expect(source.recordings.request("p", 30)).rejects.toMatchObject({ status: 501 });
     expect(calls).toEqual([]);
   });
 

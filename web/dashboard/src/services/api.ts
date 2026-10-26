@@ -45,6 +45,12 @@ export function createApiDataSource(http: Http): DataSource {
       stop: notServed,
     },
 
+    // Not served by the cloud yet (on-demand start/stop is open); screens check isAvailable("ecgRequests").
+    recordings: {
+      list: notServed,
+      request: notServed,
+    },
+
     org: {
       accounts: () => get("/accounts"),
       createAccount: (body) => post("/accounts", body),

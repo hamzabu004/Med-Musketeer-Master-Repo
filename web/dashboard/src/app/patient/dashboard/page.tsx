@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { PatientDashboard } from "@/features/patient/patient-screens";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Dashboard" description="Your organisation, your doctor and your latest alerts." />;
+  return <PatientDashboard />;
 }

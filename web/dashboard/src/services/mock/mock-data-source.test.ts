@@ -171,6 +171,29 @@ describe("sample data, org admin (Phase 5)", () => {
   });
 });
 
+describe("sample data, on-demand recordings (Phase 6)", () => {
+  it("acks, records for the requested time, then serves the recording segment; one at a time", async () => {
+    vi.setSystemTime(Date.parse("2026-10-25T12:00:00Z")); // the world's clock: the wearable was just heard from
+    const doctor = as("doctor1");
+    const request = await doctor.recordings.request(patientId("P-1001"), 10);
+    expect(request.status).toBe("sent");
+    expect(await statusOf(doctor.recordings.request(patientId("P-1001"), 10))).toBe(409); // already in progress
+    await vi.advanceTimersByTimeAsync(3_500);
+    expect((await doctor.recordings.list(patientId("P-1001")))[0]).toMatchObject({ status: "acked", segment_id: null });
+    await vi.advanceTimersByTimeAsync(12_000);
+    const [done] = await doctor.recordings.list(patientId("P-1001"));
+    const segment = await doctor.care.segment(done.segment_id!);
+    expect(segment.kind).toBe("recording");
+    expect(stitchChunks(segment.chunks).length).toBe(10 * segment.fs_hz);
+  });
+
+  it("refuses a patient without a wearable, another doctor's patient, and the patient themselves", async () => {
+    expect(await statusOf(as("doctor2").recordings.request(patientId("P-1003"), 30))).toBe(409); // P-1003 has no wearable
+    expect(await statusOf(as("doctor2").recordings.request(patientId("P-1001"), 30))).toBe(404);
+    expect(await statusOf(as("patient1").recordings.list(patientId("P-1001")))).toBe(403);
+  });
+});
+
 describe("sample data, suspension", () => {
   it("refuses every member of a suspended organisation, as auth.get_principal does", async () => {
     await as("sysadmin").registry.setOrganisationStatus(world.organisations[0].org_id, "suspended");

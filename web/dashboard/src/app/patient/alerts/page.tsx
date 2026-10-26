@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { PatientAlerts } from "@/features/patient/patient-screens";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Alerts" description="Your alerts." />;
+  return <PatientAlerts />;
 }

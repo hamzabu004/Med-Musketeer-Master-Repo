@@ -13,7 +13,7 @@ import type {
   WearableAssignment,
 } from "@/api/types";
 import type { Role } from "@/auth/roles";
-import type { AttackTest } from "../contracts";
+import type { AttackTest, RecordingRequest } from "../contracts";
 
 export interface MockUser {
   user_id: string;
@@ -87,6 +87,7 @@ export interface World {
   securityEvents: SecurityEvent[];
   audit: AuditEvent[];
   attackTests: AttackTest[];
+  recordings: RecordingRequest[];
   exports: number;
 }
 
@@ -97,7 +98,7 @@ export function mockId(kind: number, n: number): string {
   return `${hex(n * 0x9e37 + kind, 8).slice(-8)}-${hex(kind, 4)}-4000-8000-${hex(n, 12)}`;
 }
 
-const ID = { org: 1, user: 2, patient: 3, device: 4, credential: 5, grant: 6, care: 7, segment: 8, session: 9, classification: 10, alert: 11, security: 12, audit: 13, attack: 14 };
+const ID = { org: 1, user: 2, patient: 3, device: 4, credential: 5, grant: 6, care: 7, segment: 8, session: 9, classification: 10, alert: 11, security: 12, audit: 13, attack: 14, command: 15 };
 
 export function createWorld(now = Date.now()): World {
   const at = (minutesAgo: number) => new Date(now - minutesAgo * 60_000).toISOString();
@@ -223,6 +224,19 @@ export function createWorld(now = Date.now()): World {
     }
   }
 
+  // A finished on-demand recording of patient1 (30 s on the fixed path), so the viewer has one.
+  const recordedAt = now - 120 * 60_000;
+  const recordingSegment = next(ID.segment);
+  segments.push({
+    segment_id: recordingSegment, session_id: next(ID.session), patient_id: p1, device_id: wearables[0], kind: "recording", fs_hz: 360,
+    started_at: new Date(recordedAt + 4_000).toISOString(), ended_at: new Date(recordedAt + 34_000).toISOString(),
+    signal: { bpm: 72, ectopicEvery: 9, seed: seed++ }, attested_by: gateway,
+  });
+  const recordings: RecordingRequest[] = [{
+    command_id: mockId(ID.command, 1), patient_id: p1, device_id: wearables[0], issued_by: doctor1, type: "ecg_recording", path: "fixed",
+    status: "acked", created_at: new Date(recordedAt).toISOString(), acked_at: new Date(recordedAt + 3_000).toISOString(), duration_s: 30, segment_id: recordingSegment,
+  }];
+
   const securityEvents: SecurityEvent[] = ([
     [3, wearables[2], "ids", "dos_flood", "detected", null, null],
     [50, null, "ips", "port_scan", "blocked", "drop_source", "applied"],
@@ -255,6 +269,6 @@ export function createWorld(now = Date.now()): World {
 
   return {
     organisations, users, patients, devices, credentials, grants, careAssignments, wearableAssignments,
-    disorders, segments, classifications, alerts, securityEvents, audit, attackTests, exports: 0,
+    disorders, segments, classifications, alerts, securityEvents, audit, attackTests, recordings, exports: 0,
   };
 }

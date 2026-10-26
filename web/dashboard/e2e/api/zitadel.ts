@@ -13,9 +13,17 @@ export async function fillAndContinue(page: Page, testId: string, value: string)
   await submit.click();
 }
 
+/** After a sign-out in the same browser, ZITADEL offers its "Accounts" chooser first. */
+async function skipAccountChooser(page: Page) {
+  const another = page.getByRole("link", { name: "Add another account" });
+  await expect(page.getByTestId("username-text-input").or(another)).toBeVisible();
+  if (await another.isVisible()) await another.click();
+}
+
 export async function signIn(page: Page, email: string, secret = password) {
   await page.goto("/login");
   await page.getByRole("button", { name: "Sign in" }).click();
+  await skipAccountChooser(page);
   await fillAndContinue(page, "username-text-input", email);
   await fillAndContinue(page, "password-text-input", secret);
 }
@@ -25,9 +33,7 @@ export async function signIn(page: Page, email: string, secret = password) {
 export async function redeemInvite(page: Page, email: string, code: string, newPassword: string) {
   await page.goto("/login");
   await page.getByRole("button", { name: "Sign in" }).click();
-  const another = page.getByRole("link", { name: "Add another account" });
-  await expect(page.getByTestId("username-text-input").or(another)).toBeVisible();
-  if (await another.isVisible()) await another.click();
+  await skipAccountChooser(page);
   await fillAndContinue(page, "username-text-input", email);
   await fillAndContinue(page, "code-text-input", code);
   await page.getByRole("link", { name: /Password/ }).click();

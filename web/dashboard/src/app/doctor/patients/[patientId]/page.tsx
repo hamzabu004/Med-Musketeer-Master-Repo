@@ -1,5 +1,6 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { DoctorPatientDetail } from "@/features/doctor/doctor-patient-detail";
 
-export default function Page() {
-  return <ScreenPlaceholder title="Patient" description="Disorders, wearable status, alerts and ECG segments; request an on-demand recording." />;
+export default async function Page({ params }: { params: Promise<{ patientId: string }> }) {
+  const { patientId } = await params;
+  return <DoctorPatientDetail patientId={patientId} />;
 }

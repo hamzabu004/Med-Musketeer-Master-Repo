@@ -5,8 +5,8 @@ import { ApiError } from "@/api/errors";
 import type { Account, Alert, AuditEvent, Me, NewAccount, PatientSummary, Person, SegmentDetail } from "@/api/types";
 import type { Role } from "@/auth/roles";
 import { encodeSamples } from "@/lib/ecg";
-import type { AlertQuery, AttackTest, DataSource } from "../contracts";
-import { seededRandom, syntheticEcg } from "./synthetic-ecg";
+import type { AlertQuery, AttackTest, DataSource, RecordingRequest } from "../contracts";
+import { FS_HZ, seededRandom, syntheticEcg } from "./synthetic-ecg";
 import type { MockPatient, MockUser, World } from "./world";
 
 export interface Principal {
@@ -133,6 +133,36 @@ export function createMockDataSource(world: World, principal: Principal, onChang
     // ZITADEL's invite codes are short and single-use; this one only looks like one.
     const invite_code = Array.from({ length: 6 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
     return { ...accountView(user), invite_code };
+  }
+
+  /** Sample behaviour of an on-demand recording, worked out when read so it needs no timer: a
+   * wearable heard from in the last 15 minutes acks after 3 s and streams for the requested time,
+   * then the recording segment appears; one that is quiet never acks, and the command expires after
+   * 60 s. The cloud's behaviour is not decided yet (gaps.md). */
+  function advanceRecording(request: RecordingRequest) {
+    const created = Date.parse(request.created_at);
+    const at = Date.now();
+    if (request.status === "sent") {
+      const wearable = world.devices.find((d) => d.device_id === request.device_id);
+      const heard = wearable?.last_seen ? created - Date.parse(wearable.last_seen) < 15 * 60_000 : false;
+      if (heard && at >= created + 3_000) Object.assign(request, { status: "acked", acked_at: new Date(created + 3_000).toISOString() });
+      else if (!heard && at >= created + 60_000) request.status = "expired";
+    }
+    if (request.status === "acked" && request.segment_id === null) {
+      const start = Date.parse(request.acked_at!) + 1_000;
+      if (at >= start + request.duration_s * 1000) {
+        const segment_id = newId();
+        world.segments.push({
+          segment_id, session_id: newId(), patient_id: request.patient_id, device_id: request.device_id, kind: "recording", fs_hz: FS_HZ,
+          started_at: new Date(start).toISOString(), ended_at: new Date(start + request.duration_s * 1000).toISOString(),
+          signal: { bpm: 70 + Math.floor(Math.random() * 20), ectopicEvery: null, seed: Math.floor(Math.random() * 1e6) },
+          attested_by: request.path === "fixed" ? world.devices.find((d) => d.device_id === request.device_id)?.current_gateway_id ?? null : null,
+        });
+        request.segment_id = segment_id;
+        onChange();
+      }
+    }
+    return request;
   }
 
   function device(deviceId: string) {
@@ -433,6 +463,35 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           .sort((a, b) => a.type.localeCompare(b.type) || a.device_id.localeCompare(b.device_id))
           .map((d) => ({ device_id: d.device_id, type: d.type, status: d.status, current_mode: d.current_mode, current_gateway_id: d.current_gateway_id, last_seen: d.last_seen, patient_id: assignedTo(d.device_id) }));
       }),
+
+    recordings: {
+      list: (patientId) =>
+        answer(["doctor"], () => {
+          patientInScope(patientId);
+          return (world.recordings ?? [])
+            .filter((r) => r.patient_id === patientId)
+            .map(advanceRecording)
+            .sort((a, b) => b.created_at.localeCompare(a.created_at));
+        }),
+      request: (patientId, durationS) =>
+        answer(["doctor"], () => {
+          const patient = patientInScope(patientId);
+          if (!Number.isInteger(durationS) || durationS < 10 || durationS > 300) throw invalid("duration_s: between 10 and 300 seconds");
+          const assignment = currentWearable(patient.patient_id);
+          if (!assignment) throw conflict("the patient has no wearable issued");
+          const wearable = world.devices.find((d) => d.device_id === assignment.device_id)!;
+          if (wearable.status !== "active") throw conflict(`the wearable is ${wearable.status}`);
+          world.recordings ??= [];
+          const open = world.recordings.map(advanceRecording).find((r) => r.patient_id === patientId && (r.status === "sent" || (r.status === "acked" && r.segment_id === null)));
+          if (open) throw conflict("a recording is already in progress for this patient");
+          const request: RecordingRequest = {
+            command_id: newId(), patient_id: patientId, device_id: wearable.device_id, issued_by: principal.user_id, type: "ecg_recording",
+            path: wearable.current_mode === "mobile" ? "mobile" : "fixed", status: "sent", created_at: now(), acked_at: null, duration_s: durationS, segment_id: null,
+          };
+          world.recordings.push(request);
+          return request;
+        }, true),
+    },
 
     care: {
       alerts: (query = {}) =>

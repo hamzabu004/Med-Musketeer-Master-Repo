@@ -2,7 +2,7 @@
 
 The web dashboard for MedMusketeer (module M8). It is rebuilt from the POC-Lite proof of concept on top of the cloud API (`cloud/`), and serves four roles: system admin, organisation admin, doctor and patient. The API enforces what each role may do (D9 in `docs/decisions/cloud-backend.md`); the dashboard shows each role its own area.
 
-**Status:** being rebuilt. Sign-in, the data layer, and the system admin and organisation admin screens work in both modes; the doctor and patient screens are still placeholders. See the dashboard entries in `docs/changelog/`.
+**Status:** every role's screens work in both modes: system admin, organisation admin, doctor and patient. Deployment and the iteration docs are the last phase. See the dashboard entries in `docs/changelog/`.
 
 ## Stack
 
@@ -26,7 +26,7 @@ Two data sources, chosen at build time with `NEXT_PUBLIC_DATA_SOURCE`:
 | `api` (default) | The cloud stack (`cloud/`) at `NEXT_PUBLIC_API_URL`, whose `DASHBOARD_ORIGINS` lists this dashboard's origin. Seed it with `docker compose exec api python -m app.manage seed-dev` | ZITADEL (authorization code + PKCE), settings from the API's `/auth/config` |
 | `mock` | Nothing: sample data in the browser, with the same D9 rules as the API | Pick a sample account |
 
-The two are never mixed. In API mode, a feature the cloud does not serve yet (on-demand ECG, attack tests, alert push) shows as unavailable (`src/config/capabilities.ts`). In sample mode the header shows "Sample data".
+The two are never mixed. In API mode, a feature the cloud does not serve yet (on-demand ECG, attack tests, alert push) shows as unavailable (`src/config/capabilities.ts`); alert screens poll every 15 s instead of a push. In sample mode the header shows "Sample data".
 
 ## Validate
 

@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from "@/components/ui/screen-placeholder";
+import { DoctorDashboard } from "@/features/doctor/doctor-dashboard";
 
 export default function Page() {
-  return <ScreenPlaceholder title="Dashboard" description="Unacknowledged alerts and the state of your patients' wearables." />;
+  return <DoctorDashboard />;
 }
