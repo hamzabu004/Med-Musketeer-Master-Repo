@@ -1,0 +1,48 @@
+name: Cloud backend
+
+on:
+  push:
+    branches: [main]
+    paths: ["cloud/**", "tools/ca-tool/**", ".github/workflows/cloud.yml"]
+  pull_request:
+    paths: ["cloud/**", "tools/ca-tool/**", ".github/workflows/cloud.yml"]
+
+jobs:
+  # Unit and integration tests; the integration tests start their own database container and
+  # compose stack with the runner's Docker, as run_cloud_tests.sh does locally.
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install
+        working-directory: cloud/backend
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -r requirements.lock
+          .venv/bin/pip install -e '.[dev]'
+      - run: cloud/run_cloud_tests.sh "$RUNNER_TEMP/evidence"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: cloud-test-evidence
+          path: ${{ runner.temp }}/evidence/
+          retention-days: 30
+
+  images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, emqx, postgres, traefik]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: cloud/${{ matrix.service }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}

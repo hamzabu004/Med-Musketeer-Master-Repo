@@ -1,0 +1,48 @@
+name: Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths: ["web/dashboard/**", ".github/workflows/dashboard.yml"]
+  pull_request:
+    paths: ["web/dashboard/**", ".github/workflows/dashboard.yml"]
+
+defaults:
+  run:
+    working-directory: web/dashboard
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/dashboard/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  # Browser tests in sample-data mode; the API-mode suite needs the cloud stack and stays local.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/dashboard/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: web/dashboard/playwright-report/
+          retention-days: 14
