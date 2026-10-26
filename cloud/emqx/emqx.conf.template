@@ -1,0 +1,104 @@
+## MedMusketeer EMQX configuration (docs/decisions/cloud-backend.md D1, D4, D5).
+## Rendered to etc/emqx.conf by mm-entrypoint.sh at start: EMQX 6 does not substitute environment
+## variables in this file, so @...@ placeholders are filled from the container environment.
+## emqx.conf takes precedence over changes made in the dashboard (cluster.hocon), so nothing here
+## can be loosened at runtime.
+
+node {
+  name = "emqx@127.0.0.1"
+  cookie = "@MM_EMQX_NODE_COOKIE@"
+  data_dir = "data"
+}
+
+cluster {
+  name = emqxcl
+  discovery_strategy = manual
+}
+
+## Only the two listeners below. The image's defaults (plain 1883, its own 8883 with demo
+## certificates, WebSocket) are switched off.
+listeners.tcp.default.enable = false
+listeners.ssl.default.enable = false
+listeners.ws.default.enable = false
+listeners.wss.default.enable = false
+
+## Gateways (D4): mutual TLS with the MedMusketeer CA; the username is the certificate CN.
+## The API then checks that the presented certificate is an active x509_mtls credential of an
+## active fixed_gateway. A non-200 answer counts as "ignore", and with no other authenticator the
+## client is refused, so the check fails closed.
+listeners.ssl.gateway {
+  enable = @MM_GATEWAY_LISTENER_ENABLE@
+  bind = "0.0.0.0:8883"
+  zone = gateway
+  ssl_options {
+    cacertfile = "/opt/emqx/etc/certs/mm/ca.crt"
+    certfile = "/opt/emqx/etc/certs/mm/server.crt"
+    keyfile = "/opt/emqx/etc/certs/mm/server.key"
+    verify = verify_peer
+    fail_if_no_peer_cert = true
+    versions = ["tlsv1.3", "tlsv1.2"]
+  }
+  authentication = [{
+    mechanism = password_based
+    backend = http
+    method = post
+    url = "http://api:8000/internal/emqx/authn/gateway"
+    headers { "content-type" = "application/json", "authorization" = "Bearer @MM_EMQX_HOOK_SECRET@" }
+    body {
+      username = "${username}"
+      clientid = "${clientid}"
+      listener = "${listener}"
+      cert_pem = "${cert_pem}"
+    }
+  }]
+}
+zones.gateway.mqtt.peer_cert_as_username = cn
+
+## Cloud services inside the compose network (the MQTT adapter, Slice 5), by password.
+listeners.tcp.internal {
+  bind = "0.0.0.0:1883"
+  authentication = [{
+    mechanism = password_based
+    backend = http
+    method = post
+    url = "http://api:8000/internal/emqx/authn/service"
+    headers { "content-type" = "application/json", "authorization" = "Bearer @MM_EMQX_HOOK_SECRET@" }
+    body { username = "${username}", password = "${password}", listener = "${listener}" }
+  }]
+}
+
+## Topic access (D5) is decided by the API for every client; anything it does not allow is denied.
+## Denied publishes and subscriptions get MQTT 5 reason code 0x87 and the connection stays up.
+authorization {
+  no_match = deny
+  deny_action = ignore
+  sources = [{
+    type = http
+    method = post
+    url = "http://api:8000/internal/emqx/authz"
+    headers { "content-type" = "application/json", "authorization" = "Bearer @MM_EMQX_HOOK_SECRET@" }
+    body {
+      username = "${username}"
+      clientid = "${clientid}"
+      listener = "${listener}"
+      topic = "${topic}"
+      action = "${action}"
+    }
+  }]
+}
+
+## D1: the broker, not the payload, says which gateway published. Every gateway message is
+## republished to ingest/{username}/{original topic}, which only the adapter may read, as JSON
+## with the original payload and the broker's receive time (ms since the epoch).
+rule_engine.rules.mm_ingest {
+  sql = "SELECT id, username, clientid, topic, qos, payload, publish_received_at FROM \"mm/fixed/#\", \"mm/gateway/#\""
+  actions = [{
+    function = republish
+    args {
+      topic = "ingest/${username}/${topic}"
+      qos = "${qos}"
+      retain = "false"
+      payload = "${.}"
+    }
+  }]
+}

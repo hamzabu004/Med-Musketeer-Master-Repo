@@ -8,7 +8,10 @@ Idempotent, so it runs on every `compose up`:
    can act as the MedMusketeer system admin once registered with `python -m app.manage`;
 4. the API's service account `mm-api` with the instance role IAM_ORG_MANAGER (D12), and a token for
    it in MM_ZITADEL_API_TOKEN_FILE (replaced when it is missing or no longer works);
-5. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id"}.
+5. the dashboard's OIDC app "MedMusketeer Dashboard" (D14): a browser app (authorization code with
+   PKCE, no secret) with JWT access tokens, whose redirect URIs follow MM_DASHBOARD_ORIGINS on every
+   run (an empty value leaves an existing app untouched and records no client id);
+6. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
 
 Uses the IAM_OWNER service account token created by ZITADEL's first start
 (ZITADEL_FIRSTINSTANCE_PATPATH). Run: python -m app.zitadel_bootstrap
@@ -24,6 +27,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from app.auth import ROLES
+from app.settings import parse_origins
 
 log = logging.getLogger("zitadel_bootstrap")
 
@@ -35,6 +39,8 @@ FIRST_ADMIN_USERNAME_PREFIX = "zitadel-admin@"
 API_SERVICE_ACCOUNT = "mm-api"
 API_INSTANCE_ROLE = "IAM_ORG_MANAGER"
 API_TOKEN_LIFETIME = timedelta(days=365)
+DASHBOARD_APP = "MedMusketeer Dashboard"
+DASHBOARD_CALLBACK = "/auth/callback"  # web/dashboard's login callback route
 
 
 class Zitadel:
@@ -112,6 +118,46 @@ class Zitadel:
         return self.call("POST", f"/management/v1/users/{user_id}/pats", org=org,
                          json={"expirationDate": expires})["token"]
 
+    def ensure_dashboard_app(self, org: str, project_id: str, origins: list[str]) -> str:
+        """The dashboard's OIDC app, created once and brought in line with `origins` on every run;
+        returns its client id. Its access tokens are JWTs with the roles asserted, as the API needs.
+
+        ZITADEL accepts http redirect URIs only in dev mode, which relaxes redirect checks for the
+        whole app, so http and https origins cannot share it: a production app that also listed
+        http://localhost would hand production codes to whatever listens there."""
+        plain = [origin for origin in origins if origin.startswith("http://")]
+        if plain and len(plain) != len(origins):
+            raise SystemExit(f"MM_DASHBOARD_ORIGINS mixes http and https origins ({', '.join(plain)}); "
+                             "use http origins only on a development stack")
+        config = {
+            "redirectUris": [origin + DASHBOARD_CALLBACK for origin in origins],
+            "postLogoutRedirectUris": [origin + "/" for origin in origins],
+            "responseTypes": ["OIDC_RESPONSE_TYPE_CODE"],
+            "grantTypes": ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE", "OIDC_GRANT_TYPE_REFRESH_TOKEN"],
+            "appType": "OIDC_APP_TYPE_USER_AGENT",
+            "authMethodType": "OIDC_AUTH_METHOD_TYPE_NONE",
+            "accessTokenType": "OIDC_TOKEN_TYPE_JWT",
+            "accessTokenRoleAssertion": True,
+            "idTokenRoleAssertion": True,
+            "idTokenUserinfoAssertion": True,
+            "devMode": bool(plain),
+        }
+        found = self.call("POST", f"/management/v1/projects/{project_id}/apps/_search", org=org, json={
+            "queries": [{"nameQuery": {"name": DASHBOARD_APP, "method": "TEXT_QUERY_METHOD_EQUALS"}}]})
+        apps = found.get("result", [])
+        if not apps:
+            created = self.call("POST", f"/management/v1/projects/{project_id}/apps/oidc", org=org,
+                                json={"name": DASHBOARD_APP, "version": "OIDC_VERSION_1_0", **config})
+            log.info("created the dashboard app, client id %s", created["clientId"])
+            return created["clientId"]
+        app = apps[0]
+        response = self.http.put(f"/management/v1/projects/{project_id}/apps/{app['id']}/oidc_config",
+                                 headers={"x-zitadel-orgid": org}, json=config)
+        # ZITADEL answers 400 "No changes (COMMAND-...)" when the configuration is already as wanted.
+        if response.status_code != 200 and not (response.status_code == 400 and message(response).startswith("No changes")):
+            raise RuntimeError(f"updating the dashboard app: HTTP {response.status_code}: {response.text[:300]}")
+        return app["oidcConfig"]["clientId"]
+
     def ensure_user_grant(self, org: str, user_id: str, project_id: str, roles: list[str],
                           project_grant_id: str | None = None) -> None:
         found = self.call("POST", "/management/v1/users/grants/_search", org=org, json={"queries": [
@@ -123,6 +169,13 @@ class Zitadel:
             body["projectGrantId"] = project_grant_id
         self.call("POST", f"/management/v1/users/{user_id}/grants", org=org, json=body)
         log.info("granted %s to user %s", roles, user_id)
+
+
+def message(response: httpx.Response) -> str:
+    try:
+        return str(response.json().get("message", ""))
+    except ValueError:
+        return ""
 
 
 def write_private(path: Path, content: str) -> None:
@@ -141,6 +194,7 @@ def main() -> int:
     token = Path(os.environ["MM_ZITADEL_ADMIN_PAT_FILE"]).read_text().strip()
     config_file = Path(os.environ["MM_ZITADEL_CONFIG_FILE"])
     api_token_file = Path(os.environ["MM_ZITADEL_API_TOKEN_FILE"])
+    dashboard_origins = parse_origins(os.environ.get("MM_DASHBOARD_ORIGINS", ""))
 
     if set(ROLE_NAMES) != set(ROLES):
         raise SystemExit("ROLE_NAMES and app.auth.ROLES disagree")
@@ -163,7 +217,14 @@ def main() -> int:
         write_private(api_token_file, api_token)
         log.info("wrote a new token for %s to %s", API_SERVICE_ACCOUNT, api_token_file)
 
-    config = {"issuer": issuer, "project_id": project_id, "default_org_id": default_org}
+    dashboard_client_id = None
+    if dashboard_origins:
+        dashboard_client_id = zitadel.ensure_dashboard_app(default_org, project_id, dashboard_origins)
+    else:
+        log.warning("MM_DASHBOARD_ORIGINS is empty: no dashboard app, so nobody can sign in from a browser")
+
+    config = {"issuer": issuer, "project_id": project_id, "default_org_id": default_org,
+              "dashboard_client_id": dashboard_client_id}
     config_file.parent.mkdir(parents=True, exist_ok=True)
     temporary = config_file.with_suffix(".tmp")
     temporary.write_text(json.dumps(config, indent=2))

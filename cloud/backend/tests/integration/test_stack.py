@@ -1,66 +1,25 @@
-"""TC-C01: the compose stack comes up healthy from empty volumes.
+"""TC-C01 (the compose stack comes up healthy from empty volumes), TC-C12, TC-C13 and TC-C19 end to end.
 
-Runs under its own compose project name and ports, so a running development stack is not
-touched, and removes its containers and volumes afterwards. Needs Docker with Compose v2
-(override the command with MM_COMPOSE, e.g. MM_COMPOSE="podman compose").
+The stack itself is the session fixture `stack` (tests.integration.stack, conftest).
 """
+import base64
+import hashlib
 import json
-import os
-import shlex
-import shutil
-import subprocess
+import secrets
 import urllib.request
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
 
+from tests.integration.stack import (API, PORTS, compose, evidence, machine_token, read_volume_file, register_user,
+                                     zitadel_admin)
+
 pytestmark = pytest.mark.integration
 
-CLOUD_DIR = Path(__file__).resolve().parents[3]
-PROJECT = "mm-cloud-tc"
-PORTS = {"PROXY_HTTP_PUBLISHED_PORT": "18080", "API_PUBLISHED_PORT": "18000", "EMQX_DASHBOARD_PUBLISHED_PORT": "28083"}
 SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api"}
 JOBS = {"migrate", "zitadel-bootstrap"}
-
-
-def compose(env_file: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
-    command = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))
-    return subprocess.run(
-        [*command, "-p", PROJECT, "--env-file", str(env_file), *args],
-        cwd=CLOUD_DIR, capture_output=True, text=True, check=check, timeout=900,
-    )
-
-
-def evidence(name: str, content: str) -> None:
-    directory = os.environ.get("MM_EVIDENCE_DIR")
-    if directory:
-        Path(directory).mkdir(parents=True, exist_ok=True)
-        (Path(directory) / name).write_text(content)
-
-
-@pytest.fixture(scope="module")
-def stack(tmp_path_factory):
-    engine = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))[0]
-    if shutil.which(engine) is None:
-        pytest.skip(f"{engine} not found; TC-C01 needs a container engine with Compose")
-    env_file = tmp_path_factory.mktemp("cloud") / "test.env"
-    subprocess.run([str(CLOUD_DIR / "scripts" / "init-env.sh"), str(env_file)], check=True, capture_output=True)
-    with env_file.open("a") as handle:
-        handle.writelines(f"{name}={value}\n" for name, value in PORTS.items())
-    compose(env_file, "down", "--volumes", "--remove-orphans", check=False)
-    try:
-        up = compose(env_file, "up", "--detach", "--wait", "--build", check=False)
-        evidence("compose_up.txt", up.stdout + up.stderr)
-        if up.returncode != 0:
-            logs = compose(env_file, "logs", "--no-color", check=False)
-            evidence("compose_logs.txt", logs.stdout + logs.stderr)
-            pytest.fail(f"compose up failed:\n{up.stderr[-4000:]}")
-        yield env_file
-    finally:
-        ps = compose(env_file, "ps", "--all", "--format", "json", check=False)
-        evidence("compose_ps.json", ps.stdout)
-        compose(env_file, "down", "--volumes", "--remove-orphans", check=False)
 
 
 def service_states(env_file: Path) -> dict[str, str]:
@@ -97,45 +56,6 @@ def test_tc_c01_zitadel_serves_oidc_discovery_through_the_proxy(stack):
 
 
 # --- TC-C12 end to end: a real ZITADEL token ---------------------------------------------------
-
-def read_volume_file(volume: str, path: str) -> str:
-    engine = shlex.split(os.environ.get("MM_COMPOSE", "docker compose"))[0]
-    return subprocess.run([engine, "run", "--rm", "-v", f"{PROJECT}_{volume}:/v:ro", "alpine:3.22", "cat", f"/v/{path}"],
-                          capture_output=True, text=True, check=True).stdout
-
-
-def zitadel_admin(stack):
-    """The bootstrap's IAM_OWNER client (stands in for ZITADEL's console) and the API's config."""
-    from app.zitadel_bootstrap import Zitadel
-
-    issuer = f"http://localhost:{PORTS['PROXY_HTTP_PUBLISHED_PORT']}"
-    config = json.loads(read_volume_file("mm-config", "zitadel.json"))
-    assert config["issuer"] == issuer
-    return Zitadel(issuer, issuer, read_volume_file("zitadel-bootstrap", "admin.pat").strip()), config
-
-
-def machine_token(zitadel, config: dict, org: str, username: str, role: str, project_grant_id: str | None = None):
-    """A machine user in `org` with `role`, and a client-credentials access token for it."""
-    user_id = zitadel.create_machine_user(org, username, username)
-    zitadel.ensure_user_grant(org, user_id, config["project_id"], [role], project_grant_id)
-    client_id, secret = zitadel.client_secret(org, user_id)
-    scope = (f"openid urn:zitadel:iam:org:project:id:{config['project_id']}:aud "
-             "urn:zitadel:iam:org:projects:roles urn:zitadel:iam:user:resourceowner")
-    issued = httpx.post(f"{config['issuer']}/oauth/v2/token", data={"grant_type": "client_credentials", "scope": scope},
-                        auth=(client_id, secret), timeout=15)
-    assert issued.status_code == 200, issued.text
-    return user_id, {"Authorization": f"Bearer {issued.json()['access_token']}"}
-
-
-def register_user(stack, zitadel_sub: str, role: str, org_id: str | None = None) -> str:
-    args = ["--org-id", org_id] if org_id else []
-    registered = compose(stack, "exec", "-T", "api", "python", "-m", "app.manage", "register-user",
-                         "--zitadel-sub", zitadel_sub, "--role", role, *args)
-    return registered.stdout.strip()
-
-
-API = f"http://127.0.0.1:{PORTS['API_PUBLISHED_PORT']}"
-
 
 def test_tc_c12_a_real_zitadel_token_works_once_the_user_is_registered(stack):
     zitadel, config = zitadel_admin(stack)
@@ -225,3 +145,103 @@ def test_tc_c13_account_creation_shows_up_in_zitadel_and_in_users(stack):
     record["audit"] = [event["action"] for event in httpx.get(f"{API}/audit", headers=oa).json()]
     assert record["audit"][:3] == ["account.disabled", "account.created", "account.created"]
     evidence("tc_c13_accounts.json", json.dumps(record, indent=2))
+
+
+# --- TC-C19: the dashboard signs in through ZITADEL (D14) --------------------------------------
+
+DASHBOARD = "http://localhost:3000"  # compose's default DASHBOARD_ORIGINS
+
+
+def seed_dev(stack, password: str) -> dict:
+    seeded = compose(stack, "exec", "-T", "api", "python", "-m", "app.manage", "seed-dev",
+                     "--password", password, "--allow-existing")
+    return json.loads(seeded.stdout)
+
+
+def login_client(config: dict):
+    """ZITADEL's Login UI service account (IAM_LOGIN_CLIENT): only it may link a session to an
+    authorization request, so the test makes the login's calls with its token."""
+    from app.zitadel_bootstrap import Zitadel
+
+    return Zitadel(config["issuer"], config["issuer"], read_volume_file("zitadel-bootstrap", "login-client.pat").strip())
+
+
+def dashboard_sign_in(login, auth: dict, email: str, password: str) -> str:
+    """What the dashboard and ZITADEL's login do in the browser, step by step: an authorization
+    request with PKCE, a password session for the user, the login linking it to the request, and
+    the code exchange. Returns the access token."""
+    verifier = secrets.token_urlsafe(48)
+    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    authorize = httpx.get(f"{auth['issuer']}/oauth/v2/authorize", follow_redirects=False, params={
+        "client_id": auth["client_id"], "redirect_uri": f"{DASHBOARD}/auth/callback", "response_type": "code",
+        "scope": auth["scope"], "code_challenge": challenge, "code_challenge_method": "S256", "state": "s1"})
+    assert authorize.status_code in (302, 303), authorize.text
+    auth_request = parse_qs(urlsplit(authorize.headers["location"]).query)["authRequest"][0]
+    session = login.call("POST", "/v2/sessions", ok=(200, 201), json={
+        "checks": {"user": {"loginName": email}, "password": {"password": password}}})
+    callback = login.call("POST", f"/v2/oidc/auth_requests/{auth_request}", json={
+        "session": {"sessionId": session["sessionId"], "sessionToken": session["sessionToken"]}})["callbackUrl"]
+    assert callback.startswith(f"{DASHBOARD}/auth/callback?")
+    query = parse_qs(urlsplit(callback).query)
+    assert query["state"] == ["s1"]
+    token = httpx.post(f"{auth['issuer']}/oauth/v2/token", data={
+        "grant_type": "authorization_code", "code": query["code"][0], "redirect_uri": f"{DASHBOARD}/auth/callback",
+        "client_id": auth["client_id"], "code_verifier": verifier}, headers={"Origin": DASHBOARD}, timeout=15)
+    assert token.status_code == 200, token.text
+    assert token.headers.get("access-control-allow-origin") == DASHBOARD
+    return token.json()["access_token"]
+
+
+def test_tc_c19_seeded_accounts_sign_in_to_the_dashboard_and_get_their_role(stack):
+    zitadel, config = zitadel_admin(stack)
+    record = {}
+
+    # The bootstrap created the dashboard's app as a PKCE browser app with JWT access tokens.
+    apps = zitadel.call("POST", f"/management/v1/projects/{config['project_id']}/apps/_search",
+                        org=config["default_org_id"], json={})["result"]
+    app = next(app for app in apps if app["name"] == "MedMusketeer Dashboard")
+    oidc = app["oidcConfig"]
+    record["app"] = {key: oidc.get(key) for key in ("appType", "authMethodType", "accessTokenType", "redirectUris",
+                                                    "postLogoutRedirectUris", "devMode")}
+    assert oidc["clientId"] == config["dashboard_client_id"]
+    assert oidc["appType"] == "OIDC_APP_TYPE_USER_AGENT" and oidc["authMethodType"] == "OIDC_AUTH_METHOD_TYPE_NONE"
+    assert oidc["accessTokenType"] == "OIDC_TOKEN_TYPE_JWT"
+    assert oidc["redirectUris"] == [f"{DASHBOARD}/auth/callback"]
+
+    auth = httpx.get(f"{API}/auth/config").json()
+    assert auth["client_id"] == config["dashboard_client_id"] and auth["issuer"] == config["issuer"]
+
+    seeded = seed_dev(stack, password := f"Tc19-{secrets.token_urlsafe(9)}1a!")
+    people = {person["role"] + ":" + person["email"].split("@")[0]: person for person in seeded["people"]}
+    record["seeded"] = {key: value for key, value in seeded.items() if key not in ("password", "people")}
+
+    login = login_client(config)
+    record["sign_in"] = {}
+    for key in ("system_admin:sysadmin", "org_admin:orgadmin", "doctor:doctor1", "patient:patient1"):
+        person = people[key]
+        token = dashboard_sign_in(login, auth, person["email"], password)
+        headers = {"Authorization": f"Bearer {token}", "Origin": DASHBOARD}
+        me = httpx.get(f"{API}/me", headers=headers)
+        assert me.status_code == 200, me.text
+        assert me.json()["role"] == person["role"] and me.json()["user_id"] == person["user_id"]
+        assert me.headers["access-control-allow-origin"] == DASHBOARD
+        record["sign_in"][key] = me.json()["role"]
+
+        if person["role"] == "doctor":
+            # Names come from ZITADEL: the doctor sees their patients by name, without e-mail.
+            names = {f"{p['given_name']} {p['family_name']}" for p in httpx.get(f"{API}/directory", headers=headers).json()}
+            assert names == {"Sarah Ahmed", "Ali Khan", "Fatima Noor"}
+            alerts = httpx.get(f"{API}/alerts", headers=headers).json()
+            assert len(alerts) == 5 and {alert["label"] for alert in alerts} == {"V", "N", "S", "F"}
+            segment = httpx.get(f"{API}/segments/{alerts[0]['segment_id']}", headers=headers).json()
+            assert segment["fs_hz"] == 360 and sum(chunk["n_samples"] for chunk in segment["chunks"]) == 3600
+            record["doctor"] = {"directory": sorted(names), "alerts": len(alerts)}
+        if person["role"] == "patient":
+            names = {f"{p['given_name']} {p['family_name']}" for p in httpx.get(f"{API}/directory", headers=headers).json()}
+            assert names == {"Ali Khan", "Sarah Ahmed"}  # themselves and their doctor
+            record["patient"] = {"directory": sorted(names)}
+
+    wrong = login.http.post("/v2/sessions", json={"checks": {"user": {"loginName": people["doctor:doctor1"]["email"]},
+                                                               "password": {"password": "wrong-Password1!"}}})
+    assert wrong.status_code >= 400
+    evidence("tc_c19_dashboard_sign_in.json", json.dumps(record, indent=2))

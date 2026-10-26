@@ -6,21 +6,36 @@ from contextlib import asynccontextmanager
 from typing import Annotated
 
 import httpx
-from fastapi import Depends, FastAPI, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app import accounts, care, organisation, registry
+from app import accounts, broker, care, directory, organisation, registry
 from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
 from app.settings import Settings
-from app.tokens import TokenVerifier, ZitadelConfig
+from app.tokens import TokenVerifier, ZitadelConfig, login_scope
 from app.zitadel import ZitadelAdmin
 
 log = logging.getLogger(__name__)
 
 
+def configure_logging(level: str) -> None:
+    """INFO lines from app.* (refused requests, broker hook decisions with their check time) with
+    millisecond timestamps. Uvicorn configures only its own loggers, so without this they are lost."""
+    logger = logging.getLogger("app")
+    logger.setLevel(level)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s",
+                                               datefmt="%Y-%m-%dT%H:%M:%S"))
+        logger.addHandler(handler)
+        logger.propagate = False
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()  # raises if a required MM_* variable is missing
+    configure_logging(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -50,10 +65,28 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             await app.state.engine.dispose()
 
     app = FastAPI(title="MedMusketeer cloud API", version="0.1.0", lifespan=lifespan)
+    app.state.settings = settings
     app.include_router(registry.router)
     app.include_router(accounts.router)
     app.include_router(organisation.router)
     app.include_router(care.router)
+    app.include_router(directory.router)
+    app.include_router(broker.router)
+    if settings.cors_origins:
+        # The dashboard runs on its own origin and sends a bearer token; no cookies are involved.
+        app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=False,
+                           allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+                           allow_headers=["Authorization", "Content-Type"], max_age=600)
+
+    @app.get("/auth/config")
+    async def auth_config() -> dict:
+        """What the dashboard needs to start a ZITADEL login (D14). Public; nothing in it is secret."""
+        verifier = app.state.verifier
+        if verifier is None or verifier.config.dashboard_client_id is None:
+            raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "authentication is not configured")
+        config = verifier.config
+        return {"issuer": config.issuer, "client_id": config.dashboard_client_id,
+                "project_id": config.project_id, "scope": login_scope(config.project_id)}
 
     @app.get("/me")
     async def me(principal: Annotated[Principal, Depends(get_principal)]) -> dict:

@@ -1,0 +1,88 @@
+
+> medmusketeer-dashboard@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> medmusketeer-dashboard@0.1.0 lint
+> eslint .
+
+
+> medmusketeer-dashboard@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
+
+
+ Test Files  9 passed (9)
+      Tests  79 passed (79)
+   Start at  01:46:38
+   Duration  17.24s (environment 54%, tests 27%, setup 17%, import 2%, transform 1%)
+
+    Isolate  9 workers spawned · ~3.19s startup each (spawn + environment, per file)
+             at least ~910ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+> medmusketeer-dashboard@0.1.0 build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 45ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1202ms
+  Running TypeScript ...
+  Finished TypeScript in 4.1s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/31) ...
+  Generating static pages using 7 workers (7/31) 
+  Generating static pages using 7 workers (15/31) 
+  Generating static pages using 7 workers (23/31) 
+✓ Generating static pages using 7 workers (31/31) in 613ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /auth/callback
+├ ○ /doctor
+├ ○ /doctor/account
+├ ○ /doctor/alerts
+├ ƒ /doctor/alerts/[alertId]
+├ ○ /doctor/dashboard
+├ ○ /doctor/patients
+├ ƒ /doctor/patients/[patientId]
+├ ƒ /doctor/patients/[patientId]/segments/[segmentId]
+├ ○ /invite
+├ ○ /login
+├ ○ /org
+├ ○ /org/account
+├ ○ /org/accounts
+├ ○ /org/audit
+├ ○ /org/dashboard
+├ ○ /org/devices
+├ ○ /org/patients
+├ ƒ /org/patients/[patientId]
+├ ○ /patient
+├ ○ /patient/account
+├ ○ /patient/alerts
+├ ○ /patient/dashboard
+├ ○ /patient/ecg
+├ ƒ /patient/ecg/[segmentId]
+├ ○ /system
+├ ○ /system/account
+├ ○ /system/attack-tests
+├ ○ /system/audit
+├ ○ /system/dashboard
+├ ○ /system/devices
+├ ƒ /system/devices/[deviceId]
+├ ○ /system/organisations
+├ ƒ /system/organisations/[orgId]
+└ ○ /system/security-events
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

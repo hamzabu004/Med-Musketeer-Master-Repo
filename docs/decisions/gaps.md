@@ -7,13 +7,15 @@ description: Open architecture gaps for MedMusketeer, identified but not yet res
 
 This file is a **gap tracker**, not a decision record. Items move out of this file and into `stack.md` (or get flagged against `scope.md` if they imply a scope question) once actually decided. Don't treat anything listed here as resolved just because it's written down. The mid report's own list is in §5 "Design items still to be settled"; this file is the wider working list.
 
-Last updated: 2026-10-23
+Last updated: 2026-10-24
 
 ## Identity, crypto, provisioning
 - **Revocation:** `revoke` and the registry link are not built in the CA tool; whether fixed-path (wearable↔gateway) revocation is built in FYP-1 at all is undecided (candidate design in `stack.md`)
 - **CN/SAN pinning, remaining sides:** the wearable's role-name pin of the gateway is implemented. Still to do: confirm the ESP32-S3 `common_name` check does a literal match for UUID-style names; the gateway's outbound check of the cloud identity; the cloud-side checks
 - **Mobile-path envelope wire format:** construction is Proposed in `stack.md`; field widths, counter-window size, persist-ahead reservation block size and `key_epoch` handling are open
-- **Envelope keys and cloud certificate profiles** are not issued by the CA tool yet
+- **Envelope keys and the cloud envelope certificate** are not issued by the CA tool yet (the cloud TLS server certificate is, since 2026-10-24)
+- **The existing MedMusketeer CA has no key identifiers.** CAs made by `mmca` before 2026-10-24 have no Subject Key Identifier, so strict X.509 verifiers (Python 3.13+'s default TLS context, which the gateway's uplink would use) refuse every chain from them. Decide before Iteration 4: replace the CA (`mmca replace-ca`, then re-issue, re-flash and re-deploy every device), or have the gateway's uplink turn off strict checking for this CA
+- **Revoking a credential does not disconnect a live gateway**: it is refused at its next connect. Suspending or revoking the device also removes its topic access within EMQX's 1-minute authorisation cache. Disconnecting at once through EMQX's REST API (D4 "may") is not built
 - **Credential rotation trigger:** manual rotation accepted for FYP-1, but the trigger condition (schedule vs on-suspicion) is undefined
 
 ## Mobile relay app
@@ -27,6 +29,7 @@ Last updated: 2026-10-23
 - Heartbeat envelope interval/timeout thresholds for mobile-path liveness
 - Raw ECG retention period (only `ecg_chunks` are dropped; the migration uses a 90-day placeholder)
 - Cloud data at rest: disk encryption of the cloud server and least-privilege database roles (planned with the cloud platform)
+- EMQX starts before the API, so its HTTP authenticators are briefly down at start; gateways connecting then are refused and must retry (they do, with MQTT reconnect)
 
 ## Ingestion / messaging (blocks Iteration 3–4)
 - The adapter's code-level interface (the message `ingest-v1` and the `attested_by` source are decided in `cloud-backend.md` D1/D7)
@@ -49,7 +52,11 @@ Last updated: 2026-10-23
 - Gateway outage-buffer and security-event store (marked TBD in the report)
 
 ## Dashboard
-- Role views are defined in the report (patient, doctor, organisation admin, system admin); no screen-level spec for the new dashboard yet (the POC-Lite docs cover the proof of concept)
+- ~~No screen-level spec for the new dashboard~~ — resolved 2026-10-26: `docs/iterations/iteration-6-dashboard.md` (all four roles built and tested on the cloud API)
+- Dashboard deployment on the cloud Pi (with the cloud's Slice 6 and the public domain); whether it shares the API's origin through the proxy, which would make CORS unnecessary (`cloud-backend.md` D14)
+- Cloud endpoints the dashboard works around: a single alert (`GET /alerts/{id}`), an organisation's admins for the system admin, grants by organisation, a single patient and an audit filter by target for the org admin, and paging past 1000 rows (audit, security events, alerts). Details: the iteration doc, "Waiting for the cloud"
+- The ECG gain (ADC counts per mV) is not stored with segments; the dashboard assumes 200 counts/mV (MIT-BIH) and says so on every strip
+- ZITADEL's login offers "Register new user": a self-registered user has no role and gets "no access". Decide whether the bootstrap turns self-registration off
 - Alert escalation flow: `alerts.acknowledged_by` exists, but what happens when an alert is not acknowledged is undefined
 
 ## Non-functional / ops
@@ -58,8 +65,8 @@ Last updated: 2026-10-23
 - No OTA/firmware update strategy (`device_updates` exists only if remote updates are adopted) — relevant if credentials ever need pushing to deployed devices
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one domain/cert or separate subdomains
 - No platform ops logging/monitoring (distinct from IDS/IPS event logging)
-- The invite-code onboarding (`cloud-backend.md` D12) is checked as far as ZITADEL issuing the code; a person redeeming it in the Login UI is not tested yet (with the dashboard, Iteration 6)
-- The API returns no names: they live only in ZITADEL. The dashboard needs them for doctors (and patients for their own doctor), so it will read them from ZITADEL or the API will add a lookup (Iteration 6)
+- ~~The invite-code onboarding is not tested past ZITADEL issuing the code~~ — resolved 2026-10-26: the dashboard's API-mode browser tests redeem codes in ZITADEL's login for a new org admin and a new patient (TC-D05)
+- ~~The API returns no names~~ — resolved 2026-10-25: `GET /directory` reads them from ZITADEL (`cloud-backend.md` D14)
 - ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume) before the cloud is exposed beyond Tailscale
 - `is_testbed` exists as a registry field, but physical/logical separation of testbed hardware from anything resembling real patient data isn't specified
 - RSA key size (2048 assumed) and whether an RSA-CA variant is run for the key-type benchmark

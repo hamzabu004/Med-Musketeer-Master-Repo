@@ -8,7 +8,7 @@ import uuid
 from pathlib import Path
 
 from .core.audit import read_events
-from .core.ca import (REPLACE_PHRASE, cert_preview, init_ca, issue_device)
+from .core.ca import (REPLACE_PHRASE, cert_preview, init_ca, issue_cloud, issue_device)
 from .core.config import ensure_layout, load_settings
 from .core.errors import MMCAError
 from .core.flash import ESP_ERASE_TARGETS, erase_esp, flash_device
@@ -46,11 +46,13 @@ def _parser() -> argparse.ArgumentParser:
     replace.add_argument("--cn", default="MedMusketeer CA")
     replace.add_argument("--validity-days", type=_positive_days, default=3650)
     replace.add_argument("--confirm-phrase", required=True)
-    issue = sub.add_parser("issue", help="issue a wearable or gateway TLS certificate")
-    issue.add_argument("profile", choices=("wearable", "gateway"))
-    issue.add_argument("--device-id", help="UUIDv4; generated when omitted")
+    issue = sub.add_parser("issue", help="issue a wearable, gateway or cloud server TLS certificate")
+    issue.add_argument("profile", choices=("wearable", "gateway", "cloud"))
+    issue.add_argument("--device-id", help="UUIDv4; generated when omitted (not for cloud)")
     issue.add_argument("--key-type", choices=("ec_p256", "rsa_2048"), default=None)
     issue.add_argument("--validity-days", type=_positive_days, default=None)
+    issue.add_argument("--replace", action="store_true",
+                       help="cloud only: replace the existing cloud certificate")
     flash = sub.add_parser("flash", help="write a wearable identity to its ESP32-S3 creds partition")
     flash.add_argument("--device-id", required=True)
     flash.add_argument("--port")
@@ -122,7 +124,23 @@ def main(argv: list[str] | None = None) -> int:
                 raise MMCAError("Passphrases were empty or did not match")
             fingerprint = init_ca(settings, args.cn, args.validity_days, first, replace_existing=True)
             print(f"New CA created. SHA-256 fingerprint: {fingerprint}")
+        elif args.command == "issue" and args.profile == "cloud":
+            ensure_layout(settings)
+            if args.device_id:
+                raise MMCAError("The cloud certificate has no device_id")
+            preview = cert_preview("cloud", "", args.key_type or "ec_p256",
+                                   args.validity_days or settings.leaf_validity_days)
+            if not _confirm_issue(preview):
+                raise MMCAError("Issuance cancelled")
+            passphrase = _passphrase()
+            fingerprint, output_dir = issue_cloud(settings, preview["validity_days"], passphrase,
+                confirm=lambda _preview: True, replace=args.replace)
+            print(f"Issued the cloud server certificate for {preview['cn']}.")
+            print(f"SHA-256 fingerprint: {fingerprint}")
+            print(f"Files: {output_dir} (install with cloud/scripts/install-emqx-certs.sh)")
         elif args.command == "issue":
+            if args.replace:
+                raise MMCAError("--replace applies to the cloud certificate only")
             ensure_layout(settings)
             device_id = args.device_id or str(uuid.uuid4())
             key_type = args.key_type or settings.default_key_type

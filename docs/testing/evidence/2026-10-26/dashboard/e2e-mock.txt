@@ -1,0 +1,31 @@
+
+> medmusketeer-dashboard@0.1.0 test:e2e
+> playwright test
+
+
+Running 22 tests using 4 workers
+
+  ✓   1 [desktop] › e2e/mock/sign-in.spec.ts:15:5 › the sign-in page says it shows sample data (1.2s)
+  ✓   3 [desktop] › e2e/mock/sign-in.spec.ts:22:7 › Sana Sysadmin lands in their own area and is kept out of others (2.5s)
+  ✓   2 [desktop] › e2e/mock/sign-in.spec.ts:22:7 › Sarah Ahmed lands in their own area and is kept out of others (2.7s)
+  ✓   4 [desktop] › e2e/mock/sign-in.spec.ts:22:7 › Omar Admin lands in their own area and is kept out of others (2.7s)
+  ✓   5 [desktop] › e2e/mock/sign-in.spec.ts:22:7 › Ali Khan lands in their own area and is kept out of others (2.0s)
+  ✓   8 [desktop] › e2e/mock/sign-in.spec.ts:49:7 › the org area sends a signed-out visitor to sign in (915ms)
+  ✓   7 [desktop] › e2e/mock/sign-in.spec.ts:49:7 › the system area sends a signed-out visitor to sign in (1.1s)
+  ✓   9 [desktop] › e2e/mock/sign-in.spec.ts:49:7 › the doctor area sends a signed-out visitor to sign in (765ms)
+  ✓  10 [desktop] › e2e/mock/sign-in.spec.ts:49:7 › the patient area sends a signed-out visitor to sign in (693ms)
+  ✓   6 [desktop] › e2e/mock/sign-in.spec.ts:36:5 › a signed-in user who opens sign-in goes to their dashboard, and signing out returns to sign-in (2.1s)
+  ✓  11 [desktop] › e2e/mock/sign-in.spec.ts:55:5 › pages have no horizontal scroll (1.3s)
+  ✓  12 [phone] › e2e/mock/sign-in.spec.ts:15:5 › the sign-in page says it shows sample data (655ms)
+  ✓  13 [phone] › e2e/mock/sign-in.spec.ts:22:7 › Sana Sysadmin lands in their own area and is kept out of others (1.6s)
+  ✓  15 [phone] › e2e/mock/sign-in.spec.ts:22:7 › Ali Khan lands in their own area and is kept out of others (1.5s)
+  ✓  14 [phone] › e2e/mock/sign-in.spec.ts:22:7 › Omar Admin lands in their own area and is kept out of others (1.7s)
+  ✓  16 [phone] › e2e/mock/sign-in.spec.ts:22:7 › Sarah Ahmed lands in their own area and is kept out of others (1.7s)
+  ✓  18 [phone] › e2e/mock/sign-in.spec.ts:49:7 › the system area sends a signed-out visitor to sign in (702ms)
+  ✓  19 [phone] › e2e/mock/sign-in.spec.ts:49:7 › the org area sends a signed-out visitor to sign in (695ms)
+  ✓  20 [phone] › e2e/mock/sign-in.spec.ts:49:7 › the doctor area sends a signed-out visitor to sign in (715ms)
+  ✓  21 [phone] › e2e/mock/sign-in.spec.ts:49:7 › the patient area sends a signed-out visitor to sign in (804ms)
+  ✓  17 [phone] › e2e/mock/sign-in.spec.ts:36:5 › a signed-in user who opens sign-in goes to their dashboard, and signing out returns to sign-in (2.0s)
+  ✓  22 [phone] › e2e/mock/sign-in.spec.ts:55:5 › pages have no horizontal scroll (1.3s)
+
+  22 passed (24.0s)

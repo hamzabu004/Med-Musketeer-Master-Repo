@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  /* Modular product palette: replace these tokens to re-theme the app. */
+  --color-bg: #f7f9fb;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f1f4f7;
+  --color-border: #d6dee6;
+  --color-border-strong: #aab8c5;
+
+  --color-text: #102033;
+  --color-text-muted: #627286;
+
+  --color-brand: #071a2d;
+  --color-brand-strong: #04111f;
+  --color-on-brand: #ffffff;
+  --color-on-accent: #04111f;
+  --color-accent: #00a7c4;
+  --color-accent-soft: #e7f8fb;
+
+  --color-nav-text: #dce7ef;
+  --color-nav-border: rgba(255, 255, 255, 0.12);
+  --color-nav-hover: rgba(255, 255, 255, 0.08);
+  --color-overlay: rgba(4, 17, 31, 0.48);
+
+  --color-healthy: #18794e;
+  --color-warning: #a15c00;
+  --color-critical: #b42318;
+  --color-offline: #697586;
+  --color-info: #1565a7;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  /* Optional only when a raised layer truly needs separation. */
+  --shadow-hard: 2px 2px 0 rgba(7, 26, 45, 0.18);
+
+  --sidebar-expanded: 244px;
+  --sidebar-collapsed: 64px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-product), "IBM Plex Sans", Arial, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.metric-number {
+  font-variant-numeric: tabular-nums;
+}
+
+.clinical-grid {
+  background-image:
+    linear-gradient(to right, rgba(180, 70, 70, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(180, 70, 70, 0.08) 1px, transparent 1px),
+    linear-gradient(to right, rgba(180, 70, 70, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(180, 70, 70, 0.14) 1px, transparent 1px);
+  background-size: 10px 10px, 10px 10px, 50px 50px, 50px 50px;
+}

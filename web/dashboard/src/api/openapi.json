@@ -1,0 +1,3375 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "MedMusketeer cloud API",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/admin/organisations": {
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "List Organisations",
+    "operationId": "list_organisations_admin_organisations_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Organisation"
+         },
+         "type": "array",
+         "title": "Response List Organisations Admin Organisations Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Create Organisation",
+    "operationId": "create_organisation_admin_organisations_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OrganisationIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Organisation"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/organisations/{org_id}/admins": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Create Organisation Admin",
+    "description": "An organisation admin account, in ZITADEL and in `users`; the invite code is shown once.",
+    "operationId": "create_organisation_admin_admin_organisations__org_id__admins_post",
+    "parameters": [
+     {
+      "name": "org_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Org Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PersonIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NewAccount"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/organisations/{org_id}": {
+   "patch": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Update Organisation",
+    "operationId": "update_organisation_admin_organisations__org_id__patch",
+    "parameters": [
+     {
+      "name": "org_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Org Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OrganisationPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Organisation"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices": {
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "List Devices",
+    "operationId": "list_devices_admin_devices_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Device"
+         },
+         "type": "array",
+         "title": "Response List Devices Admin Devices Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Register Device",
+    "operationId": "register_device_admin_devices_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DeviceIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Device"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices/{device_id}": {
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Get Device",
+    "operationId": "get_device_admin_devices__device_id__get",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Device"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices/{device_id}/activate": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Activate Device",
+    "operationId": "activate_device_admin_devices__device_id__activate_post",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Device"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices/{device_id}/suspend": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Suspend Device",
+    "operationId": "suspend_device_admin_devices__device_id__suspend_post",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Device"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices/{device_id}/revoke": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Revoke Device",
+    "operationId": "revoke_device_admin_devices__device_id__revoke_post",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Device"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices/{device_id}/credentials": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Add Credential",
+    "operationId": "add_credential_admin_devices__device_id__credentials_post",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CredentialIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Credential"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "List Credentials",
+    "operationId": "list_credentials_admin_devices__device_id__credentials_get",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Credential"
+         },
+         "title": "Response List Credentials Admin Devices  Device Id  Credentials Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/credentials/{credential_id}/revoke": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Revoke Credential",
+    "operationId": "revoke_credential_admin_credentials__credential_id__revoke_post",
+    "parameters": [
+     {
+      "name": "credential_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Credential Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Credential"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/devices/{device_id}/grants": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Grant Device",
+    "operationId": "grant_device_admin_devices__device_id__grants_post",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GrantIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Grant"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "List Grants",
+    "operationId": "list_grants_admin_devices__device_id__grants_get",
+    "parameters": [
+     {
+      "name": "device_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Device Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Grant"
+         },
+         "title": "Response List Grants Admin Devices  Device Id  Grants Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/grants/{grant_id}/revoke": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Revoke Grant",
+    "operationId": "revoke_grant_admin_grants__grant_id__revoke_post",
+    "parameters": [
+     {
+      "name": "grant_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Grant Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Grant"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/audit": {
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Registry Audit",
+    "description": "Registry actions only; organisation actions (patients, doctors) belong to that organisation.",
+    "operationId": "registry_audit_admin_audit_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/AuditEvent"
+         },
+         "title": "Response Registry Audit Admin Audit Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/security-events": {
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Security Events",
+    "operationId": "security_events_admin_security_events_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/SecurityEvent"
+         },
+         "title": "Response Security Events Admin Security Events Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/accounts": {
+   "get": {
+    "tags": [
+     "organisation admin"
+    ],
+    "summary": "List Accounts",
+    "operationId": "list_accounts_accounts_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Account"
+         },
+         "type": "array",
+         "title": "Response List Accounts Accounts Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "organisation admin"
+    ],
+    "summary": "Create Doctor Or Patient",
+    "operationId": "create_doctor_or_patient_accounts_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AccountIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NewAccount"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/accounts/{user_id}/disable": {
+   "post": {
+    "tags": [
+     "organisation admin"
+    ],
+    "summary": "Disable Account",
+    "description": "The user's tokens are refused at once. A doctor's patients lose their doctor (the admin\nassigns a new one); a patient's wearable is returned, ending the monitoring session.",
+    "operationId": "disable_account_accounts__user_id__disable_post",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Account"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/organisation": {
+   "get": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Own Organisation",
+    "operationId": "own_organisation_organisation_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OwnOrganisation"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/devices": {
+   "get": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Organisation Devices",
+    "description": "Org admin: every device granted to the organisation. Doctor: the wearables of their patients.",
+    "operationId": "organisation_devices_devices_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/OrgDevice"
+         },
+         "type": "array",
+         "title": "Response Organisation Devices Devices Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/audit": {
+   "get": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Organisation Audit",
+    "operationId": "organisation_audit_audit_get",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/AuditEvent"
+         },
+         "title": "Response Organisation Audit Audit Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients": {
+   "get": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "List Patients",
+    "description": "Org admin: every patient of the organisation. Doctor: their current patients.",
+    "operationId": "list_patients_patients_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/PatientSummary"
+         },
+         "type": "array",
+         "title": "Response List Patients Patients Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients/{patient_id}/doctor": {
+   "put": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Assign Doctor",
+    "description": "Make the doctor the patient's one active doctor, ending the previous assignment.",
+    "operationId": "assign_doctor_patients__patient_id__doctor_put",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DoctorIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CareAssignment"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients/{patient_id}/wearable": {
+   "post": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Issue Wearable",
+    "description": "Issue an active wearable granted to the organisation. From now on its data is the patient's.",
+    "operationId": "issue_wearable_patients__patient_id__wearable_post",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WearableIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WearableAssignment"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Return Wearable",
+    "operationId": "return_wearable_patients__patient_id__wearable_delete",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WearableAssignment"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients/{patient_id}/disorders": {
+   "get": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "List Disorders",
+    "operationId": "list_disorders_patients__patient_id__disorders_get",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Disorder"
+         },
+         "title": "Response List Disorders Patients  Patient Id  Disorders Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Record Disorder",
+    "operationId": "record_disorder_patients__patient_id__disorders_post",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DisorderIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Disorder"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients/{patient_id}/exports": {
+   "post": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Export Patient",
+    "description": "The patient's record (pseudonym, disorders, care and wearable history), logged as an export.",
+    "operationId": "export_patient_patients__patient_id__exports_post",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ExportIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientExport"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/alerts": {
+   "get": {
+    "tags": [
+     "care"
+    ],
+    "summary": "My Alerts",
+    "description": "Doctor: the alerts of their current patients. Patient: their own.",
+    "operationId": "my_alerts_alerts_get",
+    "parameters": [
+     {
+      "name": "unacknowledged",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Unacknowledged"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Alert"
+         },
+         "title": "Response My Alerts Alerts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients/{patient_id}/alerts": {
+   "get": {
+    "tags": [
+     "care"
+    ],
+    "summary": "Patient Alerts",
+    "operationId": "patient_alerts_patients__patient_id__alerts_get",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     },
+     {
+      "name": "unacknowledged",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Unacknowledged"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Alert"
+         },
+         "title": "Response Patient Alerts Patients  Patient Id  Alerts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/alerts/{alert_id}/acknowledge": {
+   "post": {
+    "tags": [
+     "care"
+    ],
+    "summary": "Acknowledge Alert",
+    "operationId": "acknowledge_alert_alerts__alert_id__acknowledge_post",
+    "parameters": [
+     {
+      "name": "alert_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Alert Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Alert"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patients/{patient_id}/segments": {
+   "get": {
+    "tags": [
+     "care"
+    ],
+    "summary": "Patient Segments",
+    "operationId": "patient_segments_patients__patient_id__segments_get",
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Patient Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Segment"
+         },
+         "title": "Response Patient Segments Patients  Patient Id  Segments Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/segments/{segment_id}": {
+   "get": {
+    "tags": [
+     "care"
+    ],
+    "summary": "Segment Detail",
+    "description": "One segment with its samples (little-endian int16, Base64 per chunk) and classifications.",
+    "operationId": "segment_detail_segments__segment_id__get",
+    "parameters": [
+     {
+      "name": "segment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Segment Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SegmentDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/directory": {
+   "get": {
+    "tags": [
+     "organisation"
+    ],
+    "summary": "Directory",
+    "operationId": "directory_directory_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Person"
+         },
+         "type": "array",
+         "title": "Response Directory Directory Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/auth/config": {
+   "get": {
+    "summary": "Auth Config",
+    "description": "What the dashboard needs to start a ZITADEL login (D14). Public; nothing in it is secret.",
+    "operationId": "auth_config_auth_config_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Auth Config Auth Config Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/me": {
+   "get": {
+    "summary": "Me",
+    "description": "Who the caller is, for every role (a patient also gets their patient id).",
+    "operationId": "me_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Me Me Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/livez": {
+   "get": {
+    "summary": "Livez",
+    "operationId": "livez_livez_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "type": "object",
+         "title": "Response Livez Livez Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/healthz": {
+   "get": {
+    "summary": "Healthz",
+    "operationId": "healthz_healthz_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Healthz Healthz Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "Account": {
+    "properties": {
+     "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "User Id"
+     },
+     "zitadel_sub": {
+      "type": "string",
+      "title": "Zitadel Sub"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "org_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Org Id"
+     },
+     "patient_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Id"
+     },
+     "pseudonym": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pseudonym"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id",
+     "zitadel_sub",
+     "role",
+     "status",
+     "org_id",
+     "patient_id",
+     "pseudonym",
+     "created_at"
+    ],
+    "title": "Account"
+   },
+   "AccountIn": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "maxLength": 254,
+      "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+      "title": "Email"
+     },
+     "given_name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Given Name"
+     },
+     "family_name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Family Name"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "doctor",
+       "patient"
+      ],
+      "title": "Role"
+     },
+     "pseudonym": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64,
+        "minLength": 1
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pseudonym"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "given_name",
+     "family_name",
+     "role"
+    ],
+    "title": "AccountIn"
+   },
+   "Alert": {
+    "properties": {
+     "alert_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Alert Id"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "origin": {
+      "type": "string",
+      "title": "Origin"
+     },
+     "severity": {
+      "type": "string",
+      "title": "Severity"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "acknowledged_by": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Acknowledged By"
+     },
+     "acknowledged_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Acknowledged At"
+     },
+     "classification_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Classification Id"
+     },
+     "segment_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Segment Id"
+     },
+     "label": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Label"
+     },
+     "confidence": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Confidence"
+     }
+    },
+    "type": "object",
+    "required": [
+     "alert_id",
+     "device_id",
+     "patient_id",
+     "origin",
+     "severity",
+     "created_at",
+     "acknowledged_by",
+     "acknowledged_at",
+     "classification_id",
+     "segment_id",
+     "label",
+     "confidence"
+    ],
+    "title": "Alert"
+   },
+   "AuditEvent": {
+    "properties": {
+     "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Event Id"
+     },
+     "at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "At"
+     },
+     "actor_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Actor Id"
+     },
+     "scope": {
+      "type": "string",
+      "title": "Scope"
+     },
+     "org_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Org Id"
+     },
+     "action": {
+      "type": "string",
+      "title": "Action"
+     },
+     "target_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target Id"
+     },
+     "details": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Details"
+     }
+    },
+    "type": "object",
+    "required": [
+     "event_id",
+     "at",
+     "actor_id",
+     "scope",
+     "org_id",
+     "action",
+     "target_id",
+     "details"
+    ],
+    "title": "AuditEvent"
+   },
+   "CareAssignment": {
+    "properties": {
+     "assignment_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Assignment Id"
+     },
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "doctor_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Doctor Id"
+     },
+     "assigned_by": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Assigned By"
+     },
+     "valid_from": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Valid From"
+     },
+     "valid_to": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Valid To"
+     }
+    },
+    "type": "object",
+    "required": [
+     "assignment_id",
+     "patient_id",
+     "doctor_id",
+     "assigned_by",
+     "valid_from",
+     "valid_to"
+    ],
+    "title": "CareAssignment"
+   },
+   "Chunk": {
+    "properties": {
+     "seq": {
+      "type": "integer",
+      "title": "Seq"
+     },
+     "ts": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Ts"
+     },
+     "n_samples": {
+      "type": "integer",
+      "title": "N Samples"
+     },
+     "encoding": {
+      "type": "string",
+      "const": "int16le-base64",
+      "title": "Encoding",
+      "default": "int16le-base64"
+     },
+     "samples": {
+      "type": "string",
+      "title": "Samples"
+     }
+    },
+    "type": "object",
+    "required": [
+     "seq",
+     "ts",
+     "n_samples",
+     "samples"
+    ],
+    "title": "Chunk"
+   },
+   "Classification": {
+    "properties": {
+     "classification_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Classification Id"
+     },
+     "source": {
+      "type": "string",
+      "title": "Source"
+     },
+     "model_version": {
+      "type": "string",
+      "title": "Model Version"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "confidence": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Confidence"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "classification_id",
+     "source",
+     "model_version",
+     "label",
+     "confidence",
+     "created_at"
+    ],
+    "title": "Classification"
+   },
+   "Credential": {
+    "properties": {
+     "credential_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Credential Id"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "auth_method": {
+      "type": "string",
+      "title": "Auth Method"
+     },
+     "key_type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Key Type"
+     },
+     "credential_ref": {
+      "type": "string",
+      "title": "Credential Ref"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "expires_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expires At"
+     },
+     "metadata": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Metadata"
+     }
+    },
+    "type": "object",
+    "required": [
+     "credential_id",
+     "device_id",
+     "auth_method",
+     "key_type",
+     "credential_ref",
+     "status",
+     "created_at",
+     "expires_at",
+     "metadata"
+    ],
+    "title": "Credential"
+   },
+   "CredentialIn": {
+    "properties": {
+     "auth_method": {
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Auth Method"
+     },
+     "key_type": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 32
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Key Type"
+     },
+     "credential_ref": {
+      "type": "string",
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Credential Ref"
+     },
+     "expires_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expires At"
+     },
+     "metadata": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Metadata"
+     }
+    },
+    "type": "object",
+    "required": [
+     "auth_method",
+     "credential_ref"
+    ],
+    "title": "CredentialIn"
+   },
+   "Device": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "type": {
+      "type": "string",
+      "title": "Type"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "pending",
+       "active",
+       "suspended",
+       "revoked"
+      ],
+      "title": "Status"
+     },
+     "is_testbed": {
+      "type": "boolean",
+      "title": "Is Testbed"
+     },
+     "current_mode": {
+      "type": "string",
+      "title": "Current Mode"
+     },
+     "current_gateway_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Current Gateway Id"
+     },
+     "last_seen": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen"
+     },
+     "registered_by": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Registered By"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "type",
+     "status",
+     "is_testbed",
+     "current_mode",
+     "current_gateway_id",
+     "last_seen",
+     "registered_by",
+     "created_at"
+    ],
+    "title": "Device"
+   },
+   "DeviceIn": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "wearable",
+       "fixed_gateway"
+      ],
+      "title": "Type"
+     },
+     "is_testbed": {
+      "type": "boolean",
+      "title": "Is Testbed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "type",
+     "is_testbed"
+    ],
+    "title": "DeviceIn"
+   },
+   "Disorder": {
+    "properties": {
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "disorder": {
+      "type": "string",
+      "title": "Disorder"
+     },
+     "recorded_by": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Recorded By"
+     },
+     "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Recorded At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patient_id",
+     "disorder",
+     "recorded_by",
+     "recorded_at"
+    ],
+    "title": "Disorder"
+   },
+   "DisorderIn": {
+    "properties": {
+     "disorder": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Disorder"
+     }
+    },
+    "type": "object",
+    "required": [
+     "disorder"
+    ],
+    "title": "DisorderIn"
+   },
+   "DoctorIn": {
+    "properties": {
+     "doctor_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Doctor Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_id"
+    ],
+    "title": "DoctorIn"
+   },
+   "ExportIn": {
+    "properties": {
+     "destination": {
+      "type": "string",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Destination"
+     }
+    },
+    "type": "object",
+    "required": [
+     "destination"
+    ],
+    "title": "ExportIn"
+   },
+   "Grant": {
+    "properties": {
+     "grant_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Grant Id"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "org_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Org Id"
+     },
+     "granted_by": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Granted By"
+     },
+     "granted_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Granted At"
+     },
+     "revoked_by": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked By"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "grant_id",
+     "device_id",
+     "org_id",
+     "granted_by",
+     "granted_at",
+     "revoked_by",
+     "revoked_at"
+    ],
+    "title": "Grant"
+   },
+   "GrantIn": {
+    "properties": {
+     "org_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Org Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "org_id"
+    ],
+    "title": "GrantIn"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "NewAccount": {
+    "properties": {
+     "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "User Id"
+     },
+     "zitadel_sub": {
+      "type": "string",
+      "title": "Zitadel Sub"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "org_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Org Id"
+     },
+     "patient_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Id"
+     },
+     "pseudonym": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pseudonym"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "invite_code": {
+      "type": "string",
+      "title": "Invite Code"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id",
+     "zitadel_sub",
+     "role",
+     "status",
+     "org_id",
+     "patient_id",
+     "pseudonym",
+     "created_at",
+     "invite_code"
+    ],
+    "title": "NewAccount"
+   },
+   "OrgDevice": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "type": {
+      "type": "string",
+      "title": "Type"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "current_mode": {
+      "type": "string",
+      "title": "Current Mode"
+     },
+     "current_gateway_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Current Gateway Id"
+     },
+     "last_seen": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen"
+     },
+     "patient_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "type",
+     "status",
+     "current_mode",
+     "current_gateway_id",
+     "last_seen",
+     "patient_id"
+    ],
+    "title": "OrgDevice"
+   },
+   "Organisation": {
+    "properties": {
+     "org_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Org Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "zitadel_org_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Zitadel Org Id"
+     },
+     "registered_by": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Registered By"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "org_id",
+     "name",
+     "kind",
+     "status",
+     "zitadel_org_id",
+     "registered_by",
+     "created_at"
+    ],
+    "title": "Organisation"
+   },
+   "OrganisationIn": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "public",
+       "private"
+      ],
+      "title": "Kind"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "kind"
+    ],
+    "title": "OrganisationIn"
+   },
+   "OrganisationPatch": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "active",
+       "suspended"
+      ],
+      "title": "Status"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "OrganisationPatch"
+   },
+   "OwnOrganisation": {
+    "properties": {
+     "org_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Org Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "org_id",
+     "name",
+     "kind",
+     "status",
+     "created_at"
+    ],
+    "title": "OwnOrganisation"
+   },
+   "PatientExport": {
+    "properties": {
+     "export_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Export Id"
+     },
+     "exported_by": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Exported By"
+     },
+     "destination": {
+      "type": "string",
+      "title": "Destination"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "patient": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Patient"
+     },
+     "disorders": {
+      "items": {
+       "$ref": "#/components/schemas/Disorder"
+      },
+      "type": "array",
+      "title": "Disorders"
+     },
+     "care_assignments": {
+      "items": {
+       "$ref": "#/components/schemas/CareAssignment"
+      },
+      "type": "array",
+      "title": "Care Assignments"
+     },
+     "wearable_assignments": {
+      "items": {
+       "$ref": "#/components/schemas/WearableAssignment"
+      },
+      "type": "array",
+      "title": "Wearable Assignments"
+     },
+     "ecg_included": {
+      "type": "boolean",
+      "title": "Ecg Included"
+     }
+    },
+    "type": "object",
+    "required": [
+     "export_id",
+     "exported_by",
+     "destination",
+     "created_at",
+     "patient",
+     "disorders",
+     "care_assignments",
+     "wearable_assignments",
+     "ecg_included"
+    ],
+    "title": "PatientExport"
+   },
+   "PatientSummary": {
+    "properties": {
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "pseudonym": {
+      "type": "string",
+      "title": "Pseudonym"
+     },
+     "user_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "User Id"
+     },
+     "account_status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Account Status"
+     },
+     "doctor_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Id"
+     },
+     "wearable_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Wearable Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patient_id",
+     "pseudonym",
+     "user_id",
+     "account_status",
+     "doctor_id",
+     "wearable_id",
+     "created_at"
+    ],
+    "title": "PatientSummary"
+   },
+   "Person": {
+    "properties": {
+     "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "User Id"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "given_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Given Name"
+     },
+     "family_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Family Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     }
+    },
+    "type": "object",
+    "required": [
+     "user_id",
+     "role",
+     "status",
+     "given_name",
+     "family_name",
+     "email"
+    ],
+    "title": "Person"
+   },
+   "PersonIn": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "maxLength": 254,
+      "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+      "title": "Email"
+     },
+     "given_name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Given Name"
+     },
+     "family_name": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Family Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "given_name",
+     "family_name"
+    ],
+    "title": "PersonIn"
+   },
+   "SecurityEvent": {
+    "properties": {
+     "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Event Id"
+     },
+     "ts": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Ts"
+     },
+     "gateway_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Gateway Id"
+     },
+     "device_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Device Id"
+     },
+     "mode": {
+      "type": "string",
+      "title": "Mode"
+     },
+     "predicted_class": {
+      "type": "string",
+      "title": "Predicted Class"
+     },
+     "outcome": {
+      "type": "string",
+      "title": "Outcome"
+     },
+     "action": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Action"
+     },
+     "action_result": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Action Result"
+     }
+    },
+    "type": "object",
+    "required": [
+     "event_id",
+     "ts",
+     "gateway_id",
+     "device_id",
+     "mode",
+     "predicted_class",
+     "outcome",
+     "action",
+     "action_result"
+    ],
+    "title": "SecurityEvent"
+   },
+   "Segment": {
+    "properties": {
+     "segment_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Segment Id"
+     },
+     "session_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Session Id"
+     },
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "fs_hz": {
+      "type": "integer",
+      "title": "Fs Hz"
+     },
+     "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Started At"
+     },
+     "ended_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ended At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "segment_id",
+     "session_id",
+     "patient_id",
+     "device_id",
+     "kind",
+     "fs_hz",
+     "started_at",
+     "ended_at"
+    ],
+    "title": "Segment"
+   },
+   "SegmentDetail": {
+    "properties": {
+     "segment_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Segment Id"
+     },
+     "session_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Session Id"
+     },
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "kind": {
+      "type": "string",
+      "title": "Kind"
+     },
+     "fs_hz": {
+      "type": "integer",
+      "title": "Fs Hz"
+     },
+     "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Started At"
+     },
+     "ended_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ended At"
+     },
+     "classifications": {
+      "items": {
+       "$ref": "#/components/schemas/Classification"
+      },
+      "type": "array",
+      "title": "Classifications"
+     },
+     "chunks": {
+      "items": {
+       "$ref": "#/components/schemas/Chunk"
+      },
+      "type": "array",
+      "title": "Chunks"
+     }
+    },
+    "type": "object",
+    "required": [
+     "segment_id",
+     "session_id",
+     "patient_id",
+     "device_id",
+     "kind",
+     "fs_hz",
+     "started_at",
+     "ended_at",
+     "classifications",
+     "chunks"
+    ],
+    "title": "SegmentDetail"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "WearableAssignment": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     },
+     "issued_by": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Issued By"
+     },
+     "assigned_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Assigned At"
+     },
+     "unassigned_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unassigned At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "patient_id",
+     "issued_by",
+     "assigned_at",
+     "unassigned_at"
+    ],
+    "title": "WearableAssignment"
+   },
+   "WearableIn": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id"
+    ],
+    "title": "WearableIn"
+   }
+  }
+ }
+}

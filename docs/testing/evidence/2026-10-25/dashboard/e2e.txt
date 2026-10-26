@@ -1,0 +1,21 @@
+
+> medmusketeer-dashboard@0.1.0 test:e2e
+> playwright test
+
+
+Running 12 tests using 4 workers
+
+  ✓   1 [desktop] › e2e/shell.spec.ts:3:5 › the sign-in page shows the product, not a demo (584ms)
+  ✓   2 [desktop] › e2e/shell.spec.ts:10:7 › the system area sends a signed-out visitor to sign in (700ms)
+  ✓   3 [desktop] › e2e/shell.spec.ts:10:7 › the doctor area sends a signed-out visitor to sign in (694ms)
+  ✓   4 [desktop] › e2e/shell.spec.ts:10:7 › the org area sends a signed-out visitor to sign in (702ms)
+  ✓   6 [desktop] › e2e/shell.spec.ts:16:5 › the sign-in page has no horizontal scroll (422ms)
+  ✓   5 [desktop] › e2e/shell.spec.ts:10:7 › the patient area sends a signed-out visitor to sign in (589ms)
+  ✓   7 [phone] › e2e/shell.spec.ts:3:5 › the sign-in page shows the product, not a demo (454ms)
+  ✓   8 [phone] › e2e/shell.spec.ts:10:7 › the system area sends a signed-out visitor to sign in (619ms)
+  ✓  11 [phone] › e2e/shell.spec.ts:10:7 › the patient area sends a signed-out visitor to sign in (590ms)
+  ✓   9 [phone] › e2e/shell.spec.ts:10:7 › the org area sends a signed-out visitor to sign in (732ms)
+  ✓  10 [phone] › e2e/shell.spec.ts:10:7 › the doctor area sends a signed-out visitor to sign in (686ms)
+  ✓  12 [phone] › e2e/shell.spec.ts:16:5 › the sign-in page has no horizontal scroll (380ms)
+
+  12 passed (13.4s)

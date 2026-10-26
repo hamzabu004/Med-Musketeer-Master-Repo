@@ -171,7 +171,7 @@ def test_only_an_active_wearable_granted_to_the_organisation_can_be_issued(admin
                       json={"device_id": str(world.spare_wearable)}).status_code == 409
     gateway = system_admin.post("/admin/devices", json={"device_id": "00000000-0000-4000-8000-000000000001",
                                                         "type": "fixed_gateway", "is_testbed": True}).json()["device_id"]
-    system_admin.post(f"/admin/devices/{gateway}/credentials", json={"auth_method": "x509_mtls", "credential_ref": "gw"})
+    system_admin.post(f"/admin/devices/{gateway}/credentials", json={"auth_method": "x509_mtls", "credential_ref": "AB" * 32})
     system_admin.post(f"/admin/devices/{gateway}/activate")
     system_admin.post(f"/admin/devices/{gateway}/grants", json={"org_id": str(world.a.org_id)})
     assert admin.post(f"/patients/{world.spare_patient}/wearable", json={"device_id": gateway}).status_code == 422

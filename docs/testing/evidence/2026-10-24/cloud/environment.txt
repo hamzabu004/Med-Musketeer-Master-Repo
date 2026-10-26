@@ -1,47 +1,52 @@
-run_at: 2026-10-24T01:22:48+05:00
+run_at: 2026-10-24T01:52:33+05:00
 host: Linux 7.2.5-200.fc44.x86_64 x86_64
 python: Python 3.14.7
-packages: fastapi==0.161.1 httpx==0.28.1 psycopg==3.3.6 pydantic-settings==2.16.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
+packages: cryptography==50.0.2 fastapi==0.161.1 httpx==0.28.1 paho-mqtt==2.1.0 psycopg==3.3.6 pydantic-settings==2.16.1 PyJWT==2.15.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
 compose: Docker Compose version v5.4.0
 engine: docker 29.7.2
-images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev emqx/emqx:6.3.2 medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev 
-base images: python:3.14.9-slim-trixie timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
-commit: 69ac43e3157fad07492c90df949b208207fa9bf6
+images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev medmusketeer/cloud-emqx:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev alpine:3.22.2 
+base images: python:3.14.9-slim-trixie emqx/emqx:6.3.2 timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
+commit: 8659ad4333d386bddcc92fb9da79fca4483ae70e
 uncommitted changes:
+ M cloud/.env.example
  M cloud/README.md
- M cloud/backend/Dockerfile
- M cloud/backend/app/auth.py
- M cloud/backend/app/db.py
  M cloud/backend/app/main.py
  M cloud/backend/app/registry.py
  M cloud/backend/app/settings.py
- M cloud/backend/app/zitadel_bootstrap.py
+ M cloud/backend/pyproject.toml
  M cloud/backend/tests/integration/conftest.py
- M cloud/backend/tests/integration/test_auth.py
- M cloud/backend/tests/integration/test_schema.py
+ M cloud/backend/tests/integration/test_access.py
+ M cloud/backend/tests/integration/test_organisation.py
+ M cloud/backend/tests/integration/test_registry.py
  M cloud/backend/tests/integration/test_stack.py
+ M cloud/backend/tests/integration/world.py
  M cloud/compose.yaml
+ M cloud/run_cloud_tests.sh
+ M cloud/scripts/init-env.sh
+ M docs/decisions/ca-tool-spec.md
  M docs/decisions/cloud-backend.md
  M docs/decisions/gaps.md
  M docs/decisions/stack.md
  M docs/iterations/iteration-3-cloud.md
- M docs/testing/evidence/2026-10-24/cloud/coverage.xml
  M docs/testing/evidence/2026-10-24/cloud/environment.txt
- M docs/testing/evidence/2026-10-24/cloud/junit.xml
- M docs/testing/evidence/2026-10-24/cloud/pytest.txt
- M docs/testing/evidence/2026-10-24/cloud/stack/compose_ps.json
- M docs/testing/evidence/2026-10-24/cloud/stack/compose_up.txt
+ D docs/testing/evidence/2026-10-24/cloud/stack/compose_ps.json
+ D docs/testing/evidence/2026-10-24/cloud/stack/compose_up.txt
+ D docs/testing/evidence/2026-10-24/cloud/stack/healthz.json
+ D docs/testing/evidence/2026-10-24/cloud/stack/tc_c13_accounts.json
  M docs/testing/test_traceability.md
-?? cloud/backend/app/accounts.py
-?? cloud/backend/app/care.py
-?? cloud/backend/app/organisation.py
-?? cloud/backend/app/zitadel.py
-?? cloud/backend/migrations/versions/0002_accounts_and_audit.py
-?? cloud/backend/tests/fake_zitadel.py
-?? cloud/backend/tests/integration/test_access.py
-?? cloud/backend/tests/integration/test_organisation.py
-?? cloud/backend/tests/integration/world.py
-?? cloud/backend/tests/unit/test_zitadel.py
-?? docs/changelog/2026-10-24-02-org-admin-api.md
-?? docs/testing/evidence/2026-10-24/cloud/stack/tc_c13_accounts.json
-?? docs/testing/review-findings/2026-10-24-slice-3-org-admin.md
+ M tools/ca-tool/README.md
+ M tools/ca-tool/mmca/cli.py
+ M tools/ca-tool/mmca/core/ca.py
+ M tools/ca-tool/mmca/core/config.py
+ M tools/ca-tool/mmca/core/profiles.py
+ M tools/ca-tool/tests/test_ca.py
+ M tools/ca-tool/tests/test_cli.py
+?? cloud/backend/app/broker.py
+?? cloud/backend/tests/certs.py
+?? cloud/backend/tests/integration/stack.py
+?? cloud/backend/tests/integration/test_broker.py
+?? cloud/backend/tests/integration/test_gateway.py
+?? cloud/backend/tests/mqtt.py
+?? cloud/backend/tests/unit/test_broker_rules.py
+?? cloud/emqx/
+?? cloud/scripts/install-emqx-certs.sh

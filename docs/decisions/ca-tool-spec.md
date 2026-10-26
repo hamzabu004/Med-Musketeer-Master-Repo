@@ -2,6 +2,8 @@
 
 Companion to `stack.md` ("Device provisioning / CSR-signing workflow" and "Provisioning tool"). Status markers follow that file: **Decided** / **Proposed** / **Open** / **Deferred** / **Implemented**.
 
+**Update (2026-10-24):** `mmca issue cloud` (the EMQX gateway listener's server certificate, section 4) is Implemented, and every certificate now carries key identifiers (Subject Key Identifier on the CA and leaves, Authority Key Identifier on leaves). Strict X.509 verifiers, such as Python 3.13+'s default TLS context, refuse leaves without an AKI and CAs without an SKI. A CA created before this change has no SKI, so chains from it still fail strict verification until the CA is replaced (`gaps.md`).
+
 **Status (2026-10-23): Stage 1 (CLI) is Implemented** in `tools/ca-tool/` (`mmca`) and tested: 56 automated tests pass, plus hardware procedures on the ESP32-S3 and the Pi (`docs/testing/`). The implemented CLI differs from the original plan below in two ways: there is an `erase` command (section 5), and `revoke`/registry stay Deferred. Stage 2 (GUI) is not started. Sections marked Proposed below describe the plan as built unless noted.
 
 Last updated: 2026-10-23
@@ -62,7 +64,7 @@ Stage 1:  core/ (no Qt imports)
 │   ├── device.key              # mode 600; deleted after successful flash (section 8)
 │   ├── device.crt
 │   └── meta.json               # type, key type, validity, serial, timestamps, flashed flag
-├── cloud/                      # Deferred
+├── cloud/                      # server.key, server.crt, meta.json, history/ (issue cloud)
 └── audit.log.jsonl             # append-only, never contains secrets
 ```
 
@@ -79,7 +81,7 @@ Stage 1:  core/ (no Qt imports)
 | **CA** | `MedMusketeer CA` | none | none | **EC P-256 (Decided)** | `basicConstraints CA:TRUE, pathlen:0`; `keyUsage keyCertSign, cRLSign`; **10-year validity (Decided)** |
 | **Wearable (TLS client)** | `device_id` (UUIDv4) | `device_id` | clientAuth | RSA 2048 or EC P-256 (benchmarked variable; default EC P-256) | **365-day validity (Decided)** |
 | **Gateway** | gateway `device_id` | `gateway.medmusketeer.local` (role SAN) + `device_id` | serverAuth **and** clientAuth | RSA 2048 or EC P-256 | serverAuth toward wearables, clientAuth toward EMQX. **365-day validity (Decided)** |
-| Cloud server (EMQX mTLS listener) | `cloud.medmusketeer.local` | same | serverAuth | **Deferred** | Gateway pins this CN/SAN |
+| Cloud server (EMQX mTLS listener) | `cloud.medmusketeer.local` | same | serverAuth | **EC P-256 (Implemented 2026-10-24)** | Gateway pins this CN/SAN; `keyUsage digitalSignature`; leaf validity (365 days); written to `cloud/` (`server.key` mode 600, `server.crt`, `meta.json`); `--replace` archives the old certificate under `cloud/history/<serial>/` and removes the old key |
 | Cloud envelope | `cloud.medmusketeer.local` | same | none | **Deferred** | `keyUsage keyAgreement`; long-dated period Deferred |
 | Wearable envelope keypair | n/a | n/a | n/a | **Deferred** | Separate EC P-256 keypair; never reuse the TLS key |
 
@@ -97,6 +99,7 @@ mmca init-ca     --cn "MedMusketeer CA" [--validity-days 3650]
 mmca replace-ca  ...                       # explicit typed confirmation
 mmca issue       wearable [--key-type ec_p256|rsa_2048] [--device-id UUID]
 mmca issue       gateway  [--key-type ec_p256|rsa_2048]
+mmca issue       cloud    [--replace]          # Implemented 2026-10-24
 mmca flash       --device-id UUID [--port /dev/ttyACM0]
 mmca deploy      --host HOST [--port 22] [--user pi] [--restart]
 mmca erase       esp|gateway ...           # clears TLS credentials and/or network settings

@@ -1,6 +1,6 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, and D11 and D12 taken while building Slice 3. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 and D12 on 2026-10-24). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, and D13 from Slice 4. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
 Last updated: 2026-10-24
 
@@ -46,7 +46,8 @@ gateway (CN = gw-7f3a…)                 EMQX                          adapter
 - Only the adapter's account may subscribe to `ingest/#`; no device may publish to it.
 - The adapter takes `attested_by` from the `ingest/{username}/…` prefix.
 - Rejected alternative: an EMQX HTTP action per message to the API (one HTTP call per message; the adapter would stop being an MQTT subscriber like the other adapters).
-- Verify in Slice 4: the republish topic template with `${username}` and `${topic}` from the rule SQL.
+- Verified in Slice 4 (2026-10-24, EMQX 6.3.2): rule `mm_ingest` selects `id, username, clientid, topic, qos, payload, publish_received_at` from both topic filters and republishes to `ingest/${username}/${topic}` with the same QoS. The republished payload is that selection as JSON: the original payload as a string, `username` (the gateway's CN) and `publish_received_at` (broker receive time, ms since the epoch, the `broker_at` hop of D7).
+- The adapter logs in on a separate internal listener (D13) and may only subscribe to `ingest/#`; gateways may not read or write `ingest/` (TC-C17).
 
 ## D2 + D3 — Roles in ZITADEL, one ZITADEL organisation per client organisation (Decided)
 
@@ -94,6 +95,8 @@ API checks:
 ```
 
 - Listener: `verify = verify_peer`, `fail_if_no_peer_cert = true`, `cacertfile` = the MedMusketeer CA.
+- **Refined in Slice 4 (2026-10-24): the presented certificate itself must be the credential.** EMQX passes the client certificate (`${cert_pem}`) to the hook; the API requires its SHA-256 fingerprint to be an active, unexpired `x509_mtls` credential of that device, so revoking one certificate refuses it at once even if the gateway has another. For `x509_mtls`, `device_credentials.credential_ref` is therefore the certificate's SHA-256 fingerprint as `mmca issue` prints it (64 hex digits; the registry API checks the format and normalises it). The hook also checks that the certificate CN equals the username and that the request came from the gateway listener.
+- EMQX calls the hooks with a shared secret (`Authorization: Bearer`, `EMQX_HOOK_SECRET`); without it, or on any API error, EMQX treats the hook as "ignore" and the client is refused (verified: with the API unreachable, connections are refused). Each decision is logged by the API with its reason and check time in ms.
 - A revoked credential is refused at the next connect. The revoke endpoint may also disconnect the client through EMQX's API.
 - The API must answer with HTTP 200/204; a 4xx/5xx is ignored by EMQX and the chain continues, so the chain must end in deny.
 - Rejected alternative: EMQX's built-in PostgreSQL backends (logic split between EMQX config SQL and the API).
@@ -112,6 +115,8 @@ API checks:
 | Everything else | — | Denied |
 
 Observe-only: any active gateway may forward for any wearable; the cloud records `current_gateway_id`. Enforcing a pre-assigned wearable↔gateway mapping stays open (`gaps.md`).
+
+Implemented in Slice 4 by the API's authorisation hook: the wearable level must be a canonical UUID; a subscription may name one wearable instead of `+`; the gateway must still be an active `fixed_gateway`. A denied publish or subscription gets MQTT 5 reason code 0x87 and the connection stays up (`deny_action = ignore`). EMQX caches authorisation results for 1 minute (its default), so a suspended or revoked gateway that stays connected loses topic access within a minute; a revoked credential alone takes effect at the next connect (`gaps.md`).
 
 ## D6 — Fixed-path alert payload v1 (Decided; shared with the firmware)
 
@@ -187,12 +192,13 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Request on-demand ECG | ✘ | ✘ | ✔ (own patients) | ✘ |
 | Security events, attack tests | ✔ | ✘ | ✘ | ✘ |
 | Audit log (grants, issues, exports) | ✔ (device side) | ✔ (own org) | ✘ | ✘ |
+| Directory: names of the people one works with (D14) | ✘ | ✔ (own org, with e-mail) | ✔ (self, own patients) | ✔ (self, own doctor) |
 
 - The organisation admin **cannot read patient ECG data**, classifications or alerts.
 - Open: how a patient export works when the org admin cannot read ECG (whether the export bundle includes ECG, produced by the API without the org admin viewing it). Until decided, `POST /patients/{id}/exports` returns the pseudonym, disorders, care and wearable history with `ecg_included: false`, and logs the export.
-- Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3. Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
+- Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3; "Directory" on 2026-10-25 for the dashboard (D14). Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
 
-Endpoints (2026-10-24):
+Endpoints (2026-10-25):
 
 | Endpoint group | Endpoints |
 |---|---|
@@ -202,6 +208,8 @@ Endpoints (2026-10-24):
 | Patients | `GET /patients`, `PUT /patients/{id}/doctor`, `POST/DELETE /patients/{id}/wearable`, `GET/POST /patients/{id}/disorders`, `POST /patients/{id}/exports` |
 | ECG and alerts (doctor, patient) | `GET /alerts`, `GET /patients/{id}/alerts`, `POST /alerts/{id}/acknowledge`, `GET /patients/{id}/segments`, `GET /segments/{id}` |
 | Audit (org admin) | `GET /audit` |
+| Directory (D14) | `GET /directory` |
+| Public | `GET /livez`, `GET /healthz`, `GET /auth/config` (the dashboard's sign-in settings) |
 
 ## D10 — EMQX 6.3.2, pinned (Decided)
 
@@ -239,5 +247,48 @@ API (as mm-api)                                     ZITADEL
 - `IAM_ORG_MANAGER` lets the API manage organisations, their users and user grants and project grants, but not instance settings, instance members or the project's roles. The bootstrap service account (`IAM_OWNER`) stays out of the API's reach.
 - The token lasts a year. The bootstrap job checks it on every `up` and replaces it (deleting the account's old tokens) when it is missing or no longer works. The API starts after the job and reloads the file when ZITADEL refuses the token it holds.
 - ZITADEL is changed first (`users.zitadel_sub` needs its id). If a later ZITADEL step or the database insert fails, the ZITADEL user or organisation is deleted again. Anything left behind is inert: the API refuses ZITADEL users it has not registered.
-- No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. Wiring this into the dashboard's onboarding is Iteration 6.
+- No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. The dashboard's invite page explains it, and the dashboard's API-mode browser tests redeem codes in ZITADEL's login (TC-D05).
 - Names and e-mail addresses live only in ZITADEL; the database keeps the role, organisation and, for patients, the pseudonym.
+
+## D13 — EMQX configuration and the internal service listener (Decided 2026-10-24)
+
+```
+emqx (image built from cloud/emqx/)
+├── ssl:gateway  8883  mTLS, zone gateway (username = cert CN), authn → API /internal/emqx/authn/gateway
+├── tcp:internal 1883  password, authn → API /internal/emqx/authn/service   (adapter: mm-adapter)
+├── authorization: HTTP → API /internal/emqx/authz, no_match = deny
+├── rule mm_ingest: mm/fixed/#, mm/gateway/# → ingest/{username}/{topic}
+└── defaults (tcp 1883, ssl 8883 with demo certs, ws, wss) disabled
+```
+
+- The configuration is `etc/emqx.conf`, which takes precedence over dashboard changes, so nothing can be loosened at runtime. EMQX 6 does not substitute environment variables in it (verified), so `mm-entrypoint.sh` renders it from a template at start with the hook secret and the Erlang cookie (both from `.env`, alphanumeric only).
+- The cloud server certificate (`mmca issue cloud`) is streamed into the `emqx-certs` volume by `cloud/scripts/install-emqx-certs.sh` (no bind mount). Without it EMQX starts with the gateway listener off and a warning.
+- Published ports: 8883 on `EMQX_GATEWAY_BIND_ADDRESS` (127.0.0.1 on the laptop, the Tailscale address on the cloud Pi), 1883 on 127.0.0.1 only.
+- Rejected alternative: per-listener built-in password database for the adapter (would need a credentials file baked into the image or a bind mount).
+
+## D14 — Dashboard sign-in, CORS and the name directory (Decided 2026-10-25)
+
+```
+browser (web/dashboard) ── GET /auth/config ─────────────────► api   {issuer, client_id, project_id, scope}
+        │ authorization code + PKCE (no secret)
+        ▼
+ZITADEL app "MedMusketeer Dashboard" (created by zitadel-bootstrap)
+        │ JWT access token: project audience, roles, resource owner
+        ▼
+browser ── Authorization: Bearer … (CORS: DASHBOARD_ORIGINS) ──► api   /me, /directory, …
+```
+
+- **The dashboard's OIDC app** is created by the `zitadel-bootstrap` job in the MedMusketeer project: a user-agent app with the authorization-code grant, PKCE and no client secret, refresh tokens allowed, and **JWT access tokens with the roles asserted** (the API validates JWTs only). Its redirect URI is `{origin}/auth/callback` and its post-logout URI `{origin}/` for every origin in `DASHBOARD_ORIGINS` (default `http://localhost:3000`). The job brings it in line with that setting on every `up`. Dev mode (which allows http redirect URIs) relaxes redirect checks for the whole app, so the origins must be all http (a development stack, dev mode on) or all https (dev mode off); the job refuses a mix, which would let a production app send codes to `http://localhost`.
+- **`GET /auth/config`** (public) returns the issuer, the app's client id, the project id and the scopes a login must request (`openid profile email offline_access`, the project audience, the project roles and the resource owner). The dashboard reads it at start, so the same build works against any stack. The client id is written to `zitadel.json` as `dashboard_client_id`; without it the endpoint answers 503.
+- **CORS**: the API sends CORS headers only to the origins in `MM_CORS_ORIGINS` (compose sets it from `DASHBOARD_ORIGINS`), for GET/POST/PUT/PATCH/DELETE with the `Authorization` and `Content-Type` headers, and without credentials: the dashboard sends a bearer token, never cookies. With no origins configured, no CORS headers are sent.
+- **`GET /directory`** returns `{user_id, role, status, given_name, family_name, email}` for the accounts the caller works with. The names are read from ZITADEL as `mm-api` (one list call per 100 users) and reused for 60 seconds.
+  - Organisation admin: every account of the organisation, with e-mail, since they manage the accounts.
+  - Doctor: themselves and their current patients, without e-mail. A doctor identifies the patients they treat by name; ECG data stays filed under the pseudonym.
+  - Patient: themselves and their current doctor, without e-mail.
+  - System admin: no directory (403). They see no patient or doctor data (D9).
+  - An account ZITADEL returns no profile for is listed with empty names. A ZITADEL failure answers 502.
+- **Development data**: `python -m app.manage seed-dev` creates, on an empty stack, a system admin and the organisation "Dev Hospital" with an org admin, two doctors and three patients. All of them are ZITADEL human users with one printed password. It also adds a gateway and wearables, alert segments of synthetic ECG with classifications and alerts, and IDS events. The ECG is generated and has no clinical meaning. It exists so that the dashboard can be built and tested before ingestion (Slice 5).
+- Rejected alternatives:
+  - The dashboard reading names from ZITADEL itself: a user's token cannot read other users.
+  - A name column in `users`: names would then live in two places (D12 keeps them in ZITADEL).
+  - A same-origin reverse proxy instead of CORS: the dashboard was to be hosted on Vercel, the API on the cloud Pi. **Revisit (2026-10-26):** the dashboard will now be served from the cloud Pi, so it could share the API's origin through the stack's proxy and CORS would not be needed. To be decided with the Pi deployment (`docs/iterations/iteration-6-dashboard.md`, Deployment).
