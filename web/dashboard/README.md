@@ -40,6 +40,15 @@ npm run test:e2e   # browser tests in sample mode, desktop and phone (port DASHB
 scripts/api-e2e.sh # browser tests in API mode: brings up its own cloud stack, seeds it, signs in each role through ZITADEL, removes the stack
 ```
 
+## Deployment
+
+The dashboard is served from the cloud Pi, next to the cloud stack; it is not set up yet. It needs:
+- a build in API mode with `NEXT_PUBLIC_API_URL` set to the cloud's public address;
+- `next start` (or a container) behind the stack's reverse proxy;
+- its https origin in the cloud's `DASHBOARD_ORIGINS`.
+
+See `docs/iterations/iteration-6-dashboard.md` (Deployment). That doc is also the screen-level spec.
+
 ## API types
 
 `src/api/openapi.json` (the cloud API's OpenAPI document) and `src/api/schema.d.ts` (types generated from it) are committed. A unit test checks that every call the dashboard makes is a path and method in that document. Regenerate both when the API changes:
@@ -57,7 +66,9 @@ OPENAPI_SOURCE=path/to/openapi.json npm run gen:api   # or from a file (scripts/
 | `src/auth/` | Roles, the session (`useSession`, `useData`) and ZITADEL sign-in |
 | `src/api/` | API types (aliases of the generated schema) and error mapping |
 | `src/services/` | The data-source contract, the API implementation and the sample-data implementation (`mock/`) |
+| `src/features/{system,org,doctor,patient,care}/` | The screens of each role; `care/` holds the alert table, ECG viewer, polling and recording panel shared by doctor and patient |
 | `src/lib/ecg.ts` | Decoding the API's int16le-base64 ECG chunks |
+| `src/components/charts/ecg-waveform.tsx` | The ECG strip (25 mm/s, 10 mm/mV) |
 | `src/config/navigation.ts` | The sidebar of each role |
 | `src/components/ui/`, `app-shell/` | Design system and shell, kept from the POC |
 | `src/api/schema.d.ts` | Generated API types |

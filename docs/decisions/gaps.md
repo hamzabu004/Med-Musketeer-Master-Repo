@@ -52,7 +52,11 @@ Last updated: 2026-10-24
 - Gateway outage-buffer and security-event store (marked TBD in the report)
 
 ## Dashboard
-- Role views are defined in the report (patient, doctor, organisation admin, system admin); no screen-level spec for the new dashboard yet (the POC-Lite docs cover the proof of concept)
+- ~~No screen-level spec for the new dashboard~~ — resolved 2026-10-26: `docs/iterations/iteration-6-dashboard.md` (all four roles built and tested on the cloud API)
+- Dashboard deployment on the cloud Pi (with the cloud's Slice 6 and the public domain); whether it shares the API's origin through the proxy, which would make CORS unnecessary (`cloud-backend.md` D14)
+- Cloud endpoints the dashboard works around: a single alert (`GET /alerts/{id}`), an organisation's admins for the system admin, grants by organisation, a single patient and an audit filter by target for the org admin, and paging past 1000 rows (audit, security events, alerts). Details: the iteration doc, "Waiting for the cloud"
+- The ECG gain (ADC counts per mV) is not stored with segments; the dashboard assumes 200 counts/mV (MIT-BIH) and says so on every strip
+- ZITADEL's login offers "Register new user": a self-registered user has no role and gets "no access". Decide whether the bootstrap turns self-registration off
 - Alert escalation flow: `alerts.acknowledged_by` exists, but what happens when an alert is not acknowledged is undefined
 
 ## Non-functional / ops
@@ -61,7 +65,7 @@ Last updated: 2026-10-24
 - No OTA/firmware update strategy (`device_updates` exists only if remote updates are adopted) — relevant if credentials ever need pushing to deployed devices
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one domain/cert or separate subdomains
 - No platform ops logging/monitoring (distinct from IDS/IPS event logging)
-- The invite-code onboarding (`cloud-backend.md` D12) is checked as far as ZITADEL issuing the code; a person redeeming it in the Login UI is not tested yet (with the dashboard, Iteration 6). A password sign-in through the dashboard's OIDC app is tested end to end (TC-C19)
+- ~~The invite-code onboarding is not tested past ZITADEL issuing the code~~ — resolved 2026-10-26: the dashboard's API-mode browser tests redeem codes in ZITADEL's login for a new org admin and a new patient (TC-D05)
 - ~~The API returns no names~~ — resolved 2026-10-25: `GET /directory` reads them from ZITADEL (`cloud-backend.md` D14)
 - ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume) before the cloud is exposed beyond Tailscale
 - `is_testbed` exists as a registry field, but physical/logical separation of testbed hardware from anything resembling real patient data isn't specified

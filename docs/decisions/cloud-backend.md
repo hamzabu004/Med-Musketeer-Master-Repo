@@ -247,7 +247,7 @@ API (as mm-api)                                     ZITADEL
 - `IAM_ORG_MANAGER` lets the API manage organisations, their users and user grants and project grants, but not instance settings, instance members or the project's roles. The bootstrap service account (`IAM_OWNER`) stays out of the API's reach.
 - The token lasts a year. The bootstrap job checks it on every `up` and replaces it (deleting the account's old tokens) when it is missing or no longer works. The API starts after the job and reloads the file when ZITADEL refuses the token it holds.
 - ZITADEL is changed first (`users.zitadel_sub` needs its id). If a later ZITADEL step or the database insert fails, the ZITADEL user or organisation is deleted again. Anything left behind is inert: the API refuses ZITADEL users it has not registered.
-- No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. Wiring this into the dashboard's onboarding is Iteration 6.
+- No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. The dashboard's invite page explains it, and the dashboard's API-mode browser tests redeem codes in ZITADEL's login (TC-D05).
 - Names and e-mail addresses live only in ZITADEL; the database keeps the role, organisation and, for patients, the pseudonym.
 
 ## D13 — EMQX configuration and the internal service listener (Decided 2026-10-24)
@@ -291,4 +291,4 @@ browser ── Authorization: Bearer … (CORS: DASHBOARD_ORIGINS) ──► api
 - Rejected alternatives:
   - The dashboard reading names from ZITADEL itself: a user's token cannot read other users.
   - A name column in `users`: names would then live in two places (D12 keeps them in ZITADEL).
-  - A same-origin reverse proxy instead of CORS: the dashboard is hosted on Vercel, the API on the cloud Pi.
+  - A same-origin reverse proxy instead of CORS: the dashboard was to be hosted on Vercel, the API on the cloud Pi. **Revisit (2026-10-26):** the dashboard will now be served from the cloud Pi, so it could share the API's origin through the stack's proxy and CORS would not be needed. To be decided with the Pi deployment (`docs/iterations/iteration-6-dashboard.md`, Deployment).

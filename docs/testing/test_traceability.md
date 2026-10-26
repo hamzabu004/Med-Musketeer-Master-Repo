@@ -59,3 +59,32 @@ Kinds: **A** automated, no containers; **A-db** automated against a throwaway Ti
 | TC-C17 | A-stack + A + A-db | `test_gateway::test_tc_c17_publish_and_subscribe_outside_the_acl_are_denied`; `test_broker_rules::*`; `test_broker::test_tc_c17_topic_access_also_needs_an_active_gateway` | MQTT 5 reason code "Not authorized" for each denied publish and subscription; the adapter monitor receives only the allowed sentinel; EMQX logs each denial (`emqx.log`). |
 | TC-C18 | A-stack + A | `test_gateway::test_tc_c18_the_gateway_verifies_the_cloud_by_its_pinned_name`; CA tool `test_ca::test_cloud_profile_*`, `test_ca::test_certificates_carry_key_identifiers_*` | The listener presents CN/SAN `cloud.medmusketeer.local`; a client pinning another name or trusting another CA refuses it. The gateway's own uplink (Iteration 4) has to apply the same pin. |
 | TC-C19 | A-stack + A-db + A | `test_stack::test_tc_c19_seeded_accounts_sign_in_to_the_dashboard_and_get_their_role`; `test_directory::*`; `test_app::test_cors_*`, `test_app::test_auth_config_*`; `test_zitadel_bootstrap::*`; `test_zitadel::test_profiles_*`; `test_access::*` (row `GET /directory`) | The bootstrap's dashboard app is a PKCE browser app with JWT access tokens; `GET /auth/config` gives its client id; seeded accounts of all four roles sign in with authorization code + PKCE (the browser's steps, scripted) and `/me` returns their role, with CORS for the dashboard origin; `/directory` returns names from ZITADEL per role (D14). Record in `stack/tc_c19_dashboard_sign_in.json`. |
+
+## Dashboard (Iteration 6)
+
+Tests live in `web/dashboard/`:
+- unit tests: `src/**/*.test.ts(x)`, run with `npm test`;
+- sample-mode browser tests: `e2e/mock/`, run with `npm run test:e2e`, desktop and phone;
+- API-mode browser tests: `e2e/api/`, run with `scripts/api-e2e.sh`.
+
+Screens and rules: `docs/iterations/iteration-6-dashboard.md`. Evidence: `docs/testing/evidence/2026-10-26/dashboard*/` (`checks.txt`, `e2e-mock.txt`, `e2e-api.txt`).
+
+Kinds:
+- **A**: Vitest, no browser.
+- **A-browser**: Playwright in sample mode, desktop and phone.
+- **A-stack-browser**: Playwright against the cloud compose stack, signing in through ZITADEL's real login.
+
+| ID | Kind | Tests | Notes |
+|---|---|---|---|
+| TC-D01 | A + A-browser + A-stack-browser | `roles.test`, `role-guard.test`, `navigation.test`; `e2e/mock/sign-in.spec` (each role lands in its area and is kept out of the others; signed-out visitors go to sign-in); `e2e/api/sign-in.spec` (each seeded role signs in through ZITADEL and lands by the role `/me` reports) | |
+| TC-D02 | A + A-stack-browser | `http.test` (renew and retry once on 401, one renewal shared between requests, give up with the 401 when the token cannot be renewed); `e2e/api/sign-in.spec` (tokens not in `localStorage`; sign-out ends the ZITADEL session) | |
+| TC-D03 | A | `api.test` (every call matches a path and method of the cloud's OpenAPI document; unserved capabilities refused without a call); `mock-data-source.test` (sample data answers 403/404 and 409/422 as the API does, including suspension); `errors.test` | Keeps sample mode honest to the API. |
+| TC-D04 | A-browser + A-stack-browser | `e2e/mock/system-admin.spec`; `e2e/api/system-admin.spec` | Organisation and admin; device registration, credential, activation, grant; security events; audit trail of each step. |
+| TC-D05 | A-browser + A-stack-browser | `e2e/mock/system-admin.spec`, `e2e/mock/org-admin.spec` (code gone after confirmation); `e2e/api/system-admin.spec`, `e2e/api/org-admin.spec` (the new org admin and the new patient redeem their codes in ZITADEL's login and land in their areas) | Closes the redemption gap of D12. |
+| TC-D06 | A + A-browser + A-stack-browser | `org.test`; `e2e/mock/org-admin.spec`; `e2e/api/org-admin.spec` | Create, disable with consequences, assign doctor, issue/return wearable, disorder, export with download, history. |
+| TC-D07 | A-browser + A-stack-browser | `e2e/mock/doctor-patient.spec` (doctor); `e2e/api/doctor-patient.spec` | Alert → ECG → acknowledge; the acknowledgement survives a reload against the API; another doctor's patient reads "not found". |
+| TC-D08 | A-browser + A-stack-browser | `e2e/mock/doctor-patient.spec` (patient); `e2e/api/doctor-patient.spec` | Own alerts read-only with who acknowledged, their doctor's name, their ECG. |
+| TC-D09 | A | `ecg.test` (int16le-base64 decoding, stitching by `seq`); `care.test` (strip at 25 mm/s and 10 mm/mV, whole large squares) | |
+| TC-D10 | A-browser + A-stack-browser | `e2e/api/system-admin.spec` (attack tests unavailable), `e2e/api/doctor-patient.spec` (on-demand recording unavailable); `e2e/mock/doctor-patient.spec`, `mock-data-source.test` (sample recording contract) | Unbuilt capabilities said plainly in API mode. |
+| TC-D11 | A-browser | `expectFitsViewport` in every sample-mode spec | Every page at phone width (Pixel 7) without horizontal page scroll. |
+| TC-D12 | A + A-browser + A-stack-browser | `care.test` (each alert marked once; `backlog` flag); `e2e/mock/doctor-patient.spec`, `e2e/api/doctor-patient.spec` (one mark per alert drawn) | "Dashboard render" checkpoint of the latency methodology. |
