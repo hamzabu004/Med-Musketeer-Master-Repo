@@ -1,6 +1,6 @@
 # Code review findings — dashboard Phase 1 (cloud enablers: sign-in, CORS, directory, seed-dev)
 
-- **Reviewed:** commit `bc76104` on `feat/dashboard`, `/code-review high`, 2026-10-25
+- **Reviewed:** commit `94c9c3c` on `feat/dashboard`, `/code-review high`, 2026-10-25
 - **Status:** 7 fixed, 3 accepted (see the last column).
 - **Verified:** 317 cloud tests pass after the fixes (`docs/testing/evidence/2026-10-25/cloud/`); new tests named below.
 

@@ -1,6 +1,6 @@
 # Review findings: dashboard Phase 5, organisation admin screens
 
-- **Commit reviewed:** `f0906cf` (`/code-review high`)
+- **Commit reviewed:** `590ecdb` (`/code-review high`)
 - **Date:** 2026-10-26
 - **Outcome:** 9 fixed, 1 accepted
 

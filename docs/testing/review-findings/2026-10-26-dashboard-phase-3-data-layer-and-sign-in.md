@@ -1,6 +1,6 @@
 # Code review findings — dashboard Phase 3 (data layer, sample-data mode, ZITADEL sign-in)
 
-- **Reviewed:** commit `9aad358` on `feat/dashboard`, `/code-review high`, 2026-10-26
+- **Reviewed:** commit `829b45b` on `feat/dashboard`, `/code-review high`, 2026-10-26
 - **Status:** all 10 fixed.
 - **Verified:** typecheck, lint, 74 unit tests, build, 22 sample-mode and 6 API-mode browser tests pass after the fixes (`docs/testing/evidence/2026-10-26/dashboard/`).
 

@@ -1,6 +1,6 @@
 # Code review findings — dashboard Phase 4 (system admin screens)
 
-- **Reviewed:** commit `d6cf272` on `feat/dashboard`, `/code-review high`, 2026-10-26
+- **Reviewed:** commit `73a32b9` on `feat/dashboard`, `/code-review high`, 2026-10-26
 - **Status:** 9 fixed, 1 accepted.
 - **Verified:** typecheck, lint, 79 unit tests, build, 30 sample-mode and 7 API-mode browser tests pass after the fixes (`docs/testing/evidence/2026-10-26/dashboard-phase-4/`).
 

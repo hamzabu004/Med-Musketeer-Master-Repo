@@ -1,6 +1,6 @@
 # Code review findings — dashboard Phase 2 (POC ported and stripped to a four-role skeleton)
 
-- **Reviewed:** commit `a3b5a21` on `feat/dashboard`, `/code-review high`, 2026-10-26 (the import commit `5a0f185` is the POC unchanged and was not reviewed)
+- **Reviewed:** commit `cd5cf1b` on `feat/dashboard`, `/code-review high`, 2026-10-26 (the import commit `3c5847c` is the POC unchanged and was not reviewed)
 - **Status:** 7 fixed, 3 deferred to the phase that rewrites the code.
 - **Verified:** typecheck, lint, 8 unit tests, build and 12 Playwright tests pass after the fixes (`docs/testing/evidence/2026-10-25/dashboard/`).
 

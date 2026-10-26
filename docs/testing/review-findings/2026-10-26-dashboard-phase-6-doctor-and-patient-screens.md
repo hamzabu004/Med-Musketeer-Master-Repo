@@ -1,6 +1,6 @@
 # Review findings: dashboard Phase 6, doctor and patient screens
 
-- **Commit reviewed:** `704d863` (`/code-review high`)
+- **Commit reviewed:** `02bbfc5` (`/code-review high`)
 - **Date:** 2026-10-26
 - **Outcome:** 9 fixed, 1 mitigated (needs a cloud endpoint)
 
