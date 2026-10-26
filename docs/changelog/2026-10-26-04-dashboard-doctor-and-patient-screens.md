@@ -66,3 +66,15 @@ Phase 6 of the dashboard rebuild: the doctor's and patient's screens over the ca
   - the acknowledgement survives a reload;
   - the patient page shows the fixed path and "on-demand recording is not available yet";
   - the patient then sees their doctor's name and the three acknowledged alerts, without an Acknowledge button.
+
+## Review
+`/code-review high` found ten issues (`docs/testing/review-findings/2026-10-26-dashboard-phase-6-doctor-and-patient-screens.md`). Nine are fixed in a follow-up commit:
+- polling re-reads only alerts;
+- counts from capped lists say "1000+";
+- one acknowledgement per click;
+- render marks flag alerts that predate the page;
+- unknown severities never look calm;
+- sample recordings work in long sessions;
+- smaller strip and panel fixes.
+
+The alert detail lookup is mitigated. A complete fix needs `GET /alerts/{alert_id}` in the cloud.

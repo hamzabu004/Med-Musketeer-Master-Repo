@@ -10,8 +10,11 @@ import { formatAgo, formatDateTime } from "@/lib/date-time";
 import { beatLabel, confidence, labelize } from "@/lib/labels";
 import { useRenderMarks } from "./render-mark";
 
+/** Severity is free text in the schema: a value other than the known three is shown as needing
+ * attention, never as calm. */
 export function severityTone(severity: string): StatusTone {
-  return severity === "high" ? "critical" : severity === "medium" ? "warning" : "info";
+  if (severity === "high" || severity === "critical") return "critical";
+  return severity === "low" ? "info" : "warning";
 }
 
 /** Where the alert was classified: on the fixed path by the gateway, on the mobile path by the cloud. */
@@ -25,7 +28,7 @@ export function AlertTable({
   detailHref,
   acknowledgedBy,
   onAcknowledge,
-  busy,
+  isPending,
   empty,
 }: {
   alerts: Alert[];
@@ -35,7 +38,8 @@ export function AlertTable({
   acknowledgedBy: (userId: string) => string;
   /** The doctor's acknowledge; absent for a patient, who can only read. */
   onAcknowledge?: (alert: Alert) => void;
-  busy?: boolean;
+  /** An acknowledge sent and not yet shown in the data: its button stays disabled. */
+  isPending?: (alert: Alert) => boolean;
   empty: { title: string; description: string };
 }) {
   useRenderMarks(alerts);
@@ -74,8 +78,8 @@ export function AlertTable({
               {onAcknowledge && (
                 <Td>
                   {!alert.acknowledged_at && (
-                    <Button type="button" variant="secondary" disabled={busy} onClick={() => onAcknowledge(alert)}>
-                      Acknowledge
+                    <Button type="button" variant="secondary" disabled={isPending?.(alert)} onClick={() => onAcknowledge(alert)}>
+                      {isPending?.(alert) ? "Acknowledging…" : "Acknowledge"}
                     </Button>
                   )}
                 </Td>

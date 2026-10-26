@@ -173,7 +173,7 @@ describe("sample data, org admin (Phase 5)", () => {
 
 describe("sample data, on-demand recordings (Phase 6)", () => {
   it("acks, records for the requested time, then serves the recording segment; one at a time", async () => {
-    vi.setSystemTime(Date.parse("2026-10-25T12:00:00Z")); // the world's clock: the wearable was just heard from
+    vi.setSystemTime(Date.parse("2026-10-25T13:00:00Z")); // an hour into the session: a wearable that reported still acks (Phase 6 review)
     const doctor = as("doctor1");
     const request = await doctor.recordings.request(patientId("P-1001"), 10);
     expect(request.status).toBe("sent");

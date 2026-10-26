@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { stripGeometry } from "@/components/charts/ecg-waveform";
 import { beatLabel } from "@/lib/labels";
+import { severityTone } from "./alert-table";
+import { countLabel } from "./limits";
 import type { RecordingRequest } from "@/services/contracts";
 import { recordingState } from "./recording-panel";
 import { markRendered, RENDER_MARK } from "./render-mark";
@@ -38,7 +40,9 @@ describe("the dashboard-render checkpoint", () => {
     markRendered([alert]);
     markRendered([alert]);
     expect(mark).toHaveBeenCalledTimes(1);
-    expect(mark).toHaveBeenCalledWith(RENDER_MARK, { detail: alert });
+    expect(mark).toHaveBeenCalledWith(RENDER_MARK, { detail: { ...alert, backlog: true } }); // created before the page loaded
+    markRendered([{ alert_id: "a-render-2", created_at: new Date(performance.timeOrigin + 1000).toISOString() }]);
+    expect(mark).toHaveBeenLastCalledWith(RENDER_MARK, { detail: expect.objectContaining({ backlog: false }) });
   });
 });
 
@@ -47,5 +51,18 @@ describe("classification labels", () => {
     expect(beatLabel("V")).toBe("Ventricular ectopic (V)");
     expect(beatLabel("custom")).toBe("custom");
     expect(beatLabel(null)).toBe("Not classified");
+  });
+});
+
+describe("review findings (Phase 6)", () => {
+  it("never shows an unexpected severity as calm", () => {
+    expect(severityTone("critical")).toBe("critical");
+    expect(severityTone("urgent")).toBe("warning");
+    expect(severityTone("low")).toBe("info");
+  });
+
+  it("says when a count comes from a full, capped list", () => {
+    expect(countLabel(999)).toBe("999");
+    expect(countLabel(1000)).toBe("1000+");
   });
 });

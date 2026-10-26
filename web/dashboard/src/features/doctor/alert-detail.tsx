@@ -16,6 +16,7 @@ import { beatLabel, confidence, labelize } from "@/lib/labels";
 import { loadPeople } from "@/lib/people";
 import { useResource } from "@/lib/use-resource";
 import { originLabel, severityTone } from "../care/alert-table";
+import { ALERT_LIMIT } from "../care/limits";
 import { useRenderMarks } from "../care/render-mark";
 import { SegmentStrip } from "../care/segment-viewer";
 import { useCareNames } from "./care-context";
@@ -24,33 +25,39 @@ import { useAcknowledge } from "./use-acknowledge";
 export function AlertDetail({ alertId }: { alertId: string }) {
   const { data } = useData();
   const resource = useResource(async () => {
-    // The API has no single-alert read: the alert is found among the doctor's newest 1000.
-    const [alerts, patients, { people }] = await Promise.all([data.care.alerts({ limit: 1000 }), data.patients(), loadPeople(data.directory)]);
-    const alert = alerts.find((a) => a.alert_id === alertId);
+    // The API has no single-alert read. The alert is looked for among the doctor's newest 1000
+    // unacknowledged and newest 1000 alerts: the two lists the inbox links from.
+    const [open, recent, patients, { people }] = await Promise.all([
+      data.care.alerts({ unacknowledged: true, limit: ALERT_LIMIT }),
+      data.care.alerts({ limit: ALERT_LIMIT }),
+      data.patients(),
+      loadPeople(data.directory),
+    ]);
+    const alert = open.find((a) => a.alert_id === alertId) ?? recent.find((a) => a.alert_id === alertId);
     if (!alert) throw new ApiError(404, "alert not found");
     const segment = alert.segment_id ? await data.care.segment(alert.segment_id) : null;
     return { alert, segment, patients, people };
   }, [alertId]);
-  const { acknowledge, busy, notice } = useAcknowledge(resource.reload);
+  const { acknowledge, isPending, notice } = useAcknowledge(resource.reload);
   useRenderMarks(resource.status === "ready" ? [resource.data.alert] : null);
 
   return (
     <section className="mx-auto max-w-6xl space-y-5">
       <Loaded resource={resource} label="Loading the alert">
         {({ alert, segment, patients, people }) => (
-          <AlertBody alert={alert} segment={segment} patients={patients} people={people} busy={busy} onAcknowledge={() => void acknowledge(alert)} notice={<Notice notice={notice} />} />
+          <AlertBody alert={alert} segment={segment} patients={patients} people={people} pending={resource.status === "ready" && isPending(resource.data.alert)} onAcknowledge={() => void acknowledge(alert)} notice={<Notice notice={notice} />} />
         )}
       </Loaded>
     </section>
   );
 }
 
-function AlertBody({ alert, segment, patients, people, busy, onAcknowledge, notice }: {
+function AlertBody({ alert, segment, patients, people, pending, onAcknowledge, notice }: {
   alert: Alert;
   segment: SegmentDetail | null;
   patients: PatientSummary[];
   people: Person[];
-  busy: boolean;
+  pending: boolean;
   onAcknowledge: () => void;
   notice: React.ReactNode;
 }) {
@@ -65,7 +72,7 @@ function AlertBody({ alert, segment, patients, people, busy, onAcknowledge, noti
           alert.acknowledged_at ? (
             <Status label={`Acknowledged by ${names.person(alert.acknowledged_by!)}`} tone="healthy" />
           ) : (
-            <Button type="button" disabled={busy} onClick={onAcknowledge}>Acknowledge</Button>
+            <Button type="button" disabled={pending} onClick={onAcknowledge}>{pending ? "Acknowledging…" : "Acknowledge"}</Button>
           )
         }
       />

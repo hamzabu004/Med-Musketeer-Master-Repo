@@ -136,15 +136,16 @@ export function createMockDataSource(world: World, principal: Principal, onChang
   }
 
   /** Sample behaviour of an on-demand recording, worked out when read so it needs no timer: a
-   * wearable heard from in the last 15 minutes acks after 3 s and streams for the requested time,
-   * then the recording segment appears; one that is quiet never acks, and the command expires after
-   * 60 s. The cloud's behaviour is not decided yet (gaps.md). */
+   * wearable that has ever reported acks after 3 s and streams for the requested time, then the
+   * recording segment appears; one never heard from does not ack, and the command expires after
+   * 60 s. Not tied to how long ago it reported: sample `last_seen` is fixed when the world is created
+   * and would age out during a long session. The cloud's behaviour is not decided yet (gaps.md). */
   function advanceRecording(request: RecordingRequest) {
     const created = Date.parse(request.created_at);
     const at = Date.now();
     if (request.status === "sent") {
       const wearable = world.devices.find((d) => d.device_id === request.device_id);
-      const heard = wearable?.last_seen ? created - Date.parse(wearable.last_seen) < 15 * 60_000 : false;
+      const heard = Boolean(wearable?.last_seen);
       if (heard && at >= created + 3_000) Object.assign(request, { status: "acked", acked_at: new Date(created + 3_000).toISOString() });
       else if (!heard && at >= created + 60_000) request.status = "expired";
     }

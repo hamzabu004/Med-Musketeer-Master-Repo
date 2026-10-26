@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { userMessage } from "@/api/errors";
 import { useData } from "@/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -31,9 +32,10 @@ function Requests({ patientId, hasWearable, segmentHref }: { patientId: string; 
   const [duration, setDuration] = useState("30");
   const resource = useResource(() => data.recordings.list(patientId), [patientId]);
   const requests = resource.status === "ready" ? resource.data : [];
-  const inProgress = requests.some((r) => recordingState(r).open);
+  // Until the list is read, a recording may be in progress: requesting waits for it.
+  const inProgress = resource.status !== "ready" || requests.some((r) => recordingState(r).open);
   // Follows a request through sent, acked and recorded; quiet once nothing is in progress.
-  usePolling(inProgress ? resource.reload : noop, 2_000);
+  usePolling(requests.some((r) => recordingState(r).open) ? resource.reload : noop, 2_000);
 
   async function request() {
     if (await run("request", () => data.recordings.request(patientId, Number(duration)), "Request sent to the wearable.")) resource.reload();
@@ -55,13 +57,19 @@ function Requests({ patientId, hasWearable, segmentHref }: { patientId: string; 
             </Select>
           </Field>
           <Button type="button" disabled={busy !== null || inProgress} onClick={() => void request()}>
-            {inProgress ? "Recording in progress" : "Request recording"}
+            {resource.status !== "ready" ? "Request recording" : inProgress ? "Recording in progress" : "Request recording"}
           </Button>
         </div>
       ) : (
         <p className="text-sm text-[var(--color-warning)]">The patient has no wearable issued, so no recording can be requested.</p>
       )}
       <Notice notice={notice} />
+      {resource.status === "error" && (
+        <p role="alert" className="text-sm text-[var(--color-critical)]">
+          Could not read the recording requests: {userMessage(resource.error)}{" "}
+          <button type="button" className="underline" onClick={resource.reload}>Try again</button>
+        </p>
+      )}
       {requests.length > 0 && (
         <ul className="divide-y divide-[var(--color-border)] text-sm">
           {requests.slice(0, 5).map((r) => {

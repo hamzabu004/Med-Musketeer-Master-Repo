@@ -12,6 +12,7 @@ import { labelize } from "@/lib/labels";
 import { loadPeople, personName } from "@/lib/people";
 import { useResource } from "@/lib/use-resource";
 import { AlertTable } from "../care/alert-table";
+import { ALERT_LIMIT } from "../care/limits";
 import { ALERT_POLL_MS, usePolling } from "../care/use-polling";
 import { SegmentTable } from "../care/segment-table";
 
@@ -33,17 +34,19 @@ const segmentHref = (segmentId: string | null) => (segmentId ? `/patient/ecg/${s
 export function PatientDashboard() {
   const { data } = useData();
   const resource = useResource(async () => {
-    const [organisation, alerts, { people }] = await Promise.all([data.organisation(), data.care.alerts({ limit: 5 }), loadPeople(data.directory)]);
-    return { organisation, alerts, people };
+    const [organisation, { people }] = await Promise.all([data.organisation(), loadPeople(data.directory)]);
+    return { organisation, people };
   }, []);
-  usePolling(resource.reload, ALERT_POLL_MS);
+  // Only the alerts are polled; the organisation and names are read once.
+  const latest = useResource(() => data.care.alerts({ limit: 5 }), []);
+  usePolling(latest.reload, ALERT_POLL_MS);
 
   return (
     <section className="mx-auto max-w-6xl space-y-5">
       <PageIntro title="Dashboard" description="Your monitoring at a glance. Your doctor reviews every alert; this page is for your information." />
       <MedicalNotice />
       <Loaded resource={resource} label="Loading your monitoring">
-        {({ organisation, alerts, people }) => {
+        {({ organisation, people }) => {
           const doctor = people.find((p) => p.role === "doctor");
           return (
             <>
@@ -60,12 +63,16 @@ export function PatientDashboard() {
                 </Card>
               </div>
               <SectionTitle actions={<Link className="text-sm text-[var(--color-info)] underline" href="/patient/alerts">All your alerts</Link>}>Latest alerts</SectionTitle>
-              <AlertTable
-                alerts={alerts}
-                detailHref={(a) => segmentHref(a.segment_id)}
-                acknowledgedBy={acknowledger(people)}
-                empty={{ title: "No alerts", description: "Your wearable has not raised any alert." }}
-              />
+              <Loaded resource={latest} label="Loading your alerts">
+                {(alerts) => (
+                  <AlertTable
+                    alerts={alerts}
+                    detailHref={(a) => segmentHref(a.segment_id)}
+                    acknowledgedBy={acknowledger(people)}
+                    empty={{ title: "No alerts", description: "Your wearable has not raised any alert." }}
+                  />
+                )}
+              </Loaded>
             </>
           );
         }}
@@ -76,17 +83,16 @@ export function PatientDashboard() {
 
 export function PatientAlerts() {
   const { data } = useData();
-  const resource = useResource(async () => {
-    const [alerts, { people }] = await Promise.all([data.care.alerts({ limit: 1000 }), loadPeople(data.directory)]);
-    return { alerts, people };
-  }, []);
+  const names = useResource(() => loadPeople(data.directory), []);
+  const resource = useResource(() => data.care.alerts({ limit: ALERT_LIMIT }), []);
   usePolling(resource.reload, ALERT_POLL_MS);
+  const people = names.status === "ready" ? names.data.people : [];
   return (
     <section className="mx-auto max-w-6xl space-y-5">
       <PageIntro title="Alerts" description="Every alert your wearable raised, and whether your doctor has reviewed it. Open one to see its ECG." />
       <MedicalNotice />
       <Loaded resource={resource} label="Loading your alerts">
-        {({ alerts, people }) => (
+        {(alerts) => (
           <AlertTable
             alerts={alerts}
             detailHref={(a) => segmentHref(a.segment_id)}

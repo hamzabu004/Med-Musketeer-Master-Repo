@@ -8,31 +8,22 @@ import { Notice } from "@/components/ui/notice";
 import { Loaded } from "@/components/ui/page-state";
 import { PageIntro } from "@/components/ui/page-intro";
 import { formatDateTime } from "@/lib/date-time";
-import { loadPeople } from "@/lib/people";
 import { useResource } from "@/lib/use-resource";
-import { AlertTable } from "../care/alert-table";
+import { AlertTable, severityTone } from "../care/alert-table";
+import { ALERT_LIMIT, countLabel } from "../care/limits";
 import { ALERT_POLL_MS, usePolling } from "../care/use-polling";
 import { useAcknowledge } from "./use-acknowledge";
-import { useCareNames } from "./care-context";
-
-/** The API's largest page of alerts. */
-const ALERT_LIMIT = 1000;
+import { useCareContext, useCareNames } from "./care-context";
 
 export function DoctorAlerts() {
   const { data } = useData();
   const [show, setShow] = useState<"open" | "all">("open");
   const [severity, setSeverity] = useState("");
   const [openedAt] = useState(() => Date.now());
-  const resource = useResource(async () => {
-    const [alerts, patients, { people }] = await Promise.all([
-      data.care.alerts({ unacknowledged: show === "open", limit: ALERT_LIMIT }),
-      data.patients(),
-      loadPeople(data.directory),
-    ]);
-    return { alerts, patients, people };
-  }, [show]);
-  usePolling(resource.reload, ALERT_POLL_MS);
-  const { acknowledge, busy, notice } = useAcknowledge(resource.reload);
+  const context = useCareContext();
+  const alerts = useResource(() => data.care.alerts({ unacknowledged: show === "open", limit: ALERT_LIMIT }), [show]);
+  usePolling(alerts.reload, ALERT_POLL_MS);
+  const { acknowledge, isPending, notice } = useAcknowledge(alerts.reload);
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
@@ -54,16 +45,26 @@ export function DoctorAlerts() {
         </Field>
       </div>
       <Notice notice={notice} />
-      <Loaded resource={resource} label="Loading alerts">
-        {(loaded, { fetchedAt }) => <Inbox {...loaded} fetchedAt={fetchedAt} severity={severity} openedAt={openedAt} onAcknowledge={acknowledge} busy={busy} />}
+      <Loaded resource={context} label="Loading your patients">
+        {({ patients, people }) => (
+          <Loaded resource={alerts} label="Loading alerts">
+            {(list, { fetchedAt }) => (
+              <Inbox alerts={list} patients={patients} people={people} fetchedAt={fetchedAt} severity={severity} openedAt={openedAt} onAcknowledge={acknowledge} isPending={isPending} />
+            )}
+          </Loaded>
+        )}
       </Loaded>
     </section>
   );
 }
 
-function Inbox({
-  alerts, patients, people, fetchedAt, severity, openedAt, onAcknowledge, busy,
-}: {
+/** The severity filter: "high" includes any value shown as critical (severity is free text). */
+function matches(alert: Alert, severity: string): boolean {
+  if (!severity) return true;
+  return severity === "high" ? severityTone(alert.severity) === "critical" : alert.severity === severity;
+}
+
+function Inbox({ alerts, patients, people, fetchedAt, severity, openedAt, onAcknowledge, isPending }: {
   alerts: Alert[];
   patients: PatientSummary[];
   people: Person[];
@@ -71,16 +72,16 @@ function Inbox({
   severity: string;
   openedAt: number;
   onAcknowledge: (alert: Alert) => void;
-  busy: boolean;
+  isPending: (alert: Alert) => boolean;
 }) {
   const names = useCareNames(patients, people);
-  const shown = alerts.filter((a) => !severity || a.severity === severity);
+  const shown = alerts.filter((a) => matches(a, severity));
   const fresh = alerts.filter((a) => !a.acknowledged_at && Date.parse(a.created_at) > openedAt).length;
   return (
     <>
       <p className="text-xs text-[var(--color-text-muted)]" aria-live="polite">
         {fresh > 0 && <strong className="mr-2 text-[var(--color-critical)]">{fresh} new since you opened this page.</strong>}
-        Updated {formatDateTime(new Date(fetchedAt).toISOString())}; checks again every {ALERT_POLL_MS / 1000} s.
+        {countLabel(alerts.length)} {alerts.length === 1 ? "alert" : "alerts"}. Updated {formatDateTime(new Date(fetchedAt).toISOString())}; checks again every {ALERT_POLL_MS / 1000} s.
       </p>
       <AlertTable
         alerts={shown}
@@ -88,7 +89,7 @@ function Inbox({
         detailHref={(a) => `/doctor/alerts/${a.alert_id}`}
         acknowledgedBy={names.person}
         onAcknowledge={onAcknowledge}
-        busy={busy}
+        isPending={isPending}
         empty={{ title: "Nothing to acknowledge", description: "New alerts of your patients appear here within seconds of arriving." }}
       />
     </>

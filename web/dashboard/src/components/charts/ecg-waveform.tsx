@@ -77,7 +77,7 @@ export function ECGWaveform({
           viewBox={`0 0 ${widthMm} ${heightMm + 6}`}
           role="img"
           aria-label={summary}
-          className="block touch-pan-x"
+          className="block"
           onPointerMove={(event) => {
             const box = event.currentTarget.getBoundingClientRect();
             setCursor(((event.clientX - box.left) / box.width) * widthMm);
@@ -97,7 +97,8 @@ export function ECGWaveform({
           {/* 0 mV baseline */}
           <line x1="0" x2={widthMm} y1={y(0)} y2={y(0)} stroke="rgba(180,70,70,0.35)" strokeWidth="0.15" strokeDasharray="1 1" />
           <path d={path} fill="none" stroke="var(--color-brand)" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-          {Array.from({ length: Math.floor(seconds) + 1 }, (_, s) => (
+          {/* A label per whole second that fits inside the strip (the end of a 10 s strip has no room for "10 s"). */}
+          {Array.from({ length: Math.ceil(seconds) }, (_, s) => (
             <text key={s} x={s * MM_PER_S + 0.6} y={heightMm + 4} fontSize="3" fill="var(--color-text-muted)">
               {s} s
             </text>

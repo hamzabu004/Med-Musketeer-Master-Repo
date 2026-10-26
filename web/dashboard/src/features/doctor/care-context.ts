@@ -1,6 +1,8 @@
 "use client";
 
 import type { Alert, PatientSummary, Person } from "@/api/types";
+import { loadPeople } from "@/lib/people";
+import { useResource } from "@/lib/use-resource";
 import { useData } from "@/auth/session";
 import { peopleById, personName } from "@/lib/people";
 import { shortId } from "@/lib/labels";
@@ -19,4 +21,14 @@ export function useCareNames(patients: PatientSummary[], people: Person[]) {
     patientName: (p: PatientSummary) => (p.user_id ? personName(byId.get(p.user_id)) : null),
     person: (userId: string) => (userId === session.userId ? "You" : (personName(byId.get(userId)) ?? `User ${shortId(userId)}`)),
   };
+}
+
+/** What a doctor's screens look up but need not poll: their patients, those patients' wearables,
+ * and names. Loaded once per page; the alerts are polled separately. */
+export function useCareContext() {
+  const { data } = useData();
+  return useResource(async () => {
+    const [patients, devices, { people, named }] = await Promise.all([data.patients(), data.devices(), loadPeople(data.directory)]);
+    return { patients, devices, people, named };
+  }, []);
 }
