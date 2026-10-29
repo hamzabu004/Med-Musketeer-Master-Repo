@@ -15,6 +15,7 @@ import json
 import logging
 import ssl
 import threading
+from pathlib import Path
 
 import paho.mqtt.client as mqtt
 from cryptography import x509
@@ -25,6 +26,16 @@ from mm_uplink.enforce import Enforcer, run_command, sighup_from_pid_file
 from mm_uplink.revocations import TOPIC, RevocationStore
 
 log = logging.getLogger(__name__)
+
+
+# systemd-timesyncd creates this file once the clock has been synchronised since boot.
+TIMESYNC_FLAG = Path("/run/systemd/timesync/synchronized")
+
+
+def clock_synchronised(flag: Path = TIMESYNC_FLAG) -> bool:
+    """Whether the clock has been synchronised since boot. Until then it may be fake-hwclock's last
+    saved time: buffered data will carry this flag (the backlog, Iteration 4)."""
+    return flag.exists()
 
 
 class PinnedContext(ssl.SSLContext):
@@ -70,6 +81,8 @@ class Uplink:
     # --- lifecycle ---------------------------------------------------------------------------------
 
     def start(self) -> None:
+        if not clock_synchronised():
+            log.warning("clock not synchronised since boot (no NTP yet): times may be fake-hwclock's last saved time")
         with self._lock:
             self.enforcer.apply(self.store.current)
         log.info("gateway %s connecting to %s:%s as %s", self.gateway_id, self.config.cloud_host,

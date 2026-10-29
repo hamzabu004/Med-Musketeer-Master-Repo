@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.2.0, pluggy-1.7.0
+rootdir: /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/gateway/uplink
+configfile: pyproject.toml
+testpaths: tests
+collected 21 items / 4 deselected / 17 selected
+
+tests/test_enforce.py ....                                               [ 23%]
+tests/test_revocations.py .............                                  [100%]
+
+==================================== PASSES ====================================
+_ test_the_broker_is_reloaded_only_when_the_file_changes_and_failures_are_retried _
+------------------------------ Captured log call -------------------------------
+ERROR    mm_uplink.enforce:enforce.py:86 broker ACL not applied (retrying): no such process
+___________ test_only_newer_versions_are_kept_and_survive_a_restart ____________
+------------------------------ Captured log call -------------------------------
+WARNING  mm_uplink.revocations:revocations.py:60 no revocation list stored yet (/tmp/pytest-of-hmz-gul/pytest-20/test_only_newer_versions_are_k0/revocations.json): no wearable is refused until one arrives
+WARNING  mm_uplink.revocations:revocations.py:81 revocation list ignored: not JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+______________ test_an_unusable_stored_list_is_ignored_not_fatal _______________
+------------------------------ Captured log call -------------------------------
+ERROR    mm_uplink.revocations:revocations.py:67 stored revocation list /tmp/pytest-of-hmz-gul/pytest-20/test_an_unusable_stored_list_i0/revocations.json is unusable (not JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)): ignoring it
+=========================== short test summary info ============================
+PASSED tests/test_enforce.py::test_setup_mosquitto_writes_the_same_patterns
+PASSED tests/test_enforce.py::test_render_adds_one_deny_block_per_listed_wearable
+PASSED tests/test_enforce.py::test_the_broker_is_reloaded_only_when_the_file_changes_and_failures_are_retried
+PASSED tests/test_enforce.py::test_the_clock_counts_as_synchronised_once_timesyncd_says_so
+PASSED tests/test_revocations.py::test_the_shipped_schemas_match_shared_contracts[revocation-list-v1]
+PASSED tests/test_revocations.py::test_the_shipped_schemas_match_shared_contracts[status-v1]
+PASSED tests/test_revocations.py::test_a_valid_list_parses
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[not json]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[{"v": 1}]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[{"v": 1, "version": 0, "issued_at": "2026-10-30T10:00:00Z", "devices": [], "certificates": []}]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[fault3]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[fault4]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[fault5]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[fault6]
+PASSED tests/test_revocations.py::test_invalid_lists_are_refused[fault7]
+PASSED tests/test_revocations.py::test_only_newer_versions_are_kept_and_survive_a_restart
+PASSED tests/test_revocations.py::test_an_unusable_stored_list_is_ignored_not_fatal
+======================= 17 passed, 4 deselected in 0.23s =======================

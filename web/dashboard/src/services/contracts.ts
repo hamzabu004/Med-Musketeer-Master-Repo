@@ -23,6 +23,7 @@ import type {
   PatientSummary,
   Person,
   PersonIn,
+  RevocationStatus,
   SecurityEvent,
   Segment,
   SegmentDetail,
@@ -98,6 +99,9 @@ export interface DataSource {
     revokeGrant(grantId: string): Promise<Grant>;
     audit(limit?: number): Promise<AuditEvent[]>;
     securityEvents(limit?: number): Promise<SecurityEvent[]>;
+    /** The wearable revocation list (D16): its version, what EMQX holds, and the active gateways
+     * that have not reported the published version. */
+    revocation(): Promise<RevocationStatus>;
   };
 
   /** System admin: attack tests (capability "attackTests"). Refused for a production device. */

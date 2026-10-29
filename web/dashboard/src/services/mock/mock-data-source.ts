@@ -173,6 +173,12 @@ export function createMockDataSource(world: World, principal: Principal, onChang
   }
 
   const TRANSITIONS = { activate: ["pending", "suspended"], suspend: ["active"], revoke: ["pending", "active", "suspended"] } as const;
+  const LISTED = ["suspended", "revoked"];
+
+  /** A change to the wearable revocation list (D16): a new version, published at once here. */
+  function bumpRevocationList() {
+    world.revocation = { version: world.revocation.version + 1, published_at: now() };
+  }
 
   function changeDeviceStatus(deviceId: string, action: keyof typeof TRANSITIONS) {
     const d = device(deviceId);
@@ -185,7 +191,11 @@ export function createMockDataSource(world: World, principal: Principal, onChang
       const grant = world.grants.find((g) => g.device_id === deviceId && g.revoked_at === null);
       if (grant) closeGrant(grant.grant_id);
     }
+    const before = d.status;
     d.status = ({ activate: "active", suspend: "suspended", revoke: "revoked" } as const)[action];
+    d.status_changed_at = now();
+    // As the API: a wearable moving into or out of suspended/revoked changes the list.
+    if (d.type === "wearable" && (LISTED.includes(before) || LISTED.includes(d.status))) bumpRevocationList();
     audit("registry", `device.${d.status}`, null, deviceId);
     return d;
   }
@@ -246,7 +256,8 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           if (world.devices.some((d) => d.device_id === body.device_id)) {
             throw new ApiError(409, "conflicts with an existing record", { error: "conflicts with an existing record", constraint: "devices_pkey" });
           }
-          const d = { device_id: body.device_id, type: body.type, status: "pending" as const, is_testbed: body.is_testbed, current_mode: "unknown", current_gateway_id: null, last_seen: null, registered_by: principal.user_id, created_at: now() };
+          const d = { device_id: body.device_id, type: body.type, status: "pending" as const, is_testbed: body.is_testbed, current_mode: "unknown", current_gateway_id: null, last_seen: null,
+            status_changed_at: now(), revocation_version: null, registered_by: principal.user_id, created_at: now() };
           world.devices.push(d);
           audit("registry", "device.registered", null, d.device_id, { type: d.type });
           return d;
@@ -275,6 +286,11 @@ export function createMockDataSource(world: World, principal: Principal, onChang
         answer(["system_admin"], () => {
           const credential = world.credentials.find((c) => c.credential_id === credentialId);
           if (!credential) throw notFound("credential");
+          const owner = device(credential.device_id);
+          // A revoked certificate of a wearable that is not listed itself goes on the list.
+          if (credential.status !== "revoked" && owner.type === "wearable" && credential.auth_method === "x509_mtls" && !LISTED.includes(owner.status)) {
+            bumpRevocationList();
+          }
           credential.status = "revoked";
           audit("registry", "credential.revoked", null, credential.device_id, { credential_id: credentialId });
           return credential;
@@ -304,6 +320,15 @@ export function createMockDataSource(world: World, principal: Principal, onChang
         }, true),
       audit: (limit) => answer(["system_admin"], () => newest(world.audit.filter((e) => e.scope === "registry"), limit)),
       securityEvents: (limit = 200) => answer(["system_admin"], () => [...world.securityEvents].sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, limit)),
+      revocation: () =>
+        answer(["system_admin"], () => {
+          const { version, published_at } = world.revocation;
+          const stale = world.devices
+            .filter((d) => d.type === "fixed_gateway" && d.status === "active" && (d.revocation_version === null || d.revocation_version < version))
+            .map((d) => d.device_id)
+            .sort();
+          return { version, published_version: version, published_at, stale_gateways: stale };
+        }),
     },
 
     attackTests: {

@@ -34,7 +34,7 @@ Last updated: 2026-10-29
 ## Ingestion / messaging (blocks Iteration 3–4)
 - ~~The adapter's code-level interface~~ — resolved 2026-10-29: `cloud-backend.md` D15 (adapter, ingestion API, status and IDS-event payloads, idempotency)
 - `alerts.severity` is unused (nullable, empty, not in the API): alerts carry the wearable's label and confidence only (`cloud-backend.md` D15). Drop the column, or give it a meaning, if a later classifier needs one
-- Ingestion of `result` (gateway classification of an alert's segment), `command_ack` and `backlog` (post-outage upload): payloads not defined; the adapter skips them
+- Ingestion of `result` (gateway classification of an alert's segment), `command_ack` and `backlog` (post-outage upload): payloads not defined; the adapter skips them. The backlog design must meet D16's requirement: a revoked wearable's data sent before its `status_changed_at` is stored, data sent after it is quarantined (not rejected). Each record carries the gateway's clock-synchronised flag, and the quarantine trusts its timestamp only when the flag is set. Test TC-C32 waits for it
 - The WebSocket alert push: `NOTIFY mm_alerts` is sent, nothing listens yet (the dashboard polls)
 - Growth of `ingested_messages` (one row per alert and IDS event, no retention policy yet)
 - Telemetry QoS and the recording payload (the alert payload v1 is decided in `cloud-backend.md` D6); how an on-demand stream starts and stops (the request command, duration or explicit stop, and the `command_ack`)

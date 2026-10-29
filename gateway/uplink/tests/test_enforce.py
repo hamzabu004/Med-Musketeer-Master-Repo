@@ -53,3 +53,11 @@ def test_the_broker_is_reloaded_only_when_the_file_changes_and_failures_are_retr
     assert reloads.count == 1 and not enforcer.pending and enforcer.enforced_version == 2
     assert enforcer.apply(listing(3, device)) and reloads.count == 2  # version line changed
     assert oct(acl.stat().st_mode & 0o777) == "0o600"
+
+
+def test_the_clock_counts_as_synchronised_once_timesyncd_says_so(tmp_path):
+    from mm_uplink.service import clock_synchronised
+    flag = tmp_path / "synchronized"
+    assert not clock_synchronised(flag)
+    flag.touch()
+    assert clock_synchronised(flag)

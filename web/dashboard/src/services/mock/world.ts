@@ -89,6 +89,8 @@ export interface World {
   attackTests: AttackTest[];
   recordings: RecordingRequest[];
   exports: number;
+  /** The wearable revocation list's version (D16); sample data publishes every version at once. */
+  revocation: { version: number; published_at: string };
 }
 
 /** A deterministic UUID-shaped id, so links into sample data stay valid across reloads. */
@@ -147,7 +149,8 @@ export function createWorld(now = Date.now()): World {
   const grants: Grant[] = [];
   const device = (n: number, type: string, org: string | null, status: Device["status"] = "active"): string => {
     const device_id = mockId(ID.device, n);
-    devices.push({ device_id, type, status, is_testbed: true, current_mode: "unknown", current_gateway_id: null, last_seen: null, registered_by: sysadmin, created_at: created });
+    devices.push({ device_id, type, status, is_testbed: true, current_mode: "unknown", current_gateway_id: null, last_seen: null,
+      status_changed_at: created, revocation_version: null, registered_by: sysadmin, created_at: created });
     if (status !== "pending") {
       credentials.push({
         credential_id: mockId(ID.credential, n), device_id, auth_method: "x509_mtls", key_type: "ec_p256",
@@ -162,6 +165,11 @@ export function createWorld(now = Date.now()): World {
   const wearables = [2, 3, 4, 5].map((n) => device(n, "wearable", devHospital));
   const nsWearable = device(6, "wearable", northside);
   device(7, "wearable", null, "pending"); // registered, no credential yet: for the registry screens
+  // Gateways report the revocation list version they enforce; Northside's is behind, so the
+  // system admin's screens show the stale-list flag.
+  const nsGateway = device(8, "fixed_gateway", northside);
+  Object.assign(devices.find((d) => d.device_id === gateway)!, { revocation_version: 2 });
+  Object.assign(devices.find((d) => d.device_id === nsGateway)!, { revocation_version: 1 });
 
   const live = (deviceId: string, mode: string, via: string | null, seenMinutesAgo: number) => {
     Object.assign(devices.find((d) => d.device_id === deviceId)!, { current_mode: mode, current_gateway_id: via, last_seen: at(seenMinutesAgo) });
@@ -170,6 +178,7 @@ export function createWorld(now = Date.now()): World {
   live(wearables[0], "fixed", gateway, 0.67); // patient1 on the fixed path
   live(wearables[1], "mobile", null, 6); // patient2 on the mobile path
   live(nsWearable, "mobile", null, 2);
+  live(nsGateway, "fixed", null, 1);
 
   const careAssignments: CareAssignment[] = [
     [p1, doctor1, orgadmin], [p2, doctor1, orgadmin], [p3, doctor2, orgadmin], [p4, nsDoctor, nsAdmin],
@@ -270,5 +279,6 @@ export function createWorld(now = Date.now()): World {
   return {
     organisations, users, patients, devices, credentials, grants, careAssignments, wearableAssignments,
     disorders, segments, classifications, alerts, securityEvents, audit, attackTests, recordings, exports: 0,
+    revocation: { version: 2, published_at: at(60 * 3) },
   };
 }

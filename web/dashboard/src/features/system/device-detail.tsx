@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Device, Organisation } from "@/api/types";
+import type { Device, Organisation, RevocationStatus } from "@/api/types";
 import { useData } from "@/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import { formatAgo, formatDateTime } from "@/lib/date-time";
 import { deviceType, labelize, shortId } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
+import { gatewayListState } from "./revocation-list";
 
 /** A SHA-256 fingerprint as `mmca issue` prints it: 64 hex digits, colons allowed. */
 export function normaliseFingerprint(value: string): string | null {
@@ -27,7 +28,8 @@ export function normaliseFingerprint(value: string): string | null {
   return /^[0-9A-F]{64}$/.test(hex) ? hex : null;
 }
 
-function Facts({ device }: { device: Device }) {
+function Facts({ device, revocation }: { device: Device; revocation: RevocationStatus }) {
+  const listState = gatewayListState(device, revocation);
   const facts: [string, React.ReactNode][] = [
     ["Type", deviceType(device.type)],
     ["Testbed", device.is_testbed ? "Yes: attack tests may target it" : "No: production device"],
@@ -35,7 +37,14 @@ function Facts({ device }: { device: Device }) {
     ["Current gateway", device.current_gateway_id ? <Link href={`/system/devices/${device.current_gateway_id}`} className="text-[var(--color-info)]"><RecordId id={device.current_gateway_id} /></Link> : "—"],
     ["Last seen", device.last_seen ? `${formatAgo(device.last_seen)} (${formatDateTime(device.last_seen)})` : "Never"],
     ["Registered", formatDateTime(device.created_at)],
+    ["Status since", formatDateTime(device.status_changed_at)],
   ];
+  if (listState) {
+    facts.push(["Revocation list", <>
+      <Status label={listState.label} tone={listState.tone} />
+      {listState.stale && <span className="mt-1 block text-xs text-[var(--color-text-muted)]">This gateway may still let in a wearable revoked since. It catches up when it next reaches the cloud.</span>}
+    </>]);
+  }
   return (
     <Card className="p-4">
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
@@ -57,13 +66,14 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
   const [grantTo, setGrantTo] = useState("");
 
   const resource = useResource(async () => {
-    const [device, credentials, grants, organisations] = await Promise.all([
+    const [device, credentials, grants, organisations, revocation] = await Promise.all([
       data.registry.device(deviceId),
       data.registry.credentials(deviceId),
       data.registry.grants(deviceId),
       data.registry.organisations(),
+      data.registry.revocation(),
     ]);
-    return { device, credentials, grants, organisations };
+    return { device, credentials, grants, organisations, revocation };
   }, [deviceId]);
 
   async function change<T>(name: string, task: () => Promise<T>, success: string) {
@@ -77,12 +87,18 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
 
   return (
     <Loaded resource={resource} label="Loading the device">
-      {({ device, credentials, grants, organisations }) => {
+      {({ device, credentials, grants, organisations, revocation }) => {
         const orgName = (id: string) => organisations.find((o: Organisation) => o.org_id === id)?.name ?? id;
         const openGrant = grants.find((g) => g.revoked_at === null);
         const activeCredentials = credentials.filter((c) => c.status === "active");
         const grantable = organisations.filter((o) => o.status === "active");
         const revoked = device.status === "revoked";
+        const isGateway = device.type === "fixed_gateway";
+        // What the broker does on each change (D16): gateways are disconnected at once; wearables are
+        // refused by every gateway through the revocation list, which is matched by name, not certificate.
+        const refusal = isGateway
+          ? "It is disconnected from the cloud at once and refused when it reconnects."
+          : "Every gateway refuses it within seconds through the revocation list, also while it cannot reach the cloud.";
 
         return (
           <section className="mx-auto max-w-6xl space-y-5">
@@ -95,7 +111,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
               <Link href="/system/devices" className="text-[var(--color-info)] underline">All devices</Link>
             </p>
             <Notice notice={action.notice} />
-            <Facts device={device} />
+            <Facts device={device} revocation={revocation} />
 
             <SectionTitle>Lifecycle</SectionTitle>
             <Card className="flex flex-wrap items-center gap-2 p-4">
@@ -112,7 +128,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
                 <ConfirmButton
                   label="Suspend"
                   title="Suspend this device?"
-                  consequences={["The broker refuses it from its next connection or publish.", "Credentials, grant and assignment are kept; activating it again restores it."]}
+                  consequences={[refusal, "Credentials, grant and assignment are kept; activating it again restores it."]}
                   disabled={busy}
                   onConfirm={() => void change("suspend", () => data.registry.suspendDevice(deviceId), "Device suspended.")}
                 />
@@ -123,7 +139,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
                   variant="danger"
                   title="Revoke this device for good?"
                   consequences={[
-                    "All its credentials are revoked, so the broker refuses it.",
+                    `All its credentials are revoked. ${refusal}`,
                     "Its grant to an organisation ends, and if it is a wearable issued to a patient, it is returned.",
                     "This cannot be undone: a revoked device cannot be activated or granted again.",
                   ]}
@@ -154,7 +170,9 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
                           <ConfirmButton
                             label="Revoke"
                             title="Revoke this credential?"
-                            consequences={["The broker refuses this certificate from now on.", "The device itself stays as it is; add a new credential for a replacement certificate."]}
+                            consequences={isGateway
+                              ? ["The cloud refuses this certificate from now on, and the gateway is disconnected at once.", "The device itself stays as it is; add a new credential for a replacement certificate."]
+                              : ["The cloud refuses this certificate from now on.", "Gateways match wearables by name, not by certificate: to stop this wearable at the gateway too, suspend it until its new certificate is flashed.", "The device itself stays as it is; add a new credential for a replacement certificate."]}
                             disabled={busy}
                             onConfirm={() => void change("revoke-credential", () => data.registry.revokeCredential(c.credential_id), "Credential revoked.")}
                           />

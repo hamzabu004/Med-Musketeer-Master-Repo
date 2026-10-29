@@ -41,11 +41,11 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 
 | Screen | Content and actions | Endpoints |
 |---|---|---|
-| Dashboard | Organisation and device counts by status; latest security events and registry changes | `/admin/organisations`, `/admin/devices`, `/admin/security-events`, `/admin/audit` |
+| Dashboard | Organisation and device counts by status; gateways behind the wearable revocation list (Iteration 4); latest security events and registry changes | `/admin/organisations`, `/admin/devices`, `/admin/revocation`, `/admin/security-events`, `/admin/audit` |
 | Organisations | List; create (public/private) | `GET/POST /admin/organisations` |
 | Organisation | Suspend or reactivate, saying that every member is refused while suspended; create an organisation admin with the invite code shown once; administrators created; devices granted | `PATCH /admin/organisations/{id}`, `POST /admin/organisations/{id}/admins` |
-| Devices | List with filters; register by certificate UUID, type and testbed flag | `GET/POST /admin/devices` |
-| Device | Facts and liveness; activate (needs an active credential), suspend, revoke with its cascade spelled out; add a credential by SHA-256 fingerprint, revoke it; grant to an organisation, end the grant, grant history | `/admin/devices/{id}/…` |
+| Devices | List with filters; register by certificate UUID, type and testbed flag; each active gateway's revocation list state (current, behind, not reported) | `GET/POST /admin/devices`, `GET /admin/revocation` |
+| Device | Facts and liveness, status since, a gateway's revocation list state; activate (needs an active credential), suspend, revoke with its cascade and what the broker does spelled out; add a credential by SHA-256 fingerprint, revoke it; grant to an organisation, end the grant, grant history | `/admin/devices/{id}/…` |
 | Security events | Filter by mode, class and outcome; detail panel | `GET /admin/security-events` |
 | Attack tests | Start and stop against testbed devices only; results compare each window with the IDS events (detected after N s, missed, not covered) | Not served yet (Iteration 5); sample mode only |
 | Audit log | Registry changes, filtered by kind | `GET /admin/audit` |

@@ -516,6 +516,7 @@
      "system admin"
     ],
     "summary": "Revoke Credential",
+    "description": "A wearable's certificate goes on the revocation list while the wearable is not listed itself.\nThe gateway's broker matches wearables by certificate CN only, so there it takes suspending the\nwearable to refuse it; the cloud refuses the certificate either way (D16).",
     "operationId": "revoke_credential_admin_credentials__credential_id__revoke_post",
     "parameters": [
      {
@@ -687,6 +688,28 @@
        "application/json": {
         "schema": {
          "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/admin/revocation": {
+   "get": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "Revocation Status",
+    "description": "The wearable revocation list's version, what EMQX holds, and the gateways behind it (D16).",
+    "operationId": "revocation_status_admin_revocation_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RevocationStatus"
         }
        }
       }
@@ -2318,6 +2341,22 @@
       ],
       "title": "Last Seen"
      },
+     "status_changed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Status Changed At"
+     },
+     "revocation_version": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revocation Version"
+     },
      "registered_by": {
       "anyOf": [
        {
@@ -2345,6 +2384,8 @@
      "current_mode",
      "current_gateway_id",
      "last_seen",
+     "status_changed_at",
+     "revocation_version",
      "registered_by",
      "created_at"
     ],
@@ -3049,6 +3090,46 @@
      "family_name"
     ],
     "title": "PersonIn"
+   },
+   "RevocationStatus": {
+    "properties": {
+     "version": {
+      "type": "integer",
+      "title": "Version"
+     },
+     "published_version": {
+      "type": "integer",
+      "title": "Published Version"
+     },
+     "published_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Published At"
+     },
+     "stale_gateways": {
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "type": "array",
+      "title": "Stale Gateways"
+     }
+    },
+    "type": "object",
+    "required": [
+     "version",
+     "published_version",
+     "published_at",
+     "stale_gateways"
+    ],
+    "title": "RevocationStatus"
    },
    "SecurityEvent": {
     "properties": {

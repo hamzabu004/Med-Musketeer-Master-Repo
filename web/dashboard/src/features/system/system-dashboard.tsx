@@ -5,7 +5,7 @@ import { useData } from "@/auth/session";
 import { Metric, SectionTitle } from "@/components/ui/metric";
 import { Loaded } from "@/components/ui/page-state";
 import { PageIntro } from "@/components/ui/page-intro";
-import { formatDateTime } from "@/lib/date-time";
+import { formatAgo, formatDateTime } from "@/lib/date-time";
 import { useResource } from "@/lib/use-resource";
 import { AuditTable } from "./audit-table";
 import { SecurityEventTable } from "./security-event-table";
@@ -16,13 +16,14 @@ export function SystemDashboard() {
   const { data } = useData();
   const resource = useResource(
     async () => {
-      const [organisations, devices, events, audit] = await Promise.all([
+      const [organisations, devices, events, audit, revocation] = await Promise.all([
         data.registry.organisations(),
         data.registry.devices(),
         data.registry.securityEvents(5),
         data.registry.audit(5),
+        data.registry.revocation(),
       ]);
-      return { organisations, devices, events, audit };
+      return { organisations, devices, events, audit, revocation };
     },
     [],
   );
@@ -31,11 +32,11 @@ export function SystemDashboard() {
     <section className="mx-auto max-w-7xl space-y-5">
       <PageIntro title="Dashboard" description="The registry at a glance. The system administrator sees devices and organisations, never patient data." />
       <Loaded resource={resource} label="Loading the registry">
-        {({ organisations, devices, events, audit }, { fetchedAt }) => {
+        {({ organisations, devices, events, audit, revocation }, { fetchedAt }) => {
           const count = (status: string) => devices.filter((d) => d.status === status).length;
           return (
             <>
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <Metric
                   label="Organisations"
                   value={organisations.length}
@@ -44,6 +45,13 @@ export function SystemDashboard() {
                 <Metric label="Active devices" value={count("active")} detail={`${plural(devices.filter((d) => d.type === "fixed_gateway").length, "gateway")}, ${plural(devices.filter((d) => d.type === "wearable").length, "wearable")} in all`} />
                 <Metric label="Pending activation" value={count("pending")} detail="Registered, waiting for a credential or activation" />
                 <Metric label="Suspended or revoked" value={count("suspended") + count("revoked")} detail={`${count("suspended")} suspended, ${count("revoked")} revoked`} />
+                <Metric
+                  label="Gateways behind the revocation list"
+                  value={revocation.stale_gateways.length}
+                  detail={revocation.published_version
+                    ? `List v${revocation.published_version}, published ${formatAgo(revocation.published_at)}`
+                    : "No list published yet"}
+                />
               </div>
               <SectionTitle actions={<Link className="text-sm text-[var(--color-info)] underline" href="/system/security-events">All security events</Link>}>
                 Latest security events

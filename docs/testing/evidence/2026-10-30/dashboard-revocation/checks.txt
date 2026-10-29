@@ -1,0 +1,27 @@
+
+> medmusketeer-dashboard@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> medmusketeer-dashboard@0.1.0 lint
+> eslint .
+
+
+> medmusketeer-dashboard@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
+
+
+ Test Files  13 passed (13)
+      Tests  101 passed (101)
+   Start at  01:04:40
+   Duration  22.88s (environment 52%, tests 31%, setup 14%, import 2%, transform 1%)
+
+Environment  jsdom was created 13 times · 32.55s total, 52% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
