@@ -10,7 +10,7 @@ This file is a **gap tracker**, not a decision record. Items move out of this fi
 Last updated: 2026-10-29
 
 ## Identity, crypto, provisioning
-- **Revocation on the gateway:** decided (push + cache, `stack.md`, `cloud-backend.md` D16), not built; planned in `docs/iterations/iteration-4-revocation-sync.md`. Open: the Mosquitto mechanism that enforces the list, and whether it can disconnect a wearable or see a single certificate's fingerprint (Slice 0). `mmca revoke` is not planned: revocation goes through the registry API
+- **Revocation on the gateway:** decided (push + cache, `stack.md`, `cloud-backend.md` D16), not built; planned in `docs/iterations/iteration-4-revocation-sync.md`. Open: the Mosquitto mechanism that enforces the list, and whether it can disconnect a wearable or see a single certificate's fingerprint (Slice 0). The CA tool has no `revoke` command (removed 2026-10-29): revocation goes through the registry API
 - **CN/SAN pinning, remaining sides:** the wearable's role-name pin of the gateway is implemented. Still to do: confirm the ESP32-S3 `common_name` check does a literal match for UUID-style names; the gateway's outbound check of the cloud identity; the cloud-side checks
 - **Mobile-path envelope wire format:** construction is Proposed in `stack.md`; field widths, counter-window size, persist-ahead reservation block size and `key_epoch` handling are open
 - **Envelope keys and the cloud envelope certificate** are not issued by the CA tool yet (the cloud TLS server certificate is, since 2026-10-24)

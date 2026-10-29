@@ -163,7 +163,7 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 - Short-lived gateway certificates with automatic renewal: they need an online signing service and the Device Intermediate CA (`stack.md`). Planned for FYP-2.
 - Revoking a gateway in the eyes of wearables: wearables accept any registered gateway (`stack.md`, "Gateway identity: role pin"). A revoked gateway that stays offline can keep serving wearables locally until it reconnects. A documented residual risk.
 - Compromise of `ca.key`: the only remedy is replacing the CA and re-issuing every device.
-- `mmca revoke` in the CA tool: revocation is done through the registry API and the dashboard.
+- A CA tool `revoke` command: removed from the CA tool plan (2026-10-29); revocation is done through the registry API and the dashboard.
 
 ## Risks
 
