@@ -1,0 +1,20 @@
+│    .tdata           │           16 │          │                │               │
+│ DIRAM               │       148986 │    43.59 │         192774 │        341760 │
+│    .text            │        88511 │     25.9 │                │               │
+│    .bss             │        38352 │    11.22 │                │               │
+│    .data            │        22123 │     6.47 │                │               │
+│ IRAM                │        16384 │    100.0 │              0 │         16384 │
+│    .text            │        15356 │    93.73 │                │               │
+│    .vectors         │         1028 │     6.27 │                │               │
+│ RTC SLOW            │           36 │     0.44 │           8156 │          8192 │
+│    .force_slow      │           36 │     0.44 │                │               │
+│ RTC FAST            │           24 │     0.29 │           8168 │          8192 │
+│    .rtc_reserved    │           24 │     0.29 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+Total image size: 1214132 bytes (.bin may be padded larger)
+Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size. The total external RAM size is not included either, because the amount of RAM connected to the chip is detected at boot and is not known during the build.
+Executing action: size
+Running ninja in directory firmware/wearable/build
+Executing "ninja all"...
+Running ninja in directory firmware/wearable/build
+Executing "ninja size"...

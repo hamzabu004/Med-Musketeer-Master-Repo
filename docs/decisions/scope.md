@@ -9,7 +9,7 @@ This file is the **scope lock** for one Final Year Project. It exists so that an
 
 **Source of truth**: the FYP-1 mid report (`MedMusketeer_FYP1_Mid_Report_LaTeX`, 2026-10-22) as the baseline, the changes since then recorded in this folder and in `docs/changelog/`, and the user's explicit clarifications. The mid report is frozen; it supersedes the proposal defence deck but not later changes. If anything in a future conversation conflicts with this file, ask the user rather than assuming — and if the user confirms a change, update this file and add a change-log entry.
 
-Last updated: 2026-10-23
+Last updated: 2026-10-30
 
 ## Project identity
 
@@ -132,9 +132,9 @@ Wearable (ECG acquisition, TinyDL screening, alerts with the triggering segment,
 
 Only these have been measured. Everything else is a target.
 
-- **ECG:** base-paper method (LightGBM) replicated on a patient-level split: **72–77% accuracy** for both binary and five-class (100 Optuna trials for five-class, 50 for binary, each repeated 5 times) — well short of the 95% teacher target. The base-paper method is therefore **dropped**; Iteration 2 moves to new feature sets, a wide classical-ML search, and 1D-CNN/RNN/LSTM/KAN-Former in parallel.
+- **ECG:** base-paper method (LightGBM) replicated on a patient-level split: **72–77% accuracy** for both binary and five-class (100 Optuna trials for five-class, 50 for binary, each repeated 5 times) — well short of the 95% teacher target. The base-paper method is therefore **dropped**; the evaluation moves to new feature sets, a wide classical-ML search, and 1D-CNN/RNN/LSTM/KAN-Former in parallel (Iteration 5 since 2026-10-30).
 - **IDS (offline, CICIoMT2024):** binary — Random Forest 98.00% accuracy, XGBoost 98.50%; multiclass — Random Forest 84.14% accuracy / 82.56% macro-F1, XGBoost 81.37% / 79.78%. Offline only; no testbed or zero-shot results yet.
-- **Provisioning chain and first fixed-path hop:** 56 automated tests pass (CA tool, secret scan, broker interop on a container broker); hardware procedures recorded. The wearable connects to the Pi's Mosquitto over mTLS and its periodic test alert is received. Evidence: `docs/testing/evidence/2026-10-22/`.
+- **Provisioning chain and first fixed-path hop:** 56 automated tests pass (CA tool, secret scan, broker interop on a container broker); hardware procedures recorded. The wearable connects to the Pi's Mosquitto over mTLS and its periodic test alert was received (replaced by the alert payload in Iteration 2). Evidence: `docs/testing/evidence/2026-10-22/`.
 
 ## Datasets
 
@@ -145,10 +145,10 @@ Only these have been measured. Everything else is a target.
 ## Timeline / iterations
 
 - **Iteration 1 (done):** secure-provisioning slice — CA tool, wearable credentials, BLE provisioning app, gateway broker, first fixed-path messages.
-- **Iteration 2:** ECG evaluation on patient-level splits; the wearable's test alert replaced by the planned alert payload; ACL denials verified on the Pi itself.
+- **Iteration 2:** the wearable's test alert replaced by the planned alert payload (a push button and a synthetic ECG segment until the edge model exists), its presence (`status` and LWT), and ACL denials verified on the Pi itself. Plan: `docs/iterations/iteration-2-wearable-alert.md`. (ECG evaluation moved to Iteration 5 on 2026-10-30.)
 - **Iteration 3:** cloud backend setup — PostgreSQL + TimescaleDB, device registry with organisations and device grants, ingestion API, EMQX with two listeners, ZITADEL with the four roles.
 - **Iteration 4:** uplink bridge from the gateway broker to the cloud over mTLS (`attested_by`, backlog upload); verified wearable → cloud database.
-- **Iteration 5:** edge model on the device, gateway classifier and uplink integration, IDS/IPS on the gateway with overhead measurements.
+- **Iteration 5:** ECG evaluation on patient-level splits (teacher/student candidates), edge model on the device, gateway classifier and uplink integration, IDS/IPS on the gateway with overhead measurements.
 - **Iteration 6 (end of FYP-1):** relay app and envelope, dashboard, integrated baseline validation of both routes.
 
 **Milestones:**

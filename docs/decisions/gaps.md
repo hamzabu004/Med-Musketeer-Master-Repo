@@ -7,7 +7,7 @@ description: Open architecture gaps for MedMusketeer, identified but not yet res
 
 This file is a **gap tracker**, not a decision record. Items move out of this file and into `stack.md` (or get flagged against `scope.md` if they imply a scope question) once actually decided. Don't treat anything listed here as resolved just because it's written down. The mid report's own list is in §5 "Design items still to be settled"; this file is the wider working list.
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
 
 ## Identity, crypto, provisioning
 - **Revocation on the gateway:** decided (push + cache, `stack.md`, `cloud-backend.md` D16); built and container-tested (Slices 1 and 2). Open: the Pi run (H-B06, after the CA replacement), and the forwarding and classifier checks of `listed()`, which wait for those services; planned in `docs/iterations/iteration-4-revocation-sync.md`. The gateway's Mosquitto cannot disconnect a revoked wearable (only refuse its messages) or enforce the revocation of a single credential of an active wearable (Slice 0 spike); both accepted. The CA tool has no `revoke` command (removed 2026-10-29): revocation goes through the registry API
@@ -43,8 +43,8 @@ Last updated: 2026-10-29
 - Mode-switch behaviour: buffered data on a switch, persistence across reboot, button handling
 
 ## ECG / model layer
-- **TinyDL on-device screening model** has no architectural spec. Because only screening-flagged alerts leave the wearable (ADR-1), this blocks the whole alert pipeline and the path benchmark, and its recall limits the whole system
-- Model choice: the base-paper method (LightGBM, 72–77% patient-level) is dropped; the teacher/student candidates (classical ML search; 1D-CNN, RNN, LSTM, KAN-Former) are being evaluated in Iteration 2; no teacher has reached the 95% lock threshold yet
+- **TinyDL on-device screening model** has no architectural spec. Because only screening-flagged alerts leave the wearable (ADR-1), this blocks the real alert pipeline and the path benchmark, and its recall limits the whole system. Until it exists, a push button sends alerts with a synthetic segment and the stub screening `button-stub-0` (Iteration 2)
+- Model choice: the base-paper method (LightGBM, 72–77% patient-level) is dropped; the teacher/student candidates (classical ML search; 1D-CNN, RNN, LSTM, KAN-Former) are evaluated in Iteration 5 (moved from Iteration 2 on 2026-10-30); no teacher has reached the 95% lock threshold yet
 - Signal preprocessing: sampling rate (MIT-BIH is 360 Hz), window length, input unit (samples, beats or seconds), filtering and segmentation
 - Whether the gateway multiclass model and the cloud multiclass model (mobile path) are the same model redeployed or separately tuned for different compute budgets
 - **Hardware:** the ADS1292 digital front end has been requested from the lab and not received; the firmware sampling path must be re-checked against it on arrival. Until then only the AD8232 (testing only)

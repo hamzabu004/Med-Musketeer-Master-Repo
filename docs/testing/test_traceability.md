@@ -27,14 +27,25 @@ container that stands in for the Pi; **H** needs the ESP32-S3, phone, or Pi (see
 | TC-A07 | A-mock + H | `test_flash::test_wrong_chip_stops_without_removing_private_key`, `test_flash::test_missing_partition_stops_without_removing_private_key`, `test_flash::test_readback_mismatch_retains_private_key_and_metadata` | Real board: procedure H-A07 (missing partition only). |
 | TC-A08 | A-mock + H | `test_ssh::test_host_fingerprint_and_explicit_new_host_approval`, `test_ssh::test_new_host_rejection_does_not_save_key`, `test_ssh::test_deploy_stops_on_known_host_key_mismatch` | Real Pi: procedure H-A08. |
 | TC-A09 | A-mock | `test_ca::test_audit_whitelists_details_and_never_records_secret_values`, `test_report_cases::test_tc_a10_audit_log_after_issue_flash_deploy_has_every_action_and_no_secret` | Full init, issue, flash, issue, deploy run. The test function keeps its pre-renumbering name (`tc_a10`) so it matches the 2026-10-22 evidence. |
-| TC-B01 | A-container + H | `test_broker_interop::test_tc_b01_*` | Includes foreign CA, no certificate, and connecting without the role name. Pi: H-B. |
+| TC-B01 | A-container + H | `test_broker_interop::test_tc_b01_*` | Includes foreign CA, no certificate, and connecting without the role name. Pi: H-B, passed 2026-10-22. |
 | TC-B02 | A-container + H | `test_broker_interop::test_tc_b02_*` | All four own publish topics and the own command subscription. |
 | TC-B03 | A-container + H | `test_broker_interop::test_tc_b03_*` | Judged by a services-listener monitor and `Denied PUBLISH` in the broker log. |
-| TC-B04 | A-container + H | `test_broker_interop::test_tc_b04_*` | The services username is a UUIDv4 so that a wearable CN can equal it. |
+| TC-B04 | A-container + H | `test_broker_interop::test_tc_b04_*` | The services username is a UUIDv4 so that a wearable CN can equal it. On the Pi it is `gw_services`, so H-B uses a scratch CA. TC-B02 to B04 on the Pi: blocked (Pi not available; after the CA replacement). |
 | TC-B05 | A-container + H | `gateway/uplink/tests/test_interop.py::test_tc_b05_*` | Iteration 4 (D16). The uplink gets a list from a cloud stand-in and applies it within 10 s. On an open connection, the listed wearable's publishes are refused and commands no longer reach it; it stays connected; another wearable is unaffected; the version is reported to the cloud. Pi: H-B06. |
 | TC-B06 | A-container + A | `test_interop::test_tc_b06_*`; `test_revocations::*` | Older, equal and invalid lists are ignored, and so is a device id that would inject an ACL line; the stored list and the ACL file stay as they were. |
 | TC-B07 | A-container + A | `test_interop::test_tc_b07_*`; `test_revocations::test_only_newer_versions_are_kept_and_survive_a_restart`; `test_enforce::*` | A restarted uplink applies the stored list to a broker that lost it, before the cloud is reached (cloud down). The ACL file and the stored list are 0600. A failed reload is retried. |
 | TC-B08 | A-container | `test_interop::test_tc_b08_*` | During a cloud outage the stored list holds: the listed wearable is refused and others are accepted. When the cloud returns with a newer list, the uplink reconnects by itself and enforces it: one wearable lifted, another listed. |
+
+## Wearable firmware (Iteration 2)
+
+Automated tests: `firmware/wearable/tools/test_check_capture.py`, run with the cloud backend's environment (`cloud/backend/.venv/bin/python -m pytest firmware/wearable/tools`) and in the `payload` job of `.github/workflows/firmware.yml`. **A-host**: the firmware's own C source built and run on the development machine with stand-ins for the ESP-IDF calls.
+
+| ID | Kind | Tests | Notes |
+|---|---|---|---|
+| TC-W01 | A-host + H | `test_check_capture::test_tc_w01_*` | `main/alert.c` built on the host; its alerts pass alert-payload-v1 (`cloud/backend/app/contracts.py`) and fit the 4096-byte MQTT buffer. Pi: H-W01, blocked (Pi not available). |
+| TC-W02 | H | H-W02 | Retained `online` on connect, Last Will `offline`. Blocked (Pi not available). |
+| TC-W03 | H | H-W03 | A press while disconnected is dropped, not queued. Blocked (Pi not available). |
+| TC-W04 | A | `test_check_capture::test_tc_w04_*` | The capture checker refuses what ingestion would (the old test alert, a wrong sample count, unknown topics), a wearable status with `revocation_version`, another device's topic, seq gaps, repeated `msg_id`, and `segment_start` after `sent_at`. A reboot's `seq` 0 is accepted. |
 
 ## Cloud backend (Iteration 3)
 

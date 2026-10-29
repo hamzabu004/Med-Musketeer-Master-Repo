@@ -142,7 +142,7 @@ Schema file: `shared/contracts/alert-payload-v1.schema.json`, generated from `cl
 
 - `msg_id` (UUID) makes a QoS 1 redelivery idempotent; `seq` is a per-device counter that shows gaps.
 - `device_id` is not in the payload: it comes from the topic, which the gateway's ACL and D1 cover.
-- `sent_at` is benchmark-only and never used in a security decision. `fs_hz` 360 is an example; the sampling rate is still open.
+- `sent_at` is benchmark-only and never used in a security decision. `fs_hz` 360 is an example; the sampling rate is still open. The Iteration 2 firmware sends 360 Hz × 1080 samples (3 s), `lead` `SYNTH`, with the stub screening model `button-stub-0` (`firmware/wearable/main/alert.c`).
 - Implemented (Slice 5): unknown fields are refused, so a change is a new `v`; `samples` must decode to exactly `2 × n_samples` bytes; `n_samples` is at most 65 536; times must carry a zone, and `segment_start` may lead the broker's clock by at most 5 minutes; `screening` is required (the alert exists because TinyDL flagged it). `sent_at` is optional.
 
 ## D7 — Normalised ingestion message `ingest-v1` (Decided; Implemented 2026-10-29)

@@ -2,7 +2,7 @@
 # MedMusketeer - local Mosquitto setup on the fixed gateway (Raspberry Pi). Run with sudo.
 # Topics and ACLs: docs/decisions/mqtt-fixed-path-topics.md. The same configuration is
 # tested on a container broker (tools/ca-tool/tests/test_broker_interop.py); on the Pi the
-# CN-to-username mapping has been observed, and the ACL denials are still to be repeated.
+# CN-to-username mapping and TC-B01 have passed; the ACL denials (TC-B02 to B04) wait for the H-B run.
 # Prereq: ca.crt, gateway.crt, gateway.key already in $CERT_DIR
 #         (gateway cert SAN = gateway.medmusketeer.local). Never put ca.key here.
 set -euo pipefail
