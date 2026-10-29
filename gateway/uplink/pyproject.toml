@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medmusketeer-uplink"
+version = "0.1.0"
+description = "MedMusketeer fixed gateway uplink: connection to the cloud, own status, wearable revocation list"
+requires-python = ">=3.11"
+dependencies = [
+  "paho-mqtt>=2.1",
+  "jsonschema>=4.23",
+  "cryptography>=43",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+mm-uplink = "mm_uplink.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["mm_uplink*"]
+
+[tool.setuptools.package-data]
+mm_uplink = ["schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["interop: needs podman and the eclipse-mosquitto:2.0.21 image (TC-B05 to TC-B08)"]

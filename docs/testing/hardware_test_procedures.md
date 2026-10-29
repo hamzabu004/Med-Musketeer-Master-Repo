@@ -95,3 +95,17 @@ The same checks ran automatically against a Mosquitto container (`test_broker_in
 them on the Pi, use the Pi's `mosquitto.conf`, `wearables.acl`, and `services.acl`, and the commands
 recorded in `evidence/<date>/broker/broker_cases.json`, with `journalctl -u mosquitto` as the broker
 log. Record any difference between the Pi configuration and the container one.
+
+## H-B06 — Revocation list on the Pi (TC-B05 to TC-B08)
+
+**Blocked until the MedMusketeer CA is replaced.** The current CA has no Subject Key Identifier, so the uplink's strict verification refuses the cloud's chain. The steps are in `docs/iterations/iteration-4-revocation-sync.md`, Slice 0.
+
+1. Run `setup_mosquitto.sh`, then `mmca deploy`, then `setup_uplink.sh <cloud Tailscale address>`. Check that `journalctl -u medmusketeer-uplink` shows "connected to the cloud", and that `GET /admin/revocation` on the cloud no longer lists this gateway as stale.
+2. With the wearable connected and sending, suspend it as the system admin (`POST /admin/devices/{id}/suspend`). Within 10 s:
+   - `/var/lib/medmusketeer/wearables.acl` holds its deny block;
+   - `journalctl -u mosquitto` shows "Reloading config" and `Denied PUBLISH` from it;
+   - the dashboard shows no new alerts from it.
+3. Stop the cloud link (e.g. `sudo tailscale down`), then reboot the Pi. Check that the wearable is still refused after the boot, while the cloud is still unreachable.
+4. With the link still down, re-activate the wearable in the cloud. Bring the link back up, and check that the uplink reconnects by itself and the wearable's alerts arrive again.
+
+Record the times, the journal excerpts, and `ls -l /var/lib/medmusketeer` (files owned by `mosquitto`, mode 0600).

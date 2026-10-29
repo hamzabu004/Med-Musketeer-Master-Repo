@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "revocation-list-v1.schema.json",
+  "$defs": {
+    "RevokedCertificate": {
+      "additionalProperties": false,
+      "properties": {
+        "device_id": {
+          "description": "An active wearable that holds another, valid certificate",
+          "format": "uuid",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "fingerprint": {
+          "description": "SHA-256 of the certificate, upper-case hex",
+          "pattern": "^[0-9A-F]{64}$",
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "not_after": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dropped from the list once expired; null: no expiry recorded",
+          "title": "Not After"
+        }
+      },
+      "required": [
+        "device_id",
+        "fingerprint",
+        "not_after"
+      ],
+      "title": "RevokedCertificate",
+      "type": "object"
+    },
+    "RevokedDevice": {
+      "additionalProperties": false,
+      "properties": {
+        "device_id": {
+          "format": "uuid",
+          "title": "Device Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "suspended",
+            "revoked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "since": {
+          "description": "When the wearable got this status",
+          "format": "date-time",
+          "title": "Since",
+          "type": "string"
+        }
+      },
+      "required": [
+        "device_id",
+        "status",
+        "since"
+      ],
+      "title": "RevokedDevice",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "revocation-list-v1 (D16): the wearables every gateway must refuse. Retained on\nmm/revocations/wearables, published only by the cloud. Always the full list; a gateway keeps a\nlist only if its version is newer than the one it holds.",
+  "properties": {
+    "v": {
+      "const": 1,
+      "title": "V",
+      "type": "integer"
+    },
+    "version": {
+      "description": "Goes up with every change to the list",
+      "maximum": 9223372036854775807,
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "issued_at": {
+      "format": "date-time",
+      "title": "Issued At",
+      "type": "string"
+    },
+    "devices": {
+      "description": "Suspended or revoked wearables",
+      "items": {
+        "$ref": "#/$defs/RevokedDevice"
+      },
+      "title": "Devices",
+      "type": "array"
+    },
+    "certificates": {
+      "description": "Revoked, unexpired certificates of wearables that are not on `devices`",
+      "items": {
+        "$ref": "#/$defs/RevokedCertificate"
+      },
+      "title": "Certificates",
+      "type": "array"
+    }
+  },
+  "required": [
+    "v",
+    "version",
+    "issued_at",
+    "devices",
+    "certificates"
+  ],
+  "title": "revocation-list-v1",
+  "type": "object"
+}
