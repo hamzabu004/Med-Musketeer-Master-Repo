@@ -406,8 +406,8 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 - Revoking or suspending a gateway, or revoking its credential, also disconnects it from EMQX at once (REST API).
 
 **Accepted tradeoffs (documented, not hidden):**
-- **Outage window:** a wearable revoked while a gateway is offline can still use that gateway until it reconnects; the gateway keeps monitoring rather than stopping. Backlog data the wearable sent after its revocation time is quarantined by the cloud.
-- **Gateway clock:** an offline reboot can leave the gateway clock wrong, which affects certificate expiry checks and backlog timestamps. The gateway uses its RTC (battery fitted) or `fake-hwclock`, and backlog records say whether the clock was synchronised.
+- **Outage window:** a wearable revoked while a gateway is offline can still use that gateway until it reconnects; the gateway keeps monitoring rather than stopping. Backlog data the wearable sent after its revocation time is to be quarantined by the cloud (a requirement on the backlog design, which does not exist yet).
+- **Gateway clock:** an offline reboot can leave the gateway clock wrong, which affects certificate expiry checks and backlog timestamps. The gateway uses its RTC (battery fitted) or `fake-hwclock` (installed by `setup_uplink.sh`, 2026-10-30). The uplink logs whether the clock is synchronised, and backlog records are to carry that flag.
 - A revoked gateway that stays offline can keep serving wearables locally (see "Gateway identity: role pin").
 
 **Gateway broker mechanism (Decided 2026-10-29, Iteration 4 Slice 0 spike on Mosquitto 2.0.21 and 2.1.2):** the uplink regenerates the wearable ACL file with a `user <id>` / `topic deny #` block per listed wearable and reloads Mosquitto with SIGHUP. This refuses the wearable's publishes and stops deliveries to it, on an open connection too, and leaves other wearables alone. Limits, accepted:

@@ -105,7 +105,7 @@ log. Record any difference between the Pi configuration and the container one.
    - `/var/lib/medmusketeer/wearables.acl` holds its deny block;
    - `journalctl -u mosquitto` shows "Reloading config" and `Denied PUBLISH` from it;
    - the dashboard shows no new alerts from it.
-3. Stop the cloud link (e.g. `sudo tailscale down`), then reboot the Pi. Check that the wearable is still refused after the boot, while the cloud is still unreachable.
+3. Stop the cloud link (e.g. `sudo tailscale down`), then reboot the Pi. Check that the wearable is still refused after the boot, while the cloud is still unreachable. Also check that `date` did not jump back (`fake-hwclock`, or the Pi 5 RTC with its battery), and that the uplink's journal says the clock is not synchronised yet.
 4. With the link still down, re-activate the wearable in the cloud. Bring the link back up, and check that the uplink reconnects by itself and the wearable's alerts arrive again.
 
 Record the times, the journal excerpts, and `ls -l /var/lib/medmusketeer` (files owned by `mosquitto`, mode 0600).

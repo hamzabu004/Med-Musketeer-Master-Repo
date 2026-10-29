@@ -217,3 +217,37 @@ describe("sample data, attack tests", () => {
     expect(await statusOf(as("orgadmin").attackTests.list())).toBe(403);
   });
 });
+
+describe("sample data, the wearable revocation list (D16)", () => {
+  it("raises the version as the API does, and lists the gateways behind it", async () => {
+    const admin = as("sysadmin").registry;
+    const devices = await admin.devices();
+    const gateways = devices.filter((d) => d.type === "fixed_gateway");
+    const behind = gateways.find((g) => g.revocation_version === 1)!;
+    expect(await admin.revocation()).toMatchObject({ version: 2, published_version: 2, stale_gateways: [behind.device_id] });
+
+    const wearable = devices.find((d) => d.type === "wearable" && d.status === "active")!;
+    await admin.suspendDevice(wearable.device_id);
+    expect((await admin.device(wearable.device_id)).status_changed_at).not.toBe(wearable.created_at);
+    const afterSuspend = await admin.revocation();
+    expect(afterSuspend.version).toBe(3);
+    expect(afterSuspend.stale_gateways.sort()).toEqual(gateways.map((g) => g.device_id).sort()); // neither has v3 yet
+
+    await admin.activateDevice(wearable.device_id); // off the list: a new version
+    expect((await admin.revocation()).version).toBe(4);
+    const [credential] = await admin.credentials(wearable.device_id);
+    await admin.revokeCredential(credential.credential_id); // an active wearable's certificate
+    await admin.revokeCredential(credential.credential_id); // again: no change
+    expect((await admin.revocation()).version).toBe(5);
+
+    await admin.suspendDevice(gateways[0].device_id); // gateways are not on the list
+    const final = await admin.revocation();
+    expect(final.version).toBe(5);
+    expect(final.stale_gateways).not.toContain(gateways[0].device_id); // only active gateways count
+  });
+
+  it("is for the system admin only", async () => {
+    expect(await statusOf(as("orgadmin").registry.revocation())).toBe(403);
+  });
+});
+

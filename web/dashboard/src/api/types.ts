@@ -25,6 +25,7 @@ export type PatientExport = Schemas["PatientExport"];
 export type PatientSummary = Schemas["PatientSummary"];
 export type Person = Schemas["Person"];
 export type PersonIn = Schemas["PersonIn"];
+export type RevocationStatus = Schemas["RevocationStatus"];
 export type SecurityEvent = Schemas["SecurityEvent"];
 export type Segment = Schemas["Segment"];
 export type SegmentDetail = Schemas["SegmentDetail"];

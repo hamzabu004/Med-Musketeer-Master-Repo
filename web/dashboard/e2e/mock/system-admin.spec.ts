@@ -78,3 +78,25 @@ test("security events open a detail, and every system page fits the screen", asy
     await expectFitsViewport(page);
   }
 });
+
+test("flags gateways behind the wearable revocation list, and a suspension raises its version", async ({ page }) => {
+  await page.goto("/system/dashboard");
+  await expect(page.getByText("Gateways behind the revocation list")).toBeVisible();
+  await expect(page.getByText("List v2, published", { exact: false })).toBeVisible();
+
+  await page.goto("/system/devices");
+  const table = page.getByRole("table", { name: "Devices" });
+  await expect(table.getByText("Current (v2)")).toHaveCount(1);
+  await expect(table.getByText("Behind: v1 of v2")).toHaveCount(1);
+
+  await table.getByRole("row").filter({ hasText: "Wearable" }).filter({ hasText: "Active" }).first().getByRole("link").click();
+  await page.getByRole("button", { name: "Suspend" }).click();
+  await expect(page.getByRole("dialog")).toContainText("revocation list");
+  await page.getByRole("dialog").getByRole("button", { name: "Suspend" }).click();
+  await expect(page.getByText("Device suspended.")).toBeVisible();
+
+  await page.goto("/system/devices");
+  await expect(table.getByText("Behind: v2 of v3")).toHaveCount(1); // the sample gateways never report
+  await expect(table.getByText("Behind: v1 of v3")).toHaveCount(1);
+});
+

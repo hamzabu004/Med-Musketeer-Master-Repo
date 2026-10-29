@@ -172,7 +172,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Revoke Credential */
+        /**
+         * Revoke Credential
+         * @description A wearable's certificate goes on the revocation list while the wearable is not listed itself.
+         *     The gateway's broker matches wearables by certificate CN only, so there it takes suspending the
+         *     wearable to refuse it; the cloud refuses the certificate either way (D16).
+         */
         post: operations["revoke_credential_admin_credentials__credential_id__revoke_post"];
         delete?: never;
         options?: never;
@@ -209,6 +214,26 @@ export interface paths {
         put?: never;
         /** Revoke Grant */
         post: operations["revoke_grant_admin_grants__grant_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/revocation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Revocation Status
+         * @description The wearable revocation list's version, what EMQX holds, and the gateways behind it (D16).
+         */
+        get: operations["revocation_status_admin_revocation_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -881,6 +906,13 @@ export interface components {
             current_gateway_id: string | null;
             /** Last Seen */
             last_seen: string | null;
+            /**
+             * Status Changed At
+             * Format: date-time
+             */
+            status_changed_at: string;
+            /** Revocation Version */
+            revocation_version: number | null;
             /** Registered By */
             registered_by: string | null;
             /**
@@ -1178,6 +1210,17 @@ export interface components {
             given_name: string;
             /** Family Name */
             family_name: string;
+        };
+        /** RevocationStatus */
+        RevocationStatus: {
+            /** Version */
+            version: number;
+            /** Published Version */
+            published_version: number;
+            /** Published At */
+            published_at: string | null;
+            /** Stale Gateways */
+            stale_gateways: string[];
         };
         /** SecurityEvent */
         SecurityEvent: {
@@ -1830,6 +1873,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revocation_status_admin_revocation_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevocationStatus"];
                 };
             };
         };

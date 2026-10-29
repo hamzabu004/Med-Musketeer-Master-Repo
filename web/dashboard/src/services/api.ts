@@ -36,6 +36,7 @@ export function createApiDataSource(http: Http): DataSource {
       revokeGrant: (grantId) => post(`/admin/grants/${id(grantId)}/revoke`),
       audit: (limit) => get("/admin/audit", { limit }),
       securityEvents: (limit) => get("/admin/security-events", { limit }),
+      revocation: () => get("/admin/revocation"),
     },
 
     // Not served by the cloud yet (Iteration 5); screens check isAvailable("attackTests") first.

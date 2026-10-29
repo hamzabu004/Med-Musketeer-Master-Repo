@@ -29,7 +29,9 @@ let userId: string | null = null;
 export function sampleWorld(): World {
   if (!world) {
     const stored = read(WORLD_KEY);
-    world = stored ? (JSON.parse(stored) as World) : createWorld();
+    const parsed = stored ? (JSON.parse(stored) as Partial<World>) : null;
+    // A world stored by an older build lacks newer parts (e.g. `revocation`): start afresh.
+    world = parsed?.revocation ? (parsed as World) : createWorld();
   }
   return world;
 }
