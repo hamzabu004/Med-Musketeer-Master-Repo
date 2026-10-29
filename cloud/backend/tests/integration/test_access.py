@@ -46,6 +46,7 @@ MATRIX = [
     ("POST", "/admin/grants/{grant}/revoke", {SA}, None),
     ("GET", "/admin/audit", {SA}, None),
     ("GET", "/admin/security-events", {SA}, None),
+    ("GET", "/admin/revocation", {SA}, None),
     # own organisation
     ("GET", "/organisation", {OA, DR, PT}, None),
     ("GET", "/devices", {OA, DR}, None),

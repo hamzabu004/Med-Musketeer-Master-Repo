@@ -32,7 +32,7 @@ curl -s http://127.0.0.1:8000/healthz
 - Keep `.env`: the ZITADEL masterkey cannot change once ZITADEL has been initialised with it. To start from scratch, `docker compose down --volumes` and delete `.env`.
 - The dashboard (`web/dashboard`) signs in through ZITADEL's app "MedMusketeer Dashboard". `DASHBOARD_ORIGINS` in `.env` lists the origins it runs on (default `http://localhost:3000`); it sets the app's redirect URIs and the API's CORS origins on the next `up`.
 - Development data with sign-in accounts for every role: `docker compose exec api python -m app.manage seed-dev` on an empty stack. It prints the accounts and their shared password (`cloud-backend.md` D14).
-- A `.env` made before Slice 4 needs `EMQX_HOOK_SECRET`, `EMQX_ADAPTER_PASSWORD` and `EMQX_NODE_COOKIE`, and one made before Slice 5 needs `INGEST_SECRET` (random letters and digits; see `scripts/init-env.sh`). For example: `printf 'INGEST_SECRET=%s\n' "$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 48)" >> .env`.
+- A `.env` made before Slice 4 needs `EMQX_HOOK_SECRET`, `EMQX_ADAPTER_PASSWORD` and `EMQX_NODE_COOKIE`, one made before Slice 5 needs `INGEST_SECRET`, and one made before Iteration 4 needs `EMQX_API_SECRET` (random letters and digits; see `scripts/init-env.sh`). For example: `printf 'EMQX_API_SECRET=%s\n' "$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 48)" >> .env`.
 
 ## EMQX gateway listener
 
@@ -48,6 +48,15 @@ cloud/scripts/install-emqx-certs.sh           # reads ~/medmusketeer-ca; restart
 - Gateway messages are republished to `ingest/{gateway id}/{topic}` for the adapter (`mm-adapter` on the internal listener, password `EMQX_ADAPTER_PASSWORD`).
 - On the cloud Pi, set `EMQX_GATEWAY_BIND_ADDRESS` to its Tailscale address.
 - EMQX also republishes each gateway's connect and disconnect to `ingest/{gateway id}/broker/client.connected|client.disconnected` (rule `mm_presence`), for its liveness.
+
+## Wearable revocation list
+
+Every gateway enforces the list of suspended and revoked wearables on its own broker, and keeps the last list it received for when the cloud is unreachable (`cloud-backend.md` D16; `docs/iterations/iteration-4-revocation-sync.md`).
+- The API publishes the full list as `revocation-list-v1` (`shared/contracts/`), retained, on `mm/revocations/wearables`. It uses EMQX's REST API with the key `mm-api`, which EMQX loads at start from `EMQX_API_SECRET`. Gateways may subscribe to the topic; no MQTT client may publish to it.
+- **When:** each registry change that alters the list (suspending, re-activating or revoking a wearable; revoking a certificate of an active wearable) raises the list's `version` in the same transaction, and the list is published once the change has committed. A reconciler in the API publishes any unpublished version every 5 seconds, and the whole list every 5 minutes. Retained messages are kept on disc, so they survive EMQX being recreated.
+- **Gateways:** suspending or revoking a gateway, or revoking one of its credentials, disconnects it at once (reason 0x98). Its reconnect is refused by the authentication hook.
+- **Status:** `GET /admin/revocation` gives the current and published version, and the active gateways that have not reported the published version in their own `status` (`revocation_version`).
+- On the gateway, the broker matches wearables by certificate CN only. A revoked certificate of an active wearable is therefore refused by the cloud, but on the gateway only once the wearable is suspended.
 
 ## Ingestion
 
@@ -72,7 +81,7 @@ adapter ── validates (shared/contracts), builds ingest-v1 ── POST /inter
 | `GET /me` | The caller's user id, role, organisation and (patients) patient id |
 | `GET /auth/config` | Public: the issuer, client id and scopes the dashboard signs in with |
 | `GET /directory` | Names (from ZITADEL) of the people the caller works with |
-| `/admin/...` | System admin: organisations and their admins, devices, credentials, device grants, registry audit log, security events |
+| `/admin/...` | System admin: organisations and their admins, devices, credentials, device grants, the revocation list's state, registry audit log, security events |
 | `/organisation`, `/devices`, `/audit` | Own organisation, its devices (doctor: their patients' wearables), its audit log (org admin) |
 | `/accounts` | Org admin: create (in ZITADEL and `users`, returns an invite code), list, disable doctor and patient accounts |
 | `/patients/...` | Org admin: patients, doctor assignment, wearable issue/return, disorders, exports. Doctor: their patients and disorders |
@@ -110,7 +119,7 @@ python3 -m venv .venv
 ../run_cloud_tests.sh                               # all tests + evidence in docs/testing/evidence/<date>/cloud/
 ```
 
-The stack tests (TC-C01, C12 to C26) bring the stack up once under the compose project `mm-cloud-tc` on ports 18080/18000/28083/28883/21883, with a throwaway CA made by the CA tool in `tools/ca-tool/`, and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
+The stack tests (TC-C01, C12 to C26, C29, C30) bring the stack up once under the compose project `mm-cloud-tc` on ports 18080/18000/28083/28883/21883, with a throwaway CA made by the CA tool in `tools/ca-tool/`, and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
 
 ## Dependencies
 

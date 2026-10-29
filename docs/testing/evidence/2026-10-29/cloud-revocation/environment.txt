@@ -1,0 +1,43 @@
+run_at: 2026-10-29T22:13:03+05:00
+host: Linux 7.2.5-200.fc44.x86_64 x86_64
+python: Python 3.14.7
+packages: cryptography==50.0.2 fastapi==0.161.1 httpx==0.28.1 paho-mqtt==2.1.0 psycopg==3.3.6 pydantic-settings==2.16.1 PyJWT==2.15.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
+compose: Docker Compose version v5.4.0
+engine: docker 29.7.2
+images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev medmusketeer/cloud-emqx:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev alpine:3.22.2 
+base images: python:3.14.9-slim-trixie emqx/emqx:6.3.2 timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
+commit: 8cf4319a9e3cb325f02df6d912a42bc14bd0a472
+uncommitted changes:
+ M cloud/.env.example
+ M cloud/README.md
+ M cloud/backend/app/broker.py
+ M cloud/backend/app/contracts.py
+ M cloud/backend/app/ingest.py
+ M cloud/backend/app/main.py
+ M cloud/backend/app/registry.py
+ M cloud/backend/app/settings.py
+ M cloud/backend/tests/integration/conftest.py
+ M cloud/backend/tests/integration/stack.py
+ M cloud/backend/tests/integration/test_access.py
+ M cloud/backend/tests/integration/test_schema.py
+ M cloud/backend/tests/mqtt.py
+ M cloud/backend/tests/unit/test_broker_rules.py
+ M cloud/backend/tests/unit/test_contracts.py
+ M cloud/compose.yaml
+ M cloud/emqx/emqx.conf.template
+ M cloud/emqx/mm-entrypoint.sh
+ M cloud/scripts/init-env.sh
+ M docs/decisions/cloud-backend.md
+ M docs/decisions/gaps.md
+ M docs/decisions/stack.md
+ M docs/iterations/iteration-4-revocation-sync.md
+ M docs/testing/test_traceability.md
+ M shared/contracts/status-v1.schema.json
+?? cloud/backend/app/emqx_api.py
+?? cloud/backend/app/revocation.py
+?? cloud/backend/migrations/versions/0004_revocation_sync.py
+?? cloud/backend/tests/integration/test_revocation.py
+?? cloud/backend/tests/integration/test_revocation_stack.py
+?? docs/changelog/2026-10-29-05-revocation-slice-1-cloud.md
+?? docs/testing/evidence/2026-10-29/cloud-revocation/
+?? shared/contracts/revocation-list-v1.schema.json

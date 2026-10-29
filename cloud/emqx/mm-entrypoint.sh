@@ -9,7 +9,7 @@ set -Eeuo pipefail
 readonly ETC=/opt/emqx/etc
 readonly CERTS="$ETC/certs/mm"
 
-for name in MM_EMQX_HOOK_SECRET MM_EMQX_NODE_COOKIE; do
+for name in MM_EMQX_HOOK_SECRET MM_EMQX_NODE_COOKIE MM_EMQX_API_SECRET; do
     # Alphanumeric only, so the value cannot break out of the HOCON string or the sed expression.
     if [[ ! "${!name:-}" =~ ^[A-Za-z0-9]{24,}$ ]]; then
         echo "mm-entrypoint: $name must be set to at least 24 letters and digits" >&2
@@ -36,6 +36,8 @@ if grep -q '@MM_' "$ETC/emqx.conf"; then
     echo "mm-entrypoint: unrendered placeholder in emqx.conf" >&2
     exit 1
 fi
+# key:secret:role. administrator: the API publishes and disconnects clients (D16).
+printf 'mm-api:%s:administrator\n' "$MM_EMQX_API_SECRET" > "$ETC/mm_api_keys.txt"
 
 # Every client is authenticated by the API's hooks. If EMQX starts while `api` does not resolve,
 # its HTTP authenticators stay down until their next health check (about 15 s) and refuse every

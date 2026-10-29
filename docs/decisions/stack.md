@@ -385,7 +385,7 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 
 **Decision: out of scope for FYP-1.** Rotating the cloud's leaf keypair the wearable encrypts envelopes to on the mobile path is deferred, not built. FYP-1 uses a long-dated cloud cert that comfortably outlasts the project timeline (same move already made elsewhere in this file for on-device key generation and the offline-signing ceremony) — rotation during the project is treated as a non-event by design, not solved in software.
 
-## Gateway/wearable credential revocation (fixed path) — Decided 2026-10-29, not built (Iteration 4)
+## Gateway/wearable credential revocation (fixed path) — Decided 2026-10-29; cloud side Implemented (Iteration 4 Slice 1), gateway side not built
 
 **Decision: the cloud pushes the list of revoked wearables to every gateway, and each gateway caches it and enforces it locally.** Plan: `docs/iterations/iteration-4-revocation-sync.md`. Cloud-side contract: `cloud-backend.md` D16.
 

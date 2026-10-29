@@ -97,6 +97,7 @@ def db(owner_engine):
             "SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> 'alembic_version'"
         )).all()
         conn.execute(text(f"TRUNCATE {', '.join(tables)} CASCADE"))
+        conn.execute(text("INSERT INTO revocation_state (version) VALUES (1)"))  # as migration 0004 leaves it
     with owner_engine.connect() as conn:
         conn.execution_options(isolation_level="AUTOCOMMIT")
         yield conn
@@ -165,7 +166,7 @@ def stack(tmp_path_factory, stack_ca) -> Path:
     env_file = tmp_path_factory.mktemp("cloud") / "test.env"
     subprocess.run([str(CLOUD_DIR / "scripts" / "init-env.sh"), str(env_file)], check=True, capture_output=True)
     with env_file.open("a") as handle:
-        handle.writelines(f"{name}={value}\n" for name, value in stack_module.PORTS.items())
+        handle.writelines(f"{name}={value}\n" for name, value in stack_module.SETTINGS.items())
     stack_module.compose(env_file, "down", "--volumes", "--remove-orphans", check=False)
     try:
         stack_ca.issue_cloud()

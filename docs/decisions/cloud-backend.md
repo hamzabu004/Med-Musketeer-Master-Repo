@@ -1,6 +1,6 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard, D15 from Slice 5, and D16 for Iteration 4's revocation sync. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 and D16 on 2026-10-29). D16 is not built yet. D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard, D15 from Slice 5, and D16 for Iteration 4's revocation sync. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 and D16 on 2026-10-29). D16's cloud side is Implemented (Iteration 4 Slice 1, TC-C28 to TC-C31); the gateway side is not built yet. D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
 Last updated: 2026-10-29
 
@@ -112,6 +112,7 @@ API checks:
 | Publish | `mm/fixed/+/telemetry` | Allowed; ingestion waits for the on-demand start/stop design |
 | Publish | `mm/gateway/{own CN}/#` | `ids_event`, `status`, `backlog` |
 | Subscribe | `mm/fixed/+/command` | Commands for its wearables |
+| Subscribe | `mm/revocations/wearables` | The wearable revocation list (D16, added in Iteration 4) |
 | Everything else | — | Denied |
 
 Observe-only: any active gateway may forward for any wearable; the cloud records `current_gateway_id`. Enforcing a pre-assigned wearable↔gateway mapping stays open (`gaps.md`).
@@ -342,17 +343,24 @@ API: registry checks ─► one transaction: session, segment, chunk, classifica
   - Idempotency by a `msg_id` column on `ecg_segments`: it would not cover IDS events or later message types.
   - Relying on gateway LWTs for gateway liveness: a clean disconnect sends none, and a gateway without one would never go `unknown`.
 
-## D16 — Wearable revocation list for gateways (Decided 2026-10-29; not built, Iteration 4)
+## D16 — Wearable revocation list for gateways (Decided 2026-10-29; cloud side Implemented, Iteration 4 Slice 1)
 
 Why push + cache, and the accepted tradeoffs: `stack.md`, "Gateway/wearable credential revocation". Plan and slices: `docs/iterations/iteration-4-revocation-sync.md`.
 
 - **Topic:** `mm/revocations/wearables`, retained, QoS 1. D5 gains one rule: a gateway may **subscribe** to it. No MQTT client may publish to it; the API publishes through EMQX's REST API (`POST /api/v5/publish`), which does not pass through client authorisation. The API key comes from EMQX's `api_key.bootstrap_file`, and the retainer uses `storage_type = disc` (the default, `ram`, loses the list when the container is recreated). All three verified on EMQX 6.3.2 in the Iteration 4 Slice 0 spike.
 - **Payload `revocation-list-v1`:** `v`, `version`, `issued_at`, `devices` (wearables that are suspended or revoked, with `since`) and `certificates` (revoked credentials of active wearables, by SHA-256 fingerprint, until `not_after`). Always the full list. Gateways ignore a version that is not newer than the one they hold.
-- **Consistency:** each registry change that affects a wearable increases the version and writes an outbox row in the same transaction; the API publishes after commit. A reconciler republishes on API start, when the outbox has unsent rows, and every 5 minutes, which also restores a retained message lost in an EMQX restart.
-- **Gateway disconnect:** suspending or revoking a gateway, or revoking one of its credentials, disconnects its sessions through the REST API (`GET /api/v5/clients?username=`, `DELETE /api/v5/clients/{clientid}`; the client gets reason 0x98). This builds the D4 "may".
-- **Staleness:** `status-v1` gains an optional `revocation_version`, sent by a gateway in its own status; ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind.
-- **Outage backlog:** `devices.status_changed_at` records when a wearable was suspended or revoked; backlog data sent after it is quarantined instead of rejected (with the backlog payload, `gaps.md`).
+- **Consistency** (`app/revocation.py`, migration 0004): one `revocation_state` row holds `version` and `published_version`.
+  - A registry change that alters the list raises `version` in its own transaction; the row lock orders concurrent changes. The request publishes after the commit (a FastAPI background task).
+  - A reconciler in the API publishes any version above `published_version` every 5 seconds, and the whole list every 5 minutes (from API start). That covers a publish lost to an EMQX or API outage, and a retained message lost with EMQX's data.
+  - The list is built in one REPEATABLE READ snapshot, so its version always matches its contents. Publishes are serialised in the API, so an older list is never retained last.
+  - What changes the list: a wearable's status moving into or out of `suspended`/`revoked`, and revoking an `x509_mtls` credential of a wearable that is not listed itself. An expired certificate drops off at the next publish without a new version; expiry refuses it anyway.
+  - A publish failure never fails the registry change; it is logged and left to the reconciler.
+- **Gateway disconnect:** suspending or revoking a gateway, or revoking one of its credentials, disconnects its sessions through the REST API (`GET /api/v5/clients?username=`, `DELETE /api/v5/clients/{clientid}`; the client gets reason 0x98). This builds the D4 "may". paho-mqtt 2.1.0 does not read the reason from EMQX's 2-byte DISCONNECT and reports "Normal disconnection" (`mosquitto_sub` shows 152), so the gateway's uplink must not tell a kick from other disconnects by paho's reason code.
+- **Staleness:** `status-v1` gains an optional `revocation_version`, sent by a gateway in its own status (a wearable's status with it is rejected). Ingestion stores it on the gateway (`devices.revocation_version`; an older report than the gateway's `last_seen` is ignored). `GET /admin/revocation` returns `version`, `published_version`, `published_at` and `stale_gateways`: the active gateways whose reported version is missing or below the published one. The dashboard flag follows in Slice 3.
+- **Outage backlog:** `devices.status_changed_at` (migration 0004, set on every status change) records when a wearable was suspended or revoked; it is the list's `since`. Backlog data sent after it is to be quarantined instead of rejected (Slice 3, with the backlog payload, `gaps.md`).
 - Rejected alternatives:
   - A signed list (the earlier candidate): it arrives only over the gateway's mTLS session, so a signature adds nothing, and signing would need a key online.
   - One topic per gateway: every gateway needs the same list, and it is not secret.
   - An MQTT publisher account for the API: it would be one more client with publish rights; the REST API is needed for the disconnect anyway.
+  - An outbox table (the first plan): one state row with a published version does the same for a single list.
+- **EMQX API key:** `mm-api`, role `administrator` (it publishes and disconnects clients), its secret `EMQX_API_SECRET` in `.env`. `mm-entrypoint.sh` writes the bootstrap file at every start. Unset in the API: the list is not published and gateways are not disconnected at once (logged).

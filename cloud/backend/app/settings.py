@@ -31,6 +31,16 @@ class Settings(BaseSettings):
     emqx_hook_secret: SecretStr | None = None
     # Password of the adapter's account (mm-adapter) on the internal listener.
     emqx_adapter_password: SecretStr | None = None
+    # EMQX's REST API (app.emqx_api), e.g. http://emqx:18083/api/v5, with the API key EMQX loads
+    # from its bootstrap file (cloud/emqx/mm-entrypoint.sh). Unset: the revocation list is not
+    # published and revoked gateways are not disconnected at once (both logged).
+    emqx_api_url: str | None = None
+    emqx_api_key: str = "mm-api"
+    emqx_api_secret: SecretStr | None = None
+    # The revocation list (app.revocation): how often unpublished versions are retried, and how
+    # often the whole list is published again.
+    revocation_poll_s: float = Field(default=5.0, gt=0)
+    revocation_republish_s: float = Field(default=300.0, gt=0)
     # Shared with the MQTT adapter, which sends it with every ingest-v1 message (app.ingest).
     # Unset: ingestion answers 503 and the adapter keeps its messages until it is set.
     ingest_secret: SecretStr | None = None

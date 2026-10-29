@@ -8,6 +8,7 @@ Unknown fields are refused: a change to a payload is a new version (`v`).
 - status-v1: presence, of a wearable (forwarded by its gateway) or of the gateway itself.
 - ids-event-v1: one detection of the gateway's IDS/IPS.
 - ingest-v1: the normalised message the adapter builds around one of them (D7).
+- revocation-list-v1: the other direction, what the cloud publishes to every gateway (D16).
 """
 import base64
 import binascii
@@ -74,6 +75,9 @@ class StatusPayload(Contract):
     state: Literal["online", "offline"]
     reason: str | None = Field(None, min_length=1, max_length=64,
                                description='Why it went offline; "mode_switch" before the wearable changes path')
+    revocation_version: int | None = Field(
+        None, ge=0, le=2**63 - 1,
+        description="A gateway's own status only: the revocation-list-v1 version it enforces (D16)")
     sent_at: AwareDatetime | None = Field(None, description="Benchmark only")
 
 
@@ -96,6 +100,32 @@ class IdsEventPayload(Contract):
         if self.mode == "ids" and (self.action is not None or self.action_result is not None):
             raise ValueError("IDS mode detects and logs only; action and action_result are for IPS mode")
         return self
+
+
+class RevokedDevice(Contract):
+    device_id: UUID
+    status: Literal["suspended", "revoked"]
+    since: AwareDatetime = Field(description="When the wearable got this status")
+
+
+class RevokedCertificate(Contract):
+    device_id: UUID = Field(description="An active wearable that holds another, valid certificate")
+    fingerprint: str = Field(pattern=r"^[0-9A-F]{64}$", description="SHA-256 of the certificate, upper-case hex")
+    not_after: AwareDatetime | None = Field(description="Dropped from the list once expired; null: no expiry recorded")
+
+
+class RevocationList(Contract):
+    """revocation-list-v1 (D16): the wearables every gateway must refuse. Retained on
+    mm/revocations/wearables, published only by the cloud. Always the full list; a gateway keeps a
+    list only if its version is newer than the one it holds."""
+    model_config = ConfigDict(title="revocation-list-v1")
+
+    v: Literal[1]
+    version: int = Field(ge=1, le=2**63 - 1, description="Goes up with every change to the list")
+    issued_at: AwareDatetime
+    devices: list[RevokedDevice] = Field(description="Suspended or revoked wearables")
+    certificates: list[RevokedCertificate] = Field(
+        description="Revoked, unexpired certificates of wearables that are not on `devices`")
 
 
 # What each kind of device may send, and the payload contract of each message type.
@@ -158,7 +188,8 @@ PAYLOADS = {"alert-payload-v1": AlertPayload, "status-v1": StatusPayload, "ids-e
 
 
 def schemas() -> dict[str, dict]:
-    files = {name: model.model_json_schema() for name, model in {**PAYLOADS, "ingest-v1": Ingest}.items()}
+    files = {name: model.model_json_schema()
+             for name, model in {**PAYLOADS, "ingest-v1": Ingest, "revocation-list-v1": RevocationList}.items()}
     files["ingest-v1"]["properties"]["payload"] = {
         "description": "alert-payload-v1 (msg_type alert), status-v1 (status) or ids-event-v1 (ids_event)",
         "anyOf": [{"$ref": f"{name}.schema.json"} for name in PAYLOADS],

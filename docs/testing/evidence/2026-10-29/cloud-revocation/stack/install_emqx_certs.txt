@@ -1,0 +1,11 @@
+total 12
+-rw-r--r--    1 1000     1000           570 Oct 29 17:14 ca.crt
+-rw-r--r--    1 1000     1000           700 Oct 29 17:14 server.crt
+-rw-------    1 1000     1000           241 Oct 29 17:14 server.key
+Installed the certificate for cloud.medmusketeer.local (93:BB:0F:BC:41:4E:BD:B4:76:0B:1C:F6:52:77:18:E6:40:02:C1:A3:81:3B:62:9E:88:6C:DA:24:69:DA:96:72).
+ Volume mm-cloud-tc_emqx-certs Creating 
+ Volume mm-cloud-tc_emqx-certs Creating 
+ Volume mm-cloud-tc_emqx-certs Created 
+ Volume mm-cloud-tc_emqx-certs Created 
+ Container mm-cloud-tc-emqx-certs-install-run-8771ed6c507d Creating 
+ Container mm-cloud-tc-emqx-certs-install-run-8771ed6c507d Created 

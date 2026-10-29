@@ -1,7 +1,7 @@
 # Iteration 4 — Revocation push and cache
 
 - **Owner:** Hamza Tariq (M7 cloud platform, M5 gateway)
-- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slices 1 to 3 not started.
+- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slice 1 (cloud) done (2026-10-29). Slices 2 and 3 not started.
 - **Part of:** Iteration 4 (gateway uplink). The gateway side lives in the uplink service, so Slice 2 starts once the uplink can connect to EMQX.
 - **Depends on:** `cloud-backend.md` D4, D5, D15; `mqtt-fixed-path-topics.md`; `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`; the decision on the CA's missing key identifiers (`gaps.md`)
 - **Assumption:** the gateway normally has internet access. Losing the cloud is temporary, never permanent.
@@ -53,7 +53,7 @@ A wearable whose device or credential is revoked is refused by every gateway: wi
 ### Cloud
 
 1. **Publishing:** the API publishes through EMQX's REST API (`POST /api/v5/publish`, `retain: true`) with an API key loaded from EMQX's `api_key.bootstrap_file`, written from `.env`. A REST publish does not go through client authorisation, so no MQTT account gets publish rights to the topic. The retainer is set to `storage_type = disc`: EMQX's default (`ram`) loses the list when the container is recreated.
-2. **When:** every registry change that affects a wearable (activate, suspend, revoke a device, revoke a credential) increases the counter and writes an outbox row in the same transaction. After commit, the API publishes the current list and marks the row sent. A reconciler task in the API republishes when the outbox has unsent rows, when the API starts, and every 5 minutes. The repeat costs nothing (gateways ignore an equal version) and repairs a retained message lost in an EMQX restart.
+2. **When:** every registry change that alters the list (a wearable's status moving into or out of suspended/revoked, revoking a certificate of a wearable that is not listed) raises `revocation_state.version` in the same transaction. After the commit, the API publishes the current list and records it as `published_version`. A reconciler task in the API publishes any unpublished version every 5 seconds, and the whole list every 5 minutes from its start. The repeat costs nothing (gateways ignore an equal version) and repairs a retained message lost with EMQX's data. (The first plan had an outbox table; one state row does the same for a single list.)
 3. **Gateway disconnect:** revoking or suspending a gateway, or revoking one of its credentials, kicks its sessions through the REST API (`GET /api/v5/clients?username=…`, then `DELETE /api/v5/clients/{clientid}`). Closes the D4 "may" in `gaps.md`.
 4. **Staleness:** the gateway adds `revocation_version` to its own `status-v1` message. Ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind the current version.
 
@@ -104,8 +104,8 @@ Scripts, raw output and broker logs: `docs/testing/evidence/2026-10-29/revocatio
 5. Check: `openssl x509 -in ~/medmusketeer-ca/ca/ca.crt -noout -ext subjectKeyIdentifier` prints an identifier, and the wearable reaches the Pi's broker again.
 6. Where these devices are in a cloud registry: add each new fingerprint printed by `mmca issue` as a credential, then revoke the old one.
 
-### Slice 1 — Cloud: list, publish, disconnect (M)
-Tests: TC-C28 to TC-C31 (TC-C27 is the Pi smoke test).
+### Slice 1 — Cloud: list, publish, disconnect (M) — Done 2026-10-29
+Tests: TC-C28 to TC-C31 (TC-C27 is the Pi smoke test); `tests/integration/test_revocation.py` (API and database, EMQX faked) and `test_revocation_stack.py` (full stack).
 - TC-C28: the list follows every registry transition, the version increases, and expired certificates drop out.
 - TC-C29: a gateway receives the retained list on connect, also after EMQX restarts; another gateway cannot publish to the topic.
 - TC-C30: revoking or suspending a gateway, or revoking its credential, disconnects it within 5 seconds.
@@ -129,8 +129,8 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 
 | File | Change |
 |---|---|
-| `cloud/backend/migrations/versions/0004_revocation_sync.py` (new) | `revocation_state` (one row: `version`), `revocation_outbox` (version, created/sent times), `devices.revocation_version` (gateways), `devices.status_changed_at` |
-| `cloud/backend/app/revocation.py` (new) | Builds the list; bumps the version and writes the outbox in the caller's transaction; publisher and reconciler task |
+| `cloud/backend/migrations/versions/0004_revocation_sync.py` (new) | `revocation_state` (one row: `version`, `published_version`, `published_at`), `devices.revocation_version` (gateways), `devices.status_changed_at` |
+| `cloud/backend/app/revocation.py` (new) | Builds the list in one snapshot; bumps the version in the caller's transaction; publisher, reconciler task and gateway disconnect |
 | `cloud/backend/app/emqx_api.py` (new) | REST client: retained publish, list and kick a username's clients |
 | `cloud/backend/app/registry.py` | `change_device_status` and `revoke_credential`: bump the list for wearables; kick for gateways; set `status_changed_at` |
 | `cloud/backend/app/broker.py` | `gateway_may`: allow subscribing to `mm/revocations/wearables`; docstring |
@@ -140,7 +140,7 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 | `cloud/backend/app/settings.py`, `cloud/.env.example`, `cloud/compose.yaml`, `cloud/scripts/init-env.sh` | EMQX API URL, key and secret (generated by `init-env.sh`); passed to `api` and `emqx` |
 | `cloud/emqx/emqx.conf.template`, `cloud/emqx/mm-entrypoint.sh` | `api_key.bootstrap_file` written from the environment; `retainer.backend.storage_type = disc` |
 | `shared/contracts/revocation-list-v1.schema.json` (new), `status-v1.schema.json` | Generated |
-| `cloud/backend/tests/unit/test_revocation.py`, `tests/integration/test_revocation.py` (new); `test_broker_rules.py`, `test_registry.py`, `test_gateway.py`, `test_contracts.py` | New tests and the changed rules |
+| `cloud/backend/tests/integration/test_revocation.py`, `test_revocation_stack.py` (new); `test_broker_rules.py`, `test_contracts.py`, `test_access.py`, `test_schema.py`, `conftest.py`, `tests/mqtt.py` | New tests, the changed rules, the new endpoint's matrix row, the new table |
 | `cloud/README.md` | New settings; how the list is published |
 
 **Dashboard**

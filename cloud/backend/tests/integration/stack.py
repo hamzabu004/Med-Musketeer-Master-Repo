@@ -21,6 +21,9 @@ CLOUD_DIR = Path(__file__).resolve().parents[3]
 PROJECT = "mm-cloud-tc"
 PORTS = {"PROXY_HTTP_PUBLISHED_PORT": "18080", "API_PUBLISHED_PORT": "18000", "EMQX_DASHBOARD_PUBLISHED_PORT": "28083",
          "EMQX_GATEWAY_PUBLISHED_PORT": "28883", "EMQX_INTERNAL_PUBLISHED_PORT": "21883"}
+# No periodic full republish of the revocation list during a test session: TC-C29 checks that the
+# retained list survives EMQX being recreated without being published again.
+SETTINGS = {**PORTS, "REVOCATION_REPUBLISH_S": "86400"}
 
 
 def compose(env_file: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
