@@ -92,11 +92,12 @@ class Client:
         """The SUBACK reason ("Granted QoS 1", "Not authorized", ...)."""
         return self._wait(self.mqtt.subscribe(topic, qos=1)[1])[0]
 
-    def wait_for(self, count: int, timeout_s: float = TIMEOUT_S) -> list[mqtt.MQTTMessage]:
+    def wait_for(self, count: int, timeout_s: float = TIMEOUT_S, where=lambda message: True) -> list[mqtt.MQTTMessage]:
+        """The messages received so far that match `where`, once there are `count` (or on timeout)."""
         deadline = time.monotonic() + timeout_s
-        while len(self.messages) < count and time.monotonic() < deadline:
+        while len(matched := [m for m in self.messages if where(m)]) < count and time.monotonic() < deadline:
             time.sleep(0.05)
-        return list(self.messages)
+        return matched
 
     def close(self) -> None:
         self.mqtt.disconnect()

@@ -1,7 +1,7 @@
 # Iteration 3 — Cloud backend
 
 - **Owner:** Hamza Tariq (M7 cloud platform; M1 CA tool for the cloud certificate)
-- **Status:** Planned; Slice 0 decisions taken (2026-10-23, recorded in `docs/decisions/cloud-backend.md`)
+- **Status:** Slices 0 to 5 done (2026-10-29); Slice 6, the deployment to the cloud Pi, remains
 - **Depends on:** `docs/decisions/stack.md`, `gaps.md`, the cloud schema in the mid report §5 "Data Design"
 - **Followed by:** Iteration 4 (uplink bridge on the gateway → this backend)
 
@@ -57,7 +57,9 @@ cloud/
 └── run_cloud_tests.sh      # writes docs/testing/evidence/<date>/cloud/
 shared/contracts/
 ├── ingest-v1.schema.json   # normalised message from adapters to the API
-└── alert-payload-v1.schema.json  # fixed-path alert payload (shared with firmware)
+├── alert-payload-v1.schema.json  # fixed-path alert payload (shared with firmware)
+├── status-v1.schema.json   # wearable and gateway presence (D15)
+└── ids-event-v1.schema.json  # gateway IDS/IPS detections (D15)
 ```
 
 ## Slices
@@ -114,18 +116,31 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 - EMQX: mTLS listener on 8883 with the private CA, cert CN as username, the authentication and authorisation hooks from D4/D5, the republish rule from D1. Connection events logged with timestamps (benchmark checkpoints later).
 - **Tests (containers, same style as `test_broker_interop.py`):** TC-C14 an active gateway connects and publishes; TC-C15 a revoked credential is refused on the next connect; TC-C16 a foreign CA, no certificate, and a wearable certificate are refused; TC-C17 a publish or subscribe outside the ACL is denied (judged by the broker log or a monitor); TC-C18 the gateway verifies the cloud by CN/SAN pin.
 
-### Slice 5 — Ingestion (M)
+### Slice 5 — Ingestion (M) — Done 2026-10-29
+
+**Done:** the adapter (`app/adapter.py`, compose service `adapter`), the ingestion API (`POST /internal/ingest`, `app/ingest.py`) and the payload contracts in `shared/contracts/`, generated from `app/contracts.py` (D6, D7, D15). Also:
+- migration 0003: `ingested_messages` for idempotency and hop times, `ecg_segments.lead`;
+- the EMQX rule `mm_presence`, so gateway liveness comes from the broker's connect and disconnect events;
+- `NOTIFY mm_alerts` on each new alert.
+
+Tests TC-C20 to TC-C26, at the API against the database and end to end through EMQX. Test IDs moved up by one, because TC-C19 went to the dashboard sign-in (2026-10-25), and the gateway-down case got its own ID (TC-C26). Not built:
+- the WebSocket alert push (the dashboard polls);
+- ingestion of `telemetry`, `result`, `command_ack` and `backlog`;
+- the mobile path (no adapter yet).
+
+Alerts carry no severity: the wearable sends a label and a confidence, and neither the cloud nor the dashboard rates them (`alerts.severity` is nullable and unused).
+
 
 - Adapter: subscribes to the internal topic from D1, validates against the contracts, builds `ingest-v1`, calls the ingestion API.
 - Ingestion: alert → session (opened from the active assignment) + segment + chunks + alert row, idempotent on `msg_id`; status → `last_seen`, `current_gateway_id`, `current_mode`; gateway down → its wearables shown as unknown, not offline; `ids_event` → `security_events`; rejected messages logged with the reason.
 - Alert push: `NOTIFY` on new alerts and a WebSocket endpoint that delivers them to the right doctor (stretch goal; the dashboard uses it in Iteration 6).
-- **Tests:** TC-C19 an alert for an issued wearable lands in all four tables with `attested_by`; TC-C20 an alert for an unissued wearable is rejected and logged; TC-C21 a redelivered message is stored once; TC-C22 a malformed payload is rejected; TC-C23 an IDS event is stored; TC-C24 reassigning a wearable ends the session, so later data goes to the new patient.
+- **Tests:** TC-C20 an alert for an issued wearable lands in all four tables with `attested_by`; TC-C21 an alert for an unissued wearable is rejected and logged; TC-C22 a redelivered message is stored once; TC-C23 a malformed payload is rejected; TC-C24 an IDS event is stored; TC-C25 reassigning a wearable ends the session, so later data goes to the new patient; TC-C26 a gateway going offline shows its wearables as unknown, not offline.
 
 ### Slice 6 — Deploy to the cloud Pi (S)
 
 - Same compose stack on the second Pi (arm64), reachable over Tailscale; volumes and a database backup script; secrets in the Pi's `.env` only.
 - Decide disk encryption on the Pi (the report plans encryption at rest with the cloud platform) or record it as an accepted shortcut.
-- **Tests:** TC-C25 the smoke suite (C01, C14, C19) passes against the Pi from the laptop; memory and CPU use recorded at idle.
+- **Tests:** TC-C27 the smoke suite (C01, C14, C20) passes against the Pi from the laptop; memory and CPU use recorded at idle.
 
 ## Testing approach
 

@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ingest-v1.schema.json",
+  "$defs": {
+    "Hops": {
+      "additionalProperties": false,
+      "properties": {
+        "sent_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sent At"
+        },
+        "broker_at": {
+          "format": "date-time",
+          "title": "Broker At",
+          "type": "string"
+        },
+        "adapter_at": {
+          "format": "date-time",
+          "title": "Adapter At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "broker_at",
+        "adapter_at"
+      ],
+      "title": "Hops",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "ingest-v1 (D7): the only message the ingestion API accepts. A new protocol means a new\nadapter producing it.",
+  "properties": {
+    "device_id": {
+      "description": "The device the message is about: the wearable, or the gateway itself",
+      "format": "uuid",
+      "title": "Device Id",
+      "type": "string"
+    },
+    "device_type": {
+      "enum": [
+        "wearable",
+        "fixed_gateway"
+      ],
+      "title": "Device Type",
+      "type": "string"
+    },
+    "auth_method": {
+      "enum": [
+        "x509_mtls",
+        "ecdh_envelope"
+      ],
+      "title": "Auth Method",
+      "type": "string"
+    },
+    "attested_by": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The gateway the broker says published it (D1); null on the mobile path",
+      "title": "Attested By"
+    },
+    "authenticated": {
+      "title": "Authenticated",
+      "type": "boolean"
+    },
+    "auth_metadata": {
+      "additionalProperties": true,
+      "description": "Benchmark and debugging only",
+      "title": "Auth Metadata",
+      "type": "object"
+    },
+    "msg_type": {
+      "enum": [
+        "alert",
+        "status",
+        "ids_event"
+      ],
+      "title": "Msg Type",
+      "type": "string"
+    },
+    "received_at": {
+      "description": "When the cloud received it (the broker's time on the fixed path)",
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "hops": {
+      "$ref": "#/$defs/Hops"
+    },
+    "payload": {
+      "description": "alert-payload-v1 (msg_type alert), status-v1 (status) or ids-event-v1 (ids_event)",
+      "anyOf": [
+        {
+          "$ref": "alert-payload-v1.schema.json"
+        },
+        {
+          "$ref": "status-v1.schema.json"
+        },
+        {
+          "$ref": "ids-event-v1.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "device_id",
+    "device_type",
+    "auth_method",
+    "attested_by",
+    "authenticated",
+    "msg_type",
+    "received_at",
+    "hops",
+    "payload"
+  ],
+  "title": "ingest-v1",
+  "type": "object"
+}

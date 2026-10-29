@@ -2,7 +2,7 @@
 
 A doctor reads the data of their current patients and acknowledges their alerts; a patient reads
 their own. ECG queries are also limited to monitoring sessions of the caller's organisation, as a
-session's patient and organisation are fixed when it opens. Rows are written by ingestion (Slice 5).
+session's patient and organisation are fixed when it opens. Rows are written by ingestion (app.ingest).
 """
 import base64
 from datetime import datetime
@@ -25,7 +25,6 @@ class Alert(BaseModel):
     device_id: UUID
     patient_id: UUID
     origin: str
-    severity: str
     created_at: datetime
     acknowledged_by: UUID | None
     acknowledged_at: datetime | None
@@ -42,6 +41,7 @@ class Segment(BaseModel):
     device_id: UUID
     kind: str
     fs_hz: int
+    lead: str | None  # None for segments stored before ingestion recorded it
     started_at: datetime
     ended_at: datetime | None
 
@@ -69,7 +69,7 @@ class SegmentDetail(Segment):
 
 
 ALERT_SQL = """
-    SELECT a.alert_id, a.device_id, a.patient_id, a.origin, a.severity, a.created_at,
+    SELECT a.alert_id, a.device_id, a.patient_id, a.origin, a.created_at,
            a.acknowledged_by, a.acknowledged_at, a.classification_id,
            c.segment_id, c.label, c.confidence
     FROM alerts a LEFT JOIN classifications c ON c.classification_id = a.classification_id

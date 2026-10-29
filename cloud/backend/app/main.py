@@ -10,7 +10,7 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app import accounts, broker, care, directory, organisation, registry
+from app import accounts, broker, care, directory, ingest, organisation, registry
 from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
 from app.settings import Settings
@@ -72,6 +72,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(care.router)
     app.include_router(directory.router)
     app.include_router(broker.router)
+    app.include_router(ingest.router)
     if settings.cors_origins:
         # The dashboard runs on its own origin and sends a bearer token; no cookies are involved.
         app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=False,

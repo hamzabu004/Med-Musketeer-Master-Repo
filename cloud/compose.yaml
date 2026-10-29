@@ -194,6 +194,7 @@ services:
       MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
       MM_EMQX_HOOK_SECRET: ${EMQX_HOOK_SECRET:?set in .env}
       MM_EMQX_ADAPTER_PASSWORD: ${EMQX_ADAPTER_PASSWORD:?set in .env}
+      MM_INGEST_SECRET: ${INGEST_SECRET:?set in .env}
       MM_CORS_ORIGINS: ${DASHBOARD_ORIGINS:-http://localhost:3000}
     ports:
       - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
@@ -211,6 +212,28 @@ services:
         condition: service_completed_successfully
       zitadel-bootstrap:
         condition: service_completed_successfully
+
+  # MQTT adapter (D1, D7): reads ingest/# on the internal listener with the mm-adapter account,
+  # validates each message against shared/contracts and posts it to the API as ingest-v1.
+  adapter:
+    image: medmusketeer/cloud-api:dev
+    restart: unless-stopped
+    command: ["python", "-m", "app.adapter"]
+    environment:
+      MM_EMQX_HOST: emqx
+      MM_EMQX_ADAPTER_PASSWORD: ${EMQX_ADAPTER_PASSWORD:?set in .env}
+      MM_INGEST_URL: http://api:8000/internal/ingest
+      MM_INGEST_SECRET: ${INGEST_SECRET:?set in .env}
+    healthcheck:
+      # The file exists while the adapter is subscribed to ingest/#.
+      test: ["CMD", "python", "-c", "import os, sys; sys.exit(not os.path.exists('/tmp/mm-adapter-ready'))"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+    depends_on:
+      emqx:
+        condition: service_healthy
 
   # One-off tool, not started by `up`: writes the cloud certificate into the emqx-certs volume.
   # Used by scripts/install-emqx-certs.sh, which streams a tar of the three files to its stdin.

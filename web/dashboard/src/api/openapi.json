@@ -1849,10 +1849,6 @@
       "type": "string",
       "title": "Origin"
      },
-     "severity": {
-      "type": "string",
-      "title": "Severity"
-     },
      "created_at": {
       "type": "string",
       "format": "date-time",
@@ -1935,7 +1931,6 @@
      "device_id",
      "patient_id",
      "origin",
-     "severity",
      "created_at",
      "acknowledged_by",
      "acknowledged_at",
@@ -3163,6 +3158,17 @@
       "type": "integer",
       "title": "Fs Hz"
      },
+     "lead": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lead"
+     },
      "started_at": {
       "type": "string",
       "format": "date-time",
@@ -3189,6 +3195,7 @@
      "device_id",
      "kind",
      "fs_hz",
+     "lead",
      "started_at",
      "ended_at"
     ],
@@ -3223,6 +3230,17 @@
      "fs_hz": {
       "type": "integer",
       "title": "Fs Hz"
+     },
+     "lead": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lead"
      },
      "started_at": {
       "type": "string",
@@ -3264,6 +3282,7 @@
      "device_id",
      "kind",
      "fs_hz",
+     "lead",
      "started_at",
      "ended_at",
      "classifications",

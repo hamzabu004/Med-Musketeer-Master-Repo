@@ -73,8 +73,8 @@ def make_patient(db, org_id, admin_id, doctor_id, wearable, user_id=None) -> tup
     classification = insert(db, """INSERT INTO classifications (segment_id, source, model_version, label, confidence)
                                    VALUES (:g, 'wearable', 'tinydl-0.1', 'abnormal', 0.9) RETURNING classification_id""",
                             g=segment)
-    alert = insert(db, """INSERT INTO alerts (device_id, patient_id, classification_id, origin, severity)
-                          VALUES (:d, :p, :c, 'wearable', 'high') RETURNING alert_id""",
+    alert = insert(db, """INSERT INTO alerts (device_id, patient_id, classification_id, origin)
+                          VALUES (:d, :p, :c, 'wearable') RETURNING alert_id""",
                    d=wearable, p=patient_id, c=classification)
     return patient_id, segment, alert, pseudonym
 

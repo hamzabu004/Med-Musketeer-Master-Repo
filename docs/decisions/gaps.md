@@ -7,7 +7,7 @@ description: Open architecture gaps for MedMusketeer, identified but not yet res
 
 This file is a **gap tracker**, not a decision record. Items move out of this file and into `stack.md` (or get flagged against `scope.md` if they imply a scope question) once actually decided. Don't treat anything listed here as resolved just because it's written down. The mid report's own list is in §5 "Design items still to be settled"; this file is the wider working list.
 
-Last updated: 2026-10-24
+Last updated: 2026-10-29
 
 ## Identity, crypto, provisioning
 - **Revocation:** `revoke` and the registry link are not built in the CA tool; whether fixed-path (wearable↔gateway) revocation is built in FYP-1 at all is undecided (candidate design in `stack.md`)
@@ -25,14 +25,18 @@ Last updated: 2026-10-24
 
 ## Device registry / data model (blocks Iteration 3)
 - The schema is **designed** (mid report §5, summarised in `stack.md`) but not implemented; column-level details are still open
-- `status`/`last_seen`/`current_mode` semantics per path (fixed = gateway-attested broker events; mobile = envelope arrival) and how the two reconcile
+- `status`/`last_seen`/`current_mode` on the mobile path (envelope arrival) and how it reconciles with the fixed path. The fixed path is implemented (`cloud-backend.md` D15): broker connect/disconnect events and gateway-forwarded wearable status, offline shown as `unknown`
 - Heartbeat envelope interval/timeout thresholds for mobile-path liveness
 - Raw ECG retention period (only `ecg_chunks` are dropped; the migration uses a 90-day placeholder)
 - Cloud data at rest: disk encryption of the cloud server and least-privilege database roles (planned with the cloud platform)
 - EMQX starts before the API, so its HTTP authenticators are briefly down at start; gateways connecting then are refused and must retry (they do, with MQTT reconnect)
 
 ## Ingestion / messaging (blocks Iteration 3–4)
-- The adapter's code-level interface (the message `ingest-v1` and the `attested_by` source are decided in `cloud-backend.md` D1/D7)
+- ~~The adapter's code-level interface~~ — resolved 2026-10-29: `cloud-backend.md` D15 (adapter, ingestion API, status and IDS-event payloads, idempotency)
+- `alerts.severity` is unused (nullable, empty, not in the API): alerts carry the wearable's label and confidence only (`cloud-backend.md` D15). Drop the column, or give it a meaning, if a later classifier needs one
+- Ingestion of `result` (gateway classification of an alert's segment), `command_ack` and `backlog` (post-outage upload): payloads not defined; the adapter skips them
+- The WebSocket alert push: `NOTIFY mm_alerts` is sent, nothing listens yet (the dashboard polls)
+- Growth of `ingested_messages` (one row per alert and IDS event, no retention policy yet)
 - Telemetry QoS and the recording payload (the alert payload v1 is decided in `cloud-backend.md` D6); how an on-demand stream starts and stops (the request command, duration or explicit stop, and the `command_ack`)
 - Enforcing wearable↔gateway assignment (observe-only decided for Iteration 3, `cloud-backend.md` D5); the gateway's local wearable allowlist
 - How a patient export works when the organisation admin cannot read ECG data (`cloud-backend.md` D9); until decided, exports leave ECG out (`ecg_included: false`)

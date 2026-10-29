@@ -12,6 +12,7 @@ The MedMusketeer cloud platform (M7), built in Iteration 3 (`docs/iterations/ite
 | `proxy` | built from `traefik/` on `traefik:v3.7.16` | One HTTP origin for ZITADEL's API and Login UI | 8080 |
 | `emqx` | built from `emqx/` on `emqx/emqx:6.3.2` | MQTT broker: gateway mTLS listener, internal service listener, hooks to the API, republish rule | 8883 (gateways), 1883 (services), 18083 (dashboard) |
 | `api` | built from `backend/` (Python 3.14) | MedMusketeer API | 8000 |
+| `adapter` | the `api` image, `python -m app.adapter` | MQTT adapter: reads `ingest/#` from EMQX, posts ingest-v1 to the API | — |
 
 Every image is pinned to an exact version with amd64 and arm64 builds, so the same file runs on the cloud Pi. Upgrading an image is a deliberate change with a change-log entry.
 
@@ -31,7 +32,7 @@ curl -s http://127.0.0.1:8000/healthz
 - Keep `.env`: the ZITADEL masterkey cannot change once ZITADEL has been initialised with it. To start from scratch, `docker compose down --volumes` and delete `.env`.
 - The dashboard (`web/dashboard`) signs in through ZITADEL's app "MedMusketeer Dashboard". `DASHBOARD_ORIGINS` in `.env` lists the origins it runs on (default `http://localhost:3000`); it sets the app's redirect URIs and the API's CORS origins on the next `up`.
 - Development data with sign-in accounts for every role: `docker compose exec api python -m app.manage seed-dev` on an empty stack. It prints the accounts and their shared password (`cloud-backend.md` D14).
-- A `.env` made before Slice 4 needs `EMQX_HOOK_SECRET`, `EMQX_ADAPTER_PASSWORD` and `EMQX_NODE_COOKIE` (random letters and digits; see `scripts/init-env.sh`).
+- A `.env` made before Slice 4 needs `EMQX_HOOK_SECRET`, `EMQX_ADAPTER_PASSWORD` and `EMQX_NODE_COOKIE`, and one made before Slice 5 needs `INGEST_SECRET` (random letters and digits; see `scripts/init-env.sh`). For example: `printf 'INGEST_SECRET=%s\n' "$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 48)" >> .env`.
 
 ## EMQX gateway listener
 
@@ -46,6 +47,21 @@ cloud/scripts/install-emqx-certs.sh           # reads ~/medmusketeer-ca; restart
 - Gateways verify the cloud as `cloud.medmusketeer.local` (CN/SAN pin), whatever address they connect to.
 - Gateway messages are republished to `ingest/{gateway id}/{topic}` for the adapter (`mm-adapter` on the internal listener, password `EMQX_ADAPTER_PASSWORD`).
 - On the cloud Pi, set `EMQX_GATEWAY_BIND_ADDRESS` to its Tailscale address.
+- EMQX also republishes each gateway's connect and disconnect to `ingest/{gateway id}/broker/client.connected|client.disconnected` (rule `mm_presence`), for its liveness.
+
+## Ingestion
+
+```
+gateway ── mm/fixed/{wearable}/alert|status, mm/gateway/{gateway}/status|ids_event ──► EMQX ── ingest/# ──►
+adapter ── validates (shared/contracts), builds ingest-v1 ── POST /internal/ingest ──► api ──► database
+```
+
+`docs/decisions/cloud-backend.md` D6, D7 and D15; payload schemas in `shared/contracts/`.
+- **An alert** for a wearable issued to a patient (and granted to that patient's organisation) is stored in one transaction: the monitoring session, the segment with its samples, the wearable's screening as a classification, and the alert (`origin` wearable, no severity). Then `NOTIFY mm_alerts` is sent.
+- **An IDS event** becomes a security event of the publishing gateway.
+- **Status** updates `last_seen`, `current_mode` and `current_gateway_id`. A wearable that goes offline, or whose gateway does, is `unknown`, never offline.
+- **Rejected messages** are logged with the reason: by the API (`ingest rejected device=… reason=…`) for registry rules, or by the adapter (`adapter dropped …`) for contract failures. Examples: an unissued, unknown or suspended wearable; an inactive gateway; a malformed payload. A redelivered alert or IDS event (same `msg_id`) is stored once (`ingest duplicate`).
+- **Delivery is at least once.** The adapter keeps a persistent session and acknowledges each message only after the API has answered, so messages wait in EMQX while the adapter or the API is down. `telemetry`, `result`, `command_ack` and `backlog` are skipped for now.
 
 ## API endpoints so far
 
@@ -62,8 +78,9 @@ cloud/scripts/install-emqx-certs.sh           # reads ~/medmusketeer-ca; restart
 | `/patients/...` | Org admin: patients, doctor assignment, wearable issue/return, disorders, exports. Doctor: their patients and disorders |
 | `/alerts`, `/patients/{id}/alerts`, `/patients/{id}/segments`, `/segments/{id}` | Doctor (own patients) and patient (self): alerts, acknowledgement (doctor), ECG segments with samples |
 | `/internal/emqx/...` | EMQX's authentication and authorisation hooks; only with the shared `EMQX_HOOK_SECRET`, not in the API description |
+| `POST /internal/ingest` | ingest-v1 messages from the adapter; only with `INGEST_SECRET`, not in the API description |
 
-Every endpoint except `/livez`, `/healthz` and `/auth/config` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from an active user registered in `users` with the same role (`app/auth.py`). Who may call what is the D9 matrix in `docs/decisions/cloud-backend.md`, tested in full by TC-C09. The interactive API description is at http://127.0.0.1:8000/docs.
+Every endpoint except `/livez`, `/healthz`, `/auth/config` and `/internal/...` needs `Authorization: Bearer <ZITADEL access token>`: a JWT for the MedMusketeer project, from an active user registered in `users` with the same role (`app/auth.py`). Who may call what is the D9 matrix in `docs/decisions/cloud-backend.md`, tested in full by TC-C09. The interactive API description is at http://127.0.0.1:8000/docs.
 
 ## ZITADEL set-up
 
@@ -88,12 +105,12 @@ The service account is configured only on ZITADEL's first start. A stack created
 cd cloud/backend
 python3 -m venv .venv
 .venv/bin/pip install --require-hashes -r requirements.lock
-.venv/bin/pip install --no-deps -e . && .venv/bin/pip install pytest pytest-cov paho-mqtt
+.venv/bin/pip install --no-deps -e . && .venv/bin/pip install pytest pytest-cov
 .venv/bin/python -m pytest -m "not integration"   # unit tests, no containers
 ../run_cloud_tests.sh                               # all tests + evidence in docs/testing/evidence/<date>/cloud/
 ```
 
-The stack tests (TC-C01, C12 to C19) bring the stack up once under the compose project `mm-cloud-tc` on ports 18080/18000/28083/28883/21883, with a throwaway CA made by the CA tool in `tools/ca-tool/`, and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
+The stack tests (TC-C01, C12 to C26) bring the stack up once under the compose project `mm-cloud-tc` on ports 18080/18000/28083/28883/21883, with a throwaway CA made by the CA tool in `tools/ca-tool/`, and remove it afterwards, so a running development stack is not affected. Set `MM_COMPOSE="podman compose"` to use Podman.
 
 ## Dependencies
 

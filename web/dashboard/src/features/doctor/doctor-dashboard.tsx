@@ -51,13 +51,12 @@ function Body({ open, patients, devices, people, fetchedAt, onAcknowledge, isPen
   const names = useCareNames(patients, people);
   const wearables = devices.filter((d) => d.type === "wearable");
   const recent = wearables.filter((d) => d.last_seen && fetchedAt - Date.parse(d.last_seen) < RECENT_MS).length;
-  const high = open.filter((a) => a.severity === "high" || a.severity === "critical").length;
   const labels = [...new Set(open.map((a) => a.label))];
   const full = open.length >= ALERT_LIMIT;
   return (
     <>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Unacknowledged alerts" value={countLabel(open.length)} detail={`${countLabel(high)} high severity${full ? ", among the newest 1000" : ""}`} />
+        <Metric label="Unacknowledged alerts" value={countLabel(open.length)} detail={full ? "Among the newest 1000" : "Across your patients"} />
         <Metric label="Patients" value={patients.length} detail={`${patients.filter((p) => !p.wearable_id).length} without a wearable`} />
         <Metric label="Wearables heard from" value={`${recent} / ${wearables.length}`} detail="in the last 15 minutes" />
         <Metric label="Open classifications" value={labels.length} detail={labels.map(beatLabel).join(", ") || "None"} />

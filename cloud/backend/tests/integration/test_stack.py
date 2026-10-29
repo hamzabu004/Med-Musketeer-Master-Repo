@@ -18,7 +18,7 @@ from tests.integration.stack import (API, PORTS, compose, evidence, machine_toke
 
 pytestmark = pytest.mark.integration
 
-SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api"}
+SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api", "adapter"}
 JOBS = {"migrate", "zitadel-bootstrap"}
 
 

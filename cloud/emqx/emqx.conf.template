@@ -102,3 +102,19 @@ rule_engine.rules.mm_ingest {
     }
   }]
 }
+
+## Each gateway's connect and disconnect, as the broker saw them, for its liveness (stack.md): the
+## adapter turns them into the gateway's online and offline status. Gateways cannot publish under
+## ingest/, so these cannot be forged. `timestamp` is the event time (ms since the epoch).
+rule_engine.rules.mm_presence {
+  sql = "SELECT event, username, clientid, timestamp FROM \"$events/client_connected\", \"$events/client_disconnected\" WHERE username != 'mm-adapter'"
+  actions = [{
+    function = republish
+    args {
+      topic = "ingest/${username}/broker/${event}"
+      qos = 1
+      retain = "false"
+      payload = "${.}"
+    }
+  }]
+}

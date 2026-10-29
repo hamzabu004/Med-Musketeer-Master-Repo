@@ -1,0 +1,316 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.87kB done
+#1 DONE 0.0s
+
+#2 [proxy internal] load build definition from Dockerfile
+#2 transferring dockerfile: 170B done
+#2 DONE 0.0s
+
+#3 [postgres internal] load build definition from Dockerfile
+#3 transferring dockerfile: 339B done
+#3 DONE 0.0s
+
+#4 [migrate internal] load build definition from Dockerfile
+#4 transferring dockerfile: 706B done
+#4 DONE 0.0s
+
+#5 [emqx internal] load build definition from Dockerfile
+#5 transferring dockerfile: 486B done
+#5 DONE 0.0s
+
+#6 [api internal] load metadata for docker.io/library/python:3.14.9-slim-trixie
+#6 DONE 0.1s
+
+#7 [emqx internal] load metadata for docker.io/emqx/emqx:6.3.2
+#7 DONE 0.1s
+
+#8 [proxy internal] load metadata for docker.io/library/traefik:v3.7.16
+#8 DONE 0.1s
+
+#9 [postgres internal] load metadata for docker.io/timescale/timescaledb:2.31.0-pg18
+#9 DONE 0.1s
+
+#10 [emqx internal] load .dockerignore
+#10 transferring context: 2B done
+#10 DONE 0.0s
+
+#11 [migrate internal] load .dockerignore
+#11 transferring context: 102B done
+#11 DONE 0.0s
+
+#12 [proxy internal] load .dockerignore
+#12 transferring context: 2B done
+#12 DONE 0.0s
+
+#13 [postgres internal] load .dockerignore
+#13 transferring context: 2B done
+#13 DONE 0.0s
+
+#14 [migrate internal] load build context
+#14 DONE 0.0s
+
+#15 [emqx internal] load build context
+#15 transferring context: 76B done
+#15 DONE 0.0s
+
+#16 [proxy internal] load build context
+#16 transferring context: 33B done
+#16 DONE 0.0s
+
+#17 [postgres internal] load build context
+#17 transferring context: 67B done
+#17 DONE 0.0s
+
+#18 [emqx 1/3] FROM docker.io/emqx/emqx:6.3.2@sha256:135116400e11b25224350b2e55c874f4e224d357b593fb554ca1b1f398c631ac
+#18 resolve docker.io/emqx/emqx:6.3.2@sha256:135116400e11b25224350b2e55c874f4e224d357b593fb554ca1b1f398c631ac 0.0s done
+#18 DONE 0.0s
+
+#19 [migrate 1/8] FROM docker.io/library/python:3.14.9-slim-trixie@sha256:b347e2dcbc7f0b6f9fb7182e9da6a187fb10ae715e0692518c1aed0eec94a700
+#19 resolve docker.io/library/python:3.14.9-slim-trixie@sha256:b347e2dcbc7f0b6f9fb7182e9da6a187fb10ae715e0692518c1aed0eec94a700 0.0s done
+#19 DONE 0.0s
+
+#20 [proxy 1/2] FROM docker.io/library/traefik:v3.7.16@sha256:c8a121e4bb1347e8fd52657fab12f2cb70b68f8a018895e2068f92c9e519b9c2
+#20 resolve docker.io/library/traefik:v3.7.16@sha256:c8a121e4bb1347e8fd52657fab12f2cb70b68f8a018895e2068f92c9e519b9c2 0.0s done
+#20 DONE 0.0s
+
+#21 [postgres 1/2] FROM docker.io/timescale/timescaledb:2.31.0-pg18@sha256:0fcff5761363809d1242f2261a3482197b5a5337407f8b97a976fb174206d579
+#21 resolve docker.io/timescale/timescaledb:2.31.0-pg18@sha256:0fcff5761363809d1242f2261a3482197b5a5337407f8b97a976fb174206d579 0.0s done
+#21 DONE 0.0s
+
+#22 [emqx 2/3] COPY --chown=emqx:emqx emqx.conf.template /opt/emqx/etc/emqx.conf.template
+#22 CACHED
+
+#23 [emqx 3/3] COPY --chmod=755 mm-entrypoint.sh /usr/local/bin/mm-entrypoint.sh
+#23 CACHED
+
+#24 [postgres 2/2] COPY --chmod=0755 init/010-databases.sh /docker-entrypoint-initdb.d/010-databases.sh
+#24 CACHED
+
+#25 [proxy 2/2] COPY dynamic.yml /etc/traefik/dynamic/dynamic.yml
+#25 CACHED
+
+#14 [migrate internal] load build context
+#14 transferring context: 14.67kB 0.0s done
+#14 DONE 0.1s
+
+#26 [api 4/8] RUN pip install --require-hashes -r requirements.lock
+#26 CACHED
+
+#27 [api 3/8] COPY requirements.lock .
+#27 CACHED
+
+#28 [api 2/8] WORKDIR /srv
+#28 CACHED
+
+#29 [migrate 5/8] COPY pyproject.toml alembic.ini ./
+#29 CACHED
+
+#30 [emqx] exporting to image
+#30 exporting layers 0.0s done
+#30 exporting manifest sha256:9f6a0e884b09884737a09ade9dd5871f380cead54e9305322cb0e2c648c93e61 done
+#30 exporting config sha256:b8ea6ff68b42a5853761d080847888f1dc5be8e30a468a303b9280604694fe76 done
+#30 exporting attestation manifest sha256:1e65f078c986974e979ddf699cfbcc7ecde6ad73627394aa9caa1449cb8235de 0.0s done
+#30 exporting manifest list sha256:2536bad60b72dcfc88cca34b1c1cc6a52f678ea8545f249dc7cc2f790d658d62 0.0s done
+#30 naming to docker.io/medmusketeer/cloud-emqx:dev
+#30 ...
+
+#31 [api 6/8] COPY app ./app
+#31 DONE 0.1s
+
+#32 [api 7/8] COPY migrations ./migrations
+#32 DONE 0.1s
+
+#33 [proxy] exporting to image
+#33 exporting layers done
+#33 exporting manifest sha256:f5b886836f82f625b0b6cc4dee32d16e80ba2e2a40a351d76cbfc579a42377aa 0.0s done
+#33 exporting config sha256:64aca92c34f3de86b5315e41c8d4e2e329a239a03ca9935e8a19f1e6513d3c21 done
+#33 exporting attestation manifest sha256:cfbb20d461733c2871a5a32807c77e2bdbb31f036716655804200088d01406f8 0.1s done
+#33 exporting manifest list sha256:548e2e0774e6626e66714afb79c64762d3ca702a0be10d86641811fc61e10b9a 0.0s done
+#33 naming to docker.io/medmusketeer/cloud-proxy:dev done
+#33 unpacking to docker.io/medmusketeer/cloud-proxy:dev 0.0s done
+#33 DONE 0.2s
+
+#30 [emqx] exporting to image
+#30 naming to docker.io/medmusketeer/cloud-emqx:dev 0.0s done
+#30 unpacking to docker.io/medmusketeer/cloud-emqx:dev 0.0s done
+#30 DONE 0.2s
+
+#34 [postgres] exporting to image
+#34 exporting layers 0.0s done
+#34 exporting manifest sha256:a2fbec239b468469cb3e6839767160b243bd93022dfc0c8b61292bbda482d179 done
+#34 exporting config sha256:66198143656832e4ebf4f64e10167bec9e518df30868067261fdf21b364bfa53 0.0s done
+#34 exporting attestation manifest sha256:961a9a1d89d11be3089ff587e68c8406a3777309cf37e7eeb36b2df09307ea7e 0.1s done
+#34 exporting manifest list sha256:c9bce0f4d30415e1424b418eb66af2bde8b94aceca5a9bc5e2326751405a9af8 0.0s done
+#34 naming to docker.io/medmusketeer/cloud-postgres:dev done
+#34 unpacking to docker.io/medmusketeer/cloud-postgres:dev 0.0s done
+#34 DONE 0.3s
+
+#35 [api 8/8] RUN pip install --no-deps . && useradd --system --no-create-home mm     && install -d -o mm -g mm /var/lib/medmusketeer     && install -d -o mm -g mm -m 700 /var/lib/medmusketeer-secrets  # mount points of mm-config, mm-secrets
+#35 ...
+
+#36 [proxy] resolving provenance for metadata file
+#36 DONE 0.0s
+
+#37 [emqx] resolving provenance for metadata file
+#37 DONE 0.0s
+
+#38 [postgres] resolving provenance for metadata file
+#38 DONE 0.0s
+
+#35 [api 8/8] RUN pip install --no-deps . && useradd --system --no-create-home mm     && install -d -o mm -g mm /var/lib/medmusketeer     && install -d -o mm -g mm -m 700 /var/lib/medmusketeer-secrets  # mount points of mm-config, mm-secrets
+#35 2.191 Processing ./.
+#35 2.194   Installing build dependencies: started
+#35 6.966   Installing build dependencies: finished with status 'done'
+#35 6.967   Getting requirements to build wheel: started
+#35 8.195   Getting requirements to build wheel: finished with status 'done'
+#35 8.196   Preparing metadata (pyproject.toml): started
+#35 9.401   Preparing metadata (pyproject.toml): finished with status 'done'
+#35 9.406 Building wheels for collected packages: medmusketeer-cloud
+#35 9.408   Building wheel for medmusketeer-cloud (pyproject.toml): started
+#35 10.57   Building wheel for medmusketeer-cloud (pyproject.toml): finished with status 'done'
+#35 10.57   Created wheel for medmusketeer-cloud: filename=medmusketeer_cloud-0.1.0-py3-none-any.whl size=53642 sha256=4500d88483d6ead5c31eb37536ef011a84762a01d823be70b74d745abeb7712b
+#35 10.57   Stored in directory: /tmp/pip-ephem-wheel-cache-smkdxv69/wheels/e1/da/b4/2d6181351f6dd70d0a78d307947ff5ce1a45139a2cd9b623a5
+#35 10.57 Successfully built medmusketeer-cloud
+#35 10.66 Installing collected packages: medmusketeer-cloud
+#35 10.73 Successfully installed medmusketeer-cloud-0.1.0
+#35 10.73 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#35 DONE 10.9s
+
+#39 [migrate] exporting to image
+#39 exporting layers 0.1s done
+#39 exporting manifest sha256:5dfce3eeb5ac516b1a79eebae61b2611f9ced227d299ca8186f5a6589ddead4a 0.0s done
+#39 exporting config sha256:bccfa709d8185dee4ee7dada2b063d211f332c505813334b8e88a2bd0b2e7190
+#39 exporting config sha256:bccfa709d8185dee4ee7dada2b063d211f332c505813334b8e88a2bd0b2e7190 0.0s done
+#39 exporting attestation manifest sha256:c5c0f2476d98b4fc286a68899bafef46f72d6808fce8b08afce2d5e64b91a143 0.0s done
+#39 exporting manifest list sha256:887ddc33ec10ceacce039b69a4bd94789cfed06b847cfce83c9f1a66862b5418 0.0s done
+#39 naming to docker.io/medmusketeer/cloud-api:dev done
+#39 unpacking to docker.io/medmusketeer/cloud-api:dev 0.1s done
+#39 DONE 0.3s
+
+#40 [api] exporting to image
+#40 exporting layers 0.1s done
+#40 exporting manifest sha256:853f7384832e26551749856a8356d7d4d96cce1b522ae057dd402897f4135d22 0.0s done
+#40 exporting config sha256:74c090d3edc3152a9822cdfd9774084dbd8e835b0c3a605dd97e84f4eddafa16 0.0s done
+#40 exporting attestation manifest sha256:a973f6e256460e53005c16a171fdf67b2d50480777d802abbb41a5db0e83b2e8 0.0s done
+#40 exporting manifest list sha256:444fcfec5d33baee721c67d85903ad560cde7615e3484d40d91f0a91f7f3388b 0.0s done
+#40 naming to docker.io/medmusketeer/cloud-api:dev done
+#40 unpacking to docker.io/medmusketeer/cloud-api:dev 0.1s done
+#40 DONE 0.3s
+
+#41 [migrate] resolving provenance for metadata file
+#41 DONE 0.1s
+
+#42 [api] resolving provenance for metadata file
+#42 DONE 0.0s
+ Image medmusketeer/cloud-emqx:dev Building 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-postgres:dev Building 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-proxy:dev Building 
+ Image medmusketeer/cloud-postgres:dev Built 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-emqx:dev Built 
+ Image medmusketeer/cloud-proxy:dev Built 
+ Network mm-cloud-tc_default Creating 
+ Volume mm-cloud-tc_emqx-data Creating 
+ Volume mm-cloud-tc_emqx-data Creating 
+ Network mm-cloud-tc_default Creating 
+ Volume mm-cloud-tc_emqx-log Creating 
+ Volume mm-cloud-tc_emqx-log Creating 
+ Volume mm-cloud-tc_mm-config Creating 
+ Volume mm-cloud-tc_mm-config Creating 
+ Volume mm-cloud-tc_mm-secrets Creating 
+ Volume mm-cloud-tc_mm-secrets Creating 
+ Volume mm-cloud-tc_postgres-data Creating 
+ Volume mm-cloud-tc_postgres-data Creating 
+ Volume mm-cloud-tc_zitadel-bootstrap Creating 
+ Volume mm-cloud-tc_zitadel-bootstrap Creating 
+ Volume mm-cloud-tc_postgres-data Created 
+ Volume mm-cloud-tc_postgres-data Created 
+ Volume mm-cloud-tc_zitadel-bootstrap Created 
+ Volume mm-cloud-tc_zitadel-bootstrap Created 
+ Volume mm-cloud-tc_mm-secrets Created 
+ Volume mm-cloud-tc_mm-secrets Created 
+ Volume mm-cloud-tc_mm-config Created 
+ Volume mm-cloud-tc_mm-config Created 
+ Volume mm-cloud-tc_emqx-log Created 
+ Volume mm-cloud-tc_emqx-log Created 
+ Volume mm-cloud-tc_emqx-data Created 
+ Volume mm-cloud-tc_emqx-data Created 
+ Network mm-cloud-tc_default Created 
+ Network mm-cloud-tc_default Created 
+ Container mm-cloud-tc-postgres-1 Creating 
+ Container mm-cloud-tc-postgres-1 Created 
+ Container mm-cloud-tc-zitadel-api-1 Creating 
+ Container mm-cloud-tc-migrate-1 Creating 
+ Container mm-cloud-tc-zitadel-api-1 Created 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Creating 
+ Container mm-cloud-tc-zitadel-login-1 Creating 
+ Container mm-cloud-tc-migrate-1 Created 
+ Container mm-cloud-tc-zitadel-login-1 Created 
+ Container mm-cloud-tc-proxy-1 Creating 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Created 
+ Container mm-cloud-tc-api-1 Creating 
+ Container mm-cloud-tc-proxy-1 Created 
+ Container mm-cloud-tc-api-1 Created 
+ Container mm-cloud-tc-emqx-1 Creating 
+ Container mm-cloud-tc-emqx-1 Created 
+ Container mm-cloud-tc-adapter-1 Creating 
+ Container mm-cloud-tc-adapter-1 Created 
+ Container mm-cloud-tc-postgres-1 Starting 
+ Container mm-cloud-tc-postgres-1 Started 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-zitadel-api-1 Starting 
+ Container mm-cloud-tc-migrate-1 Starting 
+ Container mm-cloud-tc-zitadel-api-1 Started 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-migrate-1 Started 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Starting 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-login-1 Starting 
+ Container mm-cloud-tc-zitadel-login-1 Started 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-login-1 Waiting 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Started 
+ Container mm-cloud-tc-migrate-1 Waiting 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-migrate-1 Exited 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Exited 
+ Container mm-cloud-tc-api-1 Starting 
+ Container mm-cloud-tc-api-1 Started 
+ Container mm-cloud-tc-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-login-1 Healthy 
+ Container mm-cloud-tc-proxy-1 Starting 
+ Container mm-cloud-tc-proxy-1 Started 
+ Container mm-cloud-tc-api-1 Healthy 
+ Container mm-cloud-tc-emqx-1 Starting 
+ Container mm-cloud-tc-emqx-1 Started 
+ Container mm-cloud-tc-emqx-1 Waiting 
+ Container mm-cloud-tc-emqx-1 Healthy 
+ Container mm-cloud-tc-adapter-1 Starting 
+ Container mm-cloud-tc-adapter-1 Started 
+ Container mm-cloud-tc-migrate-1 Waiting 
+ Container mm-cloud-tc-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-login-1 Waiting 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Waiting 
+ Container mm-cloud-tc-adapter-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-emqx-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-proxy-1 Waiting 
+ Container mm-cloud-tc-proxy-1 Healthy 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Exited 
+ Container mm-cloud-tc-zitadel-login-1 Healthy 
+ Container mm-cloud-tc-emqx-1 Healthy 
+ Container mm-cloud-tc-migrate-1 Exited 
+ Container mm-cloud-tc-adapter-1 Healthy 

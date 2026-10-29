@@ -38,6 +38,7 @@ umask 077
     printf 'EMQX_HOOK_SECRET=%s\n' "$(secret 48)"
     printf 'EMQX_ADAPTER_PASSWORD=%s\n' "$(secret 32)"
     printf 'EMQX_NODE_COOKIE=%s\n' "$(secret 32)"
+    printf 'INGEST_SECRET=%s\n' "$(secret 48)"
 } > "$TARGET"
 
 printf 'Wrote %s\n' "$TARGET"

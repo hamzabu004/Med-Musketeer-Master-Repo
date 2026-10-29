@@ -1,4 +1,4 @@
-"""The full compose stack for the A-stack tests (TC-C01, C12 to C18), shared by the test modules.
+"""The full compose stack for the A-stack tests (TC-C01, C12 to C26), shared by the test modules.
 
 It runs under its own compose project name and ports, so a running development stack is not
 touched, and is removed with its volumes afterwards. Before `up`, a throwaway CA is created with
@@ -13,6 +13,9 @@ import subprocess
 from pathlib import Path
 
 import httpx
+
+from tests.certs import Issued, TestCA
+from tests.mqtt import Client, tls_context
 
 CLOUD_DIR = Path(__file__).resolve().parents[3]
 PROJECT = "mm-cloud-tc"
@@ -79,3 +82,23 @@ def register_user(stack, zitadel_sub: str, role: str, org_id: str | None = None)
 
 
 API = f"http://127.0.0.1:{PORTS['API_PUBLISHED_PORT']}"
+GATEWAY_PORT = int(PORTS["EMQX_GATEWAY_PUBLISHED_PORT"])
+INTERNAL_PORT = int(PORTS["EMQX_INTERNAL_PUBLISHED_PORT"])
+
+
+def register(admin, issued: Issued, device_type: str) -> str:
+    """Register, add the certificate as its credential, activate; returns the credential id."""
+    response = admin.post("/admin/devices", json={"device_id": issued.device_id, "type": device_type, "is_testbed": True})
+    assert response.status_code in (201, 409), response.text  # 409: a second certificate for the same device
+    credential = admin.post(f"/admin/devices/{issued.device_id}/credentials",
+                            json={"auth_method": "x509_mtls", "key_type": "ec_p256", "credential_ref": issued.fingerprint})
+    assert credential.status_code == 201, credential.text
+    if response.status_code == 201:
+        assert admin.post(f"/admin/devices/{issued.device_id}/activate").status_code == 200
+    return credential.json()["credential_id"]
+
+
+def gateway(stack_ca: TestCA, issued: Issued | None) -> Client:
+    context = tls_context(stack_ca.ca_cert, issued.cert if issued else None, issued.key if issued else None)
+    return Client(GATEWAY_PORT, context)
+

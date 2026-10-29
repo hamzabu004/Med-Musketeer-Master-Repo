@@ -101,7 +101,7 @@ topic write mm/fixed/+/result
 ## 6. Open items
 
 - Final QoS for `telemetry` and the other topics.
-- Fixed-path payload format. There is no envelope on this path (mTLS protects the hop). The implemented test alert is `{"device_id", "type": "test_alert", "message", "timestamp"}`. The planned alert segment adds a sequence number, sampling rate, lead, sample count, encoding (little-endian signed integers, Base64 inside JSON) and the samples; a recording also carries its command id. The send timestamp is benchmark-only and never used in a security decision.
+- Fixed-path payload format: the alert, status and IDS-event payloads are decided and implemented in the cloud (`cloud-backend.md` D6, D15; schemas in `shared/contracts/`); the firmware and the gateway still have to adopt them. There is no envelope on this path (mTLS protects the hop). The implemented test alert is `{"device_id", "type": "test_alert", "message", "timestamp"}`. The planned alert segment adds a sequence number, sampling rate, lead, sample count, encoding (little-endian signed integers, Base64 inside JSON) and the samples; a recording also carries its command id. The send timestamp is benchmark-only and never used in a security decision.
 - How an on-demand stream starts and stops: request command fields, fixed duration vs explicit stop command, and how `command_ack` reports it.
 - Gateway discovery by the wearable (currently the broker host/port is provisioned over BLE; the Pi hotspot is `10.42.0.1`).
 - Cloud-side ACL: observe vs enforce which wearables a gateway may subscribe to for `command`.

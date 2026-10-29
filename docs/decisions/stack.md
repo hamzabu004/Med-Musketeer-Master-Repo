@@ -413,6 +413,8 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 - **Gateway ↔ EMQX:** the gateway has its own keepalive and LWT toward EMQX. EMQX per-client connect/disconnect events (also the benchmark checkpoint source) feed the gateway's `status`/`last_seen` directly.
 - **Gateway unreachable ≠ wearable offline:** when the gateway drops off, the cloud should show its wearables as **unknown/stale**, not offline, until the gateway reconnects and uploads its backlog of presence events.
 
+**Implemented on the cloud side (2026-10-29, `cloud-backend.md` D15):** gateway liveness from EMQX's connect/disconnect events (rule `mm_presence`), wearable presence from the gateway-forwarded `status` (`status-v1`), and a gateway going offline turns its wearables `unknown`. The gateway's forwarding of wearable status is still to be built (Iteration 4).
+
 **Mode switching:** because the wearable is manually switched between paths (see "Path selection"), a wearable going quiet on one path may simply have moved to the other. A fixed-path disconnect followed by mobile-path envelopes (or the reverse) should be read as a mode change, not a failure, where an explicit mode-change message is available. How `status`/`last_seen` reconcile across the two paths is Open.
 
 **Mobile path (wearable → phone relay → cloud):** broker/session-level liveness is insufficient here and must not be treated as a proxy for wearable presence. The wearable is never itself an MQTT client to the cloud broker on this path (per the Option B envelope design above) — only the phone holds that session. Phone-session-alive does **not** imply wearable-present (BLE out of range, wearable powered off, etc., are all invisible to the phone's own transport-level liveness).

@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { stripGeometry } from "@/components/charts/ecg-waveform";
 import { beatLabel } from "@/lib/labels";
-import { severityTone } from "./alert-table";
 import { countLabel } from "./limits";
 import type { RecordingRequest } from "@/services/contracts";
 import { recordingState } from "./recording-panel";
@@ -55,12 +54,6 @@ describe("classification labels", () => {
 });
 
 describe("review findings (Phase 6)", () => {
-  it("never shows an unexpected severity as calm", () => {
-    expect(severityTone("critical")).toBe("critical");
-    expect(severityTone("urgent")).toBe("warning");
-    expect(severityTone("low")).toBe("info");
-  });
-
   it("says when a count comes from a full, capped list", () => {
     expect(countLabel(999)).toBe("999");
     expect(countLabel(1000)).toBe("1000+");

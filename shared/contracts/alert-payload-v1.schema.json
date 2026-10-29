@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "alert-payload-v1.schema.json",
+  "$defs": {
+    "Screening": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "description": "The wearable's TinyDL screening label",
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "model": {
+          "description": "Model name and version",
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "confidence",
+        "model"
+      ],
+      "title": "Screening",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "alert-payload-v1, published by a wearable on mm/fixed/{device_id}/alert (D6).",
+  "properties": {
+    "v": {
+      "const": 1,
+      "title": "V",
+      "type": "integer"
+    },
+    "msg_id": {
+      "description": "Makes a QoS 1 redelivery idempotent",
+      "format": "uuid",
+      "title": "Msg Id",
+      "type": "string"
+    },
+    "seq": {
+      "description": "Per-device counter; shows gaps",
+      "maximum": 9223372036854775807,
+      "minimum": 0,
+      "title": "Seq",
+      "type": "integer"
+    },
+    "type": {
+      "const": "alert",
+      "title": "Type",
+      "type": "string"
+    },
+    "fs_hz": {
+      "description": "Sampling rate",
+      "maximum": 2000,
+      "minimum": 1,
+      "title": "Fs Hz",
+      "type": "integer"
+    },
+    "lead": {
+      "examples": [
+        "MLII"
+      ],
+      "maxLength": 16,
+      "minLength": 1,
+      "title": "Lead",
+      "type": "string"
+    },
+    "n_samples": {
+      "maximum": 65536,
+      "minimum": 1,
+      "title": "N Samples",
+      "type": "integer"
+    },
+    "encoding": {
+      "const": "int16le-base64",
+      "title": "Encoding",
+      "type": "string"
+    },
+    "samples": {
+      "description": "n_samples little-endian int16 values, Base64 with padding",
+      "maxLength": 174764,
+      "title": "Samples",
+      "type": "string"
+    },
+    "screening": {
+      "$ref": "#/$defs/Screening"
+    },
+    "segment_start": {
+      "description": "Time of the first sample",
+      "format": "date-time",
+      "title": "Segment Start",
+      "type": "string"
+    },
+    "sent_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Benchmark only; never used in a security decision",
+      "title": "Sent At"
+    }
+  },
+  "required": [
+    "v",
+    "msg_id",
+    "seq",
+    "type",
+    "fs_hz",
+    "lead",
+    "n_samples",
+    "encoding",
+    "samples",
+    "screening",
+    "segment_start"
+  ],
+  "title": "alert-payload-v1",
+  "type": "object"
+}

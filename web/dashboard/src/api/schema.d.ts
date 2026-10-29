@@ -693,8 +693,6 @@ export interface components {
             patient_id: string;
             /** Origin */
             origin: string;
-            /** Severity */
-            severity: string;
             /**
              * Created At
              * Format: date-time
@@ -1237,6 +1235,8 @@ export interface components {
             kind: string;
             /** Fs Hz */
             fs_hz: number;
+            /** Lead */
+            lead: string | null;
             /**
              * Started At
              * Format: date-time
@@ -1271,6 +1271,8 @@ export interface components {
             kind: string;
             /** Fs Hz */
             fs_hz: number;
+            /** Lead */
+            lead: string | null;
             /**
              * Started At
              * Format: date-time

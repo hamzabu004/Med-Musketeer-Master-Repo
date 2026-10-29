@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "status-v1.schema.json",
+  "additionalProperties": false,
+  "description": "status-v1: presence. A gateway forwards its wearables' presence on mm/fixed/{device_id}/status\nand reports its own on mm/gateway/{gateway_id}/status; the adapter also builds one from EMQX's\nconnect and disconnect events for each gateway.",
+  "properties": {
+    "v": {
+      "const": 1,
+      "title": "V",
+      "type": "integer"
+    },
+    "state": {
+      "enum": [
+        "online",
+        "offline"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Why it went offline; \"mode_switch\" before the wearable changes path",
+      "title": "Reason"
+    },
+    "sent_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Benchmark only",
+      "title": "Sent At"
+    }
+  },
+  "required": [
+    "v",
+    "state"
+  ],
+  "title": "status-v1",
+  "type": "object"
+}

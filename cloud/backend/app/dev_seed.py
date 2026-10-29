@@ -189,11 +189,11 @@ def seed_database(conn, zitadel_org: str, people: list[Person], rng: random.Rand
         insert(conn, "INSERT INTO patient_disorders (patient_id, disorder, recorded_by) VALUES (:p, :d, :by) RETURNING 1",
                p=patients[patient], d=disorder, by=admin)
 
-    # (patient, wearable, path, alerts as (minutes ago, label, confidence, severity, ectopic every n beats, bpm, acked))
+    # (patient, wearable, path, alerts as (minutes ago, label, confidence, ectopic every n beats, bpm, acked))
     monitored = [
-        ("patient1", wearables[0], "fixed", [(5, "V", 0.94, "high", 4, 78, False), (95, "V", 0.81, "high", 6, 74, True),
-                                              (400, "N", 0.62, "low", None, 70, True)]),
-        ("patient2", wearables[1], "mobile", [(30, "S", 0.77, "medium", 5, 96, False), (720, "F", 0.58, "medium", 7, 88, False)]),
+        ("patient1", wearables[0], "fixed", [(5, "V", 0.94, 4, 78, False), (95, "V", 0.81, 6, 74, True),
+                                              (400, "N", 0.62, None, 70, True)]),
+        ("patient2", wearables[1], "mobile", [(30, "S", 0.77, 5, 96, False), (720, "F", 0.58, 7, 88, False)]),
     ]
     alerts = 0
     for patient, wearable, path, events in monitored:
@@ -203,7 +203,7 @@ def seed_database(conn, zitadel_org: str, people: list[Person], rng: random.Rand
         session = insert(conn, """INSERT INTO monitoring_sessions (device_id, patient_id, org_id, path, started_at)
                                   VALUES (:d, :p, :o, :path, :t) RETURNING session_id""",
                          d=wearable, p=patient_id, o=org_id, path=path, t=now - timedelta(days=2))
-        for minutes_ago, label, confidence, severity, ectopic_every, bpm, acked in events:
+        for minutes_ago, label, confidence, ectopic_every, bpm, acked in events:
             start = now - timedelta(minutes=minutes_ago)
             segment = insert(conn, """INSERT INTO ecg_segments (session_id, patient_id, device_id, kind, fs_hz, started_at, ended_at)
                                       VALUES (:s, :p, :d, 'alert', :fs, :t, :e) RETURNING segment_id""",
@@ -223,10 +223,10 @@ def seed_database(conn, zitadel_org: str, people: list[Person], rng: random.Rand
                 VALUES (:g, :src, 'aami-cnn-0.1', :l, :c, :t) RETURNING classification_id""",
                 g=segment, src="gateway" if path == "fixed" else "cloud", l=label, c=confidence,
                 t=start + timedelta(seconds=SEGMENT_S + 1))
-            insert(conn, """INSERT INTO alerts (device_id, patient_id, classification_id, origin, severity, created_at,
+            insert(conn, """INSERT INTO alerts (device_id, patient_id, classification_id, origin, created_at,
                                                 acknowledged_by, acknowledged_at)
-                            VALUES (:d, :p, :c, :origin, :sev, :t, :ab, :at) RETURNING 1""",
-                   d=wearable, p=patient_id, c=classification, origin="gateway" if path == "fixed" else "cloud", sev=severity,
+                            VALUES (:d, :p, :c, :origin, :t, :ab, :at) RETURNING 1""",
+                   d=wearable, p=patient_id, c=classification, origin="gateway" if path == "fixed" else "cloud",
                    t=start + timedelta(seconds=SEGMENT_S + 1), ab=by["doctor1"].user_id if acked else None,
                    at=start + timedelta(minutes=12) if acked else None)
             alerts += 1

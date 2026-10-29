@@ -15,7 +15,7 @@ import { formatAgo, formatDateTime } from "@/lib/date-time";
 import { beatLabel, confidence, labelize } from "@/lib/labels";
 import { loadPeople } from "@/lib/people";
 import { useResource } from "@/lib/use-resource";
-import { originLabel, severityTone } from "../care/alert-table";
+import { originLabel } from "../care/alert-table";
 import { ALERT_LIMIT } from "../care/limits";
 import { useRenderMarks } from "../care/render-mark";
 import { SegmentStrip } from "../care/segment-viewer";
@@ -84,7 +84,6 @@ function AlertBody({ alert, segment, patients, people, pending, onAcknowledge, n
       <Card className="p-4">
         <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
           {([
-            ["Severity", <Status key="s" label={labelize(alert.severity)} tone={severityTone(alert.severity)} />],
             ["Confidence", confidence(alert.confidence)],
             ["Classified by", originLabel(alert.origin)],
             ["Wearable", <RecordId key="w" id={alert.device_id} />],

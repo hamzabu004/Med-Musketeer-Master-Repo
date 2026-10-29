@@ -16,10 +16,11 @@ dependencies = [
   "httpx>=0.28",
   "alembic>=1.16",
   "pyjwt[crypto]>=2.10",
+  "paho-mqtt>=2.1",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=6", "paho-mqtt>=2.1"]
+dev = ["pytest>=8", "pytest-cov>=6"]
 
 [tool.setuptools.packages.find]
 include = ["app*"]
