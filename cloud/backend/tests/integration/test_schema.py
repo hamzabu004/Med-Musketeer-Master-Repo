@@ -17,7 +17,7 @@ REPORT_TABLES = {
     "replay_windows", "security_events", "attack_tests",
 }
 
-ADDED_TABLES = {"audit_log", "ingested_messages"}  # D11, migration 0002; D15, migration 0003
+ADDED_TABLES = {"audit_log", "ingested_messages", "revocation_state"}  # D11, 0002; D15, 0003; D16, 0004
 
 
 def public_tables(conn) -> set[str]:
@@ -92,7 +92,8 @@ def test_tc_c03_the_api_login_can_change_rows_but_not_the_schema(migrated, db):
         for statement in ("CREATE TABLE intruder (id int)", "DROP TABLE organisations",
                           "ALTER TABLE devices ADD COLUMN x int", "DELETE FROM alembic_version",
                           "UPDATE audit_log SET action = 'x'", "DELETE FROM audit_log",
-                          "UPDATE ingested_messages SET seq = 0", "DELETE FROM ingested_messages"):
+                          "UPDATE ingested_messages SET seq = 0", "DELETE FROM ingested_messages",
+                          "DELETE FROM revocation_state", "INSERT INTO revocation_state (version) VALUES (9)"):
             with engine.connect() as conn, pytest.raises(ProgrammingError):
                 conn.execute(text(statement))
     finally:

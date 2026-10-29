@@ -86,3 +86,25 @@ def test_the_d6_example_is_a_valid_alert_payload():
                "screening": {"label": "abnormal", "confidence": 0.93, "model": "tinydl-0.1"},
                "segment_start": "2026-11-02T10:15:03.120Z", "sent_at": "2026-11-02T10:15:06.500Z"}
     assert AlertPayload.model_validate_json(json.dumps(example)).seq == 1842
+
+
+def test_revocation_list_v1():
+    from app.contracts import RevocationList
+    device, fingerprint = str(uuid.uuid4()), "AB" * 32
+    listing = RevocationList.model_validate({
+        "v": 1, "version": 3, "issued_at": "2026-11-03T10:15:00Z",
+        "devices": [{"device_id": device, "status": "revoked", "since": "2026-11-03T10:14:00Z"}],
+        "certificates": [{"device_id": device, "fingerprint": fingerprint, "not_after": None}]})
+    assert listing.certificates[0].fingerprint == fingerprint
+    for fault in ({"version": 0}, {"devices": [{"device_id": device, "status": "active", "since": "2026-11-03T10:14:00Z"}]},
+                  {"certificates": [{"device_id": device, "fingerprint": "ab" * 32, "not_after": None}]},
+                  {"issued_at": "2026-11-03T10:15:00"}, {"extra": 1}):
+        with pytest.raises(ValidationError):
+            RevocationList.model_validate({"v": 1, "version": 1, "issued_at": "2026-11-03T10:15:00Z",
+                                           "devices": [], "certificates": [], **fault})
+
+
+def test_a_gateway_status_may_carry_its_revocation_version():
+    assert StatusPayload.model_validate(status_payload("online", revocation_version=7)).revocation_version == 7
+    with pytest.raises(ValidationError):
+        StatusPayload.model_validate(status_payload("online", revocation_version=-1))

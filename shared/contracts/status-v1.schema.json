@@ -32,6 +32,21 @@
       "description": "Why it went offline; \"mode_switch\" before the wearable changes path",
       "title": "Reason"
     },
+    "revocation_version": {
+      "anyOf": [
+        {
+          "maximum": 9223372036854775807,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A gateway's own status only: the revocation-list-v1 version it enforces (D16)",
+      "title": "Revocation Version"
+    },
     "sent_at": {
       "anyOf": [
         {

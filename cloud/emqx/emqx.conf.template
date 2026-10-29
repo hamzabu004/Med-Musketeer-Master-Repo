@@ -15,6 +15,14 @@ cluster {
   discovery_strategy = manual
 }
 
+## REST API key of the API (D16: publishing the revocation list, disconnecting gateways). EMQX
+## reads it at start from the file mm-entrypoint.sh writes from MM_EMQX_API_SECRET.
+api_key.bootstrap_file = "/opt/emqx/etc/mm_api_keys.txt"
+
+## Retained messages on disc (D16): the revocation list must survive EMQX being recreated. The
+## default, ram, loses it (Iteration 4 Slice 0 spike); the API republishes it every few minutes too.
+retainer.backend.storage_type = disc
+
 ## Only the two listeners below. The image's defaults (plain 1883, its own 8883 with demo
 ## certificates, WebSocket) are switched off.
 listeners.tcp.default.enable = false

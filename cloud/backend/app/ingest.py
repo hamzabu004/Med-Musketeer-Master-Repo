@@ -16,6 +16,9 @@ alert or online status sets it on the fixed path through that gateway. A wearabl
 offline, or whose gateway goes offline, is shown as `unknown`, never as offline: it may have moved
 to the other path. An offline report older than the device's last_seen is stale and ignored.
 
+A gateway's own status may carry the revocation list version it enforces (D16); it is stored on
+the gateway, so the system admin sees which gateways are behind.
+
 Answers: 200 {"result": "stored" | "duplicate"}, or 422 {"rejected": reason} for a message that
 will never be accepted as it is (the adapter drops it). Every rejection is logged with its reason.
 """
@@ -111,6 +114,8 @@ async def store(conn: AsyncConnection, m: Ingest) -> dict:
     if device["status"] != "active":
         raise Rejected(f"the wearable is {device['status']}")
     if isinstance(m.message, StatusPayload):
+        if m.message.revocation_version is not None:
+            raise Rejected("revocation_version is reported by a gateway for itself, not for a wearable")
         return await wearable_status(conn, m, m.message, device["last_seen"])
     return await alert(conn, m, m.message)
 
@@ -145,6 +150,9 @@ async def wearable_status(conn: AsyncConnection, m: Ingest, p: StatusPayload, la
 
 
 async def gateway_status(conn: AsyncConnection, m: Ingest, p: StatusPayload, last_seen) -> dict:
+    if p.revocation_version is not None and not stale(m, last_seen):
+        await conn.execute(text("UPDATE devices SET revocation_version = :v WHERE device_id = :d"),
+                           {"v": p.revocation_version, "d": m.device_id})
     unknown = 0
     if p.state == "offline" and not stale(m, last_seen):
         # Gateway unreachable is not wearable offline: its wearables are unknown until it is back.

@@ -1,4 +1,6 @@
 """FastAPI application. /livez reports that the process is up; /healthz checks its dependencies."""
+import asyncio
+import contextlib
 import logging
 import math
 from contextlib import asynccontextmanager
@@ -11,8 +13,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app import accounts, broker, care, directory, ingest, organisation, registry
+from app.emqx_api import EmqxApi
 from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
+from app.revocation import RevocationSync
 from app.settings import Settings
 from app.tokens import TokenVerifier, ZitadelConfig, login_scope
 from app.zitadel import ZitadelAdmin
@@ -58,9 +62,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 log.warning("%s not found: account management is disabled", settings.zitadel_api_token_file)
         else:
             log.warning("%s not found: authentication is disabled", settings.zitadel_config_file)
+        emqx = None
+        if settings.emqx_api_url and settings.emqx_api_secret:
+            emqx = EmqxApi(app.state.http, settings.emqx_api_url, settings.emqx_api_key,
+                           settings.emqx_api_secret.get_secret_value())
+        else:
+            log.warning("EMQX's API is not configured: the revocation list is not published")
+        app.state.revocation = RevocationSync(app.state.engine, emqx, poll_s=settings.revocation_poll_s,
+                                              republish_s=settings.revocation_republish_s)
+        reconciler = asyncio.create_task(app.state.revocation.run()) if emqx else None
         try:
             yield
         finally:
+            if reconciler:
+                reconciler.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await reconciler
             await app.state.http.aclose()
             await app.state.engine.dispose()
 

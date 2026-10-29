@@ -8,7 +8,8 @@ has another, and a wearable certificate is refused because it is not a gateway.
 
 Topic access (D5): a gateway may publish to mm/fixed/{wearable}/{alert,result,status,command_ack,
 telemetry} and mm/gateway/{own id}/..., and subscribe to mm/fixed/+/command (or one wearable's
-command topic). The adapter may only subscribe to ingest/#. Everything else is denied.
+command topic) and to the wearable revocation list (D16), which only the API publishes, through
+EMQX's REST API. The adapter may only subscribe to ingest/#. Everything else is denied.
 
 Every answer is HTTP 200 with {"result": "allow" | "deny"}; anything else (wrong secret, API
 error) makes EMQX treat the hook as "ignore", which ends in a refusal. Each authentication
@@ -28,6 +29,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 
 from app.db import Conn, one
+from app.revocation import TOPIC as REVOCATION_TOPIC
 
 log = logging.getLogger(__name__)
 
@@ -159,6 +161,8 @@ def gateway_may(username: str, action: str, topic: str) -> bool:
             return all(levels[3:]) and not any(level in ("+", "#") for level in levels[3:])
         return False
     if action == "subscribe":
+        if topic == REVOCATION_TOPIC:
+            return True
         return len(levels) == 4 and levels[:2] == ["mm", "fixed"] and levels[3] == "command" and (
             levels[2] == "+" or is_device_id(levels[2]))
     return False

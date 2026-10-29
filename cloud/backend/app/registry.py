@@ -8,6 +8,10 @@ Device status moves pending -> active <-> suspended, and any state -> revoked (f
 becomes active only with an active credential. Revoking a device revokes its credentials and
 closes its grant; closing a grant ends the device's open assignment and monitoring session, so
 data arriving afterwards cannot be attributed to the previous patient.
+
+Revocation (D16): a change that alters the wearable revocation list raises its version in the same
+transaction, and the list is published once the change has committed (app.revocation). Suspending
+or revoking a gateway, or revoking one of its credentials, disconnects it from EMQX at once.
 """
 import json
 import re
@@ -15,7 +19,7 @@ from datetime import datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, status
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
@@ -25,6 +29,7 @@ from app.accounts import NewAccount, PersonIn, create_account, idp_error
 from app.auth import SystemAdmin, Zitadel
 from app.db import Conn, audit, many, not_found, one
 from app.organisation import AuditEvent
+from app.revocation import LISTED, Revocation, RevocationSync, bump, changes_list
 from app.zitadel import ZitadelError
 
 router = APIRouter(prefix="/admin", tags=["system admin"])
@@ -72,6 +77,8 @@ class Device(BaseModel):
     current_mode: str
     current_gateway_id: UUID | None
     last_seen: datetime | None
+    status_changed_at: datetime
+    revocation_version: int | None  # gateways: the revocation list version they reported last
     registered_by: UUID | None
     created_at: datetime
 
@@ -119,6 +126,13 @@ class Grant(BaseModel):
     granted_at: datetime
     revoked_by: UUID | None
     revoked_at: datetime | None
+
+
+class RevocationStatus(BaseModel):
+    version: int
+    published_version: int  # the version EMQX holds as the retained list
+    published_at: datetime | None
+    stale_gateways: list[UUID]  # active gateways that have not reported the published version
 
 
 class SecurityEvent(BaseModel):
@@ -225,21 +239,25 @@ async def get_device(device_id: UUID, admin: SystemAdmin, conn: Conn):
 
 
 @router.post("/devices/{device_id}/activate", response_model=Device)
-async def activate_device(device_id: UUID, admin: SystemAdmin, conn: Conn):
-    return await change_device_status(conn, device_id, "activate", admin.user_id)
+async def activate_device(device_id: UUID, admin: SystemAdmin, conn: Conn, background: BackgroundTasks,
+                          sync: Revocation):
+    return await change_device_status(conn, device_id, "activate", admin.user_id, background, sync)
 
 
 @router.post("/devices/{device_id}/suspend", response_model=Device)
-async def suspend_device(device_id: UUID, admin: SystemAdmin, conn: Conn):
-    return await change_device_status(conn, device_id, "suspend", admin.user_id)
+async def suspend_device(device_id: UUID, admin: SystemAdmin, conn: Conn, background: BackgroundTasks,
+                         sync: Revocation):
+    return await change_device_status(conn, device_id, "suspend", admin.user_id, background, sync)
 
 
 @router.post("/devices/{device_id}/revoke", response_model=Device)
-async def revoke_device(device_id: UUID, admin: SystemAdmin, conn: Conn):
-    return await change_device_status(conn, device_id, "revoke", admin.user_id)
+async def revoke_device(device_id: UUID, admin: SystemAdmin, conn: Conn, background: BackgroundTasks,
+                        sync: Revocation):
+    return await change_device_status(conn, device_id, "revoke", admin.user_id, background, sync)
 
 
-async def change_device_status(conn: AsyncConnection, device_id: UUID, action: str, by: UUID) -> dict:
+async def change_device_status(conn: AsyncConnection, device_id: UUID, action: str, by: UUID,
+                               background: BackgroundTasks, sync: RevocationSync) -> dict:
     device = await one(conn, "SELECT * FROM devices WHERE device_id = :device_id FOR UPDATE", device_id=device_id)
     if device is None:
         raise not_found("device")
@@ -269,8 +287,15 @@ async def change_device_status(conn: AsyncConnection, device_id: UUID, action: s
 
     new_status = {"activate": "active", "suspend": "suspended", "revoke": "revoked"}[action]
     await audit(conn, by, "registry", f"device.{new_status}", target_id=device_id)
+    # Background tasks run after the response, so after the commit.
+    if changes_list(device["type"], device["status"], new_status):
+        await bump(conn)
+        background.add_task(sync.publish_soon)
+    if device["type"] == "fixed_gateway" and new_status in LISTED:
+        background.add_task(sync.disconnect_gateway, device_id)
     return await one(
-        conn, "UPDATE devices SET status = :status WHERE device_id = :device_id RETURNING *",
+        conn, """UPDATE devices SET status = :status, status_changed_at = now() WHERE device_id = :device_id
+                 RETURNING *""",
         status=new_status, device_id=device_id,
     )
 
@@ -307,15 +332,30 @@ async def list_credentials(device_id: UUID, admin: SystemAdmin, conn: Conn):
 
 
 @router.post("/credentials/{credential_id}/revoke", response_model=Credential)
-async def revoke_credential(credential_id: UUID, admin: SystemAdmin, conn: Conn):
+async def revoke_credential(credential_id: UUID, admin: SystemAdmin, conn: Conn, background: BackgroundTasks,
+                            sync: Revocation):
+    """A wearable's certificate goes on the revocation list while the wearable is not listed itself.
+    The gateway's broker matches wearables by certificate CN only, so there it takes suspending the
+    wearable to refuse it; the cloud refuses the certificate either way (D16)."""
+    before = await one(conn, """
+        SELECT c.status, c.auth_method, d.type, d.status AS device_status
+        FROM device_credentials c JOIN devices d USING (device_id) WHERE c.credential_id = :id FOR UPDATE OF c
+    """, id=credential_id)
+    if before is None:
+        raise not_found("credential")
     row = await one(
         conn, "UPDATE device_credentials SET status = 'revoked' WHERE credential_id = :id RETURNING *",
         id=credential_id,
     )
-    if row is None:
-        raise not_found("credential")
     await audit(conn, admin.user_id, "registry", "credential.revoked", target_id=row["device_id"],
                 credential_id=credential_id)
+    if before["status"] != "revoked":
+        if (before["type"] == "wearable" and before["auth_method"] == "x509_mtls"
+                and before["device_status"] not in LISTED):
+            await bump(conn)
+            background.add_task(sync.publish_soon)
+        elif before["type"] == "fixed_gateway":
+            background.add_task(sync.disconnect_gateway, row["device_id"])
     return row
 
 
@@ -359,6 +399,21 @@ async def revoke_grant(grant_id: UUID, admin: SystemAdmin, conn: Conn):
         raise HTTPException(status.HTTP_409_CONFLICT, "grant already revoked")
     await close_grant(conn, grant_id, grant["device_id"], admin.user_id)
     return await one(conn, "SELECT * FROM device_grants WHERE grant_id = :id", id=grant_id)
+
+
+# --- revocation list ---------------------------------------------------------------------------
+
+@router.get("/revocation", response_model=RevocationStatus)
+async def revocation_status(admin: SystemAdmin, conn: Conn):
+    """The wearable revocation list's version, what EMQX holds, and the gateways behind it (D16)."""
+    state = await one(conn, "SELECT version, published_version, published_at FROM revocation_state")
+    stale = await many(conn, """
+        SELECT device_id FROM devices
+        WHERE type = 'fixed_gateway' AND status = 'active' AND :published > 0
+          AND (revocation_version IS NULL OR revocation_version < :published)
+        ORDER BY device_id
+    """, published=state["published_version"])
+    return {**state, "stale_gateways": [row["device_id"] for row in stale]}
 
 
 # --- audit log and security events -------------------------------------------------------------

@@ -46,6 +46,12 @@ class Client:
             self.mqtt.username_pw_set(username, password)
         self.connected = threading.Event()
         self.connack: str | None = None
+        self.disconnected = threading.Event()  # set when an established session ends
+        self.disconnect_reason: str | None = None
+        # Whether the broker ended it with a DISCONNECT packet. paho-mqtt 2.1.0 drops a DISCONNECT's
+        # reason code when the packet is 2 bytes (code + empty properties), as EMQX's kick is, and
+        # reports "Normal disconnection"; mosquitto_sub shows the same kick as 152 (0x98).
+        self.disconnect_from_server = False
         self.acks: dict[int, list[str]] = {}
         self.ack_events: dict[int, threading.Event] = {}
         self.messages: list[mqtt.MQTTMessage] = []
@@ -62,6 +68,10 @@ class Client:
     def _on_disconnect(self, _client, _userdata, _flags, code, _props):
         if self.connack is None:
             self.connack = f"disconnected: {code}"
+        elif not self.disconnected.is_set():
+            self.disconnect_reason = str(code)
+            self.disconnect_from_server = _flags.is_disconnect_packet_from_server
+            self.disconnected.set()
         self.connected.set()
 
     def _ack(self, mid: int, codes) -> None:
