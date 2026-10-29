@@ -1,0 +1,25 @@
+name: CA tool
+
+on:
+  push:
+    branches: [main]
+    paths: ["tools/ca-tool/**", ".github/workflows/ca-tool.yml"]
+  pull_request:
+    paths: ["tools/ca-tool/**", ".github/workflows/ca-tool.yml"]
+
+defaults:
+  run:
+    working-directory: tools/ca-tool
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - run: pip install -e '.[dev]'
+      # Podman is preinstalled on the Ubuntu runners; the interop tests skip unless the image is present.
+      - run: podman pull docker.io/library/eclipse-mosquitto:2
+      - run: pytest -rA
