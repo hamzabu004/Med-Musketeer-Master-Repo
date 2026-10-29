@@ -1,0 +1,8 @@
+Client null sending CONNECT
+Client auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A received CONNACK (0)
+Client auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A sending SUBSCRIBE (Mid: 1, Topic: mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command, QoS: 1, Options: 0x00)
+Client auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A received SUBACK
+Subscribed (mid: 1): 1
+Client auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A received PUBLISH (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command', ... (10 bytes))
+Client auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A sending PUBACK (m1, rc0)
+mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command cmd-before

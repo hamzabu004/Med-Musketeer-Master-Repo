@@ -1,0 +1,2 @@
+Client null sending CONNECT
+Warning: Publish 2 failed: Not authorized.

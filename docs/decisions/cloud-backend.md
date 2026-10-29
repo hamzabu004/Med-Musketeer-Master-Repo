@@ -346,10 +346,10 @@ API: registry checks ─► one transaction: session, segment, chunk, classifica
 
 Why push + cache, and the accepted tradeoffs: `stack.md`, "Gateway/wearable credential revocation". Plan and slices: `docs/iterations/iteration-4-revocation-sync.md`.
 
-- **Topic:** `mm/revocations/wearables`, retained, QoS 1. D5 gains one rule: a gateway may **subscribe** to it. No MQTT client may publish to it; the API publishes through EMQX's REST API (`POST /api/v5/publish`), which does not pass through client authorisation.
+- **Topic:** `mm/revocations/wearables`, retained, QoS 1. D5 gains one rule: a gateway may **subscribe** to it. No MQTT client may publish to it; the API publishes through EMQX's REST API (`POST /api/v5/publish`), which does not pass through client authorisation. The API key comes from EMQX's `api_key.bootstrap_file`, and the retainer uses `storage_type = disc` (the default, `ram`, loses the list when the container is recreated). All three verified on EMQX 6.3.2 in the Iteration 4 Slice 0 spike.
 - **Payload `revocation-list-v1`:** `v`, `version`, `issued_at`, `devices` (wearables that are suspended or revoked, with `since`) and `certificates` (revoked credentials of active wearables, by SHA-256 fingerprint, until `not_after`). Always the full list. Gateways ignore a version that is not newer than the one they hold.
 - **Consistency:** each registry change that affects a wearable increases the version and writes an outbox row in the same transaction; the API publishes after commit. A reconciler republishes on API start, when the outbox has unsent rows, and every 5 minutes, which also restores a retained message lost in an EMQX restart.
-- **Gateway disconnect:** suspending or revoking a gateway, or revoking one of its credentials, disconnects its sessions through the REST API. This builds the D4 "may".
+- **Gateway disconnect:** suspending or revoking a gateway, or revoking one of its credentials, disconnects its sessions through the REST API (`GET /api/v5/clients?username=`, `DELETE /api/v5/clients/{clientid}`; the client gets reason 0x98). This builds the D4 "may".
 - **Staleness:** `status-v1` gains an optional `revocation_version`, sent by a gateway in its own status; ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind.
 - **Outage backlog:** `devices.status_changed_at` records when a wearable was suspended or revoked; backlog data sent after it is quarantined instead of rejected (with the backlog payload, `gaps.md`).
 - Rejected alternatives:

@@ -1,7 +1,7 @@
 # Iteration 4 — Revocation push and cache
 
 - **Owner:** Hamza Tariq (M7 cloud platform, M5 gateway)
-- **Status:** Planned (2026-10-29). Design decided (`stack.md` "Gateway/wearable credential revocation", `cloud-backend.md` D16); the Mosquitto enforcement mechanism is chosen in Slice 0.
+- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slices 1 to 3 not started.
 - **Part of:** Iteration 4 (gateway uplink). The gateway side lives in the uplink service, so Slice 2 starts once the uplink can connect to EMQX.
 - **Depends on:** `cloud-backend.md` D4, D5, D15; `mqtt-fixed-path-topics.md`; `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`; the decision on the CA's missing key identifiers (`gaps.md`)
 - **Assumption:** the gateway normally has internet access. Losing the cloud is temporary, never permanent.
@@ -52,7 +52,7 @@ A wearable whose device or credential is revoked is refused by every gateway: wi
 
 ### Cloud
 
-1. **Publishing:** the API publishes through EMQX's REST API (`POST /api/v5/publish`, `retain: true`) with an API key bootstrapped from `.env`. A REST publish does not go through client authorisation, so no MQTT account gets publish rights to the topic.
+1. **Publishing:** the API publishes through EMQX's REST API (`POST /api/v5/publish`, `retain: true`) with an API key loaded from EMQX's `api_key.bootstrap_file`, written from `.env`. A REST publish does not go through client authorisation, so no MQTT account gets publish rights to the topic. The retainer is set to `storage_type = disc`: EMQX's default (`ram`) loses the list when the container is recreated.
 2. **When:** every registry change that affects a wearable (activate, suspend, revoke a device, revoke a credential) increases the counter and writes an outbox row in the same transaction. After commit, the API publishes the current list and marks the row sent. A reconciler task in the API republishes when the outbox has unsent rows, when the API starts, and every 5 minutes. The repeat costs nothing (gateways ignore an equal version) and repairs a retained message lost in an EMQX restart.
 3. **Gateway disconnect:** revoking or suspending a gateway, or revoking one of its credentials, kicks its sessions through the REST API (`GET /api/v5/clients?username=…`, then `DELETE /api/v5/clients/{clientid}`). Closes the D4 "may" in `gaps.md`.
 4. **Staleness:** the gateway adds `revocation_version` to its own `status-v1` message. Ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind the current version.
@@ -60,7 +60,7 @@ A wearable whose device or credential is revoked is refused by every gateway: wi
 ### Gateway (three layers)
 
 1. **Cache (uplink service):** subscribes to the topic on every connect (the retained message arrives at once, so reconnecting needs no sync step), validates the payload, ignores older versions, and writes `/var/lib/medmusketeer/revocations.json` atomically (temp file + rename). On start it loads the stored file before anything else.
-2. **Broker:** the uplink applies the list to the local Mosquitto, so a revoked wearable can neither publish nor subscribe, and is disconnected where the mechanism allows. The mechanism is chosen in Slice 0 (below).
+2. **Broker:** the uplink regenerates the wearable ACL file with a `user <id>` / `topic deny #` block per listed wearable and sends Mosquitto SIGHUP. A listed wearable's publishes are refused and nothing is delivered to it, on a connection that is already open too. Its connection stays open: stock Mosquitto cannot drop it (Slice 0).
 3. **Services:** the uplink does not forward, and the local classifier does not process, messages from a wearable on the list. This layer needs no broker support, so it holds even if layer 2 only denies topics.
 
 **First boot:** with no stored list yet, the gateway accepts wearables. That matches the cloud's view at provisioning: a just-installed gateway has nothing stored, and it gets the list on its first connect.
@@ -75,15 +75,34 @@ Today ingestion rejects *all* data from a non-active wearable, so the revocation
 
 ## Slices
 
-### Slice 0 — Spike and decisions (S)
-- **Mosquitto enforcement mechanism**, on Pi OS's Mosquitto version, in the container broker the CA tool's tests already use. It must stop a revoked wearable's publishes and subscriptions (required) and disconnect it (wanted). Candidates:
-  1. **Generated ACL file + SIGHUP** (stock Mosquitto, no plugin): the uplink writes `topic deny #` lines for listed wearables ahead of the `pattern` lines and sends SIGHUP, which reloads the ACL. To verify: that `deny` overrides the `pattern` allow; that a connected client is checked against the new ACL on its next publish; whether it can be disconnected at all.
-  2. **Dynamic security plugin:** `disableClient` disconnects the client. To verify: whether it applies to clients identified by `use_identity_as_username`, which may skip plugin authentication.
-  3. **Fallback:** an auth/ACL plugin that reads the stored file, or a broker with a hook API.
-- **Certificate entries:** if the mechanism sees only the username (CN), a single revoked credential cannot be enforced on the gateway while the device stays active. Record the limit: revoking one wearable credential means suspending the device until it is re-issued.
-- **EMQX:** confirm the REST API key bootstrap and the retained-message storage on EMQX 6.3.2.
-- **CA key identifiers:** take the open decision in `gaps.md` (replace the CA or relax the uplink's strict checking). The uplink cannot connect until it is taken.
-- Record the outcome in `stack.md` and `cloud-backend.md` D16.
+### Slice 0 — Spike and decisions (S) — Done 2026-10-29
+Scripts, raw output and broker logs: `docs/testing/evidence/2026-10-29/revocation-spike/` (README there).
+
+**Mosquitto** (2.0.21, the Pi's version, and 2.1.2, the test image; same results on both):
+
+| Mechanism | Open connection after revocation | New connection | Other wearables | Verdict |
+|---|---|---|---|---|
+| A. Generated ACL file (`user <id>` / `topic deny #`) + SIGHUP | Publishes refused (MQTT 5 PUBACK 0x87), commands no longer delivered; the connection stays open | Accepted, but publishes refused and nothing delivered | Unaffected | **Chosen** |
+| B. Dynamic security plugin | `disableClient` neither drops nor refuses it | A wearable unknown to the plugin connects: the plugin never authenticates certificate identities (`use_identity_as_username`) | — | Rejected |
+
+- Lifting the deny and reloading restores the wearable.
+- **No disconnect:** stock Mosquitto cannot drop a client identified by its certificate. Accepted: the connection carries nothing, and the services layer drops its messages anyway. The firmware leaves the MQTT client id at ESP-IDF's default, so a client-id takeover is not usable either.
+- **Certificate entries:** the ACL sees the username (CN) only. Revoking one credential of a wearable that stays active cannot be enforced on the gateway, so it means suspending the wearable until it is re-issued. The cloud still enforces it, because ingestion checks the device. The registry and dashboard should say so when a wearable credential is revoked.
+
+**EMQX 6.3.2:**
+- An API key from `api_key.bootstrap_file` authenticates the REST API.
+- `POST /api/v5/publish` with `retain: true` is delivered although client authorisation denies every publish. A client's attempt to overwrite the topic gets PUBACK 0x87, and the retained list is unchanged.
+- `GET /api/v5/clients?username=` finds a client, and `DELETE /api/v5/clients/{clientid}` disconnects it with reason 0x98 (administrative action).
+- The retained message is lost when the container is recreated with the default `storage_type = ram`, and kept with `disc`.
+
+**CA key identifiers: replace the CA** (decided 2026-10-29). The current CA (created 2026-10-13) has no Subject Key Identifier, so Python 3.13+'s strict verification, which the uplink uses, refuses its chains. It has issued one gateway (`64e33c48-…`, deployed) and one wearable (`8f0f5194-…`, flashed), and no cloud certificate yet. The custodian replaces it before Slice 2, keeping the device ids:
+
+1. `mmca replace-ca --confirm-phrase 'REPLACE MEDMUSKETEER CA'` (the old CA is archived under `ca/archive/<time>/`).
+2. `mmca issue gateway --device-id 64e33c48-5c41-4afe-8772-e937e51d67a0`, then `mmca deploy --device-id 64e33c48-5c41-4afe-8772-e937e51d67a0 --host <pi> --user pi --restart` (deploys the new `ca.crt` as well).
+3. `mmca issue wearable --device-id 8f0f5194-93bf-4e1d-8e72-f96fa1f3df21`, then `mmca flash --device-id 8f0f5194-93bf-4e1d-8e72-f96fa1f3df21` with the ESP32-S3 on USB.
+4. `mmca issue cloud`, then `cloud/scripts/install-emqx-certs.sh` (it also copies the new `ca.crt`).
+5. Check: `openssl x509 -in ~/medmusketeer-ca/ca/ca.crt -noout -ext subjectKeyIdentifier` prints an identifier, and the wearable reaches the Pi's broker again.
+6. Where these devices are in a cloud registry: add each new fingerprint printed by `mmca issue` as a credential, then revoke the old one.
 
 ### Slice 1 — Cloud: list, publish, disconnect (M)
 Tests: TC-C28 to TC-C31 (TC-C27 is the Pi smoke test).
@@ -119,7 +138,7 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 | `cloud/backend/app/ingest.py` | Store a gateway's reported version; (Slice 3) quarantine backlog sent after the revocation |
 | `cloud/backend/app/main.py` | Start and stop the reconciler with the app |
 | `cloud/backend/app/settings.py`, `cloud/.env.example`, `cloud/compose.yaml`, `cloud/scripts/init-env.sh` | EMQX API URL, key and secret (generated by `init-env.sh`); passed to `api` and `emqx` |
-| `cloud/emqx/emqx.conf.template`, `cloud/emqx/mm-entrypoint.sh` | API key bootstrap file; retained-message storage on disk if the spike shows it is not |
+| `cloud/emqx/emqx.conf.template`, `cloud/emqx/mm-entrypoint.sh` | `api_key.bootstrap_file` written from the environment; `retainer.backend.storage_type = disc` |
 | `shared/contracts/revocation-list-v1.schema.json` (new), `status-v1.schema.json` | Generated |
 | `cloud/backend/tests/unit/test_revocation.py`, `tests/integration/test_revocation.py` (new); `test_broker_rules.py`, `test_registry.py`, `test_gateway.py`, `test_contracts.py` | New tests and the changed rules |
 | `cloud/README.md` | New settings; how the list is published |
@@ -137,9 +156,9 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 | File | Change |
 |---|---|
 | `gateway/uplink/revocations.py` (new, in the Iteration 4 uplink package) | Subscribe, validate, version check, atomic store, load at start |
-| `gateway/uplink/enforce.py` (new) | Apply the list to Mosquitto (Slice 0 mechanism); the forwarding filter |
+| `gateway/uplink/enforce.py` (new) | Regenerate the wearable ACL file atomically and send Mosquitto SIGHUP; the forwarding filter |
 | `gateway/uplink/status.py` | Report `revocation_version` |
-| `tools/Fixed-Gateway-Setup/setup_mosquitto.sh` | ACL layout or plugin from Slice 0; `/var/lib/medmusketeer`; permission for the uplink to signal Mosquitto |
+| `tools/Fixed-Gateway-Setup/setup_mosquitto.sh` | The wearable ACL becomes a generated file (the patterns plus deny blocks) the uplink may write; `/var/lib/medmusketeer`; permission for the uplink to reload Mosquitto |
 | `tools/ca-tool/tests/test_broker_interop.py` (or the gateway's own tests) | TC-B05 to TC-B08 |
 
 **Docs**
@@ -152,7 +171,7 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 
 ## Exit criteria
 
-1. Revoking or suspending a wearable makes every online gateway stop accepting its messages within 10 seconds.
+1. Revoking or suspending a wearable makes every online gateway refuse its messages and stop delivering to it within 10 seconds (its connection may stay open).
 2. A gateway cut off from the cloud keeps enforcing its last list and keeps serving unlisted wearables; on reconnect it enforces the current list without manual action.
 3. Revoking a gateway, or its credential, disconnects it from EMQX within 5 seconds.
 4. The system admin sees each gateway's list version, and stale gateways are flagged.
@@ -169,7 +188,7 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 
 | Risk | Mitigation |
 |---|---|
-| Mosquitto cannot disconnect a client identified by its certificate | Slice 0 spike first; topic denial plus the services layer still stop the data; fallback broker if neither holds |
+| Mosquitto cannot disconnect a client identified by its certificate (confirmed in Slice 0) | Accepted: topic denial plus the services layer stop its data; the open connection carries nothing |
 | The database and the retained message drift apart | Outbox in the same transaction; reconciler on start and every 5 minutes |
 | The gateway clock is wrong after an offline reboot | RTC or `fake-hwclock`; backlog records say whether the clock was synchronised |
-| The uplink cannot connect because of the CA's missing key identifiers | Decide in Slice 0, before Slice 2 |
+| The uplink cannot connect because of the CA's missing key identifiers | CA replacement decided in Slice 0; carried out before Slice 2 |

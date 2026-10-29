@@ -7,7 +7,7 @@ description: Cloud/platform stack and architecture decisions for MedMusketeer. C
 
 This is a **technical decision record**, not the scope-lock file. If a decision here ever conflicts with `scope.md`, that file wins on scope; this file wins on implementation detail. Update this file as stack decisions evolve — it's expected to change more often than the scope-lock file. Companions in this folder: `mqtt-fixed-path-topics.md` (fixed-path topics and ACLs), `ca-tool-spec.md` (CA tool), `cloud-backend.md` (Iteration 3 cloud backend decisions D1–D10), `gaps.md` (what is still undecided). The FYP-1 mid report (Chapter 5) holds the same decisions as ADR-1 to ADR-8, plus the full cloud schema.
 
-**Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-23.
+**Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-29.
 
 ## Core design principle: protocol-agnostic ingestion
 
@@ -410,7 +410,9 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 - **Gateway clock:** an offline reboot can leave the gateway clock wrong, which affects certificate expiry checks and backlog timestamps. The gateway uses its RTC (battery fitted) or `fake-hwclock`, and backlog records say whether the clock was synchronised.
 - A revoked gateway that stays offline can keep serving wearables locally (see "Gateway identity: role pin").
 
-**Open (Iteration 4, Slice 0):** the Mosquitto enforcement mechanism (a generated ACL file reloaded with SIGHUP, or the dynamic security plugin), and whether it can disconnect a client identified by its certificate and see a single certificate's fingerprint. If it sees only the CN, revoking one credential of a wearable means suspending the device until it is re-issued.
+**Gateway broker mechanism (Decided 2026-10-29, Iteration 4 Slice 0 spike on Mosquitto 2.0.21 and 2.1.2):** the uplink regenerates the wearable ACL file with a `user <id>` / `topic deny #` block per listed wearable and reloads Mosquitto with SIGHUP. This refuses the wearable's publishes and stops deliveries to it, on an open connection too, and leaves other wearables alone. Limits, accepted:
+- the connection stays open, because stock Mosquitto cannot drop a client identified by its certificate (the dynamic security plugin does not authenticate certificate identities, so it was rejected);
+- the ACL sees only the CN, so revoking one credential of a wearable that stays active is enforced by the cloud only; on the gateway it means suspending the wearable until it is re-issued.
 
 ## Device presence/liveness detection (online/offline status)
 
@@ -452,7 +454,6 @@ The mid report's list of unsettled design items (§5 "Design items still to be s
 - The literal-name check in the ESP32-S3 TLS library for UUID-style names (`common_name`), and the gateway's outbound check of the cloud's identity
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one shared public domain/cert or separate subdomains
 - Phone-to-patient binding for the relay (see `gaps.md`)
-- The gateway's Mosquitto mechanism for enforcing the revocation list (Iteration 4, Slice 0; see "Gateway/wearable credential revocation")
 - No relay-specific abuse token in FYP-1 (Proposed); the gateway-event topic extension (Proposed)
 - Mobile-path abuse protection beyond basic EMQX limits, and all mobile-relay attack testing — deferred to FYP-2
 - CMAP and TLS-PSK candidate work — planned after the certificate-based baseline is complete (see the candidate registry)

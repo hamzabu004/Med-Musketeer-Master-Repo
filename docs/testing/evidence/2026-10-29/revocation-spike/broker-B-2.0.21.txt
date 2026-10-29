@@ -1,0 +1,67 @@
+1793288723: mosquitto version 2.0.21 starting
+1793288723: Config loaded from /mosquitto/config/mosquitto.conf.
+1793288723: Loading plugin: /usr/lib/mosquitto_dynamic_security.so
+1793288723: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1793288723: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1793288723: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1793288723: Warning: File /mosquitto/config/services.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/services.acl`.
+1793288723: Warning: File /mosquitto/config/services.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/services.acl`.
+1793288723: Warning: File /mosquitto/config/services.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288723: Opening ipv4 listen socket on port 1883.
+1793288723: Opening ipv4 listen socket on port 8883.
+1793288723: Opening ipv6 listen socket on port 8883.
+1793288723: mosquitto version 2.0.21 running
+1793288723: New connection from 127.0.0.1:49536 on port 1883.
+1793288723: New client connected from 127.0.0.1:49536 as auto-127815E8-5D20-AEC0-3A7D-802920C63068 (p5, c1, k60, u'gw_services').
+1793288723: No will message specified.
+1793288723: Sending CONNACK to auto-127815E8-5D20-AEC0-3A7D-802920C63068 (0, 0)
+1793288723: Received SUBSCRIBE from auto-127815E8-5D20-AEC0-3A7D-802920C63068
+1793288723: 	mm/fixed/# (QoS 1)
+1793288723: auto-127815E8-5D20-AEC0-3A7D-802920C63068 1 mm/fixed/#
+1793288723: Sending SUBACK to auto-127815E8-5D20-AEC0-3A7D-802920C63068
+1793288723: New connection from 127.0.0.1:37124 on port 8883.
+1793288723: New client connected from 127.0.0.1:37124 as auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 (p5, c1, k60, u'759990c0-d2a1-44e4-8f0f-32a477bcf35a').
+1793288723: No will message specified.
+1793288723: Sending CONNACK to auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 (0, 0)
+1793288723: Denied PUBLISH from auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 (d0, q1, r0, m1, 'mm/fixed/759990c0-d2a1-44e4-8f0f-32a477bcf35a/alert', ... (9 bytes))
+1793288723: Sending PUBACK to auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 (m1, rc135)
+1793288723: Received DISCONNECT from auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753
+1793288723: Client auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 disconnected.
+1793288725: New connection from 127.0.0.1:58984 on port 8883.
+1793288725: New client connected from 127.0.0.1:58984 as auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288725: No will message specified.
+1793288725: Sending CONNACK to auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (0, 0)
+1793288725: Denied PUBLISH from auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (8 bytes))
+1793288725: Sending PUBACK to auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (m1, rc135)
+1793288726: New connection from 127.0.0.1:58992 on port 8883.
+1793288726: New client connected from 127.0.0.1:58992 as auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 (p5, c1, k60, u'c4aa4b81-dc97-4153-ac1f-7a059929538e').
+1793288726: No will message specified.
+1793288726: Sending CONNACK to auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 (0, 0)
+1793288726: Received SUBSCRIBE from auto-09EB54B4-2492-C618-C1BC-A730FEAFC672
+1793288726: 	$CONTROL/dynamic-security/v1/response (QoS 1)
+1793288726: auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 1 $CONTROL/dynamic-security/v1/response
+1793288726: Sending SUBACK to auto-09EB54B4-2492-C618-C1BC-A730FEAFC672
+1793288726: Received PUBLISH from auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 (d0, q1, r0, m2, '$CONTROL/dynamic-security/v1', ... (92 bytes))
+1793288726: Client auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 been disconnected by administrative action.
+1793288726: dynsec: auto-09EB54B4-2492-C618-C1BC-A730FEAFC672/c4aa4b81-dc97-4153-ac1f-7a059929538e | disableClient | username=7a41a91d-06e2-4c77-b7f9-f10f7e885f63
+1793288726: Sending PUBACK to auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 (m2, rc0)
+1793288726: Sending PUBLISH to auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 (d0, q0, r0, m0, '$CONTROL/dynamic-security/v1/response', ... (43 bytes))
+1793288726: Client auto-09EB54B4-2492-C618-C1BC-A730FEAFC672 closed its connection.
+1793288727: New connection from 127.0.0.1:58998 on port 8883.
+1793288727: New client connected from 127.0.0.1:58998 as auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288727: No will message specified.
+1793288727: Sending CONNACK to auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (0, 0)
+1793288728: Denied PUBLISH from auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (d0, q1, r0, m2, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (7 bytes))
+1793288728: Sending PUBACK to auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 (m2, rc135)
+1793288729: New connection from 127.0.0.1:59010 on port 8883.
+1793288729: New client connected from 127.0.0.1:59010 as auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288729: No will message specified.
+1793288729: Sending CONNACK to auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D (0, 0)
+1793288729: Denied PUBLISH from auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (7 bytes))
+1793288729: Sending PUBACK to auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D (m1, rc135)
+1793288729: Received DISCONNECT from auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D
+1793288729: Client auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D disconnected.
+1793288730: Received DISCONNECT from auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59
+1793288730: Client auto-19376F1F-6488-52B2-CFA9-9BE0BD5EDE59 disconnected.

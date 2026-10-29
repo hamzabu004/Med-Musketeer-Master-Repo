@@ -1,0 +1,6 @@
+mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert a-before
+mm/fixed/b5a1d1c8-0adc-45a1-8911-bcfa00aa0740/alert b-before
+mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command cmd-before
+mm/fixed/b5a1d1c8-0adc-45a1-8911-bcfa00aa0740/alert b-after
+mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command cmd-after
+mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert a-lifted

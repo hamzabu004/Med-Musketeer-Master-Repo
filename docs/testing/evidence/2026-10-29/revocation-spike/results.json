@@ -1,0 +1,124 @@
+{
+  "ids": {
+    "gateway": "c4aa4b81-dc97-4153-ac1f-7a059929538e",
+    "a": "7a41a91d-06e2-4c77-b7f9-f10f7e885f63",
+    "b": "b5a1d1c8-0adc-45a1-8911-bcfa00aa0740",
+    "c": "759990c0-d2a1-44e4-8f0f-32a477bcf35a"
+  },
+  "runs": [
+    {
+      "image": "docker.io/library/eclipse-mosquitto:2.0.21",
+      "version": "mosquitto version 2.0.21",
+      "mechanism": "A: acl_file deny + SIGHUP",
+      "sighup_reloaded": true,
+      "open_connection": {
+        "published_before_delivered": true,
+        "published_after_delivered": false,
+        "command_before_received": true,
+        "command_after_received": false,
+        "publisher_still_connected": true,
+        "subscriber_still_connected": true
+      },
+      "other_wearable_unaffected": true,
+      "fresh_connection": {
+        "connect_accepted": true,
+        "publish_delivered": false,
+        "puback": [
+          "Client auto-4185DA23-E182-C479-CE42-6C0DC4F9278A received PUBACK (Mid: 1, RC:135)"
+        ],
+        "suback": [
+          "Subscribed (mid: 1): 1"
+        ]
+      },
+      "deny_lifted_publish_delivered": true,
+      "broker_disconnect_lines_for_a": []
+    },
+    {
+      "image": "docker.io/library/eclipse-mosquitto:2.0.21",
+      "version": "mosquitto version 2.0.21",
+      "mechanism": "B: dynamic security plugin",
+      "unknown_wearable": {
+        "connect_accepted": true,
+        "publish_delivered": false,
+        "client_output": [
+          "Client auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 sending PUBLISH (d0, q1, r0, m1, 'mm/fixed/759990c0-d2a1-44e4-8f0f-32a477bcf35a/alert', ... (9 bytes))",
+          "Client auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 received PUBACK (Mid: 1, RC:135)",
+          "Client auto-B23D22D9-B8AA-A2AC-E906-DC4B5C2DD753 sending DISCONNECT"
+        ]
+      },
+      "known_wearable_publish_delivered": false,
+      "disable_command": {
+        "exit_code": 0,
+        "output": ""
+      },
+      "after_disable": {
+        "open_connection_dropped": false,
+        "published_after_delivered": false,
+        "fresh_connect_accepted": true,
+        "fresh_publish_delivered": false,
+        "fresh_output": [
+          "Client auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D sending PUBLISH (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (7 bytes))",
+          "Client auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D received PUBACK (Mid: 1, RC:135)",
+          "Client auto-89039A98-4C86-C4B8-0299-4A178F0D5A0D sending DISCONNECT"
+        ]
+      }
+    },
+    {
+      "image": "docker.io/library/eclipse-mosquitto:2",
+      "version": "mosquitto version 2.1.2",
+      "mechanism": "A: acl_file deny + SIGHUP",
+      "sighup_reloaded": true,
+      "open_connection": {
+        "published_before_delivered": true,
+        "published_after_delivered": false,
+        "command_before_received": true,
+        "command_after_received": false,
+        "publisher_still_connected": true,
+        "subscriber_still_connected": true
+      },
+      "other_wearable_unaffected": true,
+      "fresh_connection": {
+        "connect_accepted": true,
+        "publish_delivered": false,
+        "puback": [
+          "Client 79218F9B-2F09-DD66-BDCD-CE813298430C received PUBACK (Mid: 1, RC:135)"
+        ],
+        "suback": [
+          "Subscribed (mid: 1): 1"
+        ]
+      },
+      "deny_lifted_publish_delivered": true,
+      "broker_disconnect_lines_for_a": []
+    },
+    {
+      "image": "docker.io/library/eclipse-mosquitto:2",
+      "version": "mosquitto version 2.1.2",
+      "mechanism": "B: dynamic security plugin",
+      "unknown_wearable": {
+        "connect_accepted": true,
+        "publish_delivered": false,
+        "client_output": [
+          "Client auto-D6E72426-0118-45B2-C795-A2F9EA6E84EB sending PUBLISH (d0, q1, r0, m1, 'mm/fixed/759990c0-d2a1-44e4-8f0f-32a477bcf35a/alert', ... (9 bytes))",
+          "Client auto-D6E72426-0118-45B2-C795-A2F9EA6E84EB received PUBACK (Mid: 1, RC:135)",
+          "Client auto-D6E72426-0118-45B2-C795-A2F9EA6E84EB sending DISCONNECT"
+        ]
+      },
+      "known_wearable_publish_delivered": true,
+      "disable_command": {
+        "exit_code": 0,
+        "output": ""
+      },
+      "after_disable": {
+        "open_connection_dropped": false,
+        "published_after_delivered": true,
+        "fresh_connect_accepted": true,
+        "fresh_publish_delivered": true,
+        "fresh_output": [
+          "Client auto-554A4830-51A1-34C7-F99A-234787426EC5 sending PUBLISH (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (7 bytes))",
+          "Client auto-554A4830-51A1-34C7-F99A-234787426EC5 received PUBACK (Mid: 1, RC:0)",
+          "Client auto-554A4830-51A1-34C7-F99A-234787426EC5 sending DISCONNECT"
+        ]
+      }
+    }
+  ]
+}
