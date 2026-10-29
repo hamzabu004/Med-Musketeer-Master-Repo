@@ -1,0 +1,21 @@
+# MedMusketeer gateway uplink (mm-uplink). Installed as /etc/medmusketeer/uplink.toml by
+# tools/Fixed-Gateway-Setup/setup_uplink.sh.
+
+[cloud]
+host = "CLOUD_HOST"                  # the cloud Pi's Tailscale address
+port = 8883                          # EMQX gateway listener
+name = "cloud.medmusketeer.local"    # the name the cloud's certificate must carry (pinned)
+
+[tls]
+# The gateway's own certificate, deployed by `mmca deploy` for Mosquitto; readable by the
+# mosquitto group, which the uplink runs as.
+ca = "/etc/mosquitto/certs/ca.crt"
+cert = "/etc/mosquitto/certs/gateway.crt"
+key = "/etc/mosquitto/certs/gateway.key"
+
+[revocation]
+state_file = "/var/lib/medmusketeer/revocations.json"   # the last list received
+acl_file = "/var/lib/medmusketeer/wearables.acl"        # Mosquitto's acl_file on the wearable listener
+mosquitto_pid_file = "/run/mosquitto/mosquitto.pid"     # SIGHUP goes to this PID after a change
+# reload_command = ["systemctl", "reload", "mosquitto"] # instead of the SIGHUP, if needed
+retry_s = 30                                            # retry interval for a failed reload

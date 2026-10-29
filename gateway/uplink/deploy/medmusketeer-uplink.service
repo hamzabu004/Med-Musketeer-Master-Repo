@@ -1,0 +1,22 @@
+# MedMusketeer gateway uplink. Installed by tools/Fixed-Gateway-Setup/setup_uplink.sh.
+# Runs as mosquitto: it owns the generated ACL file (Mosquitto 2.x wants its files owned by it)
+# and signals the broker to reload it, and it reads the gateway certificate the broker uses.
+[Unit]
+Description=MedMusketeer gateway uplink (cloud connection, wearable revocation list)
+Wants=network-online.target
+After=network-online.target mosquitto.service
+
+[Service]
+User=mosquitto
+Group=mosquitto
+ExecStart=/opt/medmusketeer/uplink/bin/mm-uplink --config /etc/medmusketeer/uplink.toml
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/medmusketeer
+
+[Install]
+WantedBy=multi-user.target

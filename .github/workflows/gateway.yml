@@ -1,0 +1,27 @@
+name: Gateway uplink
+
+on:
+  push:
+    branches: [main]
+    paths: ["gateway/**", "shared/contracts/**", "tools/ca-tool/mmca/**", "tools/Fixed-Gateway-Setup/**",
+            ".github/workflows/gateway.yml"]
+  pull_request:
+    paths: ["gateway/**", "shared/contracts/**", "tools/ca-tool/mmca/**", "tools/Fixed-Gateway-Setup/**",
+            ".github/workflows/gateway.yml"]
+
+defaults:
+  run:
+    working-directory: gateway/uplink
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"  # Raspberry Pi OS (Debian 13)
+      - run: pip install -e '.[dev]'
+      # Podman is preinstalled on the Ubuntu runners; TC-B05 to TC-B08 skip unless the image is present.
+      - run: podman pull docker.io/library/eclipse-mosquitto:2.0.21
+      - run: pytest -rA

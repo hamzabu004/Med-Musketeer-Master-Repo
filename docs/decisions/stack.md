@@ -385,7 +385,7 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 
 **Decision: out of scope for FYP-1.** Rotating the cloud's leaf keypair the wearable encrypts envelopes to on the mobile path is deferred, not built. FYP-1 uses a long-dated cloud cert that comfortably outlasts the project timeline (same move already made elsewhere in this file for on-device key generation and the offline-signing ceremony) — rotation during the project is treated as a non-event by design, not solved in software.
 
-## Gateway/wearable credential revocation (fixed path) — Decided 2026-10-29; cloud side Implemented (Iteration 4 Slice 1), gateway side not built
+## Gateway/wearable credential revocation (fixed path) — Decided 2026-10-29; Implemented and container-tested (Iteration 4 Slices 1 and 2), Pi run pending
 
 **Decision: the cloud pushes the list of revoked wearables to every gateway, and each gateway caches it and enforces it locally.** Plan: `docs/iterations/iteration-4-revocation-sync.md`. Cloud-side contract: `cloud-backend.md` D16.
 
@@ -413,6 +413,8 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 **Gateway broker mechanism (Decided 2026-10-29, Iteration 4 Slice 0 spike on Mosquitto 2.0.21 and 2.1.2):** the uplink regenerates the wearable ACL file with a `user <id>` / `topic deny #` block per listed wearable and reloads Mosquitto with SIGHUP. This refuses the wearable's publishes and stops deliveries to it, on an open connection too, and leaves other wearables alone. Limits, accepted:
 - the connection stays open, because stock Mosquitto cannot drop a client identified by its certificate (the dynamic security plugin does not authenticate certificate identities, so it was rejected);
 - the ACL sees only the CN, so revoking one credential of a wearable that stays active is enforced by the cloud only; on the gateway it means suspending the wearable until it is re-issued.
+
+**Gateway side (Implemented 2026-10-30, Slice 2, TC-B05 to TC-B08):** the gateway uplink (`gateway/uplink`, `mm-uplink`) keeps the list in `/var/lib/medmusketeer/revocations.json` and generates `/var/lib/medmusketeer/wearables.acl`. It runs as the `mosquitto` user: Mosquitto 2.x wants the ACL file owned by it with mode 0600, and the uplink can then reload the broker by SIGHUP. Not yet run on the Pi (H-B06, waits for the CA replacement).
 
 ## Device presence/liveness detection (online/offline status)
 

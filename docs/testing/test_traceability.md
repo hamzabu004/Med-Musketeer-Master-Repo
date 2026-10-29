@@ -1,6 +1,6 @@
 # Test traceability: report test cases to tests and evidence
 
-Report tables: `tab:tc-prov` (TC-P), `tab:tc-ca` (TC-A, TC-B) in Chapter 8 of the FYP-1 mid report.
+Report tables: `tab:tc-prov` (TC-P), `tab:tc-ca` (TC-A, TC-B01 to B04) in Chapter 8 of the FYP-1 mid report. TC-B05 to B08 (the gateway uplink, Iteration 4) live in `gateway/uplink/tests/`; run them with `gateway/uplink/run_uplink_tests.sh` (evidence in `docs/testing/evidence/<date>/uplink/`).
 Automated tests live in `tools/ca-tool/tests/`. Run them with `tools/ca-tool/run_report_tests.sh`;
 it writes `environment.txt`, `pytest.txt`, `junit.xml`, `coverage.xml`, and `broker/` (Mosquitto log,
 config, ACLs, and every client command with its output) to `docs/testing/evidence/<date>/`.
@@ -31,6 +31,10 @@ container that stands in for the Pi; **H** needs the ESP32-S3, phone, or Pi (see
 | TC-B02 | A-container + H | `test_broker_interop::test_tc_b02_*` | All four own publish topics and the own command subscription. |
 | TC-B03 | A-container + H | `test_broker_interop::test_tc_b03_*` | Judged by a services-listener monitor and `Denied PUBLISH` in the broker log. |
 | TC-B04 | A-container + H | `test_broker_interop::test_tc_b04_*` | The services username is a UUIDv4 so that a wearable CN can equal it. |
+| TC-B05 | A-container + H | `gateway/uplink/tests/test_interop.py::test_tc_b05_*` | Iteration 4 (D16). The uplink gets a list from a cloud stand-in and applies it within 10 s. On an open connection, the listed wearable's publishes are refused and commands no longer reach it; it stays connected; another wearable is unaffected; the version is reported to the cloud. Pi: H-B06. |
+| TC-B06 | A-container + A | `test_interop::test_tc_b06_*`; `test_revocations::*` | Older, equal and invalid lists are ignored, and so is a device id that would inject an ACL line; the stored list and the ACL file stay as they were. |
+| TC-B07 | A-container + A | `test_interop::test_tc_b07_*`; `test_revocations::test_only_newer_versions_are_kept_and_survive_a_restart`; `test_enforce::*` | A restarted uplink applies the stored list to a broker that lost it, before the cloud is reached (cloud down). The ACL file and the stored list are 0600. A failed reload is retried. |
+| TC-B08 | A-container | `test_interop::test_tc_b08_*` | During a cloud outage the stored list holds: the listed wearable is refused and others are accepted. When the cloud returns with a newer list, the uplink reconnects by itself and enforces it: one wearable lifted, another listed. |
 
 ## Cloud backend (Iteration 3)
 

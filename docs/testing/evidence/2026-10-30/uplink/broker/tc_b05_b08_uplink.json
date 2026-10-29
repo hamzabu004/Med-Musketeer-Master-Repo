@@ -1,0 +1,33 @@
+{
+  "tc_b05": {
+    "list_to_enforced_and_reported_s": 0.155,
+    "open_connection_cut_off": true,
+    "fresh_connection_puback": "RC:135",
+    "other_wearable_unaffected": true
+  },
+  "tc_b06": {
+    "ignored": [
+      "older",
+      "equal",
+      "invalid",
+      "injection"
+    ],
+    "version_kept": 2
+  },
+  "tc_b07": {
+    "enforced_version_at_start": 2,
+    "cloud_reachable": false
+  },
+  "tc_b08": {
+    "offline": {
+      "a": "refused",
+      "b": "accepted"
+    },
+    "cloud_back_to_list_enforced_s": 3.925,
+    "after_reconnect": {
+      "a": "accepted (lifted)",
+      "c": "refused",
+      "b": "accepted"
+    }
+  }
+}

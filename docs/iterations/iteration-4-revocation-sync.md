@@ -1,8 +1,8 @@
 # Iteration 4 — Revocation push and cache
 
 - **Owner:** Hamza Tariq (M7 cloud platform, M5 gateway)
-- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slice 1 (cloud) done (2026-10-29). Slices 2 and 3 not started.
-- **Part of:** Iteration 4 (gateway uplink). The gateway side lives in the uplink service, so Slice 2 starts once the uplink can connect to EMQX.
+- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slice 1 (cloud) done (2026-10-29). Slice 2 (gateway) done and container-tested (2026-10-30); its Pi run (H-B06) waits for the CA replacement. Slice 3 not started.
+- **Part of:** Iteration 4 (gateway uplink). The gateway side lives in the uplink service. Slice 2 built a minimal uplink (`gateway/uplink`, decided 2026-10-30): the cloud connection, the gateway's status, and the revocation list. Forwarding and the backlog are added to it with the uplink bridge.
 - **Depends on:** `cloud-backend.md` D4, D5, D15; `mqtt-fixed-path-topics.md`; `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`; the decision on the CA's missing key identifiers (`gaps.md`)
 - **Assumption:** the gateway normally has internet access. Losing the cloud is temporary, never permanent.
 
@@ -61,7 +61,7 @@ A wearable whose device or credential is revoked is refused by every gateway: wi
 
 1. **Cache (uplink service):** subscribes to the topic on every connect (the retained message arrives at once, so reconnecting needs no sync step), validates the payload, ignores older versions, and writes `/var/lib/medmusketeer/revocations.json` atomically (temp file + rename). On start it loads the stored file before anything else.
 2. **Broker:** the uplink regenerates the wearable ACL file with a `user <id>` / `topic deny #` block per listed wearable and sends Mosquitto SIGHUP. A listed wearable's publishes are refused and nothing is delivered to it, on a connection that is already open too. Its connection stays open: stock Mosquitto cannot drop it (Slice 0).
-3. **Services:** the uplink does not forward, and the local classifier does not process, messages from a wearable on the list. This layer needs no broker support, so it holds even if layer 2 only denies topics.
+3. **Services:** the uplink does not forward, and the local classifier does not process, messages from a wearable on the list. This layer needs no broker support, so it holds even if layer 2 only denies topics. Slice 2 provides the check (`RevocationStore.listed`). Forwarding and the classifier do not exist yet, and must call it when they are built.
 
 **First boot:** with no stored list yet, the gateway accepts wearables. That matches the cloud's view at provisioning: a just-installed gateway has nothing stored, and it gets the list on its first connect.
 
@@ -111,8 +111,14 @@ Tests: TC-C28 to TC-C31 (TC-C27 is the Pi smoke test); `tests/integration/test_r
 - TC-C30: revoking or suspending a gateway, or revoking its credential, disconnects it within 5 seconds.
 - TC-C31: the gateway's reported version is stored, and a gateway behind the current version is reported as stale.
 
-### Slice 2 — Gateway: cache and enforce (M)
-Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
+### Slice 2 — Gateway: cache and enforce (M) — Done 2026-10-30 (container); Pi run pending
+Tests: TC-B05 to TC-B08 in `gateway/uplink/tests/`, against Mosquitto 2.0.21 containers. The cloud is a Mosquitto stand-in with the cloud certificate; the real EMQX side is TC-C29/C30. The Pi run is H-B06, after the CA replacement.
+
+As built:
+- **Runs as `mosquitto`.** Mosquitto 2.x warns that later versions will refuse an ACL file not owned by it or readable by others. Running as `mosquitto`, the uplink writes the file 0600 under its own name and reloads the broker by SIGHUP to the PID in Mosquitto's `pid_file`, with no sudo rule. The uplink reads the same gateway key as the broker, so it adds no new trust.
+- The list is validated against the shared schema, shipped in the package (a test keeps it identical to `shared/contracts/`). Device ids must be canonical UUIDs, because they are written into the ACL file.
+- The ACL file is rewritten, and the broker reloaded, only when the contents change. A failed reload is retried every 30 s. The version reported is the one the broker has loaded.
+- Deployment: `tools/Fixed-Gateway-Setup/setup_uplink.sh` (venv, `/etc/medmusketeer/uplink.toml`, `medmusketeer-uplink.service`).
 - TC-B05: a listed wearable cannot publish or subscribe, and a connected one is cut off.
 - TC-B06: an older, equal or invalid list is ignored.
 - TC-B07: the stored list survives a gateway restart and is enforced before the uplink reconnects.
@@ -155,11 +161,13 @@ Tests: TC-B05 to TC-B08, against the container broker; repeated on the Pi (H-B).
 
 | File | Change |
 |---|---|
-| `gateway/uplink/revocations.py` (new, in the Iteration 4 uplink package) | Subscribe, validate, version check, atomic store, load at start |
-| `gateway/uplink/enforce.py` (new) | Regenerate the wearable ACL file atomically and send Mosquitto SIGHUP; the forwarding filter |
-| `gateway/uplink/status.py` | Report `revocation_version` |
-| `tools/Fixed-Gateway-Setup/setup_mosquitto.sh` | The wearable ACL becomes a generated file (the patterns plus deny blocks) the uplink may write; `/var/lib/medmusketeer`; permission for the uplink to reload Mosquitto |
-| `tools/ca-tool/tests/test_broker_interop.py` (or the gateway's own tests) | TC-B05 to TC-B08 |
+| `gateway/uplink/mm_uplink/revocations.py` (new, the Iteration 4 uplink package) | Validate, version check, atomic store, load at start; `listed()` for forwarding |
+| `gateway/uplink/mm_uplink/enforce.py` (new) | Regenerate the wearable ACL file atomically and reload Mosquitto (SIGHUP to its PID) |
+| `gateway/uplink/mm_uplink/service.py`, `config.py`, `files.py`, `__main__.py` (new) | The MQTT session (mTLS, pinned cloud name, strict X.509), status with `revocation_version`, retries |
+| `gateway/uplink/deploy/` (new) | `uplink.toml.example`, `medmusketeer-uplink.service` |
+| `tools/Fixed-Gateway-Setup/setup_mosquitto.sh` | The wearable ACL becomes `/var/lib/medmusketeer/wearables.acl`, owned by `mosquitto`, mode 0600, written once |
+| `tools/Fixed-Gateway-Setup/setup_uplink.sh` (new) | Installs and starts the uplink |
+| `gateway/uplink/tests/` (new), `run_uplink_tests.sh`, `.github/workflows/gateway.yml` | Unit tests, TC-B05 to TC-B08, evidence runner, CI |
 
 **Docs**
 

@@ -1,0 +1,21 @@
+run_at: 2026-10-30T00:29:39+05:00
+host: Linux 7.2.5-200.fc44.x86_64 x86_64
+python: Python 3.14.7
+packages: cryptography==50.0.2 jsonschema==4.26.0 paho-mqtt==2.1.0 pytest==9.2.0 
+podman: podman version 5.8.4
+image: 35f50ba5c1109692c2b87b0bb401df076f4595e37a5284d23aad3f0caa257c77
+commit: 43d28e635d3a708201b9dbcd78f1e034e837828b
+uncommitted changes:
+ M docs/decisions/cloud-backend.md
+ M docs/decisions/gaps.md
+ M docs/decisions/mqtt-fixed-path-topics.md
+ M docs/decisions/stack.md
+ M docs/iterations/iteration-4-revocation-sync.md
+ M docs/testing/hardware_test_procedures.md
+ M docs/testing/test_traceability.md
+D  gateway/.gitkeep
+ M tools/Fixed-Gateway-Setup/setup_mosquitto.sh
+?? .github/workflows/gateway.yml
+?? docs/testing/evidence/2026-10-30/
+?? gateway/
+?? tools/Fixed-Gateway-Setup/setup_uplink.sh
