@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ids-event-v1.schema.json",
+  "additionalProperties": false,
+  "description": "ids-event-v1, published by a gateway on mm/gateway/{gateway_id}/ids_event.",
+  "properties": {
+    "v": {
+      "const": 1,
+      "title": "V",
+      "type": "integer"
+    },
+    "msg_id": {
+      "description": "Makes a QoS 1 redelivery idempotent; stored as the event id",
+      "format": "uuid",
+      "title": "Msg Id",
+      "type": "string"
+    },
+    "ts": {
+      "description": "Time of the detection",
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "device_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The registered device the traffic concerned, if any",
+      "title": "Device Id"
+    },
+    "mode": {
+      "enum": [
+        "ids",
+        "ips"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "predicted_class": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Predicted Class",
+      "type": "string"
+    },
+    "outcome": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Outcome",
+      "type": "string"
+    },
+    "action": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "IPS mode only: the mitigation applied",
+      "title": "Action"
+    },
+    "action_result": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Action Result"
+    }
+  },
+  "required": [
+    "v",
+    "msg_id",
+    "ts",
+    "mode",
+    "predicted_class",
+    "outcome"
+  ],
+  "title": "ids-event-v1",
+  "type": "object"
+}

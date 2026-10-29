@@ -13,17 +13,20 @@ import httpx
 import pytest
 
 from tests.certs import Issued, TestCA
-from tests.integration.stack import (API, PORTS, compose, env_value, evidence, machine_token, register_user,
-                                     zitadel_admin)
+from tests.integration.stack import (API, GATEWAY_PORT, INTERNAL_PORT, compose, env_value, evidence, gateway,
+                                     machine_token, register, register_user, zitadel_admin)
 from tests.mqtt import CLOUD_NAME, Client, tls_context
 
 pytestmark = pytest.mark.integration
 
-GATEWAY_PORT = int(PORTS["EMQX_GATEWAY_PUBLISHED_PORT"])
-INTERNAL_PORT = int(PORTS["EMQX_INTERNAL_PUBLISHED_PORT"])
 ACCEPTED = {"Success", "No matching subscribers"}  # PUBACK codes for an accepted publish
 REFUSED = {"Not authorized", "Bad user name or password"}  # CONNACK codes from the auth hook
 RECORD: dict = {}
+
+
+def published(message) -> bool:
+    """A gateway's own message, not the broker's connect or disconnect event for it (mm_presence)."""
+    return "/broker/" not in message.topic
 
 
 @pytest.fixture(scope="module")
@@ -34,23 +37,6 @@ def admin(stack):
     with httpx.Client(base_url=API, headers=headers, timeout=15) as client:
         yield client
     evidence("tc_c14_c18_gateway.json", json.dumps(RECORD, indent=2))
-
-
-def register(admin, issued: Issued, device_type: str) -> str:
-    """Register, add the certificate as its credential, activate; returns the credential id."""
-    response = admin.post("/admin/devices", json={"device_id": issued.device_id, "type": device_type, "is_testbed": True})
-    assert response.status_code in (201, 409), response.text  # 409: a second certificate for the same device
-    credential = admin.post(f"/admin/devices/{issued.device_id}/credentials",
-                            json={"auth_method": "x509_mtls", "key_type": "ec_p256", "credential_ref": issued.fingerprint})
-    assert credential.status_code == 201, credential.text
-    if response.status_code == 201:
-        assert admin.post(f"/admin/devices/{issued.device_id}/activate").status_code == 200
-    return credential.json()["credential_id"]
-
-
-def gateway(stack_ca: TestCA, issued: Issued | None) -> Client:
-    context = tls_context(stack_ca.ca_cert, issued.cert if issued else None, issued.key if issued else None)
-    return Client(GATEWAY_PORT, context)
 
 
 @pytest.fixture
@@ -83,7 +69,7 @@ def test_tc_c14_an_active_gateway_connects_and_its_messages_reach_ingestion(stac
         assert client.publish(f"mm/gateway/{active_gateway.device_id}/status", '{"online": true}') in ACCEPTED
     finally:
         client.close()
-    received = {message.topic: json.loads(message.payload) for message in adapter.wait_for(2)}
+    received = {message.topic: json.loads(message.payload) for message in adapter.wait_for(2, where=published)}
     prefix = f"ingest/{active_gateway.device_id}"
     assert set(received) == {f"{prefix}/mm/fixed/{wearable}/alert", f"{prefix}/mm/gateway/{active_gateway.device_id}/status"}
     republished = received[f"{prefix}/mm/fixed/{wearable}/alert"]
@@ -170,7 +156,8 @@ def test_tc_c17_publish_and_subscribe_outside_the_acl_are_denied(stack, stack_ca
     assert set(publishes.values()) == {"Not authorized"}, publishes
     assert set(subscribes.values()) == {"Not authorized"}, subscribes
     # The monitor sees only the allowed message, nothing that was denied.
-    assert [message.topic for message in adapter.wait_for(1)] == [f"ingest/{active_gateway.device_id}/{sentinel}"]
+    assert [message.topic for message in adapter.wait_for(1, where=published)] == [
+        f"ingest/{active_gateway.device_id}/{sentinel}"]
     broker_log = compose(stack, "logs", "--no-color", "emqx").stdout
     assert "not_authorized" in broker_log or "authorization_permission_denied" in broker_log
 

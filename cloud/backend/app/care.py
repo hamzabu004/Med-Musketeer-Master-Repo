@@ -2,7 +2,7 @@
 
 A doctor reads the data of their current patients and acknowledges their alerts; a patient reads
 their own. ECG queries are also limited to monitoring sessions of the caller's organisation, as a
-session's patient and organisation are fixed when it opens. Rows are written by ingestion (Slice 5).
+session's patient and organisation are fixed when it opens. Rows are written by ingestion (app.ingest).
 """
 import base64
 from datetime import datetime
@@ -42,6 +42,7 @@ class Segment(BaseModel):
     device_id: UUID
     kind: str
     fs_hz: int
+    lead: str | None  # None for segments stored before ingestion recorded it
     started_at: datetime
     ended_at: datetime | None
 

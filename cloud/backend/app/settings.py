@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     emqx_hook_secret: SecretStr | None = None
     # Password of the adapter's account (mm-adapter) on the internal listener.
     emqx_adapter_password: SecretStr | None = None
+    # Shared with the MQTT adapter, which sends it with every ingest-v1 message (app.ingest).
+    # Unset: ingestion answers 503 and the adapter keeps its messages until it is set.
+    ingest_secret: SecretStr | None = None
     # Browser origins that may call the API (the dashboard), comma-separated, e.g.
     # "https://med-muskeeter.vercel.app" or "http://localhost:3000". Empty: no CORS headers at all.
     cors_origins: Annotated[list[str], NoDecode] = []
