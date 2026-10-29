@@ -1,8 +1,8 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, and D13 from Slice 4. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard and D15 from Slice 5. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 on 2026-10-29). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
-Last updated: 2026-10-24
+Last updated: 2026-10-29
 
 ## Overview
 
@@ -118,9 +118,9 @@ Observe-only: any active gateway may forward for any wearable; the cloud records
 
 Implemented in Slice 4 by the API's authorisation hook: the wearable level must be a canonical UUID; a subscription may name one wearable instead of `+`; the gateway must still be an active `fixed_gateway`. A denied publish or subscription gets MQTT 5 reason code 0x87 and the connection stays up (`deny_action = ignore`). EMQX caches authorisation results for 1 minute (its default), so a suspended or revoked gateway that stays connected loses topic access within a minute; a revoked credential alone takes effect at the next connect (`gaps.md`).
 
-## D6 — Fixed-path alert payload v1 (Decided; shared with the firmware)
+## D6 — Fixed-path alert payload v1 (Decided; shared with the firmware; Implemented 2026-10-29)
 
-Schema file: `shared/contracts/alert-payload-v1.schema.json` (written in Slice 5, shared with the Iteration 2 firmware work before then).
+Schema file: `shared/contracts/alert-payload-v1.schema.json`, generated from `cloud/backend/app/contracts.py`.
 
 ```json
 {
@@ -142,10 +142,11 @@ Schema file: `shared/contracts/alert-payload-v1.schema.json` (written in Slice 5
 - `msg_id` (UUID) makes a QoS 1 redelivery idempotent; `seq` is a per-device counter that shows gaps.
 - `device_id` is not in the payload: it comes from the topic, which the gateway's ACL and D1 cover.
 - `sent_at` is benchmark-only and never used in a security decision. `fs_hz` 360 is an example; the sampling rate is still open.
+- Implemented (Slice 5): unknown fields are refused, so a change is a new `v`; `samples` must decode to exactly `2 × n_samples` bytes; `n_samples` is at most 65 536; times must carry a zone, and `segment_start` may lead the broker's clock by at most 5 minutes; `screening` is required (the alert exists because TinyDL flagged it). `sent_at` is optional.
 
-## D7 — Normalised ingestion message `ingest-v1` (Decided)
+## D7 — Normalised ingestion message `ingest-v1` (Decided; Implemented 2026-10-29)
 
-Schema file: `shared/contracts/ingest-v1.schema.json`. The only contract the ingestion API accepts; a new protocol means a new adapter producing it.
+Schema file: `shared/contracts/ingest-v1.schema.json`, generated from `cloud/backend/app/contracts.py`. The only contract the ingestion API accepts; a new protocol means a new adapter producing it.
 
 ```json
 {
@@ -163,6 +164,8 @@ Schema file: `shared/contracts/ingest-v1.schema.json`. The only contract the ing
 ```
 
 `attested_by` is null on the mobile path. `auth_metadata` is benchmark/debug only; no logic may depend on its shape.
+
+Implemented (Slice 5): `POST /internal/ingest`, called only by the adapter with `INGEST_SECRET`, not in the API description. The API validates the envelope and the payload for its `msg_type` again, though the adapter already has. A wearable sends `alert` and `status`; a gateway sends `status` and `ids_event`. Messages with no attesting gateway are rejected until the mobile path has an adapter. The hop times are stored in `ingested_messages` (D15).
 
 ## D8 — Database access (Decided)
 
@@ -292,3 +295,50 @@ browser ── Authorization: Bearer … (CORS: DASHBOARD_ORIGINS) ──► api
   - The dashboard reading names from ZITADEL itself: a user's token cannot read other users.
   - A name column in `users`: names would then live in two places (D12 keeps them in ZITADEL).
   - A same-origin reverse proxy instead of CORS: the dashboard was to be hosted on Vercel, the API on the cloud Pi. **Revisit (2026-10-26):** the dashboard will now be served from the cloud Pi, so it could share the API's origin through the stack's proxy and CORS would not be needed. To be decided with the Pi deployment (`docs/iterations/iteration-6-dashboard.md`, Deployment).
+
+## D15 — Ingestion: presence and IDS payloads, idempotency, liveness (Decided 2026-10-29)
+
+```
+gateway ──mm/fixed/{w}/alert|status, mm/gateway/{gw}/status|ids_event──► EMQX
+                           rule mm_ingest ──► ingest/{gw}/{topic}                 ┐
+EMQX connect/disconnect ── rule mm_presence ──► ingest/{gw}/broker/client.(dis)connected ┤
+                                                                                  ▼
+adapter (python -m app.adapter, mm-adapter, persistent session, manual ack)
+   validates against shared/contracts, builds ingest-v1 ──► POST /internal/ingest (INGEST_SECRET)
+   ack after the API answered; retries while it cannot                            │
+                                                                                  ▼
+API: registry checks ─► one transaction: session, segment, chunk, classification, alert, NOTIFY mm_alerts
+                                         security_events | devices presence | ingested_messages
+```
+
+- **Payload contracts** (`shared/contracts/`, generated from `app/contracts.py`; a unit test fails if the files are stale):
+  - `status-v1` `{"v": 1, "state": "online" | "offline", "reason"?, "sent_at"?}`: a gateway forwards each wearable's presence on `mm/fixed/{w}/status` and reports its own on `mm/gateway/{gw}/status`. `reason: "mode_switch"` before the wearable changes path (ADR-5).
+  - `ids-event-v1` `{"v": 1, "msg_id", "ts", "device_id"?, "mode": "ids" | "ips", "predicted_class", "outcome", "action"?, "action_result"?}` on `mm/gateway/{gw}/ids_event`. In IDS mode `action` and `action_result` must be absent. `device_id`, if given, must be a registered device. The event is stored with `event_id = msg_id` and `gateway_id` = the attesting gateway, never a payload field.
+  - Not ingested yet, logged and skipped by the adapter: `telemetry` (start/stop design open), `result` (the gateway classifier, Iteration 4), `command_ack` (no commands yet), `backlog` (outage upload, IPS methodology).
+- **The adapter** is a module of the backend package and runs from the API image as the compose service `adapter`. Topics map as in its docstring; `attested_by` is the gateway id from the topic, which is the broker's username (D1). It connects with a persistent session (`clean_start` off, 24 h expiry) and acknowledges a message only after the API has answered, so EMQX keeps QoS 1 messages while the adapter or the API is down. One worker thread posts in arrival order and retries the same message with backoff (1 to 30 s) on a network error or a non-422 answer. A 422 (rejected) or a contract failure is logged and dropped.
+- **Registry checks before any write** (each rejection logged by the API with its reason; the transaction is rolled back):
+  - the attesting gateway is an active `fixed_gateway`, and a gateway reports only for itself. A gateway's own offline report counts even if it is suspended, so its wearables do not stay on its path;
+  - the wearable is registered as a wearable and active;
+  - for an alert, the wearable has an open assignment to a patient of the organisation it is granted to (the assignment and grant rows are locked, so a concurrent return or grant revoke either ends first or waits).
+- **Idempotency:** `ingested_messages (device_id, msg_id)` (migration 0003), scoped to the device so that one device cannot pre-empt another's ids. A redelivered alert or IDS event answers `duplicate` and writes nothing. Status messages carry no `msg_id`; applying one twice has the same effect as once. `mm_api` may only insert into the table.
+- **An alert** opens or continues the wearable's monitoring session for that patient, organisation and path. An open session for anything else is ended first, so a session never collects another patient's data, even if an assignment change missed it. It writes:
+  - the segment (`kind = alert`, the lead in the new `ecg_segments.lead`);
+  - one chunk with all samples (`seq` 0), with `attested_by` and `auth_method`;
+  - the wearable's screening as a classification (`source = wearable`);
+  - the alert, with `origin = wearable` and `severity = unrated`.
+  
+  Then it sends `NOTIFY mm_alerts` with the alert, patient and device ids; this is delivered on commit. The device `seq` is kept in `ingested_messages`, not as the chunk's `seq`.
+- **Severity** is `unrated`: the wearable's screening gives a label and a confidence, not a severity, and inventing a mapping would be a clinical decision. The gateway or cloud classifier is to rate it (open, `gaps.md`).
+- **Liveness** (`stack.md`, "Device presence/liveness detection"), all times the broker's:
+  - every message refreshes the attesting gateway's `last_seen`; a wearable's alert or `online` status sets its `last_seen`, `current_mode = fixed` and `current_gateway_id`;
+  - a wearable reported `offline` becomes `current_mode = unknown` with no gateway, and its `last_seen` stays (nothing was heard from it);
+  - a gateway that goes offline (its own status, or EMQX's disconnect event through the rule `mm_presence`) turns its `fixed` wearables `unknown`, keeping `current_gateway_id`;
+  - an offline report older than the device's `last_seen` is stale and ignored. Online reports are applied in arrival order; per-topic MQTT ordering makes reordering rare, and the next message corrects it;
+  - the dashboard never shows "offline" (Iteration 6), which matches: `unknown` is what the cloud can say.
+- **The broker's connection events** come from the rule `mm_presence` on `$events/client_connected` and `$events/client_disconnected` (everyone but `mm-adapter`), republished to `ingest/{username}/broker/{event}`. Gateways cannot publish under `ingest/` (D5), so these cannot be forged. Gateway LWTs are therefore not needed for liveness; a gateway may still send them as status.
+- **Alert push:** only `NOTIFY` is built. The WebSocket endpoint (a stretch goal) is not, because the dashboard polls alerts every 15 s (Iteration 6).
+- Rejected alternatives:
+  - The adapter writing to the database itself: it would bypass the single ingest-v1 contract of D7.
+  - Idempotency by a `msg_id` column on `ecg_segments`: it would not cover IDS events or later message types.
+  - Relying on gateway LWTs for gateway liveness: a clean disconnect sends none, and a gateway without one would never go `unknown`.
+
