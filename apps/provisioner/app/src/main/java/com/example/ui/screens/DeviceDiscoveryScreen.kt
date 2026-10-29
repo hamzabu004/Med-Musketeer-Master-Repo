@@ -156,7 +156,7 @@ fun DeviceDiscoveryScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = if (targetGatewayName != null) "Searching for $targetGatewayName" else "Scanning for MedMusketeer Gateways",
+                            text = if (targetGatewayName != null) "Searching for $targetGatewayName" else "Scanning for MedMusketeer Wearables",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -200,7 +200,7 @@ fun DeviceDiscoveryScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Android requires Bluetooth Scan & Connect permissions to discover and provision ESP32-S3 BLE gateways.",
+                        text = "Android requires Bluetooth Scan & Connect permissions to discover and provision ESP32-S3 BLE wearables.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
@@ -221,7 +221,7 @@ fun DeviceDiscoveryScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "Discovered Gateways (${devices.size})",
+                text = "Discovered Wearables (${devices.size})",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -267,7 +267,7 @@ fun DeviceDiscoveryScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Ensure your gateway is powered on and within range.",
+                        text = "Ensure your wearable is powered on and within range.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )

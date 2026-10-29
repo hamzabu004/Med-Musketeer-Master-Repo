@@ -71,7 +71,7 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "MedMusketeer Gateway",
+            text = "MedMusketeer Wearable",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.ExtraBold,
             color = MaterialTheme.colorScheme.onBackground
@@ -89,7 +89,7 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "Safely transfer Wi-Fi credentials and MQTT broker connection settings to your ESP32-S3 gateway over an authenticated, encrypted Bluetooth Low Energy link.",
+            text = "Safely transfer Wi-Fi credentials and MQTT broker connection settings to your ESP32-S3 wearable over an authenticated, encrypted Bluetooth Low Energy link.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 8.dp)
@@ -154,7 +154,7 @@ fun WelcomeScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Set Up Gateway",
+                text = "Set Up Wearable",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

@@ -2,7 +2,7 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Brand palette - MedMusketeer Gateway
+// Brand palette - MedMusketeer Wearable
 val MedTealPrimary = Color(0xFF0EA5E9)      // Sky 500
 val MedTealDark = Color(0xFF0284C7)         // Sky 600
 val MedTealLight = Color(0xFF38BDF8)        // Sky 400

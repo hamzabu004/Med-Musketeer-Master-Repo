@@ -72,7 +72,7 @@ fun ReviewSendScreen(
         )
 
         Text(
-            text = "Verify provisioning parameters before transmitting to the ESP32-S3 gateway.",
+            text = "Verify provisioning parameters before transmitting to the ESP32-S3 wearable.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -109,12 +109,12 @@ fun ReviewSendScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Target BLE Gateway",
+                        text = "Target BLE Wearable",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = targetDeviceName ?: "MedMusketeer Gateway",
+                        text = targetDeviceName ?: "MedMusketeer Wearable",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -232,7 +232,7 @@ fun ReviewSendScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "The gateway firmware stores these settings in unencrypted NVS storage and connects to MQTT unauthenticated and without TLS (mqtt://). Only provision to secure, dedicated test networks.",
+                        text = "The wearable firmware stores these settings in unencrypted NVS storage and connects to MQTT unauthenticated and without TLS (mqtt://). Only provision to secure, dedicated test networks.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -290,7 +290,7 @@ fun ReviewSendScreen(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Confirm & Send to Gateway", fontWeight = FontWeight.Bold)
+                Text("Confirm & Send to Wearable", fontWeight = FontWeight.Bold)
             }
         }
 

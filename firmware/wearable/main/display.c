@@ -100,15 +100,15 @@ esp_err_t display_init(void)
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = 7,
         .i2c_port = 0,
-        .sda_io_num = CONFIG_GATEWAY_OLED_SDA_GPIO,
-        .scl_io_num = CONFIG_GATEWAY_OLED_SCL_GPIO,
+        .sda_io_num = CONFIG_WEARABLE_OLED_SDA_GPIO,
+        .scl_io_num = CONFIG_WEARABLE_OLED_SCL_GPIO,
         .flags.enable_internal_pullup = true,
     };
     ESP_RETURN_ON_ERROR(i2c_new_master_bus(&bus_config, &bus), TAG, "I2C bus init failed");
 
     esp_lcd_panel_io_handle_t io = NULL;
     esp_lcd_panel_io_i2c_config_t io_config = {
-        .dev_addr = CONFIG_GATEWAY_OLED_I2C_ADDRESS,
+        .dev_addr = CONFIG_WEARABLE_OLED_I2C_ADDRESS,
         .scl_speed_hz = 400000,
         .transaction_timeout_ms = 100,
         .control_phase_bytes = 1,

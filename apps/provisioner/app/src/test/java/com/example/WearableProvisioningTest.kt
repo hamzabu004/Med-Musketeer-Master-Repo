@@ -15,31 +15,31 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
-class GatewayProvisioningTest {
+class WearableProvisioningTest {
 
     @Test
     fun testValidQrParsing() {
-        val raw = "MM-GW-A1B2C3|7A2E00012B3C4D5E8F90123456789ABC"
+        val raw = "MM-WR-A1B2C3|7A2E00012B3C4D5E8F90123456789ABC"
         val result = QrParser.parse(raw)
 
         assertTrue("Expected valid QR result", result.isValid)
-        assertEquals("MM-GW-A1B2C3", result.deviceName)
+        assertEquals("MM-WR-A1B2C3", result.deviceName)
         assertEquals("7A2E00012B3C4D5E8F90123456789ABC", result.serviceUuidHex)
     }
 
     @Test
     fun testCaseInsensitiveQrParsing() {
-        val raw = "mm-gw-1234ef|7a2e00012b3c4d5e8f90123456789abc"
+        val raw = "mm-wr-1234ef|7a2e00012b3c4d5e8f90123456789abc"
         val result = QrParser.parse(raw)
 
         assertTrue("Expected case-insensitive QR to parse as valid", result.isValid)
-        assertEquals("MM-GW-1234EF", result.deviceName)
+        assertEquals("MM-WR-1234EF", result.deviceName)
         assertEquals("7A2E00012B3C4D5E8F90123456789ABC", result.serviceUuidHex)
     }
 
     @Test
     fun testMalformedQrWithoutPipe() {
-        val raw = "MM-GW-A1B2C37A2E00012B3C4D5E8F90123456789ABC"
+        val raw = "MM-WR-A1B2C37A2E00012B3C4D5E8F90123456789ABC"
         val result = QrParser.parse(raw)
 
         assertFalse(result.isValid)
@@ -49,17 +49,17 @@ class GatewayProvisioningTest {
     @Test
     fun testInvalidDeviceNameInQr() {
         // Only 5 hex characters
-        val raw = "MM-GW-12345|7A2E00012B3C4D5E8F90123456789ABC"
+        val raw = "MM-WR-12345|7A2E00012B3C4D5E8F90123456789ABC"
         val result = QrParser.parse(raw)
 
         assertFalse(result.isValid)
-        assertTrue(result.errorMessage?.contains("Invalid gateway name") == true)
+        assertTrue(result.errorMessage?.contains("Invalid wearable name") == true)
     }
 
     @Test
     fun testInvalidServiceUuidInQr() {
         // Wrong service UUID
-        val raw = "MM-GW-A1B2C3|00000000000000000000000000000000"
+        val raw = "MM-WR-A1B2C3|00000000000000000000000000000000"
         val result = QrParser.parse(raw)
 
         assertFalse(result.isValid)
@@ -68,10 +68,12 @@ class GatewayProvisioningTest {
 
     @Test
     fun testManualDeviceNameValidation() {
-        assertTrue(QrParser.validateDeviceName("MM-GW-A1B2C3").isSuccess)
-        assertTrue(QrParser.validateDeviceName("mm-gw-ffffff").isSuccess)
+        assertTrue(QrParser.validateDeviceName("MM-WR-A1B2C3").isSuccess)
+        assertTrue(QrParser.validateDeviceName("mm-wr-ffffff").isSuccess)
         assertFalse(QrParser.validateDeviceName("INVALID-NAME").isSuccess)
-        assertFalse(QrParser.validateDeviceName("MM-GW-12345").isSuccess)
+        assertFalse(QrParser.validateDeviceName("MM-WR-12345").isSuccess)
+        // The prefix before the firmware was renamed to a wearable (Iteration 2).
+        assertFalse(QrParser.validateDeviceName("MM-GW-A1B2C3").isSuccess)
     }
 
     @Test

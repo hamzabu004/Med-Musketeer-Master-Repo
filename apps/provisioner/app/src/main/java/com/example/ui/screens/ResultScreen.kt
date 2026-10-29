@@ -79,7 +79,7 @@ fun ResultScreen(
         Spacer(modifier = Modifier.height(18.dp))
 
         Text(
-            text = if (isSuccess) "Settings Accepted by Gateway" else "Transfer Failed",
+            text = if (isSuccess) "Settings Accepted by Wearable" else "Transfer Failed",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -89,7 +89,7 @@ fun ResultScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = targetDeviceName ?: "ESP32-S3 Gateway",
+            text = targetDeviceName ?: "ESP32-S3 Wearable",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary
@@ -118,14 +118,14 @@ fun ResultScreen(
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
-                                text = "Next: Check Gateway OLED",
+                                text = "Next: Check Wearable OLED",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "The gateway accepted and stored your settings in NVS flash. It will now independently:\n\n1. Attempt connection to your Wi-Fi SSID.\n2. Attempt unencrypted connection to your MQTT broker at mqtt://<host>:<port>.\n\nThe gateway OLED display is the true source of truth for Wi-Fi and MQTT connection status.",
+                                text = "The wearable accepted and stored your settings in NVS flash. It will now independently:\n\n1. Attempt connection to your Wi-Fi SSID.\n2. Attempt unencrypted connection to your MQTT broker at mqtt://<host>:<port>.\n\nThe wearable OLED display is the true source of truth for Wi-Fi and MQTT connection status.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -180,7 +180,7 @@ fun ResultScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = errorReason ?: "GATT write was not confirmed or was rejected by the gateway.",
+                        text = errorReason ?: "GATT write was not confirmed or was rejected by the wearable.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onErrorContainer
                     )
@@ -206,7 +206,7 @@ fun ResultScreen(
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "• Check BLE Bonding: If pairing was cancelled or expired, unpair from Android Bluetooth settings and retry.\n• Check Proximity: Ensure the phone is within 1 meter of the gateway.\n• Check Gateway Power: Ensure the gateway OLED is on and advertising.\n• Re-scan: The gateway continues advertising and can be reconfigured at any time.",
+                        text = "• Check BLE Bonding: If pairing was cancelled or expired, unpair from Android Bluetooth settings and retry.\n• Check Proximity: Ensure the phone is within 1 meter of the wearable.\n• Check Wearable Power: Ensure the wearable OLED is on and advertising.\n• Re-scan: The wearable continues advertising and can be reconfigured at any time.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -249,7 +249,7 @@ fun ResultScreen(
                 .testTag("configure_another_button")
         ) {
             Text(
-                text = if (isSuccess) "Configure Another Gateway" else "Back to Setup Start",
+                text = if (isSuccess) "Configure Another Wearable" else "Back to Setup Start",
                 fontWeight = FontWeight.Bold
             )
         }

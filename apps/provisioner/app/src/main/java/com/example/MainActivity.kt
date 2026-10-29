@@ -68,7 +68,7 @@ fun MainApp(viewModel: MainViewModel = viewModel()) {
         topBar = {
             HeaderBanner(
                 title = when (currentScreen) {
-                    SetupScreen.WELCOME -> "MedMusketeer Gateway"
+                    SetupScreen.WELCOME -> "MedMusketeer Wearable"
                     SetupScreen.SCAN_QR -> "Scan OLED QR"
                     SetupScreen.DISCOVERY -> "BLE Discovery"
                     SetupScreen.PAIRING -> "Secure Pairing"

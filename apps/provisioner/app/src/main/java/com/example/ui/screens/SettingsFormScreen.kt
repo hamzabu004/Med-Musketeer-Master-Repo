@@ -72,14 +72,14 @@ fun SettingsFormScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Gateway Provisioning Settings",
+            text = "Wearable Provisioning Settings",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
-            text = "Configure network and telemetry destinations for the ESP32-S3 gateway.",
+            text = "Configure network and telemetry destinations for the ESP32-S3 wearable.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -105,7 +105,7 @@ fun SettingsFormScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Wi-Fi Network (Gateway Internet Access)",
+                        text = "Wi-Fi Network (Wearable Internet Access)",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -238,7 +238,7 @@ fun SettingsFormScreen(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Separate from your Wi-Fi network. The gateway publishes sensor readings to this broker at mqtt://<host>:<port>.",
+                    text = "Separate from your Wi-Fi network. The wearable publishes sensor readings to this broker at mqtt://<host>:<port>.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

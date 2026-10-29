@@ -215,13 +215,13 @@ fun ScanQrScreen(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Invalid Gateway QR Code",
+                            text = "Invalid Wearable QR Code",
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
                         Text(
-                            text = qrResult.errorMessage ?: "Expected format: MM-GW-XXXXXX|7A2E0001...",
+                            text = qrResult.errorMessage ?: "Expected format: MM-WR-XXXXXX|7A2E0001...",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
@@ -687,7 +687,7 @@ private fun ManualEntryView(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "To scan the OLED QR code, camera permission is required. You can also enter the gateway name directly below.",
+                        text = "To scan the OLED QR code, camera permission is required. You can also enter the wearable name directly below.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -721,7 +721,7 @@ private fun ManualEntryView(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Enter Gateway Name",
+            text = "Enter Wearable Name",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -730,7 +730,7 @@ private fun ManualEntryView(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Look at your ESP32-S3 gateway OLED header. The device name begins with MM-GW- followed by 6 hex characters.",
+            text = "Look at your ESP32-S3 wearable OLED header. The device name begins with MM-WR- followed by 6 hex characters.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -741,15 +741,15 @@ private fun ManualEntryView(
         OutlinedTextField(
             value = manualInput,
             onValueChange = onManualInputChange,
-            label = { Text("Gateway Name (e.g. MM-GW-A1B2C3)") },
-            placeholder = { Text("MM-GW-1A2B3C") },
+            label = { Text("Wearable Name (e.g. MM-WR-A1B2C3)") },
+            placeholder = { Text("MM-WR-1A2B3C") },
             singleLine = true,
             isError = manualError != null,
             supportingText = {
                 if (manualError != null) {
                     Text(text = manualError, color = MaterialTheme.colorScheme.error)
                 } else {
-                    Text("Must match pattern: MM-GW-XXXXXX (6 hex characters)")
+                    Text("Must match pattern: MM-WR-XXXXXX (6 hex characters)")
                 }
             },
             modifier = Modifier
@@ -772,7 +772,7 @@ private fun ManualEntryView(
                 contentDescription = null
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Find & Connect Gateway", fontWeight = FontWeight.Bold)
+            Text("Find & Connect Wearable", fontWeight = FontWeight.Bold)
         }
     }
 }
