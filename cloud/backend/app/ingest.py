@@ -7,6 +7,7 @@ Every message is checked against the registry before anything is written:
   to a patient of the organisation it is granted to.
 An alert opens (or continues) the wearable's monitoring session for that patient and path, and
 writes the segment, its samples, the wearable's screening and the alert, in one transaction. An
+alert has no severity: the wearable gives a label and a confidence, and the cloud does not rate it. An
 IDS event becomes a security event of the attesting gateway. Messages with a msg_id are recorded
 in ingested_messages, so a redelivery is answered "duplicate" and stored once.
 
@@ -40,7 +41,6 @@ router = APIRouter(prefix="/internal", include_in_schema=False)
 
 MAX_CLOCK_SKEW = timedelta(minutes=5)  # how far a device's timestamp may lead the broker's
 ALERTS_CHANNEL = "mm_alerts"  # NOTIFY channel for new alerts (Iteration 6 alert push)
-SEVERITY = "unrated"  # the wearable's screening has no severity; a classifier would rate it
 
 
 def adapter_caller(request: Request) -> None:
@@ -215,9 +215,9 @@ async def alert(conn: AsyncConnection, m: Ingest, p: AlertPayload) -> dict:
         VALUES (:g, 'wearable', :model, :label, :c) RETURNING classification_id
     """), {"g": segment_id, "model": p.screening.model, "label": p.screening.label, "c": p.screening.confidence})
     alert_id = await conn.scalar(text("""
-        INSERT INTO alerts (device_id, patient_id, classification_id, origin, severity)
-        VALUES (:d, :p, :c, 'wearable', :sev) RETURNING alert_id
-    """), {"d": m.device_id, "p": patient_id, "c": classification_id, "sev": SEVERITY})
+        INSERT INTO alerts (device_id, patient_id, classification_id, origin)
+        VALUES (:d, :p, :c, 'wearable') RETURNING alert_id
+    """), {"d": m.device_id, "p": patient_id, "c": classification_id})
     await on_fixed_path(conn, m)
     # Delivered to listeners when the transaction commits, and only then.
     await conn.execute(text("SELECT pg_notify(:channel, :payload)"), {"channel": ALERTS_CHANNEL, "payload": json.dumps(

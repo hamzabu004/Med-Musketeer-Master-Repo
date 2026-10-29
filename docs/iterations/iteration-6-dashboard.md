@@ -66,8 +66,8 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 | Screen | Content and actions | Endpoints |
 |---|---|---|
 | Dashboard | Unacknowledged alerts with acknowledge; patients; wearables heard from in the last 15 minutes | `/alerts?unacknowledged=true`, `/patients`, `/devices` |
-| Alerts | Unacknowledged or all, by severity; acknowledge; new alerts since the page opened | `GET /alerts`, `POST /alerts/{id}/acknowledge` |
-| Alert | Classification, confidence, severity, where it was classified (gateway on the fixed path, cloud on the mobile path); its ECG segment and every classification; acknowledge | `GET /alerts`, `GET /segments/{id}` |
+| Alerts | Unacknowledged or all; acknowledge; new alerts since the page opened | `GET /alerts`, `POST /alerts/{id}/acknowledge` |
+| Alert | Classification, confidence, where it was classified (gateway on the fixed path, cloud on the mobile path); its ECG segment and every classification; acknowledge | `GET /alerts`, `GET /segments/{id}` |
 | Patients | Pseudonym, name, unacknowledged count, wearable path and last contact | `/patients`, `/devices`, `/alerts` |
 | Patient | Wearable status; known disorders; alerts; ECG segments; on-demand recording | `/patients/{id}/alerts`, `/patients/{id}/segments`, `/patients/{id}/disorders` |
 | ECG segment | The strip and the classifications | `GET /segments/{id}` |
@@ -121,6 +121,8 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 | Devices granted to an organisation, for the system admin | One grants request per device | Grants filtered by organisation |
 | One patient, for the org admin | Organisation-wide lists, and the patient's history from the newest 1000 audit rows | `GET /patients/{id}` and an audit filter by target |
 | Long histories | Audit, security events and alerts read the newest 1000 | Paging |
+
+**Severity (2026-10-29):** alerts carry no severity (`cloud-backend.md` D15), so the dashboard shows none: no column, filter, detail row or high-severity count.
 
 ## Deployment
 

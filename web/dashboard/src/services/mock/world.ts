@@ -42,6 +42,7 @@ export interface MockSegment {
   device_id: string;
   kind: string;
   fs_hz: number;
+  lead: string | null;
   started_at: string;
   ended_at: string | null;
   /** How to generate its ECG: beats per minute, an ectopic beat every n beats, a random seed. */
@@ -65,7 +66,6 @@ export interface MockAlert {
   patient_id: string;
   classification_id: string | null;
   origin: string;
-  severity: string;
   created_at: string;
   acknowledged_by: string | null;
   acknowledged_at: string | null;
@@ -188,22 +188,22 @@ export function createWorld(now = Date.now()): World {
   const alerts: MockAlert[] = [];
 
   // (patient, wearable, path, issued by, doctor who acknowledges,
-  //  alerts as [minutes ago, label, confidence, severity, ectopic every n beats, bpm, acknowledged])
-  type Event = [number, string, number, string, number | null, number, boolean];
+  //  alerts as [minutes ago, label, confidence, ectopic every n beats, bpm, acknowledged])
+  type Event = [number, string, number, number | null, number, boolean];
   const monitored: [string, string, "fixed" | "mobile", string, string, Event[]][] = [
-    [p1, wearables[0], "fixed", orgadmin, doctor1, [[5, "V", 0.94, "high", 4, 78, false], [95, "V", 0.81, "high", 6, 74, true], [400, "N", 0.62, "low", null, 70, true]]],
-    [p2, wearables[1], "mobile", orgadmin, doctor1, [[30, "S", 0.77, "medium", 5, 96, false], [720, "F", 0.58, "medium", 7, 88, false]]],
-    [p4, nsWearable, "mobile", nsAdmin, nsDoctor, [[50, "V", 0.88, "high", 5, 82, false]]],
+    [p1, wearables[0], "fixed", orgadmin, doctor1, [[5, "V", 0.94, 4, 78, false], [95, "V", 0.81, 6, 74, true], [400, "N", 0.62, null, 70, true]]],
+    [p2, wearables[1], "mobile", orgadmin, doctor1, [[30, "S", 0.77, 5, 96, false], [720, "F", 0.58, 7, 88, false]]],
+    [p4, nsWearable, "mobile", nsAdmin, nsDoctor, [[50, "V", 0.88, 5, 82, false]]],
   ];
   let seed = 1;
   for (const [patient_id, device_id, path, issuer, acknowledger, events] of monitored) {
     wearableAssignments.push({ device_id, patient_id, issued_by: issuer, assigned_at: at(60 * 48), unassigned_at: null });
     const session_id = next(ID.session);
-    for (const [minutesAgo, label, confidence, severity, ectopicEvery, bpm, acknowledged] of events) {
+    for (const [minutesAgo, label, confidence, ectopicEvery, bpm, acknowledged] of events) {
       const start = now - minutesAgo * 60_000;
       const segment_id = next(ID.segment);
       segments.push({
-        segment_id, session_id, patient_id, device_id, kind: "alert", fs_hz: 360,
+        segment_id, session_id, patient_id, device_id, kind: "alert", fs_hz: 360, lead: "MLII",
         started_at: new Date(start).toISOString(), ended_at: new Date(start + 10_000).toISOString(),
         signal: { bpm, ectopicEvery, seed: seed++ }, attested_by: path === "fixed" ? gateway : null,
       });
@@ -218,7 +218,7 @@ export function createWorld(now = Date.now()): World {
       });
       alerts.push({
         alert_id: next(ID.alert), device_id, patient_id, classification_id, origin: path === "fixed" ? "gateway" : "cloud",
-        severity, created_at: new Date(start + 11_000).toISOString(),
+        created_at: new Date(start + 11_000).toISOString(),
         acknowledged_by: acknowledged ? acknowledger : null, acknowledged_at: acknowledged ? new Date(start + 12 * 60_000).toISOString() : null,
       });
     }
@@ -228,7 +228,7 @@ export function createWorld(now = Date.now()): World {
   const recordedAt = now - 120 * 60_000;
   const recordingSegment = next(ID.segment);
   segments.push({
-    segment_id: recordingSegment, session_id: next(ID.session), patient_id: p1, device_id: wearables[0], kind: "recording", fs_hz: 360,
+    segment_id: recordingSegment, session_id: next(ID.session), patient_id: p1, device_id: wearables[0], kind: "recording", fs_hz: 360, lead: "MLII",
     started_at: new Date(recordedAt + 4_000).toISOString(), ended_at: new Date(recordedAt + 34_000).toISOString(),
     signal: { bpm: 72, ectopicEvery: 9, seed: seed++ }, attested_by: gateway,
   });

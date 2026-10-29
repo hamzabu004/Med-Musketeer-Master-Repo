@@ -57,7 +57,7 @@ adapter ── validates (shared/contracts), builds ingest-v1 ── POST /inter
 ```
 
 `docs/decisions/cloud-backend.md` D6, D7 and D15; payload schemas in `shared/contracts/`.
-- **An alert** for a wearable issued to a patient (and granted to that patient's organisation) is stored in one transaction: the monitoring session, the segment with its samples, the wearable's screening as a classification, and the alert (`origin` wearable, `severity` unrated). Then `NOTIFY mm_alerts` is sent.
+- **An alert** for a wearable issued to a patient (and granted to that patient's organisation) is stored in one transaction: the monitoring session, the segment with its samples, the wearable's screening as a classification, and the alert (`origin` wearable, no severity). Then `NOTIFY mm_alerts` is sent.
 - **An IDS event** becomes a security event of the publishing gateway.
 - **Status** updates `last_seen`, `current_mode` and `current_gateway_id`. A wearable that goes offline, or whose gateway does, is `unknown`, never offline.
 - **Rejected messages** are logged with the reason: by the API (`ingest rejected device=… reason=…`) for registry rules, or by the adapter (`adapter dropped …`) for contract failures. Examples: an unissued, unknown or suspended wearable; an inactive gateway; a malformed payload. A redelivered alert or IDS event (same `msg_id`) is stored once (`ingest duplicate`).

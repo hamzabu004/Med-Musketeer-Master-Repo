@@ -4,18 +4,11 @@ import Link from "next/link";
 import type { Alert } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Status, type StatusTone } from "@/components/ui/status";
+import { Status } from "@/components/ui/status";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
 import { formatAgo, formatDateTime } from "@/lib/date-time";
 import { beatLabel, confidence, labelize } from "@/lib/labels";
 import { useRenderMarks } from "./render-mark";
-
-/** Severity is free text in the schema: a value other than the known three is shown as needing
- * attention, never as calm. */
-export function severityTone(severity: string): StatusTone {
-  if (severity === "high" || severity === "critical") return "critical";
-  return severity === "low" ? "info" : "warning";
-}
 
 /** Where the alert was classified: on the fixed path by the gateway, on the mobile path by the cloud. */
 export function originLabel(origin: string): string {
@@ -44,9 +37,9 @@ export function AlertTable({
 }) {
   useRenderMarks(alerts);
   if (!alerts.length) return <EmptyState title={empty.title} description={empty.description} />;
-  const columns = ["Time", ...(patientName ? ["Patient"] : []), "Classification", "Severity", "Classified by", "Status", ...(onAcknowledge ? [""] : [])];
+  const columns = ["Time", ...(patientName ? ["Patient"] : []), "Classification", "Classified by", "Status", ...(onAcknowledge ? [""] : [])];
   return (
-    <Table label="Alerts" minWidth={patientName ? 940 : 820}>
+    <Table label="Alerts" minWidth={patientName ? 820 : 700}>
       <THead columns={columns} />
       <tbody>
         {alerts.map((alert) => {
@@ -63,7 +56,6 @@ export function AlertTable({
                 <span className="font-medium">{beatLabel(alert.label)}</span>
                 <span className="block text-xs text-[var(--color-text-muted)]">Confidence {confidence(alert.confidence)}</span>
               </Td>
-              <Td><Status label={labelize(alert.severity)} tone={severityTone(alert.severity)} /></Td>
               <Td>{originLabel(alert.origin)}</Td>
               <Td>
                 {alert.acknowledged_at ? (

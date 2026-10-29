@@ -154,7 +154,7 @@ export function createMockDataSource(world: World, principal: Principal, onChang
       if (at >= start + request.duration_s * 1000) {
         const segment_id = newId();
         world.segments.push({
-          segment_id, session_id: newId(), patient_id: request.patient_id, device_id: request.device_id, kind: "recording", fs_hz: FS_HZ,
+          segment_id, session_id: newId(), patient_id: request.patient_id, device_id: request.device_id, kind: "recording", fs_hz: FS_HZ, lead: "MLII",
           started_at: new Date(start).toISOString(), ended_at: new Date(start + request.duration_s * 1000).toISOString(),
           signal: { bpm: 70 + Math.floor(Math.random() * 20), ectopicEvery: null, seed: Math.floor(Math.random() * 1e6) },
           attested_by: request.path === "fixed" ? world.devices.find((d) => d.device_id === request.device_id)?.current_gateway_id ?? null : null,

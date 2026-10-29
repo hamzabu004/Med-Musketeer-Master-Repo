@@ -25,7 +25,6 @@ class Alert(BaseModel):
     device_id: UUID
     patient_id: UUID
     origin: str
-    severity: str
     created_at: datetime
     acknowledged_by: UUID | None
     acknowledged_at: datetime | None
@@ -70,7 +69,7 @@ class SegmentDetail(Segment):
 
 
 ALERT_SQL = """
-    SELECT a.alert_id, a.device_id, a.patient_id, a.origin, a.severity, a.created_at,
+    SELECT a.alert_id, a.device_id, a.patient_id, a.origin, a.created_at,
            a.acknowledged_by, a.acknowledged_at, a.classification_id,
            c.segment_id, c.label, c.confidence
     FROM alerts a LEFT JOIN classifications c ON c.classification_id = a.classification_id

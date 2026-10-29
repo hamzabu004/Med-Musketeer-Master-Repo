@@ -126,8 +126,9 @@ Each slice is one branch, merged after its tests pass and `/code-review` is clea
 Tests TC-C20 to TC-C26, at the API against the database and end to end through EMQX. Test IDs moved up by one, because TC-C19 went to the dashboard sign-in (2026-10-25), and the gateway-down case got its own ID (TC-C26). Not built:
 - the WebSocket alert push (the dashboard polls);
 - ingestion of `telemetry`, `result`, `command_ack` and `backlog`;
-- the mobile path (no adapter yet);
-- alert severity (`unrated` until a classifier rates it).
+- the mobile path (no adapter yet).
+
+Alerts carry no severity: the wearable sends a label and a confidence, and neither the cloud nor the dashboard rates them (`alerts.severity` is nullable and unused).
 
 
 - Adapter: subscribes to the internal topic from D1, validates against the contracts, builds `ingest-v1`, calls the ingestion API.

@@ -18,7 +18,7 @@
   - the segment (with its lead);
   - the samples, with `attested_by`;
   - the wearable's screening as a classification;
-  - the alert (`origin` wearable, `severity` unrated).
+  - the alert (`origin` wearable, no severity).
 
   It also sends `NOTIFY mm_alerts`. IDS events go to `security_events` under the publishing gateway. Rejections are logged with their reason.
 - **Idempotency and latency record:** migration 0003 adds `ingested_messages`, keyed by `(device_id, msg_id)`, with the hop times. The API may only append to it. It also adds `ecg_segments.lead`, returned by `/segments`.
@@ -30,7 +30,7 @@
 ## Why
 - Slice 5 of `docs/iterations/iteration-3-cloud.md`: exit criterion 4 needs an alert from a gateway to land in the database with the right patient and `attested_by`, and an alert for an unissued wearable to be rejected and logged.
 - The firmware has no status payload or LWT yet, and the gateway uplink is not built, so the cloud defines `status-v1` and `ids-event-v1` now for Iteration 4 to adopt.
-- Severity is left `unrated`: deriving it from the screening confidence would be a clinical decision nobody has taken (`gaps.md`).
+- Alerts carry no severity (decided 2026-10-29): the wearable sends a label and a confidence, and the cloud does not rate them. `alerts.severity` becomes nullable and unused (migration 0003); the API no longer returns it, and the dashboard dropped its severity column, filter, detail row and high-severity count.
 
 ## Evidence
 375 cloud tests pass (`docs/testing/evidence/2026-10-29/cloud/`; unit tests, the rest against a database container or the full stack, which now has 7 healthy services). End to end through EMQX and the adapter:

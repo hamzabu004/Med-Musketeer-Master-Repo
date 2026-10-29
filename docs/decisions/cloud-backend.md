@@ -325,10 +325,10 @@ API: registry checks ─► one transaction: session, segment, chunk, classifica
   - the segment (`kind = alert`, the lead in the new `ecg_segments.lead`);
   - one chunk with all samples (`seq` 0), with `attested_by` and `auth_method`;
   - the wearable's screening as a classification (`source = wearable`);
-  - the alert, with `origin = wearable` and `severity = unrated`.
+  - the alert, with `origin = wearable` and no severity (below).
   
   Then it sends `NOTIFY mm_alerts` with the alert, patient and device ids; this is delivered on commit. The device `seq` is kept in `ingested_messages`, not as the chunk's `seq`.
-- **Severity** is `unrated`: the wearable's screening gives a label and a confidence, not a severity, and inventing a mapping would be a clinical decision. The gateway or cloud classifier is to rate it (open, `gaps.md`).
+- **No severity** (decided with the team, 2026-10-29). The wearable sends the alert with a label and a confidence; the cloud does not rate it, and the dashboard shows no severity. `alerts.severity` stays in the schema (the report's table) but is nullable and left empty (migration 0003), and the API no longer returns it. An earlier draft that rated severity from the confidence was dropped.
 - **Liveness** (`stack.md`, "Device presence/liveness detection"), all times the broker's:
   - every message refreshes the attesting gateway's `last_seen`; a wearable's alert or `online` status sets its `last_seen`, `current_mode = fixed` and `current_gateway_id`;
   - a wearable reported `offline` becomes `current_mode = unknown` with no gateway, and its `last_seen` stays (nothing was heard from it);

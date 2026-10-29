@@ -99,7 +99,7 @@ def test_tc_c20_an_alert_for_an_issued_wearable_lands_in_every_table(api, make_c
                                JOIN classifications c USING (classification_id) WHERE a.alert_id = :a"""),
                        {"a": stored["alert_id"]}).mappings().one()
     assert (alert["patient_id"], alert["origin"], alert["severity"], alert["acknowledged_at"]) == (
-        ward.patient_id, "wearable", "unrated", None)
+        ward.patient_id, "wearable", None, None)  # the cloud does not rate alerts
     assert (alert["source"], alert["label"], alert["model_version"]) == ("wearable", "abnormal", "tinydl-0.1")
     hops = db.execute(text("SELECT * FROM ingested_messages")).mappings().one()
     assert (str(hops["msg_id"]), hops["seq"], hops["attested_by"]) == (payload["msg_id"], 7, ward.gateway)
@@ -114,6 +114,7 @@ def test_tc_c20_an_alert_for_an_issued_wearable_lands_in_every_table(api, make_c
     # The doctor reads it through the care API, sample for sample.
     doctor = make_client(ward.doctor)
     assert [a["alert_id"] for a in doctor.get("/alerts").json()] == [stored["alert_id"]]
+    assert "severity" not in doctor.get("/alerts").json()[0]
     detail = doctor.get(f"/segments/{stored['segment_id']}").json()
     assert detail["lead"] == "MLII" and detail["chunks"][0]["samples"] == encode(ecg_samples(1080))
 
@@ -294,4 +295,3 @@ def test_a_suspended_gateways_disconnect_still_turns_its_wearables_unknown(api, 
         "the attesting gateway is not an active fixed gateway")
     offline = ingest(ward.gateway, ward.gateway, "status", status_payload("offline"), device_type="fixed_gateway")
     assert post(api, offline)["wearables_unknown"] == 1
-

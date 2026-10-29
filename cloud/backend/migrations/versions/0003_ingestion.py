@@ -4,6 +4,8 @@
   events). Its key makes a QoS 1 redelivery a no-op, and its hop times are the latency record of
   each message (D7). The API may only append to it.
 - ecg_segments.lead: the ECG lead the wearable recorded (alert-payload-v1).
+- alerts.severity may be null, and nothing sets it: the wearable gives a label and a confidence, and
+  the cloud does not rate alerts. The column stays because it is in the report's schema.
 
 Revision ID: 0003
 Revises: 0002
@@ -34,6 +36,7 @@ UPGRADE = [
     """,
     "REVOKE UPDATE, DELETE ON ingested_messages FROM mm_api",
     "ALTER TABLE ecg_segments ADD COLUMN lead text",
+    "ALTER TABLE alerts ALTER COLUMN severity DROP NOT NULL",
 ]
 
 
@@ -43,5 +46,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute("UPDATE alerts SET severity = 'unrated' WHERE severity IS NULL")
+    op.execute("ALTER TABLE alerts ALTER COLUMN severity SET NOT NULL")
     op.execute("ALTER TABLE ecg_segments DROP COLUMN lead")
     op.execute("DROP TABLE ingested_messages")
