@@ -29,7 +29,7 @@ A cloud backend that a gateway could connect to: PostgreSQL + TimescaleDB with t
 - Dashboard UI → Iteration 6 (this iteration only exposes the API it will use)
 - Attack-test module → with IDS/IPS integration (Iteration 5)
 - On-demand recordings (`telemetry`) ingestion → after the start/stop design is decided (gap)
-- `mmca revoke` and the registry link in the CA tool → may be pulled in at the end if time allows
+- The registry link in the CA tool → may be pulled in at the end if time allows (`mmca revoke` was removed on 2026-10-29: revocation is done through the registry API)
 
 ## Exit criteria
 

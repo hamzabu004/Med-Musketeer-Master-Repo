@@ -1,0 +1,136 @@
+1793288712: mosquitto version 2.0.21 starting
+1793288712: Config loaded from /mosquitto/config/mosquitto.conf.
+1793288712: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1793288712: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1793288712: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1793288712: Warning: File /mosquitto/config/services.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/services.acl`.
+1793288712: Warning: File /mosquitto/config/services.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/services.acl`.
+1793288712: Warning: File /mosquitto/config/services.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288712: Warning: File /mosquitto/config/wearables.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/wearables.acl`.
+1793288712: Warning: File /mosquitto/config/wearables.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/wearables.acl`.
+1793288712: Warning: File /mosquitto/config/wearables.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288712: Opening ipv4 listen socket on port 1883.
+1793288712: Opening ipv4 listen socket on port 8883.
+1793288712: Opening ipv6 listen socket on port 8883.
+1793288712: mosquitto version 2.0.21 running
+1793288713: New connection from 127.0.0.1:52606 on port 1883.
+1793288713: New client connected from 127.0.0.1:52606 as auto-09E283A7-6430-4E84-ED99-A11AB245472D (p5, c1, k60, u'gw_services').
+1793288713: No will message specified.
+1793288713: Sending CONNACK to auto-09E283A7-6430-4E84-ED99-A11AB245472D (0, 0)
+1793288713: Received SUBSCRIBE from auto-09E283A7-6430-4E84-ED99-A11AB245472D
+1793288713: 	mm/fixed/# (QoS 1)
+1793288713: auto-09E283A7-6430-4E84-ED99-A11AB245472D 1 mm/fixed/#
+1793288713: Sending SUBACK to auto-09E283A7-6430-4E84-ED99-A11AB245472D
+1793288713: New connection from 127.0.0.1:57900 on port 8883.
+1793288713: New client connected from 127.0.0.1:57900 as auto-4191A670-9557-382D-AABC-43ABAE4E00CB (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288713: No will message specified.
+1793288713: Sending CONNACK to auto-4191A670-9557-382D-AABC-43ABAE4E00CB (0, 0)
+1793288713: New connection from 127.0.0.1:57914 on port 8883.
+1793288713: New client connected from 127.0.0.1:57914 as auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 (p5, c1, k60, u'b5a1d1c8-0adc-45a1-8911-bcfa00aa0740').
+1793288713: No will message specified.
+1793288713: Sending CONNACK to auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 (0, 0)
+1793288713: New connection from 127.0.0.1:57922 on port 8883.
+1793288713: New client connected from 127.0.0.1:57922 as auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288713: No will message specified.
+1793288713: Sending CONNACK to auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A (0, 0)
+1793288713: Received SUBSCRIBE from auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A
+1793288713: 	mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command (QoS 1)
+1793288713: auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A 1 mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command
+1793288713: Sending SUBACK to auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A
+1793288713: Received PUBLISH from auto-4191A670-9557-382D-AABC-43ABAE4E00CB (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (8 bytes))
+1793288713: Sending PUBLISH to auto-09E283A7-6430-4E84-ED99-A11AB245472D (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (8 bytes))
+1793288713: Sending PUBACK to auto-4191A670-9557-382D-AABC-43ABAE4E00CB (m1, rc0)
+1793288713: Received PUBLISH from auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 (d0, q1, r0, m1, 'mm/fixed/b5a1d1c8-0adc-45a1-8911-bcfa00aa0740/alert', ... (8 bytes))
+1793288713: Sending PUBLISH to auto-09E283A7-6430-4E84-ED99-A11AB245472D (d0, q1, r0, m2, 'mm/fixed/b5a1d1c8-0adc-45a1-8911-bcfa00aa0740/alert', ... (8 bytes))
+1793288713: Sending PUBACK to auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 (m1, rc0)
+1793288713: Received PUBACK from auto-09E283A7-6430-4E84-ED99-A11AB245472D (Mid: 1, RC:0)
+1793288713: Received PUBACK from auto-09E283A7-6430-4E84-ED99-A11AB245472D (Mid: 2, RC:0)
+1793288713: New connection from 127.0.0.1:52612 on port 1883.
+1793288713: New client connected from 127.0.0.1:52612 as auto-2A8F047C-4D23-E64D-A51F-A7472FF98B7B (p5, c1, k60, u'gw_services').
+1793288713: No will message specified.
+1793288713: Sending CONNACK to auto-2A8F047C-4D23-E64D-A51F-A7472FF98B7B (0, 0)
+1793288713: Received PUBLISH from auto-2A8F047C-4D23-E64D-A51F-A7472FF98B7B (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command', ... (10 bytes))
+1793288713: Sending PUBLISH to auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command', ... (10 bytes))
+1793288713: Sending PUBLISH to auto-09E283A7-6430-4E84-ED99-A11AB245472D (d0, q1, r0, m3, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command', ... (10 bytes))
+1793288713: Sending PUBACK to auto-2A8F047C-4D23-E64D-A51F-A7472FF98B7B (m1, rc0)
+1793288713: Received PUBACK from auto-09E283A7-6430-4E84-ED99-A11AB245472D (Mid: 3, RC:0)
+1793288713: Received DISCONNECT from auto-2A8F047C-4D23-E64D-A51F-A7472FF98B7B
+1793288713: Client auto-2A8F047C-4D23-E64D-A51F-A7472FF98B7B disconnected.
+1793288713: Received PUBACK from auto-BAE1D8E1-D9CA-962A-5964-78153C65F59A (Mid: 1, RC:0)
+1793288715: Reloading config.
+1793288715: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1793288715: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1793288715: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1793288715: Warning: File /mosquitto/config/services.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/services.acl`.
+1793288715: Warning: File /mosquitto/config/services.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/services.acl`.
+1793288715: Warning: File /mosquitto/config/services.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288715: Warning: File /mosquitto/config/wearables.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/wearables.acl`.
+1793288715: Warning: File /mosquitto/config/wearables.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/wearables.acl`.
+1793288715: Warning: File /mosquitto/config/wearables.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288716: Denied PUBLISH from auto-4191A670-9557-382D-AABC-43ABAE4E00CB (d0, q1, r0, m2, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (7 bytes))
+1793288716: Sending PUBACK to auto-4191A670-9557-382D-AABC-43ABAE4E00CB (m2, rc135)
+1793288716: Received PUBLISH from auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 (d0, q1, r0, m2, 'mm/fixed/b5a1d1c8-0adc-45a1-8911-bcfa00aa0740/alert', ... (7 bytes))
+1793288716: Sending PUBLISH to auto-09E283A7-6430-4E84-ED99-A11AB245472D (d0, q1, r0, m4, 'mm/fixed/b5a1d1c8-0adc-45a1-8911-bcfa00aa0740/alert', ... (7 bytes))
+1793288716: Sending PUBACK to auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 (m2, rc0)
+1793288716: Received PUBACK from auto-09E283A7-6430-4E84-ED99-A11AB245472D (Mid: 4, RC:0)
+1793288716: New connection from 127.0.0.1:49526 on port 1883.
+1793288716: New client connected from 127.0.0.1:49526 as auto-38E653E4-AA70-AE27-771F-D8E7E90C6319 (p5, c1, k60, u'gw_services').
+1793288716: No will message specified.
+1793288716: Sending CONNACK to auto-38E653E4-AA70-AE27-771F-D8E7E90C6319 (0, 0)
+1793288716: Received PUBLISH from auto-38E653E4-AA70-AE27-771F-D8E7E90C6319 (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command', ... (9 bytes))
+1793288716: Sending PUBLISH to auto-09E283A7-6430-4E84-ED99-A11AB245472D (d0, q1, r0, m5, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command', ... (9 bytes))
+1793288716: Sending PUBACK to auto-38E653E4-AA70-AE27-771F-D8E7E90C6319 (m1, rc0)
+1793288716: Received PUBACK from auto-09E283A7-6430-4E84-ED99-A11AB245472D (Mid: 5, RC:0)
+1793288716: Received DISCONNECT from auto-38E653E4-AA70-AE27-771F-D8E7E90C6319
+1793288716: Client auto-38E653E4-AA70-AE27-771F-D8E7E90C6319 disconnected.
+1793288718: New connection from 127.0.0.1:37098 on port 8883.
+1793288718: New client connected from 127.0.0.1:37098 as auto-4185DA23-E182-C479-CE42-6C0DC4F9278A (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288718: No will message specified.
+1793288718: Sending CONNACK to auto-4185DA23-E182-C479-CE42-6C0DC4F9278A (0, 0)
+1793288718: Denied PUBLISH from auto-4185DA23-E182-C479-CE42-6C0DC4F9278A (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (7 bytes))
+1793288718: Sending PUBACK to auto-4185DA23-E182-C479-CE42-6C0DC4F9278A (m1, rc135)
+1793288718: Received DISCONNECT from auto-4185DA23-E182-C479-CE42-6C0DC4F9278A
+1793288718: Client auto-4185DA23-E182-C479-CE42-6C0DC4F9278A disconnected.
+1793288719: New connection from 127.0.0.1:37112 on port 8883.
+1793288719: New client connected from 127.0.0.1:37112 as auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288719: No will message specified.
+1793288719: Sending CONNACK to auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F (0, 0)
+1793288719: Received SUBSCRIBE from auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F
+1793288719: 	mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command (QoS 1)
+1793288719: auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F 1 mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/command
+1793288719: Sending SUBACK to auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F
+1793288721: Received DISCONNECT from auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F
+1793288721: Client auto-7E28B2CB-87EF-CA4F-DCF3-F41EA6B2990F disconnected.
+1793288722: Reloading config.
+1793288722: Warning: File /mosquitto/config/passwd has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/passwd`.
+1793288722: Warning: File /mosquitto/config/passwd owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/passwd`.
+1793288722: Warning: File /mosquitto/config/passwd group is not mosquitto. Future versions will refuse to load this file.
+1793288722: Warning: File /mosquitto/config/services.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/services.acl`.
+1793288722: Warning: File /mosquitto/config/services.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/services.acl`.
+1793288722: Warning: File /mosquitto/config/services.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288722: Warning: File /mosquitto/config/wearables.acl has world readable permissions. Future versions will refuse to load this file.
+To fix this, use `chmod 0700 /mosquitto/config/wearables.acl`.
+1793288722: Warning: File /mosquitto/config/wearables.acl owner is not mosquitto. Future versions will refuse to load this file.To fix this, use `chown mosquitto /mosquitto/config/wearables.acl`.
+1793288722: Warning: File /mosquitto/config/wearables.acl group is not mosquitto. Future versions will refuse to load this file.
+1793288722: New connection from 127.0.0.1:37114 on port 8883.
+1793288722: New client connected from 127.0.0.1:37114 as auto-EF29F31B-A21D-9706-06F2-9195B469C419 (p5, c1, k60, u'7a41a91d-06e2-4c77-b7f9-f10f7e885f63').
+1793288722: No will message specified.
+1793288722: Sending CONNACK to auto-EF29F31B-A21D-9706-06F2-9195B469C419 (0, 0)
+1793288722: Received PUBLISH from auto-EF29F31B-A21D-9706-06F2-9195B469C419 (d0, q1, r0, m1, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (8 bytes))
+1793288722: Sending PUBLISH to auto-09E283A7-6430-4E84-ED99-A11AB245472D (d0, q1, r0, m6, 'mm/fixed/7a41a91d-06e2-4c77-b7f9-f10f7e885f63/alert', ... (8 bytes))
+1793288722: Sending PUBACK to auto-EF29F31B-A21D-9706-06F2-9195B469C419 (m1, rc0)
+1793288722: Received PUBACK from auto-09E283A7-6430-4E84-ED99-A11AB245472D (Mid: 6, RC:0)
+1793288722: Received DISCONNECT from auto-EF29F31B-A21D-9706-06F2-9195B469C419
+1793288722: Client auto-EF29F31B-A21D-9706-06F2-9195B469C419 disconnected.
+1793288723: Received DISCONNECT from auto-4191A670-9557-382D-AABC-43ABAE4E00CB
+1793288723: Client auto-4191A670-9557-382D-AABC-43ABAE4E00CB disconnected.
+1793288723: Received DISCONNECT from auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43
+1793288723: Client auto-7E0F7B2D-D2D7-F5CB-EE0A-A153BA10EF43 disconnected.

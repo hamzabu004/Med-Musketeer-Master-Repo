@@ -1,0 +1,29 @@
+Starting EMQX Enterprise 6.3.2
+EMQX_API_KEY__BOOTSTRAP_FILE [api_key.bootstrap_file]: /opt/emqx/etc/mm_api_keys.txt
+EMQX_RPC__PORT_DISCOVERY [rpc.port_discovery]: manual
+EMQX_NODE__COOKIE [node.cookie]: ******
+EMQX_NODE__DEFAULT_LISTENER_ADDRESS [node.default_listener_address]: all
+EMQX_NODE__NAME [node.name]: emqx@127.0.0.1
+EMQX_AUTHORIZATION__SOURCES [authorization.sources]: [...]
+EMQX_AUTHORIZATION__SOURCES [authorization.sources.1]: {...}
+EMQX_AUTHORIZATION__SOURCES [authorization.sources.1.path]: /opt/emqx/etc/mm_acl.conf
+EMQX_AUTHORIZATION__SOURCES [authorization.sources.1.type]: file
+EMQX_AUTHORIZATION__CACHE__ENABLE [authorization.cache.enable]: false
+EMQX_AUTHORIZATION__NO_MATCH [authorization.no_match]: deny
+Listener tcp:default on :1883 started.
+Listener ssl:default on :8883 started.
+Listener ws:default on :8083 started.
+Listener wss:default on :8084 started.
+
+=====================================================================
+You are currently using the EMQX Community License included with this software.
+Permitted Use: Free use of a single node in your internal environment.
+What Requires a Different License:
+ - Clustered deployments (more than one node).
+ - Commercial use in SaaS, hosted services, or embedded/resold products.
+To enable clustering or use EMQX for external commercial purposes, a commercial license is required.
+Visit https://emqx.com/apply-licenses/emqx to apply for a license.
+(Clustering for non-profit or educational purposes may qualify for a free license - please inquire via the link above)
+=====================================================================
+Listener http:dashboard on :18083 started.
+EMQX Enterprise 6.3.2 is running now!

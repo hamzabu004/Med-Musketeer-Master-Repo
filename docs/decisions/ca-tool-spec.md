@@ -4,9 +4,11 @@ Companion to `stack.md` ("Device provisioning / CSR-signing workflow" and "Provi
 
 **Update (2026-10-24):** `mmca issue cloud` (the EMQX gateway listener's server certificate, section 4) is Implemented, and every certificate now carries key identifiers (Subject Key Identifier on the CA and leaves, Authority Key Identifier on leaves). Strict X.509 verifiers, such as Python 3.13+'s default TLS context, refuse leaves without an AKI and CAs without an SKI. A CA created before this change has no SKI, so chains from it still fail strict verification until the CA is replaced (`gaps.md`).
 
-**Status (2026-10-23): Stage 1 (CLI) is Implemented** in `tools/ca-tool/` (`mmca`) and tested: 56 automated tests pass, plus hardware procedures on the ESP32-S3 and the Pi (`docs/testing/`). The implemented CLI differs from the original plan below in two ways: there is an `erase` command (section 5), and `revoke`/registry stay Deferred. Stage 2 (GUI) is not started. Sections marked Proposed below describe the plan as built unless noted.
+**Status (2026-10-23): Stage 1 (CLI) is Implemented** in `tools/ca-tool/` (`mmca`) and tested: 56 automated tests pass, plus hardware procedures on the ESP32-S3 and the Pi (`docs/testing/`). The implemented CLI differs from the original plan below in two ways: there is an `erase` command (section 5), and the registry link stays Deferred (`revoke` was later removed, see the update above). Stage 2 (GUI) is not started. Sections marked Proposed below describe the plan as built unless noted.
 
-Last updated: 2026-10-23
+**Update (2026-10-29):** the `revoke` command is removed from the plan. Revocation is done through the cloud registry API and the dashboard (`/admin/devices/{id}/revoke`, `/admin/credentials/{id}/revoke`), which also update the gateways' revocation list (`cloud-backend.md` D16). The CA tool issues, flashes, deploys and erases; it does not revoke.
+
+Last updated: 2026-10-29
 
 ## 0. Approach (Decided)
 
@@ -29,7 +31,7 @@ One tool, run by the CA custodian, that does:
 2. **Issue certificates** for wearables and the fixed gateway (cloud and envelope material **Deferred**, see section 12).
 3. **Write credentials to a connected ESP32-S3** over serial, with the operator choosing the port when several are connected.
 4. **Deploy credentials to the gateway (Raspberry Pi) over SSH.**
-5. **Registry and revocation** (**Deferred** until the Postgres schema exists).
+5. **Registry link** (**Deferred**). Revocation is not a CA tool function: it is done through the cloud registry API.
 
 **Out of scope:** network-exposed signing, HSM, offline signing ceremony, secure boot / flash encryption (firmware integrity is excluded project-wide), CRL distribution, mobile relay credentials (the phone is not a principal and gets no certificate).
 
@@ -37,14 +39,14 @@ One tool, run by the CA custodian, that does:
 
 ```
 Stage 2 only:  PyQt6 GUI (thin)
-               CA │ Issue │ Flash ESP │ Deploy Gateway │ Registry/Revoke │ Audit
+               CA │ Issue │ Flash ESP │ Deploy Gateway │ Audit
                   │ calls (QThread workers)
                   ▼
 Stage 1:  core/ (no Qt imports)
           ca.py  profiles.py  keys.py  flash.py  ssh.py  registry.py  audit.py  config.py
                   ▲
                   │ same functions exposed by
-          cli.py  (init-ca | issue | flash | deploy | audit | revoke)
+          cli.py  (init-ca | issue | flash | deploy | erase | audit)
 ```
 
 - **Rule (Decided):** `core/` must not import Qt. CLI and GUI call the same functions, so behavior cannot diverge and the core is unit-testable headless.
@@ -104,7 +106,6 @@ mmca flash       --device-id UUID [--port /dev/ttyACM0]
 mmca deploy      --host HOST [--port 22] [--user pi] [--restart]
 mmca erase       esp|gateway ...           # clears TLS credentials and/or network settings
 mmca audit       [--device-id UUID]
-mmca revoke      --device-id UUID          # Deferred (registry)
 ```
 
 This block is the original plan, kept for reference; `mmca --help` and `tools/ca-tool/README.md` are authoritative for the implemented options.
@@ -164,10 +165,10 @@ Wearable and gateway private keys are generated on the build machine (Decided in
 
 **Overwrite rule:** if remote files exist, show their fingerprints, require confirmation, and back them up with a timestamp suffix.
 
-### 6.5 Registry and revoke (Deferred)
-- Follows `stack.md`: mint the `devices` row (`pending`) before issuing, insert `device_credentials`, flip to `active` after a successful issue. Revoke marks the credential `revoked`; EMQX's auth hook checks status live.
-- Postgres schema is **Open**. Keep DB access behind a small `registry.py` interface with a no-DB **dry-run mode**, so everything above works before the schema exists.
-- Whether `revoke` should also emit to the gateway's local revocation list is **Open** (mechanism pending in `stack.md`).
+### 6.5 Registry link (Deferred)
+- Follows `stack.md`: mint the `devices` row (`pending`) before issuing, insert `device_credentials`, flip to `active` after a successful issue.
+- Keep registry access behind a small `registry.py` interface with a no-registry **dry-run mode**, so everything above works without it.
+- No `revoke` command (removed 2026-10-29): revocation goes through the cloud registry API, which EMQX's auth hook checks live and which updates the gateways' revocation list (`cloud-backend.md` D16).
 
 ## 7. Configuration (`config.toml`, no secrets)
 
@@ -222,7 +223,7 @@ creds_partition_name = "creds"  # offset/size are read from the chip, not config
 1. Core + `init-ca` + `issue` (output is files on disk).
 2. `flash` (port selection, chip check, partition lookup, write, verify, key removal).
 3. `deploy` (SSH).
-4. `audit`; registry/revoke stubs with dry-run mode.
+4. `audit`; registry-link stub with dry-run mode.
 
 ---
 
@@ -238,10 +239,9 @@ Thin tabbed window over the Stage 1 core, with a persistent log pane at the bott
 | **Issue** | Pick type (wearable / gateway), key type, validity. `device_id` auto-minted, editable only in an "advanced" expander. Shows planned CN/SAN/EKU before signing; passphrase prompted at signing time. |
 | **Flash ESP** | Port list with refresh, chip check, detected `creds` partition offset/size, wearable selector, flash button. |
 | **Deploy gateway** | Host, port, user, auth method, remote paths; test connection; host-key approval dialog; sudo password prompt; "restart Mosquitto" checkbox. |
-| **Registry / Revoke** | Deferred with the registry. |
 | **Audit** | Read-only view of `audit.log.jsonl` with filter by device_id. |
 
-- Every destructive or irreversible action (replace CA, overwrite flash region, overwrite remote files, delete key after flash, revoke) uses a confirmation dialog stating exactly what will change.
+- Every destructive or irreversible action (replace CA, overwrite flash region, overwrite remote files, delete key after flash) uses a confirmation dialog stating exactly what will change.
 - Workers: each core call runs in a `QThread`; the GUI thread never blocks.
 - Testing: smoke-test each tab with mocked core calls.
 
@@ -251,13 +251,13 @@ Thin tabbed window over the Stage 1 core, with a persistent log pane at the bott
 
 - **Envelope keys:** wearable envelope keypair, cloud envelope cert/key, their validity periods and retention, and the extra flash payload items.
 - **Cloud keys:** EMQX server cert profile, key type and validity.
-- **Registry:** Postgres schema and connection method; `revoke` command; whether it emits to the gateway's local revocation list.
+- **Registry link:** how the tool registers issued devices and credentials in the cloud registry.
 - **Uplink bridge credentials:** whether the bridge needs its own copy of `gateway.key` and `ca.crt` with different ownership, and where (one uplink per gateway, so likely a small detail).
 
 ## 14. Open items
 
 - Stage 2 GUI (not started).
-- Registry link and `revoke`, once the Postgres schema is implemented (Iteration 3).
+- Registry link (the registry API exists since Iteration 3).
 - Envelope keys and the cloud certificate profiles (section 13).
 - ACL denial checks on the Pi itself (CN-to-username already observed there; denials verified on a container broker).
 - Resolved: the `creds` NVS names and PEM-string handling are agreed with the firmware and implemented; the partition table is read from the chip; certificate replacement on the Pi was exercised in the hardware procedures (`pi_cert_backup_restore.txt`).

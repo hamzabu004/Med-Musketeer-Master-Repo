@@ -1,6 +1,6 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard and D15 from Slice 5. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 on 2026-10-29). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard, D15 from Slice 5, and D16 for Iteration 4's revocation sync. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 and D16 on 2026-10-29). D16 is not built yet. D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
 Last updated: 2026-10-29
 
@@ -342,3 +342,17 @@ API: registry checks ─► one transaction: session, segment, chunk, classifica
   - Idempotency by a `msg_id` column on `ecg_segments`: it would not cover IDS events or later message types.
   - Relying on gateway LWTs for gateway liveness: a clean disconnect sends none, and a gateway without one would never go `unknown`.
 
+## D16 — Wearable revocation list for gateways (Decided 2026-10-29; not built, Iteration 4)
+
+Why push + cache, and the accepted tradeoffs: `stack.md`, "Gateway/wearable credential revocation". Plan and slices: `docs/iterations/iteration-4-revocation-sync.md`.
+
+- **Topic:** `mm/revocations/wearables`, retained, QoS 1. D5 gains one rule: a gateway may **subscribe** to it. No MQTT client may publish to it; the API publishes through EMQX's REST API (`POST /api/v5/publish`), which does not pass through client authorisation. The API key comes from EMQX's `api_key.bootstrap_file`, and the retainer uses `storage_type = disc` (the default, `ram`, loses the list when the container is recreated). All three verified on EMQX 6.3.2 in the Iteration 4 Slice 0 spike.
+- **Payload `revocation-list-v1`:** `v`, `version`, `issued_at`, `devices` (wearables that are suspended or revoked, with `since`) and `certificates` (revoked credentials of active wearables, by SHA-256 fingerprint, until `not_after`). Always the full list. Gateways ignore a version that is not newer than the one they hold.
+- **Consistency:** each registry change that affects a wearable increases the version and writes an outbox row in the same transaction; the API publishes after commit. A reconciler republishes on API start, when the outbox has unsent rows, and every 5 minutes, which also restores a retained message lost in an EMQX restart.
+- **Gateway disconnect:** suspending or revoking a gateway, or revoking one of its credentials, disconnects its sessions through the REST API (`GET /api/v5/clients?username=`, `DELETE /api/v5/clients/{clientid}`; the client gets reason 0x98). This builds the D4 "may".
+- **Staleness:** `status-v1` gains an optional `revocation_version`, sent by a gateway in its own status; ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind.
+- **Outage backlog:** `devices.status_changed_at` records when a wearable was suspended or revoked; backlog data sent after it is quarantined instead of rejected (with the backlog payload, `gaps.md`).
+- Rejected alternatives:
+  - A signed list (the earlier candidate): it arrives only over the gateway's mTLS session, so a signature adds nothing, and signing would need a key online.
+  - One topic per gateway: every gateway needs the same list, and it is not secret.
+  - An MQTT publisher account for the API: it would be one more client with publish rights; the REST API is needed for the disconnect anyway.

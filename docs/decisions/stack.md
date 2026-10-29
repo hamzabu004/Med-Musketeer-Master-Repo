@@ -7,7 +7,7 @@ description: Cloud/platform stack and architecture decisions for MedMusketeer. C
 
 This is a **technical decision record**, not the scope-lock file. If a decision here ever conflicts with `scope.md`, that file wins on scope; this file wins on implementation detail. Update this file as stack decisions evolve — it's expected to change more often than the scope-lock file. Companions in this folder: `mqtt-fixed-path-topics.md` (fixed-path topics and ACLs), `ca-tool-spec.md` (CA tool), `cloud-backend.md` (Iteration 3 cloud backend decisions D1–D10), `gaps.md` (what is still undecided). The FYP-1 mid report (Chapter 5) holds the same decisions as ADR-1 to ADR-8, plus the full cloud schema.
 
-**Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-23.
+**Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-29.
 
 ## Core design principle: protocol-agnostic ingestion
 
@@ -142,7 +142,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 | MQTT+mTLS, RSA cert | Wearable ↔ gateway; gateway ↔ cloud | **Baseline variant, FYP-1** | RSA key size Open (2048 assumed) |
 | MQTT+mTLS, ECC P-256 cert | Same | **Baseline variant, FYP-1** | Provisioning script is parameterized by key type |
 | TLS-PSK | Wearable ↔ gateway | **Proposed** intermediate comparator | Closest conceptual relative of CMAP; cheap to add in ESP-IDF |
-| CMAP (Javadi et al., IEEE Access 2026) | **Fixed path wearable ↔ gateway only** | **Proposed: FYP-2, after the baseline is complete** | ECC only; needs its own ECC keypair as a separate credential (`certificateless_cmap`), not the TLS key; 128-bit IDs (the paper's 2-byte example is too short); gateway-side allowlist of device public keys synced from the cloud registry (same signed/versioned/rollback-guarded sync problem as revocation); CMAP only authenticates and derives a session key, so payload encryption using that key must be designed separately; does not protect MQTT metadata (topics) the way TLS does; reference code is a Python proof of concept (`ecdsa` library), no MCU port; not suitable for the mobile path (interactive multi-message handshake conflicts with Option B) |
+| CMAP (Javadi et al., IEEE Access 2026) | **Fixed path wearable ↔ gateway only** | **Proposed: FYP-2, after the baseline is complete** | ECC only; needs its own ECC keypair as a separate credential (`certificateless_cmap`), not the TLS key; 128-bit IDs (the paper's 2-byte example is too short); gateway-side allowlist of device public keys synced from the cloud registry (same versioned push-and-cache sync as the revocation list); CMAP only authenticates and derives a session key, so payload encryption using that key must be designed separately; does not protect MQTT metadata (topics) the way TLS does; reference code is a Python proof of concept (`ecdsa` library), no MCU port; not suitable for the mobile path (interactive multi-message handshake conflicts with Option B) |
 | Ascon-based protocol (Zeng et al., IEEE TMC 2025), adapted | Possibly fixed path | **Parked** | Source is a human-user login protocol (password + smartcard + biometric) — would need heavy adaptation for devices; analytical evaluation only; timestamp freshness is a problem on the mobile path; Ascon has no hardware acceleration on the ESP32-S3 (AES-GCM does), so it may be slower there — measure, don't assume |
 | CoAP + DTLS | Wearable ↔ gateway | **Parked** | Listed in the scope-lock file as an example alternative |
 
@@ -232,7 +232,7 @@ No network-exposed signing service for FYP-1 — local/manual only, given low de
 - **Implemented commands (Python ≥3.11):** `init-ca`, `replace-ca`, `issue wearable|gateway` (key type `ec_p256` or `rsa_2048`), `flash` (serial write to the wearable's `creds` partition with chip check and read-back), `deploy` (gateway credentials over SSH with host-key pinning), `erase esp|gateway`, `audit`.
 - **Audit log:** append-only JSON lines recording what was issued, flashed, deployed or erased, when, and for which `device_id`; never secrets.
 - **CA key handling:** `ca.key` stays passphrase-encrypted on the custodian's machine; the tool prompts for the passphrase and never stores it. Not HSM-backed, same FYP-1 shortcut as above.
-- **Not built yet:** the registry link and `revoke` (marks the credential revoked in `device_credentials`, which EMQX's auth hook checks live on every connect), envelope keys, and the cloud envelope certificate. The cloud TLS server certificate (`mmca issue cloud`) is built (2026-10-24). A thin PyQt6 front end over the same core is planned as Stage 2. No API and no remote signing.
+- **Not built yet:** the registry link, envelope keys, and the cloud envelope certificate. The cloud TLS server certificate (`mmca issue cloud`) is built (2026-10-24). A thin PyQt6 front end over the same core is planned as Stage 2. No API and no remote signing. The tool has no `revoke` command (removed 2026-10-29): revocation goes through the cloud registry API (`cloud-backend.md` D4, D16).
 
 **Open:** how DB access is configured for the registry steps, and whether a signed gateway-assignment command (see "Gateway identity: role pin") is later generated by this tool.
 
@@ -385,23 +385,34 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 
 **Decision: out of scope for FYP-1.** Rotating the cloud's leaf keypair the wearable encrypts envelopes to on the mobile path is deferred, not built. FYP-1 uses a long-dated cloud cert that comfortably outlasts the project timeline (same move already made elsewhere in this file for on-device key generation and the offline-signing ceremony) — rotation during the project is treated as a non-event by design, not solved in software.
 
-## Gateway/wearable credential revocation (fixed path) — PENDING, not yet confirmed
+## Gateway/wearable credential revocation (fixed path) — Decided 2026-10-29, not built (Iteration 4)
 
-**Status: candidate design only — user has not confirmed this yet. Do not treat as a locked decision the way the cloud-rotation section above is.**
+**Decision: the cloud pushes the list of revoked wearables to every gateway, and each gateway caches it and enforces it locally.** Plan: `docs/iterations/iteration-4-revocation-sync.md`. Cloud-side contract: `cloud-backend.md` D16.
 
-**The gap this would address:** on the fixed path, wearable↔gateway is a genuine live mTLS session (ESP makes a direct connection to the gateway), so a rotated cert is a non-issue — chain/CN-SAN gets re-checked fresh on every handshake automatically. What live TLS does *not* give you for free is **revocation before natural expiry** — if a device's credential is revoked (compromised gateway, stolen device) before its cert expires, a plain chain+CN/SAN check still passes. Same gap applies to gateway↔cloud, but that leg is trivial to close (the broker's auth-hook just queries `device_credentials.status` in Postgres live, on every connect — no caching needed since it already sits in front of the registry).
+**Assumption:** the gateway normally has internet access; losing the cloud is temporary, never permanent.
 
-**Why wearable↔gateway is the harder case:** per the IPS scope, the gateway must keep doing local ECG acquisition/classification/alerting even when it can't reach the cloud — so a live "phone home to check revocation" call on every wearable handshake would work against that graceful-degradation requirement.
+**The gap:** on the fixed path, the gateway's Mosquitto checks a wearable's chain and CN only, so a wearable revoked before its certificate expires is still accepted, and the gateway's local classification and alerts run on its data. (The cloud already refuses it twice: ingestion rejects data from a wearable that is not active, and a revoked gateway is refused by EMQX's live credential check on connect.)
 
-**Candidate mechanism (not yet approved):**
-- Gateway periodically pulls a small CA-signed revocation list from the cloud whenever it *can* reach it (CRL-style: revoked `device_id`s + a version/timestamp), verifies the signature against `ca.crt`, and caches it locally.
-- Rollback guard: reject any pulled list whose version is older than what's already cached, so a replayed stale "nothing revoked" list can't un-revoke a device.
-- On each wearable↔gateway handshake, check the peer's `device_id` against this local cache in addition to the normal chain/CN-SAN check — no network round-trip required, so it degrades gracefully if the cloud link is down. Worst case is working off a slightly stale list, which would need to be an explicitly flagged tradeoff, not a silent gap.
+**Why push + cache:**
+- A live check per wearable connect fails during every outage: the gateway would have to refuse every wearable (stopping monitoring, against the IPS graceful-degradation requirement) or accept every wearable (ignoring revocation).
+- A CRL in Mosquitto's `crlfile` needs signing with `ca.key`, which never leaves the custodian's machine.
+- A pushed list reaches online gateways within seconds; during an outage the last received list is still enforced; on reconnect the retained message brings the current list at once.
 
-**Open, unresolved even at the design level:**
-- Whether this is worth building for FYP-1 at all, given the low device count and short project timeline — may be a case for the same "document as future hardening, don't build now" call made elsewhere in this file, rather than actual implementation.
-- If built: revocation-list wire format, pull cadence, and how the gateway surfaces "operating on a stale revocation list" to the cloud/admin dashboard once reconnected.
-- Whether the broker-side check (gateway↔cloud) and this local cache (wearable↔gateway) should read from one shared source of revoked IDs or can stay independent.
+**Mechanism:**
+- The cloud publishes the full list (revoked and suspended wearables, plus revoked certificates of active wearables until they expire) as a retained message on `mm/revocations/wearables`, with a version that increases on every change. Only the cloud can publish it.
+- The gateway ignores a list that is not newer than the one it holds, stores it atomically, loads it at start, and enforces it in three layers: the cache, the local broker (a listed wearable can neither publish nor subscribe, and is disconnected where the broker allows), and its own services (the uplink does not forward and the classifier does not process a listed wearable's messages).
+- **No signature, unlike the earlier candidate:** the list arrives only over the gateway's mTLS session with EMQX, so it cannot be injected or replayed by anyone else; whoever can rewrite the stored file already holds the gateway's key. The version check stays, so a delayed duplicate cannot undo a newer list.
+- The gateway reports the version it enforces in its status message; the dashboard flags gateways that are behind.
+- Revoking or suspending a gateway, or revoking its credential, also disconnects it from EMQX at once (REST API).
+
+**Accepted tradeoffs (documented, not hidden):**
+- **Outage window:** a wearable revoked while a gateway is offline can still use that gateway until it reconnects; the gateway keeps monitoring rather than stopping. Backlog data the wearable sent after its revocation time is quarantined by the cloud.
+- **Gateway clock:** an offline reboot can leave the gateway clock wrong, which affects certificate expiry checks and backlog timestamps. The gateway uses its RTC (battery fitted) or `fake-hwclock`, and backlog records say whether the clock was synchronised.
+- A revoked gateway that stays offline can keep serving wearables locally (see "Gateway identity: role pin").
+
+**Gateway broker mechanism (Decided 2026-10-29, Iteration 4 Slice 0 spike on Mosquitto 2.0.21 and 2.1.2):** the uplink regenerates the wearable ACL file with a `user <id>` / `topic deny #` block per listed wearable and reloads Mosquitto with SIGHUP. This refuses the wearable's publishes and stops deliveries to it, on an open connection too, and leaves other wearables alone. Limits, accepted:
+- the connection stays open, because stock Mosquitto cannot drop a client identified by its certificate (the dynamic security plugin does not authenticate certificate identities, so it was rejected);
+- the ACL sees only the CN, so revoking one credential of a wearable that stays active is enforced by the cloud only; on the gateway it means suspending the wearable until it is re-issued.
 
 ## Device presence/liveness detection (online/offline status)
 
@@ -443,7 +454,6 @@ The mid report's list of unsettled design items (§5 "Design items still to be s
 - The literal-name check in the ESP32-S3 TLS library for UUID-style names (`common_name`), and the gateway's outbound check of the cloud's identity
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one shared public domain/cert or separate subdomains
 - Phone-to-patient binding for the relay (see `gaps.md`)
-- Whether fixed-path revocation (see "Gateway/wearable credential revocation") is built in FYP-1
 - No relay-specific abuse token in FYP-1 (Proposed); the gateway-event topic extension (Proposed)
 - Mobile-path abuse protection beyond basic EMQX limits, and all mobile-relay attack testing — deferred to FYP-2
 - CMAP and TLS-PSK candidate work — planned after the certificate-based baseline is complete (see the candidate registry)

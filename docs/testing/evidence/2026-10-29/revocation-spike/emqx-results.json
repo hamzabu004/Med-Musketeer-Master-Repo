@@ -1,0 +1,67 @@
+{
+  "image": "emqx/emqx:6.3.2",
+  "runs": [
+    {
+      "storage_type": "ram",
+      "api_key_bootstrap_authenticates": true,
+      "rest_publish_status": 200,
+      "rest_publish_delivered_despite_deny": true,
+      "client_publish_puback": [
+        "Client VHFnI40zWR3jLlmF received PUBACK (Mid: 1, RC:135)"
+      ],
+      "retained_after_client_attempt": "{\"version\":1}",
+      "clients_found_by_username": [
+        "gw-client-ram"
+      ],
+      "kick_status": [
+        204
+      ],
+      "after_kick": {
+        "connected_at_before": {
+          "gw-client-ram": "2026-10-29T15:49:55.771+00:00"
+        },
+        "connected_at_after": {},
+        "old_session_closed": true
+      },
+      "kicked_client_output": [
+        "Received DISCONNECT (152)"
+      ],
+      "retained_after_recreate": null,
+      "new_subscriber_gets_list_after_recreate": false,
+      "retainer_storage_type_reported": [
+        "storage_type = ram"
+      ]
+    },
+    {
+      "storage_type": "disc",
+      "api_key_bootstrap_authenticates": true,
+      "rest_publish_status": 200,
+      "rest_publish_delivered_despite_deny": true,
+      "client_publish_puback": [
+        "Client NbshfdwJH7eLTHFH received PUBACK (Mid: 1, RC:135)"
+      ],
+      "retained_after_client_attempt": "{\"version\":1}",
+      "clients_found_by_username": [
+        "gw-client-disc"
+      ],
+      "kick_status": [
+        204
+      ],
+      "after_kick": {
+        "connected_at_before": {
+          "gw-client-disc": "2026-10-29T15:50:21.732+00:00"
+        },
+        "connected_at_after": {},
+        "old_session_closed": true
+      },
+      "kicked_client_output": [
+        "Received DISCONNECT (152)"
+      ],
+      "retained_after_recreate": "{\"version\":1}",
+      "new_subscriber_gets_list_after_recreate": true,
+      "retainer_storage_type_reported": [
+        "storage_type = disc"
+      ]
+    }
+  ]
+}

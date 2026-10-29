@@ -2,7 +2,7 @@
 
 Companion to `stack.md` (section "MQTT topic structure"). Status markers follow that file: **Decided** / **Proposed** / **Open** / **Implemented**. The wearable topics and the Mosquitto ACLs (sections 1 and 4) are **Implemented** and tested on a container broker with the Pi's configuration; the gateway-side services and uplink (sections 2 and 3) are **Proposed** and not built yet.
 
-Last updated: 2026-10-23
+Last updated: 2026-10-29
 
 ## Base scheme (Decided)
 
@@ -51,6 +51,7 @@ Separate connection from the local broker.
 | Publish | `mm/gateway/{gw_id}/status` (gateway's own presence + forwarded wearable presence) |
 | Publish | `mm/gateway/{gw_id}/backlog` (post-outage upload) |
 | Subscribe | `mm/fixed/{wearable_id}/command` for its assigned wearables |
+| Subscribe | `mm/revocations/wearables` (retained list of revoked wearables, published only by the cloud; `cloud-backend.md` D16, Iteration 4) |
 
 - Wearable presence forwarded upward is **gateway-attested**.
 - If the gateway drops, the cloud marks its wearables **unknown/stale**, not offline, until the gateway reconnects and uploads its backlog.
