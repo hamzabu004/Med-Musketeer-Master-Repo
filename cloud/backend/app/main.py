@@ -12,7 +12,7 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from app import accounts, broker, care, directory, ingest, organisation, registry
+from app import accounts, broker, care, directory, gateways, ingest, organisation, registry
 from app.emqx_api import EmqxApi
 from app.auth import Principal, get_principal
 from app.health import check_database, check_http, run_checks
@@ -86,6 +86,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(registry.router)
     app.include_router(accounts.router)
     app.include_router(organisation.router)
+    app.include_router(gateways.router)
     app.include_router(care.router)
     app.include_router(directory.router)
     app.include_router(broker.router)

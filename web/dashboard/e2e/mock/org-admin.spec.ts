@@ -98,3 +98,25 @@ test("the dashboard counts the organisation and lists who needs attention", asyn
   await page.getByRole("listitem").getByRole("link", { name: "P-1003" }).click();
   await expect(page.getByRole("heading", { name: "P-1003" })).toBeVisible();
 });
+
+test("the gateways page shows each gateway's uptime, wearables, alert times and connectivity log", async ({ page }) => {
+  await page.goto("/org/gateways");
+  await expect(page.getByRole("heading", { name: "Gateways" })).toBeVisible();
+  const row = page.getByRole("table", { name: "Gateways" }).getByRole("row").nth(1);
+  await expect(row.getByText("Online")).toBeVisible();
+  await expect(row.getByText(/^Up 3 h 2\d min$/)).toBeVisible();
+  await expectFitsViewport(page);
+
+  await row.getByRole("link").click();
+  await expect(page.getByRole("heading", { name: /^Fixed gateway / })).toBeVisible();
+  await expect(page.getByRole("table", { name: "Connected wearables" }).getByRole("link", { name: "P-1001" })).toBeVisible();
+  const alerts = page.getByRole("table", { name: "Alerts through this gateway" });
+  await expect(alerts.getByRole("row")).toHaveCount(4); // header and P-1001's three
+  await expect(alerts.getByText(/Ventricular|Confidence/)).toHaveCount(0); // times only (D9)
+  const log = page.getByRole("table", { name: "Connectivity log" });
+  await expect(log.getByText("Disconnected from the cloud")).toBeVisible();
+  await page.getByLabel("Show").selectOption("wearable");
+  await expect(log.getByText("Disconnected from the cloud")).toHaveCount(0);
+  await expect(log.getByText("Mode switch")).toBeVisible();
+  await expectFitsViewport(page);
+});

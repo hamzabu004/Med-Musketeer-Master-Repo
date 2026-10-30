@@ -1,8 +1,8 @@
 """A populated database for the access-control tests (TC-C09 to TC-C11), arranged as the owner.
 
 Two organisations, A and B, each with an org admin, two doctors and their patients, wearables
-issued and granted, a monitoring session with an ECG segment, chunk, classification and alert,
-and a recorded disorder. Organisation A also has the spare rows the matrix's write endpoints act on.
+issued and granted, a gateway the first wearable is connected through, a monitoring session with an
+ECG segment, chunk, classification and alert (through the gateway), and a recorded disorder. Organisation A also has the spare rows the matrix's write endpoints act on.
 """
 import uuid
 from dataclasses import dataclass, field
@@ -27,6 +27,7 @@ class Org:
     other_patient_id: uuid.UUID
     wearable: uuid.UUID  # issued to `patient`
     other_wearable: uuid.UUID  # issued to `other_patient`
+    gateway: uuid.UUID  # granted; online, with `wearable` on its fixed path
     segment: uuid.UUID
     alert: uuid.UUID
     other_segment: uuid.UUID
@@ -51,7 +52,7 @@ def make_device(db, device_type: str, org_id, granted_by, status: str = "active"
     return device_id
 
 
-def make_patient(db, org_id, admin_id, doctor_id, wearable, user_id=None) -> tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]:
+def make_patient(db, org_id, admin_id, doctor_id, wearable, gateway, user_id=None) -> tuple[uuid.UUID, uuid.UUID, uuid.UUID, str]:
     """A patient with a doctor, an issued wearable, a session, one alert segment; returns
     (patient_id, segment_id, alert_id, pseudonym)."""
     pseudonym = f"P-{uuid.uuid4().hex[:8]}"
@@ -73,9 +74,9 @@ def make_patient(db, org_id, admin_id, doctor_id, wearable, user_id=None) -> tup
     classification = insert(db, """INSERT INTO classifications (segment_id, source, model_version, label, confidence)
                                    VALUES (:g, 'wearable', 'tinydl-0.1', 'abnormal', 0.9) RETURNING classification_id""",
                             g=segment)
-    alert = insert(db, """INSERT INTO alerts (device_id, patient_id, classification_id, origin)
-                          VALUES (:d, :p, :c, 'wearable') RETURNING alert_id""",
-                   d=wearable, p=patient_id, c=classification)
+    alert = insert(db, """INSERT INTO alerts (device_id, patient_id, classification_id, origin, gateway_id)
+                          VALUES (:d, :p, :c, 'wearable', :g) RETURNING alert_id""",
+                   d=wearable, p=patient_id, c=classification, g=gateway)
     return patient_id, segment, alert, pseudonym
 
 
@@ -87,9 +88,15 @@ def make_org(db, system_admin_id, name: str) -> Org:
                                                  for role in ("org_admin", "doctor", "doctor", "patient"))
     wearable = make_device(db, "wearable", org_id, system_admin_id)
     other_wearable = make_device(db, "wearable", org_id, system_admin_id)
-    patient_id, segment, alert, pseudonym = make_patient(db, org_id, admin, doctor, wearable, patient_user)
+    gateway = make_device(db, "fixed_gateway", org_id, system_admin_id)
+    for device in (gateway, wearable):
+        insert(db, """INSERT INTO connectivity_events (device_id, gateway_id, state, at)
+                      VALUES (:d, :g, 'online', now()) RETURNING 1""", d=device, g=gateway)
+    db.execute(text("UPDATE devices SET current_mode = 'fixed', current_gateway_id = :g, last_seen = now() WHERE device_id = :d"),
+               {"g": gateway, "d": wearable})
+    patient_id, segment, alert, pseudonym = make_patient(db, org_id, admin, doctor, wearable, gateway, patient_user)
     other_patient_id, other_segment, other_alert, other_pseudonym = make_patient(
-        db, org_id, admin, other_doctor, other_wearable)
+        db, org_id, admin, other_doctor, other_wearable, gateway)
     secrets = {str(value) for value in (doctor, other_doctor, patient_user, patient_id, other_patient_id,
                                         segment, alert, other_segment, other_alert)}
     secrets |= {pseudonym, other_pseudonym, f"disorder-{pseudonym}", f"disorder-{other_pseudonym}"}
@@ -100,7 +107,7 @@ def make_org(db, system_admin_id, name: str) -> Org:
         other_doctor=Principal(other_doctor, "doctor", org_id),
         patient=Principal(patient_user, "patient", org_id, patient_id),
         patient_id=patient_id, other_patient_id=other_patient_id,
-        wearable=wearable, other_wearable=other_wearable,
+        wearable=wearable, other_wearable=other_wearable, gateway=gateway,
         segment=segment, alert=alert, other_segment=other_segment, other_alert=other_alert,
         secrets=secrets,
     )

@@ -51,3 +51,14 @@ export function formatAgo(value: string | null, now = Date.now()): string {
   if (seconds < 86_400) return `${Math.round(seconds / 3600)} h ago`;
   return `${Math.round(seconds / 86_400)} d ago`;
 }
+
+/** How long since `value`, in its two largest units: "2 d 3 h", "3 h 20 min", "12 min", "under a minute". */
+export function formatDuration(value: string, now = Date.now()): string {
+  const minutes = Math.max(0, Math.floor((now - Date.parse(value)) / 60_000));
+  if (minutes < 1) return "under a minute";
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  if (days) return hours ? `${days} d ${hours} h` : `${days} d`;
+  if (hours) return minutes % 60 ? `${hours} h ${minutes % 60} min` : `${hours} h`;
+  return `${minutes} min`;
+}

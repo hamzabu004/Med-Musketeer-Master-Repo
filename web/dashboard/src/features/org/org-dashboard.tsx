@@ -37,26 +37,26 @@ function Attention({ title, patients, fix }: { title: string; patients: PatientS
 export function OrgDashboard() {
   const { data } = useData();
   const resource = useResource(async () => {
-    const [organisation, accounts, patients, devices, audit, { people }] = await Promise.all([
+    const [organisation, accounts, patients, devices, gateways, audit, { people }] = await Promise.all([
       data.organisation(),
       data.org.accounts(),
       data.patients(),
       data.devices(),
+      data.gateways.list(),
       data.org.audit(5),
       loadPeople(data.directory),
     ]);
-    return { organisation, accounts, patients, devices, audit, people };
+    return { organisation, accounts, patients, devices, gateways, audit, people };
   }, []);
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
       <Loaded resource={resource} label="Loading your organisation">
-        {({ organisation, accounts, patients, devices, audit, people }, { fetchedAt }) => {
+        {({ organisation, accounts, patients, devices, gateways, audit, people }, { fetchedAt }) => {
           const doctors = accounts.filter((a) => a.role === "doctor");
           // A patient without an account (user_id null) is not disabled: they can have a doctor and a wearable.
           const active = patients.filter((p) => p.account_status !== "disabled");
           const wearables = devices.filter((d) => d.type === "wearable");
-          const gateways = devices.filter((d) => d.type === "fixed_gateway");
           const issuable = wearables.filter((d) => d.status === "active" && d.patient_id === null);
           return (
             <>
@@ -69,7 +69,7 @@ export function OrgDashboard() {
                 <Metric label="Doctors" value={doctors.filter((a) => a.status === "active").length} detail={`${doctors.filter((a) => a.status === "disabled").length} disabled`} />
                 <Metric label="Patients" value={active.length} detail={`${patients.length - active.length} with a disabled account`} />
                 <Metric label="Wearables issued" value={`${wearables.filter((d) => d.patient_id).length} / ${wearables.length}`} detail={`${issuable.length} active and free to issue`} />
-                <Metric label="Fixed gateways" value={gateways.length} detail={`${gateways.filter((d) => d.status === "active").length} active`} />
+                <Metric label="Fixed gateways" value={gateways.length} detail={`${gateways.filter((g) => g.connectivity.state === "online").length} online now`} />
               </div>
               <SectionTitle>Needs attention</SectionTitle>
               <div className="grid gap-3 md:grid-cols-2">
