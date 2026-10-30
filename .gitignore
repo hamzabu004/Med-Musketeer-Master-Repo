@@ -98,3 +98,4 @@ Thumbs.db
 
 # ===== AI tool local state =====
 .claude/settings.local.json
+cloud/backups/
