@@ -1,30 +1,38 @@
-menu "MedMusketeer Gateway"
+menu "MedMusketeer Wearable"
 
-choice GATEWAY_MODE
-    prompt "Gateway mode (compile-time selection)"
-    default GATEWAY_MODE_FIXED
+choice WEARABLE_MODE
+    prompt "Path mode (compile-time selection)"
+    default WEARABLE_MODE_FIXED
 
-config GATEWAY_MODE_FIXED
-    bool "Fixed gateway onboarding"
+config WEARABLE_MODE_FIXED
+    bool "Fixed path (local gateway)"
 
-config GATEWAY_MODE_MOBILE
+config WEARABLE_MODE_MOBILE
     bool "Mobile mode (placeholder)"
 
 endchoice
 
-config GATEWAY_OLED_SDA_GPIO
+config WEARABLE_OLED_SDA_GPIO
     int "SH1106 I2C SDA GPIO"
     range 0 48
     default 8
 
-config GATEWAY_OLED_SCL_GPIO
+config WEARABLE_OLED_SCL_GPIO
     int "SH1106 I2C SCL GPIO"
     range 0 48
     default 9
 
-config GATEWAY_OLED_I2C_ADDRESS
+config WEARABLE_OLED_I2C_ADDRESS
     hex "SH1106 I2C address"
     range 0x3C 0x3D
     default 0x3C
+
+config WEARABLE_ALERT_BUTTON_GPIO
+    int "Alert push button GPIO (active low, internal pull-up)"
+    range 0 48
+    default 4
+    help
+        A press publishes one alert with a synthetic ECG segment. It stands in for the on-device
+        model until Iteration 5.
 
 endmenu

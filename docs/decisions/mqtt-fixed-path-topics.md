@@ -1,6 +1,6 @@
 # MedMusketeer — Fixed-Path MQTT Topic Structure (Local Broker + Gateway Uplink)
 
-Companion to `stack.md` (section "MQTT topic structure"). Status markers follow that file: **Decided** / **Proposed** / **Open** / **Implemented**. The wearable topics and the Mosquitto ACLs (sections 1 and 4) are **Implemented** and tested on a container broker with the Pi's configuration; the gateway-side services and uplink (sections 2 and 3) are **Proposed** and not built yet.
+Companion to `stack.md` (section "MQTT topic structure"). Status markers follow that file: **Decided** / **Proposed** / **Open** / **Implemented**. The wearable topics and the Mosquitto ACLs (sections 1 and 4) are **Implemented** and tested on a container broker with the Pi's configuration; the wearable publishes `alert` and `status` (Iteration 2), not yet `telemetry` or `command_ack`. The gateway-side services (section 2) are **Proposed** and not built yet; the uplink (section 3) exists for the revocation list only (Iteration 4).
 
 Last updated: 2026-10-30
 
@@ -18,8 +18,8 @@ This document covers the **fixed path** only. `{id}` is the wearable's canonical
 |---|---|---|---|
 | **Subscribe** | `mm/fixed/{id}/command` | Authenticated on-demand commands | The **only** subscription the wearable needs |
 | Publish | `mm/fixed/{id}/telemetry` | ECG chunks of an on-demand recording | **Decided:** continuous streaming happens only on demand — after a doctor's request command, for the duration of that recording. Outside an on-demand recording nothing is published here (ADR-1) |
-| Publish | `mm/fixed/{id}/alert` | TinyDL-triggered alert with the triggering ECG segment | The main data flow. Today the firmware publishes a periodic test alert here (QoS 1) |
-| Publish | `mm/fixed/{id}/status` | Presence | Retained. `online` on connect; LWT publishes `offline` |
+| Publish | `mm/fixed/{id}/alert` | TinyDL-triggered alert with the triggering ECG segment | The main data flow, QoS 1, alert-payload-v1. Until the edge model exists, a push button sends one alert with a synthetic segment and the stub screening `button-stub-0` (Iteration 2) |
+| Publish | `mm/fixed/{id}/status` | Presence | Retained, QoS 1, status-v1. `online` on connect; LWT publishes `offline` (**Implemented**, Iteration 2) |
 | Publish | `mm/fixed/{id}/command_ack` | Command acknowledgement | |
 
 - **No `heartbeat` topic on the fixed path.** MQTT keepalive + LWT carry presence (see `stack.md`, liveness section).
@@ -46,7 +46,7 @@ Separate connection from the local broker.
 
 | Direction | Topic |
 |---|---|
-| Publish | `mm/fixed/{wearable_id}/{telemetry,alert,result}` (forwarded, with `attested_by = gateway device_id`) |
+| Publish | `mm/fixed/{wearable_id}/{telemetry,alert,result}` (forwarded unchanged; the cloud takes `attested_by` from the gateway's EMQX username, `cloud-backend.md` D1) |
 | Publish | `mm/gateway/{gw_id}/ids_event` |
 | Publish | `mm/gateway/{gw_id}/status` (gateway's own presence + forwarded wearable presence) |
 | Publish | `mm/gateway/{gw_id}/backlog` (post-outage upload) |
@@ -85,7 +85,7 @@ topic write mm/fixed/+/command
 topic write mm/fixed/+/result
 ```
 
-**Verification status:** the CN-to-username mapping has been observed on the Pi. The denials above were verified on a container broker running the Pi's configuration (TC-B01 to TC-B04, `tools/ca-tool/tests/test_broker_interop.py`, evidence in `docs/testing/evidence/2026-10-22/broker/`); repeating them on the Pi itself is planned for Iteration 2. An unauthorized publish is dropped silently for MQTT 3.1.1 clients, so judge by what a monitor subscriber or the broker log shows. Setup script: `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`.
+**Verification status:** the CN-to-username mapping has been observed on the Pi. The denials above were verified on a container broker running the Pi's configuration (TC-B01 to TC-B04, `tools/ca-tool/tests/test_broker_interop.py`, evidence in `docs/testing/evidence/2026-10-22/broker/`); TC-B01 (authentication) passed on the Pi on 2026-10-22; repeating the denials (TC-B02 to B04) on the Pi is part of Iteration 2 and waits for the Pi and the CA replacement. An unauthorized publish is dropped silently for MQTT 3.1.1 clients, so judge by what a monitor subscriber or the broker log shows. Setup script: `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`.
 
 ## 5. QoS / retain (Proposed starting point, still Open; `alert` QoS 1 is implemented)
 
@@ -102,7 +102,7 @@ topic write mm/fixed/+/result
 ## 6. Open items
 
 - Final QoS for `telemetry` and the other topics.
-- Fixed-path payload format: the alert, status and IDS-event payloads are decided and implemented in the cloud (`cloud-backend.md` D6, D15; schemas in `shared/contracts/`); the firmware and the gateway still have to adopt them. There is no envelope on this path (mTLS protects the hop). The implemented test alert is `{"device_id", "type": "test_alert", "message", "timestamp"}`. The planned alert segment adds a sequence number, sampling rate, lead, sample count, encoding (little-endian signed integers, Base64 inside JSON) and the samples; a recording also carries its command id. The send timestamp is benchmark-only and never used in a security decision.
+- Fixed-path payload format: the alert, status and IDS-event payloads are decided and implemented in the cloud (`cloud-backend.md` D6, D15; schemas in `shared/contracts/`); the wearable firmware sends alert-payload-v1 and status-v1 since Iteration 2 (360 Hz, 3 s segments); the gateway still has to forward them. There is no envelope on this path (mTLS protects the hop). A recording will also carry its command id. The send timestamp is benchmark-only and never used in a security decision.
 - How an on-demand stream starts and stops: request command fields, fixed duration vs explicit stop command, and how `command_ack` reports it.
 - Gateway discovery by the wearable (currently the broker host/port is provisioned over BLE; the Pi hotspot is `10.42.0.1`).
 - Cloud-side ACL: observe vs enforce which wearables a gateway may subscribe to for `command`.

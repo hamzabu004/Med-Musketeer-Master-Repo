@@ -6,8 +6,10 @@
 #include <string.h>
 #include <time.h>
 
+#include "alert.h"
 #include "cJSON.h"
 #include "display.h"
+#include "driver/gpio.h"
 #include "esp_check.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -39,12 +41,13 @@
 
 extern void ble_store_config_init(void);
 
-static const char *TAG = "fixed_gateway";
+static const char *TAG = "fixed_path";
 
 #define SSID_MAX_LEN 32
 #define PASSWORD_MAX_LEN 63
 #define BROKER_HOST_MAX_LEN 96
 #define CONFIG_JSON_MAX_LEN 512
+/* Named before the firmware was called a wearable; renaming it would drop saved provisioning. */
 #define NVS_NAMESPACE "gateway"
 #define NVS_KEY_SSID "ssid"
 #define NVS_KEY_PASSWORD "password"
@@ -57,7 +60,12 @@ static const char *TAG = "fixed_gateway";
 #define CREDS_KEY_CA "ca_cert"
 #define TLS_PEM_MAX_LEN 4096
 #define DEVICE_ID_MAX_LEN 64
-#define ALERT_TOPIC_MAX_LEN 96
+#define TOPIC_MAX_LEN 96
+#define MQTT_BUFFER_SIZE 4096 /* an alert is about 3.2 KB; the default buffer is 1 KB */
+#define BUTTON_DEBOUNCE_MS 50
+#define BUTTON_COOLDOWN_MS 2000
+#define STATUS_ONLINE "{\"v\":1,\"state\":\"online\"}"
+#define STATUS_OFFLINE "{\"v\":1,\"state\":\"offline\"}"
 #define CLOCK_VALID_AFTER 1704067200
 #define CLOCK_SYNC_WAIT_MS 10000
 #define SNTP_SERVER_COUNT 3
@@ -76,7 +84,7 @@ typedef struct {
     char password[PASSWORD_MAX_LEN + 1];
     char broker_host[BROKER_HOST_MAX_LEN + 1];
     uint16_t broker_port;
-} gateway_config_t;
+} provisioning_config_t;
 
 typedef enum {
     NETWORK_REQUEST_APPLY_CONFIG,
@@ -85,7 +93,7 @@ typedef enum {
 
 typedef struct {
     network_request_type_t type;
-    gateway_config_t config;
+    provisioning_config_t config;
 } network_request_t;
 
 static QueueHandle_t config_queue;
@@ -94,7 +102,9 @@ static SemaphoreHandle_t mqtt_client_mutex;
 static char device_name[24];
 static char mqtt_uri[160];
 static char device_id[DEVICE_ID_MAX_LEN + 1];
-static char alert_topic[ALERT_TOPIC_MAX_LEN];
+static char alert_topic[TOPIC_MAX_LEN];
+static char status_topic[TOPIC_MAX_LEN];
+static TaskHandle_t alert_task_handle;
 static uint8_t own_addr_type;
 static bool wifi_started;
 static volatile bool wifi_has_ip;
@@ -108,7 +118,7 @@ static bool sntp_started;
 static TaskHandle_t clock_task_handle;
 
 static void network_task(void *arg);
-static void start_mqtt_check(const gateway_config_t *config);
+static void start_mqtt_check(const provisioning_config_t *config);
 static void start_advertising(void);
 
 static bool copy_json_string(const cJSON *root, const char *key, char *out,
@@ -160,7 +170,7 @@ static bool parse_provisioning_json(const uint8_t *data, size_t length,
     }
 
     const cJSON *port = cJSON_GetObjectItemCaseSensitive(root, "broker_port");
-    gateway_config_t *config = &request->config;
+    provisioning_config_t *config = &request->config;
     bool valid = !action &&
                  copy_json_string(root, "ssid", config->ssid, sizeof(config->ssid), false) &&
                  copy_json_string(root, "password", config->password,
@@ -344,7 +354,7 @@ static void start_ble_provisioning(void)
 {
     uint8_t mac[6];
     ESP_ERROR_CHECK(esp_read_mac(mac, ESP_MAC_WIFI_STA));
-    snprintf(device_name, sizeof(device_name), "MM-GW-%02X%02X%02X",
+    snprintf(device_name, sizeof(device_name), "MM-WR-%02X%02X%02X",
              mac[3], mac[4], mac[5]);
 
     char qr_payload[64];
@@ -377,7 +387,7 @@ static void start_ble_provisioning(void)
     ESP_LOGI(TAG, "BLE provisioning active: %s", device_name);
 }
 
-static bool load_saved_config(gateway_config_t *config)
+static bool load_saved_config(provisioning_config_t *config)
 {
     nvs_handle_t nvs;
     if (nvs_open(NVS_NAMESPACE, NVS_READONLY, &nvs) != ESP_OK) return false;
@@ -439,14 +449,17 @@ static bool load_device_id_from_certificate(void)
         return false;
     }
 
-    int topic_len = snprintf(alert_topic, sizeof(alert_topic), "mm/fixed/%s/alert", device_id);
-    if (topic_len < 0 || (size_t)topic_len >= sizeof(alert_topic)) {
+    int alert_len = snprintf(alert_topic, sizeof(alert_topic), "mm/fixed/%s/alert", device_id);
+    int status_len = snprintf(status_topic, sizeof(status_topic), "mm/fixed/%s/status", device_id);
+    if (alert_len < 0 || (size_t)alert_len >= sizeof(alert_topic) ||
+        status_len < 0 || (size_t)status_len >= sizeof(status_topic)) {
         device_id[0] = '\0';
         alert_topic[0] = '\0';
-        ESP_LOGE(TAG, "Device certificate common name is too long for the alert topic");
+        status_topic[0] = '\0';
+        ESP_LOGE(TAG, "Device certificate common name is too long for the MQTT topics");
         return false;
     }
-    ESP_LOGI(TAG, "Periodic alert topic: %s", alert_topic);
+    ESP_LOGI(TAG, "Alert topic: %s; status topic: %s", alert_topic, status_topic);
     return true;
 }
 
@@ -484,7 +497,7 @@ static bool load_tls_credentials(void)
     return true;
 }
 
-static esp_err_t save_config(const gateway_config_t *config)
+static esp_err_t save_config(const provisioning_config_t *config)
 {
     nvs_handle_t nvs;
     ESP_RETURN_ON_ERROR(nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs), TAG,
@@ -520,11 +533,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 {
     (void)handler_args;
     (void)base;
-    (void)event_data;
+    esp_mqtt_event_handle_t event = event_data;
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         mqtt_connected = true;
         ESP_LOGI(TAG, "MQTT broker accepted CONNECT (CONNACK received)");
+        /* Retained, so the gateway learns presence on subscribe; the LWT replaces it on loss.
+         * Enqueued, not published: this runs on the MQTT task. */
+        if (esp_mqtt_client_enqueue(event->client, status_topic, STATUS_ONLINE, 0, 1, 1, true) < 0) {
+            ESP_LOGW(TAG, "Cannot queue the online status");
+        }
         if (wifi_has_ip) display_show_text("WIFI CONNECTED", "MQTT REACHABLE", "", "", "", "");
         break;
     case MQTT_EVENT_ERROR:
@@ -542,52 +560,71 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     }
 }
 
+static void IRAM_ATTR alert_button_isr(void *arg)
+{
+    (void)arg;
+    BaseType_t woken = pdFALSE;
+    if (alert_task_handle) vTaskNotifyGiveFromISR(alert_task_handle, &woken);
+    portYIELD_FROM_ISR(woken);
+}
+
+/* One alert per button press. A press while MQTT is down is dropped: buffering waits for the
+ * wearable buffer design (gaps.md). seq restarts at 0 on every boot. */
 static void alert_publish_task(void *arg)
 {
     (void)arg;
+    uint64_t seq = 0;
     for (;;) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        vTaskDelay(pdMS_TO_TICKS(BUTTON_DEBOUNCE_MS));
+        if (gpio_get_level(CONFIG_WEARABLE_ALERT_BUTTON_GPIO) != 0) continue; /* bounce */
+
         if (!mqtt_connected || !wifi_has_ip || !device_id[0] || !alert_topic[0]) {
-            vTaskDelay(pdMS_TO_TICKS(250));
-            continue;
-        }
-
-        uint32_t delay_ms = 2000U + (esp_random() % 3001U);
-        vTaskDelay(pdMS_TO_TICKS(delay_ms));
-        if (!mqtt_connected || !wifi_has_ip || !device_id[0] || !alert_topic[0]) continue;
-
-        cJSON *alert = cJSON_CreateObject();
-        if (!alert ||
-            !cJSON_AddStringToObject(alert, "device_id", device_id) ||
-            !cJSON_AddStringToObject(alert, "type", "test_alert") ||
-            !cJSON_AddStringToObject(alert, "message", "Periodic ESP32 test alert") ||
-            !cJSON_AddNumberToObject(alert, "timestamp", (double)time(NULL))) {
-            ESP_LOGE(TAG, "Cannot build alert JSON payload");
-            cJSON_Delete(alert);
-            continue;
-        }
-
-        char *payload = cJSON_PrintUnformatted(alert);
-        cJSON_Delete(alert);
-        if (!payload) {
-            ESP_LOGE(TAG, "Cannot serialize alert JSON payload");
-            continue;
-        }
-
-        if (xSemaphoreTake(mqtt_client_mutex, portMAX_DELAY) == pdTRUE) {
-            if (mqtt_connected && wifi_has_ip && mqtt_client) {
-                int message_id = esp_mqtt_client_publish(mqtt_client, alert_topic,
-                                                         payload, 0, 1, 0);
+            ESP_LOGW(TAG, "Alert button pressed while not connected; alert dropped");
+            display_show_text("ALERT DROPPED", "NOT CONNECTED", "", "", "", "");
+        } else {
+            char *payload = alert_build(seq);
+            if (!payload) {
+                ESP_LOGE(TAG, "Cannot build the alert payload");
+            } else {
+                int message_id = -1;
+                if (xSemaphoreTake(mqtt_client_mutex, portMAX_DELAY) == pdTRUE) {
+                    if (mqtt_connected && wifi_has_ip && mqtt_client) {
+                        message_id = esp_mqtt_client_publish(mqtt_client, alert_topic,
+                                                             payload, 0, 1, 0);
+                    }
+                    xSemaphoreGive(mqtt_client_mutex);
+                }
+                cJSON_free(payload);
                 if (message_id >= 0) {
-                    ESP_LOGI(TAG, "Published alert to %s (message id %d)",
-                             alert_topic, message_id);
+                    char seq_line[24];
+                    snprintf(seq_line, sizeof(seq_line), "SEQ %" PRIu64, seq);
+                    ESP_LOGI(TAG, "Published alert seq %" PRIu64 " to %s (message id %d)",
+                             seq, alert_topic, message_id);
+                    display_show_text("ALERT SENT", seq_line, "", "", "", "");
+                    ++seq;
                 } else {
                     ESP_LOGW(TAG, "Failed to queue alert publish to %s", alert_topic);
+                    display_show_text("ALERT DROPPED", "PUBLISH FAILED", "", "", "", "");
                 }
             }
-            xSemaphoreGive(mqtt_client_mutex);
         }
-        cJSON_free(payload);
+        vTaskDelay(pdMS_TO_TICKS(BUTTON_COOLDOWN_MS));
+        ulTaskNotifyTake(pdTRUE, 0); /* ignore presses during the cooldown */
     }
+}
+
+static void start_alert_button(void)
+{
+    const gpio_config_t button = {
+        .pin_bit_mask = 1ULL << CONFIG_WEARABLE_ALERT_BUTTON_GPIO,
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .intr_type = GPIO_INTR_NEGEDGE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&button));
+    ESP_ERROR_CHECK(gpio_install_isr_service(0));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(CONFIG_WEARABLE_ALERT_BUTTON_GPIO, alert_button_isr, NULL));
 }
 
 /* Waits outside the event loop until SNTP sets the clock, then starts MQTT. SNTP keeps
@@ -603,12 +640,12 @@ static void clock_sync_task(void *arg)
     }
     ESP_LOGI(TAG, "System clock synchronized");
     clock_task_handle = NULL;
-    gateway_config_t config;
+    provisioning_config_t config;
     if (wifi_has_ip && wifi_configured && load_saved_config(&config)) start_mqtt_check(&config);
     vTaskDelete(NULL);
 }
 
-static void start_mqtt_check(const gateway_config_t *config)
+static void start_mqtt_check(const provisioning_config_t *config)
 {
     if (!tls_credentials_ready) {
         display_show_text("WIFI CONNECTED", "TLS CREDS MISSING", "FLASH DEVICE IDENTITY", "", "", "");
@@ -629,7 +666,7 @@ static void start_mqtt_check(const gateway_config_t *config)
         }
         display_show_text("WIFI CONNECTED", "SYNCING CLOCK...", "TLS WAITS FOR TIME", "", "", "");
         if (!clock_task_handle &&
-            xTaskCreate(clock_sync_task, "gateway_clock", 4096, NULL, 4, &clock_task_handle) != pdPASS) {
+            xTaskCreate(clock_sync_task, "wearable_clock", 4096, NULL, 4, &clock_task_handle) != pdPASS) {
             clock_task_handle = NULL;
             ESP_LOGE(TAG, "Cannot start the clock sync task; refusing TLS connection");
             display_show_text("WIFI CONNECTED", "CLOCK SYNC FAILED", "TLS NOT STARTED", "", "", "");
@@ -652,7 +689,15 @@ static void start_mqtt_check(const gateway_config_t *config)
             .credentials.authentication.key = tls_device_key,
             .credentials.authentication.key_len = strlen(tls_device_key) + 1,
             .session.keepalive = 20,
+            .session.last_will = {
+                .topic = status_topic,
+                .msg = STATUS_OFFLINE,
+                .qos = 1,
+                .retain = 1,
+            },
             .network.timeout_ms = 5000,
+            .buffer.size = MQTT_BUFFER_SIZE,
+            .buffer.out_size = MQTT_BUFFER_SIZE,
         };
         mqtt_client = esp_mqtt_client_init(&mqtt_config);
         if (!mqtt_client) {
@@ -685,13 +730,13 @@ static void wifi_event_handler(void *arg, esp_event_base_t base,
     } else if (base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         wifi_has_ip = true;
         if (wifi_configured) {
-            gateway_config_t config;
+            provisioning_config_t config;
             if (load_saved_config(&config)) start_mqtt_check(&config);
         }
     }
 }
 
-static void apply_config(const gateway_config_t *config, bool persist)
+static void apply_config(const provisioning_config_t *config, bool persist)
 {
     if (persist) {
         esp_err_t err = save_config(config);
@@ -778,16 +823,17 @@ static void network_task(void *arg)
     }
 }
 
-void fixed_gateway_start(void)
+void fixed_path_start(void)
 {
     tls_credentials_ready = load_tls_credentials();
     mqtt_client_mutex = xSemaphoreCreateMutex();
     ESP_ERROR_CHECK(mqtt_client_mutex ? ESP_OK : ESP_ERR_NO_MEM);
-    ESP_ERROR_CHECK(xTaskCreate(alert_publish_task, "gateway_alerts", 4096,
-                                NULL, 4, NULL) == pdPASS ? ESP_OK : ESP_ERR_NO_MEM);
+    ESP_ERROR_CHECK(xTaskCreate(alert_publish_task, "wearable_alerts", 6144,
+                                NULL, 4, &alert_task_handle) == pdPASS ? ESP_OK : ESP_ERR_NO_MEM);
+    start_alert_button();
     config_queue = xQueueCreate(1, sizeof(network_request_t));
     ESP_ERROR_CHECK(config_queue ? ESP_OK : ESP_ERR_NO_MEM);
-    xTaskCreate(network_task, "gateway_network", 6144, NULL, 5, NULL);
+    xTaskCreate(network_task, "wearable_network", 6144, NULL, 5, NULL);
 
     esp_netif_create_default_wifi_sta();
     wifi_init_config_t wifi_init = WIFI_INIT_CONFIG_DEFAULT();
@@ -801,7 +847,7 @@ void fixed_gateway_start(void)
 
     start_ble_provisioning();
 
-    gateway_config_t saved_config = {0};
+    provisioning_config_t saved_config = {0};
     if (load_saved_config(&saved_config)) {
         ESP_LOGI(TAG, "Using saved Wi-Fi provisioning");
         apply_config(&saved_config, false);

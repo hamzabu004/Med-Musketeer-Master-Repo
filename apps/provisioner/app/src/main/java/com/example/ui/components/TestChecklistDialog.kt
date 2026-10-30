@@ -52,13 +52,13 @@ val TEST_CHECKLIST_ITEMS = listOf(
     ),
     ChecklistItem(
         title = "3. No Device Found / Timeout",
-        procedure = "Scan for an offline gateway name or with ESP32 turned off.",
+        procedure = "Scan for an offline wearable name or with ESP32 turned off.",
         expectedOutcome = "BLE scan active timeout triggers after 15s with Retry Scan control."
     ),
     ChecklistItem(
         title = "4. Pairing Rejected / Passkey Error",
         procedure = "Dismiss the Android system passkey prompt or enter wrong passkey.",
-        expectedOutcome = "Bonding failure is caught; app alerts user to retry and check gateway OLED."
+        expectedOutcome = "Bonding failure is caught; app alerts user to retry and check wearable OLED."
     ),
     ChecklistItem(
         title = "5. Wrong Service / Characteristic",

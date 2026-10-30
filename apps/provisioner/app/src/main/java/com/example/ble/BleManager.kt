@@ -111,12 +111,12 @@ class BleManager(private val context: Context) {
                         }
                     }
                     BluetoothDevice.BOND_BONDING -> {
-                        _statusMessage.value = "Pairing with gateway. Please enter the passkey from the gateway OLED."
+                        _statusMessage.value = "Pairing with wearable. Please enter the passkey from the wearable OLED."
                         _connectionStage.value = ConnectionStage.WAITING_FOR_BONDING
                     }
                     BluetoothDevice.BOND_NONE -> {
                         if (prevBondState == BluetoothDevice.BOND_BONDING) {
-                            _statusMessage.value = "Pairing failed or cancelled. Verify passkey on gateway OLED."
+                            _statusMessage.value = "Pairing failed or cancelled. Verify passkey on wearable OLED."
                             _connectionStage.value = ConnectionStage.FAILED
                             scope.launch {
                                 _eventFlow.emit(BleEvent.BondingFailed("Pairing was rejected or cancelled. Check the OLED passkey and retry."))
@@ -135,7 +135,7 @@ class BleManager(private val context: Context) {
             val device = result.device ?: return
             val name = result.scanRecord?.deviceName ?: device.name ?: return
 
-            // Match MedMusketeer gateway naming format: MM-GW-XXXXXX
+            // Match MedMusketeer wearable naming format: MM-WR-XXXXXX
             if (BleConstants.DEVICE_NAME_REGEX.matches(name)) {
                 val currentTarget = targetDeviceName
                 val isExactMatch = currentTarget != null && name.equals(currentTarget, ignoreCase = true)
@@ -152,7 +152,7 @@ class BleManager(private val context: Context) {
 
                 if (isExactMatch && _connectionStage.value == ConnectionStage.SCANNING) {
                     _connectionStage.value = ConnectionStage.DEVICE_FOUND
-                    _statusMessage.value = "Found target gateway: $name ($device.address)"
+                    _statusMessage.value = "Found target wearable: $name ($device.address)"
                 }
             }
         }
@@ -186,7 +186,7 @@ class BleManager(private val context: Context) {
 
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
-                    _statusMessage.value = "Connected to gateway. Requesting MTU 517..."
+                    _statusMessage.value = "Connected to wearable. Requesting MTU 517..."
                     _connectionStage.value = ConnectionStage.REQUESTING_MTU
                     // Negotiate MTU 517 as required by firmware contract
                     scope.launch {
@@ -195,7 +195,7 @@ class BleManager(private val context: Context) {
                     }
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
-                    _statusMessage.value = "Disconnected from gateway"
+                    _statusMessage.value = "Disconnected from wearable"
                     if (_connectionStage.value != ConnectionStage.WRITE_SUCCESS) {
                         _connectionStage.value = ConnectionStage.FAILED
                     }
@@ -232,10 +232,10 @@ class BleManager(private val context: Context) {
 
             val service = gatt?.getService(BleConstants.SERVICE_UUID)
             if (service == null) {
-                _statusMessage.value = "Provisioning service (${BleConstants.SERVICE_UUID}) not found on gateway!"
+                _statusMessage.value = "Provisioning service (${BleConstants.SERVICE_UUID}) not found on wearable!"
                 _connectionStage.value = ConnectionStage.FAILED
                 scope.launch {
-                    _eventFlow.emit(BleEvent.Error("Gateway does not expose expected provisioning service"))
+                    _eventFlow.emit(BleEvent.Error("Wearable does not expose expected provisioning service"))
                 }
                 return
             }
@@ -245,7 +245,7 @@ class BleManager(private val context: Context) {
                 _statusMessage.value = "Configuration characteristic (${BleConstants.CONFIG_CHAR_UUID}) not found!"
                 _connectionStage.value = ConnectionStage.FAILED
                 scope.launch {
-                    _eventFlow.emit(BleEvent.Error("Provisioning characteristic not found on gateway"))
+                    _eventFlow.emit(BleEvent.Error("Provisioning characteristic not found on wearable"))
                 }
                 return
             }
@@ -256,11 +256,11 @@ class BleManager(private val context: Context) {
             // Inspect bonding state
             when (device?.bondState) {
                 BluetoothDevice.BOND_BONDED -> {
-                    _statusMessage.value = "Gateway bonded and ready for configuration."
+                    _statusMessage.value = "Wearable bonded and ready for configuration."
                     _connectionStage.value = ConnectionStage.BONDED
                 }
                 BluetoothDevice.BOND_BONDING -> {
-                    _statusMessage.value = "Pairing in progress. Please enter the passkey from gateway OLED."
+                    _statusMessage.value = "Pairing in progress. Please enter the passkey from wearable OLED."
                     _connectionStage.value = ConnectionStage.WAITING_FOR_BONDING
                 }
                 else -> {
@@ -281,14 +281,14 @@ class BleManager(private val context: Context) {
         ) {
             Log.d(tag, "onCharacteristicWrite: status=$status, uuid=${characteristic?.uuid}")
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                _statusMessage.value = "Settings accepted by gateway!"
+                _statusMessage.value = "Settings accepted by wearable!"
                 _connectionStage.value = ConnectionStage.WRITE_SUCCESS
                 scope.launch {
                     _eventFlow.emit(BleEvent.WriteSuccess)
                 }
             } else {
                 val errorDesc = parseGattStatus(status)
-                _statusMessage.value = "Write rejected by gateway ($errorDesc, code: $status)"
+                _statusMessage.value = "Write rejected by wearable ($errorDesc, code: $status)"
                 _connectionStage.value = ConnectionStage.FAILED
                 scope.launch {
                     _eventFlow.emit(BleEvent.WriteFailed("Write failed: $errorDesc (GATT $status)"))
@@ -342,9 +342,9 @@ class BleManager(private val context: Context) {
         targetDeviceName = targetName?.uppercase(Locale.ROOT)
         _connectionStage.value = ConnectionStage.SCANNING
         _statusMessage.value = if (targetDeviceName != null) {
-            "Active scanning for gateway $targetDeviceName..."
+            "Active scanning for wearable $targetDeviceName..."
         } else {
-            "Active scanning for MedMusketeer gateways (MM-GW-*)..."
+            "Active scanning for MedMusketeer wearables (MM-WR-*)..."
         }
 
         registerReceiverIfNeeded()
@@ -380,7 +380,7 @@ class BleManager(private val context: Context) {
             if (isScanning) {
                 stopScan()
                 if (_scannedDevices.value.isEmpty()) {
-                    _statusMessage.value = "No MedMusketeer gateway found within timeout."
+                    _statusMessage.value = "No MedMusketeer wearable found within timeout."
                     _connectionStage.value = ConnectionStage.FAILED
                     _eventFlow.emit(BleEvent.ScanTimeout)
                 }
@@ -420,10 +420,10 @@ class BleManager(private val context: Context) {
         connectionTimeoutJob = scope.launch {
             delay(BleConstants.CONNECTION_TIMEOUT_MS)
             if (_connectionStage.value == ConnectionStage.CONNECTING_GATT) {
-                _statusMessage.value = "Connection timed out. Check gateway power and proximity."
+                _statusMessage.value = "Connection timed out. Check wearable power and proximity."
                 _connectionStage.value = ConnectionStage.FAILED
                 disconnectAndClose()
-                _eventFlow.emit(BleEvent.Error("Connection timed out. Gateway may be out of range."))
+                _eventFlow.emit(BleEvent.Error("Connection timed out. Wearable may be out of range."))
             }
         }
 
@@ -441,7 +441,7 @@ class BleManager(private val context: Context) {
             _statusMessage.value = "No device connected to initiate bonding"
             return
         }
-        _statusMessage.value = "Initiating pairing. Enter passkey shown on gateway OLED."
+        _statusMessage.value = "Initiating pairing. Enter passkey shown on wearable OLED."
         _connectionStage.value = ConnectionStage.WAITING_FOR_BONDING
         device.createBond()
     }
@@ -452,7 +452,7 @@ class BleManager(private val context: Context) {
         val char = configCharacteristic
 
         if (gatt == null || char == null) {
-            _statusMessage.value = "Cannot write: not connected to gateway characteristic"
+            _statusMessage.value = "Cannot write: not connected to wearable characteristic"
             _connectionStage.value = ConnectionStage.FAILED
             return false
         }
@@ -492,7 +492,7 @@ class BleManager(private val context: Context) {
             }
 
             if (!success) {
-                _statusMessage.value = "Failed to initiate GATT write to gateway."
+                _statusMessage.value = "Failed to initiate GATT write to wearable."
                 _connectionStage.value = ConnectionStage.FAILED
             }
             success

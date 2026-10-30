@@ -7,8 +7,8 @@ import java.util.Locale
 object QrParser {
 
     /**
-     * Parses and validates raw QR payload text from gateway OLED.
-     * Expected format: MM-GW-XXXXXX|7A2E00012B3C4D5E8F90123456789ABC
+     * Parses and validates raw QR payload text from wearable OLED.
+     * Expected format: MM-WR-XXXXXX|7A2E00012B3C4D5E8F90123456789ABC
      */
     fun parse(rawText: String?): GatewayQrResult {
         if (rawText.isNullOrBlank()) {
@@ -39,7 +39,7 @@ object QrParser {
                 deviceName = deviceNameRaw,
                 serviceUuidHex = serviceUuidRaw,
                 isValid = false,
-                errorMessage = "Invalid gateway name '$deviceNameRaw': must follow 'MM-GW-XXXXXX' format with 6 hex characters"
+                errorMessage = "Invalid wearable name '$deviceNameRaw': must follow 'MM-WR-XXXXXX' format with 6 hex characters"
             )
         }
 
@@ -65,17 +65,17 @@ object QrParser {
     }
 
     /**
-     * Validates a manually entered device name (e.g. MM-GW-A1B2C3).
+     * Validates a manually entered device name (e.g. MM-WR-A1B2C3).
      */
     fun validateDeviceName(input: String?): Result<String> {
         if (input.isNullOrBlank()) {
-            return Result.failure(IllegalArgumentException("Gateway name cannot be empty"))
+            return Result.failure(IllegalArgumentException("Wearable name cannot be empty"))
         }
         val normalized = input.trim().uppercase(Locale.ROOT)
         return if (BleConstants.DEVICE_NAME_REGEX.matches(normalized)) {
             Result.success(normalized)
         } else {
-            Result.failure(IllegalArgumentException("Gateway name must be 'MM-GW-' followed by 6 hex characters (e.g. MM-GW-A1B2C3)"))
+            Result.failure(IllegalArgumentException("Wearable name must be 'MM-WR-' followed by 6 hex characters (e.g. MM-WR-A1B2C3)"))
         }
     }
 }

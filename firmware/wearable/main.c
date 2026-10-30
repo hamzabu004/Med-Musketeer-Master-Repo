@@ -5,11 +5,11 @@
 
 #include "display.h"
 
-#if CONFIG_GATEWAY_MODE_FIXED
-#include "fixed_gateway.h"
+#if CONFIG_WEARABLE_MODE_FIXED
+#include "fixed_path.h"
 #endif
 
-static const char *TAG = "gateway_app";
+static const char *TAG = "wearable_app";
 
 void app_main(void)
 {
@@ -24,9 +24,9 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(display_init());
 
-#if CONFIG_GATEWAY_MODE_FIXED
-    ESP_LOGI(TAG, "Fixed gateway onboarding build");
-    fixed_gateway_start();
+#if CONFIG_WEARABLE_MODE_FIXED
+    ESP_LOGI(TAG, "Fixed path build");
+    fixed_path_start();
 #else
     ESP_LOGI(TAG, "Mobile mode firmware is not implemented yet");
     display_show_text("MOBILE MODE", "NOT IMPLEMENTED", "", "", "", "");

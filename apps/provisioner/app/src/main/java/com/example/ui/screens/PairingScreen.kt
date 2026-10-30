@@ -117,7 +117,7 @@ fun PairingScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = device?.name ?: "Gateway Device",
+            text = device?.name ?: "Wearable Device",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.SemiBold
@@ -145,14 +145,14 @@ fun PairingScreen(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = "Check Gateway OLED Screen",
+                            text = "Check Wearable OLED Screen",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "1. Look at the ESP32-S3 OLED screen for a 6-digit numeric passkey.\n2. Android's native system dialog will prompt you to enter or confirm this passkey.\n3. Enter the exact 6 digits displayed on the gateway.",
+                            text = "1. Look at the ESP32-S3 OLED screen for a 6-digit numeric passkey.\n2. Android's native system dialog will prompt you to enter or confirm this passkey.\n3. Enter the exact 6 digits displayed on the wearable.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

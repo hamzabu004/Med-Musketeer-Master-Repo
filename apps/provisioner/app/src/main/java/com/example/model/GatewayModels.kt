@@ -5,7 +5,7 @@ import com.example.ble.BleConstants
 import org.json.JSONObject
 
 /**
- * Represents a discovered MedMusketeer BLE gateway device.
+ * Represents a discovered MedMusketeer BLE wearable device.
  */
 data class GatewayDevice(
     val name: String,
@@ -27,7 +27,7 @@ data class GatewayQrResult(
 )
 
 /**
- * Configuration payload for the gateway provisioning write.
+ * Configuration payload for the wearable provisioning write.
  */
 data class ProvisioningConfig(
     val ssid: String = "",

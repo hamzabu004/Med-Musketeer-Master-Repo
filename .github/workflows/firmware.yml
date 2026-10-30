@@ -3,9 +3,9 @@ name: Firmware
 on:
   push:
     branches: [main]
-    paths: ["firmware/**", ".github/workflows/firmware.yml"]
+    paths: ["firmware/**", "cloud/backend/app/contracts.py", ".github/workflows/firmware.yml"]
   pull_request:
-    paths: ["firmware/**", ".github/workflows/firmware.yml"]
+    paths: ["firmware/**", "cloud/backend/app/contracts.py", ".github/workflows/firmware.yml"]
 
 jobs:
   # Compile check only; flashing and the hardware tests need the boards.
@@ -18,3 +18,21 @@ jobs:
           esp_idf_version: v6.1
           target: esp32s3
           path: firmware/wearable
+
+  # The alert payload built by main/alert.c on the host, checked with the cloud's contracts.
+  payload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Install
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -r cloud/backend/requirements.lock
+          .venv/bin/pip install pytest
+          git clone --depth 1 --branch v1.7.19 https://github.com/DaveGamble/cJSON "$RUNNER_TEMP/cJSON"
+      - run: .venv/bin/python -m pytest firmware/wearable/tools -v
+        env:
+          MM_CJSON_DIR: ${{ runner.temp }}/cJSON

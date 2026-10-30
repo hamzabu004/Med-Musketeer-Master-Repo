@@ -1,21 +1,21 @@
-# MedMusketeer Gateway Setup (Android BLE Companion)
+# MedMusketeer Wearable Setup (Android BLE Companion)
 
-MedMusketeer Gateway Setup is a native Android application built in Kotlin with Jetpack Compose. It securely provisions Wi-Fi network credentials and MQTT broker telemetry endpoints to the **MedMusketeer ESP32-S3 Gateway** over Bluetooth Low Energy (BLE) using MITM-authenticated passkey pairing and bonded GATT communication.
+MedMusketeer Wearable Setup is a native Android application built in Kotlin with Jetpack Compose. It securely provisions Wi-Fi network credentials and MQTT broker telemetry endpoints to the **MedMusketeer ESP32-S3 Wearable** over Bluetooth Low Energy (BLE) using MITM-authenticated passkey pairing and bonded GATT communication.
 
 ---
 
 ## Firmware BLE Contract & Specifications
 
-- **Target Device Name Pattern**: `MM-GW-XXXXXX` (where `XXXXXX` is 6 uppercase hex characters).
+- **Target Device Name Pattern**: `MM-WR-XXXXXX` (where `XXXXXX` is 6 uppercase hex characters).
 - **OLED QR Payload Format**:
   ```text
-  MM-GW-XXXXXX|7A2E00012B3C4D5E8F90123456789ABC
+  MM-WR-XXXXXX|7A2E00012B3C4D5E8F90123456789ABC
   ```
-  - Field 1: Device Name (`MM-GW-XXXXXX`)
+  - Field 1: Device Name (`MM-WR-XXXXXX`)
   - Field 2: Provisioning Service UUID without hyphens (`7A2E00012B3C4D5E8F90123456789ABC`)
 - **GATT Service UUID**: `7a2e0001-2b3c-4d5e-8f90-123456789abc`
 - **GATT Configuration Characteristic UUID**: `7a2e0002-2b3c-4d5e-8f90-123456789abc`
-- **Security**: Write-only characteristic requiring an encrypted, MITM-authenticated bonded connection. Firmware uses passkey display pairing: the 6-digit passkey displayed on the gateway OLED must be typed into Android's native system pairing prompt.
+- **Security**: Write-only characteristic requiring an encrypted, MITM-authenticated bonded connection. Firmware uses passkey display pairing: the 6-digit passkey displayed on the wearable OLED must be typed into Android's native system pairing prompt.
 - **Connection Handshake**:
   1. Active BLE Low-Latency Scanning to resolve scan-response device names.
   2. GATT Connection and ATT MTU negotiation (`requestMtu(517)`).
@@ -68,4 +68,4 @@ gradle :app:testDebugUnitTest
    - BLE scanning and GATT operations require real Bluetooth hardware. In browser-streamed Android emulators or virtualization environments without physical Bluetooth controller pass-through, scanning will not detect real BLE peripherals.
    - Android system dialog handles the passkey input prompt natively; apps are strictly prohibited by the Android OS from intercepting or auto-entering passkeys for MITM security reasons.
 2. **Firmware Status Reporting**:
-   - The ESP32-S3 firmware does not provide a BLE status notification characteristic. A successful GATT write confirms payload acceptance and NVS storage, but does not prove Wi-Fi association or MQTT broker connectivity. The gateway OLED display is the ultimate source of truth.
+   - The ESP32-S3 firmware does not provide a BLE status notification characteristic. A successful GATT write confirms payload acceptance and NVS storage, but does not prove Wi-Fi association or MQTT broker connectivity. The wearable OLED display is the ultimate source of truth.

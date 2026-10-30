@@ -30,7 +30,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _qrResult = MutableStateFlow<GatewayQrResult?>(null)
     val qrResult: StateFlow<GatewayQrResult?> = _qrResult.asStateFlow()
 
-    // Target gateway name (e.g. MM-GW-A1B2C3)
+    // Target wearable name (e.g. MM-WR-A1B2C3)
     private val _targetGatewayName = MutableStateFlow<String?>(null)
     val targetGatewayName: StateFlow<String?> = _targetGatewayName.asStateFlow()
 

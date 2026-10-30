@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- cloud/backend/.venv/bin/python
+rootdir: <repo>
+plugins: anyio-4.15.1, cov-7.1.0
+collecting ... collected 12 items
+
+firmware/wearable/tools/test_check_capture.py::test_tc_w01_firmware_alert_passes_the_contract PASSED [  8%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_valid_capture_passes PASSED [ 16%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_reboot_restarts_seq PASSED [ 25%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines0-alert is not valid] PASSED [ 33%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines1-alert is not valid] PASSED [ 41%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines2-expected] PASSED [ 50%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines3-unexpected topic] PASSED [ 58%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines4-revocation_version] PASSED [ 66%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines5-seq 3 follows 1] PASSED [ 75%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines6-repeats] PASSED [ 83%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines7-later than sent_at] PASSED [ 91%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines8-alert is not valid] PASSED [100%]
+
+- generated xml file: docs/testing/evidence/2026-10-30/wearable/junit.xml -
+============================== 12 passed in 0.52s ==============================

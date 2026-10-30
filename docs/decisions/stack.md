@@ -7,7 +7,7 @@ description: Cloud/platform stack and architecture decisions for MedMusketeer. C
 
 This is a **technical decision record**, not the scope-lock file. If a decision here ever conflicts with `scope.md`, that file wins on scope; this file wins on implementation detail. Update this file as stack decisions evolve — it's expected to change more often than the scope-lock file. Companions in this folder: `mqtt-fixed-path-topics.md` (fixed-path topics and ACLs), `ca-tool-spec.md` (CA tool), `cloud-backend.md` (Iteration 3 cloud backend decisions D1–D10), `gaps.md` (what is still undecided). The FYP-1 mid report (Chapter 5) holds the same decisions as ADR-1 to ADR-8, plus the full cloud schema.
 
-**Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-29.
+**Status markers used in this file:** **Decided** = confirmed by the team. **Proposed** = drafted here but not yet confirmed — do not treat as locked. **Open** = unresolved. **Implemented** = built and tested (evidence in `docs/testing/`). Last updated: 2026-10-30.
 
 ## Core design principle: protocol-agnostic ingestion
 
@@ -35,7 +35,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 
 | Link | Protocol | Authentication / protection | Status |
 |---|---|---|---|
-| Wearable ↔ fixed gateway | MQTT over TLS to a **local broker on the Pi** | mTLS (X.509); wearable pins the gateway **role name** (not a specific gateway ID), gateway/local broker pins the wearable's CN; certificate key type (RSA vs ECC) is a benchmarked variable | **Decided**; **Implemented** for test alerts (local broker: Mosquitto) |
+| Wearable ↔ fixed gateway | MQTT over TLS to a **local broker on the Pi** | mTLS (X.509); wearable pins the gateway **role name** (not a specific gateway ID), gateway/local broker pins the wearable's CN; certificate key type (RSA vs ECC) is a benchmarked variable | **Decided**; **Implemented** for alerts and presence (local broker: Mosquitto) |
 | Fixed gateway ↔ cloud | MQTT over TLS to EMQX (**private-CA listener**) | mTLS; gateway is a registered principal; EMQX auth hook checks credential status live; server cert from the private MedMusketeer CA, pinned by CN/SAN | **Decided** |
 | Wearable ↔ mobile relay (phone) | BLE GATT (write + notify), app-level chunking | LE Secure Connections pairing = link hygiene only, never identity; payload protected by the application-layer envelope | **Decided** |
 | Mobile relay ↔ cloud | MQTT over **server-authenticated** TLS to EMQX (**public-cert listener**) | Authenticates the server only, using a public-CA (Let's Encrypt) cert on the cloud's public domain; phone is not a principal and holds no device credential; wearable identity comes from the envelope | **Decided** |
@@ -61,7 +61,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 - **Why:** lightweight enough to share the Pi with the classifier and IDS; cert-CN-to-username mapping and per-device `%u` ACLs are built in; keeps the fixed path working with the cloud unreachable; provides keepalive and LWT.
 - **Alternatives considered (not benchmarked):** NanoMQ — its file ACL documents no `%u`-style per-device topic patterns, so per-device rules or an HTTP auth service would be needed. EMQX on the Pi — heavier on a device also running the classifier and IDS, and the ACL design would need rebuilding in EMQX's rule system. Footprint on the Pi 4B was not measured.
 - **Costs accepted:** Mosquitto exposes no per-client connect/disconnect events (only aggregate `$SYS` counters), so wearable presence relies on a retained `status` topic plus LWT; and it is a second broker technology to harden and monitor.
-- **Verification status:** the cert CN becoming the username has been observed on the Pi. The `%u` ACL denials were verified on a container broker running the Pi's configuration (TC-B01 to TC-B04, `tools/ca-tool/tests/test_broker_interop.py`); repeating the denials on the Pi itself is planned for Iteration 2. An unauthorized publish is dropped silently on MQTT 3.1.1, so judge by what a monitor subscriber or the broker log shows. Setup script: `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`. Separately, Mosquitto accepts any cert the private CA signed; restricting to registered wearables is covered by the local-allowlist Open item in "Gateway identity: role pin".
+- **Verification status:** the cert CN becoming the username has been observed on the Pi. The `%u` ACL denials were verified on a container broker running the Pi's configuration (TC-B01 to TC-B04, `tools/ca-tool/tests/test_broker_interop.py`); TC-B01 (authentication) passed on the Pi on 2026-10-22; repeating the denials (TC-B02 to B04) there is part of Iteration 2 and waits for the Pi and the CA replacement. An unauthorized publish is dropped silently on MQTT 3.1.1, so judge by what a monitor subscriber or the broker log shows. Setup script: `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`. Separately, Mosquitto accepts any cert the private CA signed; restricting to registered wearables is covered by the local-allowlist Open item in "Gateway identity: role pin".
 - **No native Mosquitto bridge to EMQX.** The uplink is a separate gateway service acting as an MQTT client toward EMQX, because the gateway must sit between the brokers: it adds `attested_by` to forwarded messages, forwards only what has passed classification/IDS, composes its own `mm/gateway/{gw_id}/...` messages (ids_event, status, backlog), controls outage buffering and backlog upload per the IPS methodology (wearables shown as unknown/stale while the cloud is unreachable), and offers a place for latency checkpoints and a clean credential boundary. Cost accepted: the bridge service must be written, tested and hardened, and adds a small processing delay on the fixed path.
 
 ### Fixed gateway ↔ cloud — MQTT over mTLS to EMQX (Decided)
@@ -99,7 +99,7 @@ Each adapter speaks one protocol/authentication scheme, resolves the authenticat
 
 - `device_id` in these topics is the wearable's canonical UUID. Both brokers apply ACLs keyed on the authenticated identity (cert CN on the fixed path).
 - **Proposed extension for gateway-level events:** `mm/gateway/{gateway_device_id}/{ids_event|status|backlog}` for IDS/IPS records, gateway status and backlog uploads.
-- The LWT topic (`status`) and command-acknowledgement topic (`command_ack`) are settled for the fixed path. The implemented test alert uses QoS 1. Telemetry QoS and the remaining QoS/retain choices are **Open**; whatever QoS telemetry uses is held constant across both paths.
+- The LWT topic (`status`) and command-acknowledgement topic (`command_ack`) are settled for the fixed path. The implemented alert and `status` use QoS 1; `status` is retained. Telemetry QoS and the remaining QoS/retain choices are **Open**; whatever QoS telemetry uses is held constant across both paths.
 
 ## Recommended stack
 
@@ -442,7 +442,7 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 The mid report's list of unsettled design items (§5 "Design items still to be settled") is mirrored here; `gaps.md` tracks the wider list.
 
 - Telemetry QoS and payload format (the alert payload adds sequence number, sampling rate, lead, sample count, encoding — little-endian signed integers, Base64 inside JSON — and samples; no compression in the first phase)
-- ECG sampling rate and window length (MIT-BIH is 360 Hz; the device must match training or the data must be resampled)
+- ECG sampling rate and window length (MIT-BIH is 360 Hz; the device must match training or the data must be resampled). The Iteration 2 firmware sends 360 Hz, 3 s synthetic segments as a placeholder
 - Gateway discovery by the wearable (the broker address is currently provisioned)
 - NTP on the gateway hotspot (required by the benchmark methodology)
 - Enforcing (not just observing) wearable↔gateway assignment — observe-only is decided for Iteration 3 (`cloud-backend.md` D5); local wearable allowlist on the gateway
@@ -452,7 +452,7 @@ The mid report's list of unsettled design items (§5 "Design items still to be s
 - Mode-switch behaviour (buffered data, persistence across reboot, button handling)
 - Mobile heartbeat interval/timeout, and how `status`/`last_seen` reconcile the two paths
 - RSA key size (2048 assumed) and whether an RSA-CA variant is run
-- ACL denials verified on the Pi itself (Iteration 2)
+- ACL denials verified on the Pi itself (Iteration 2; TC-B01 done, TC-B02 to B04 wait for the Pi and the CA replacement)
 - The literal-name check in the ESP32-S3 TLS library for UUID-style names (`common_name`), and the gateway's outbound check of the cloud's identity
 - Public-certificate operations: ACME client, automated renewal and EMQX reload, one shared public domain/cert or separate subdomains
 - Phone-to-patient binding for the relay (see `gaps.md`)
