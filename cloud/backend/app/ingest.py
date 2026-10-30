@@ -16,6 +16,11 @@ alert or online status sets it on the fixed path through that gateway. A wearabl
 offline, or whose gateway goes offline, is shown as `unknown`, never as offline: it may have moved
 to the other path. An offline report older than the device's last_seen is stale and ignored.
 
+Connectivity log (D17): each change of state of a gateway's connection, and of a wearable's
+presence through a gateway, is appended to connectivity_events. A report of the state already
+logged (the broker's connect event and the gateway's own status both say online) or older than the
+newest row adds nothing, so the newest row's time is when the current state began.
+
 A gateway's own status may carry the revocation list version it enforces (D16); it is stored on
 the gateway, so the system admin sees which gateways are behind.
 
@@ -138,6 +143,18 @@ def stale(m: Ingest, last_seen) -> bool:
     return last_seen is not None and m.received_at < last_seen
 
 
+async def log_connectivity(conn: AsyncConnection, m: Ingest, p: StatusPayload) -> None:
+    """Appends the report to the connectivity log if it changes the device's state on this gateway."""
+    await conn.execute(text("""
+        INSERT INTO connectivity_events (device_id, gateway_id, state, reason, at)
+        SELECT :d, :g, :s, :r, :t
+        WHERE NOT EXISTS (
+            SELECT 1 FROM (SELECT state, at FROM connectivity_events WHERE device_id = :d AND gateway_id = :g
+                           ORDER BY at DESC LIMIT 1) newest
+            WHERE newest.state = :s OR newest.at > :t)
+    """), {"d": m.device_id, "g": m.attested_by, "s": p.state, "r": p.reason, "t": m.received_at})
+
+
 async def wearable_status(conn: AsyncConnection, m: Ingest, p: StatusPayload, last_seen) -> dict:
     if p.state == "online":
         await on_fixed_path(conn, m)
@@ -146,6 +163,7 @@ async def wearable_status(conn: AsyncConnection, m: Ingest, p: StatusPayload, la
         await conn.execute(text("""
             UPDATE devices SET current_mode = 'unknown', current_gateway_id = NULL WHERE device_id = :d
         """), {"d": m.device_id})
+    await log_connectivity(conn, m, p)
     return {"result": "stored", "state": p.state, "reason": p.reason}
 
 
@@ -159,6 +177,7 @@ async def gateway_status(conn: AsyncConnection, m: Ingest, p: StatusPayload, las
         unknown = (await conn.execute(text("""
             UPDATE devices SET current_mode = 'unknown' WHERE current_gateway_id = :g AND current_mode = 'fixed'
         """), {"g": m.device_id})).rowcount
+    await log_connectivity(conn, m, p)
     return {"result": "stored", "state": p.state, "wearables_unknown": unknown}
 
 
@@ -223,9 +242,9 @@ async def alert(conn: AsyncConnection, m: Ingest, p: AlertPayload) -> dict:
         VALUES (:g, 'wearable', :model, :label, :c) RETURNING classification_id
     """), {"g": segment_id, "model": p.screening.model, "label": p.screening.label, "c": p.screening.confidence})
     alert_id = await conn.scalar(text("""
-        INSERT INTO alerts (device_id, patient_id, classification_id, origin)
-        VALUES (:d, :p, :c, 'wearable') RETURNING alert_id
-    """), {"d": m.device_id, "p": patient_id, "c": classification_id})
+        INSERT INTO alerts (device_id, patient_id, classification_id, origin, gateway_id)
+        VALUES (:d, :p, :c, 'wearable', :g) RETURNING alert_id
+    """), {"d": m.device_id, "p": patient_id, "c": classification_id, "g": m.attested_by})
     await on_fixed_path(conn, m)
     # Delivered to listeners when the transaction commits, and only then.
     await conn.execute(text("SELECT pg_notify(:channel, :payload)"), {"channel": ALERTS_CHANNEL, "payload": json.dumps(

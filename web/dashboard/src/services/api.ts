@@ -64,6 +64,13 @@ export function createApiDataSource(http: Http): DataSource {
       audit: (limit) => get("/audit", { limit }),
     },
 
+    gateways: {
+      list: () => get("/gateways"),
+      detail: (gatewayId) => get(`/gateways/${id(gatewayId)}`),
+      connectivity: (gatewayId, limit) => get(`/gateways/${id(gatewayId)}/connectivity`, { limit }),
+      alerts: (gatewayId, limit) => get(`/gateways/${id(gatewayId)}/alerts`, { limit }),
+    },
+
     patients: () => get("/patients"),
     disorders: (patientId) => get(`/patients/${id(patientId)}/disorders`),
     devices: () => get("/devices"),

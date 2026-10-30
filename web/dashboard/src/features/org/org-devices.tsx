@@ -52,8 +52,9 @@ export function OrgDevices() {
         </Field>
       </div>
       <Loaded resource={resource} label="Loading devices">
-        {({ patients }) => {
+        {({ devices, patients }) => {
           const pseudonym = new Map(patients.map((p) => [p.patient_id, p.pseudonym]));
+          const ownGateways = new Set(devices.filter((d) => d.type === "fixed_gateway").map((d) => d.device_id));
           return shown.length ? (
             <>
               <Table label="Devices" minWidth={800}>
@@ -61,12 +62,22 @@ export function OrgDevices() {
                 <tbody>
                   {shown.map((d) => (
                     <Tr key={d.device_id}>
-                      <Td><RecordId id={d.device_id} /></Td>
+                      <Td>
+                        {d.type === "fixed_gateway" ? (
+                          <Link href={`/org/gateways/${d.device_id}`} className="text-[var(--color-info)]"><RecordId id={d.device_id} /></Link>
+                        ) : (
+                          <RecordId id={d.device_id} />
+                        )}
+                      </Td>
                       <Td>{deviceType(d.type)}</Td>
                       <Td><Status label={labelize(d.status)} tone={statusTone(d.status)} /></Td>
                       <Td>
                         {labelize(d.current_mode)}
-                        {d.current_gateway_id && <span className="block text-xs text-[var(--color-text-muted)]">via <RecordId id={d.current_gateway_id} /></span>}
+                        {d.current_gateway_id && (
+                          <span className="block text-xs text-[var(--color-text-muted)]">
+                            via {ownGateways.has(d.current_gateway_id) ? <Link href={`/org/gateways/${d.current_gateway_id}`} className="text-[var(--color-info)]"><RecordId id={d.current_gateway_id} /></Link> : <RecordId id={d.current_gateway_id} />}
+                          </span>
+                        )}
                       </Td>
                       <Td title={d.last_seen ? formatDateTime(d.last_seen) : undefined}>{formatAgo(d.last_seen)}</Td>
                       <Td>

@@ -54,11 +54,13 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 
 | Screen | Content and actions | Endpoints |
 |---|---|---|
-| Dashboard | Organisation; doctors, patients, wearables issued and free, gateways; patients without a doctor or wearable; latest changes | `/organisation`, `/accounts`, `/patients`, `/devices`, `/audit` |
+| Dashboard | Organisation; doctors, patients, wearables issued and free, gateways and how many are online; patients without a doctor or wearable; latest changes | `/organisation`, `/accounts`, `/patients`, `/devices`, `/gateways`, `/audit` |
 | Accounts | List with names and e-mail, filtered by role and status; create a doctor or patient (a patient needs a pseudonym), with the invite code shown once; disable a doctor or patient, with the consequences for their patients or wearable spelled out | `GET/POST /accounts`, `POST /accounts/{id}/disable`, `/directory` |
 | Patients | Search; filter by no doctor, no wearable, or disabled account | `/patients`, `/directory` |
 | Patient | Assign or change the doctor; issue a free active wearable, return it; record disorders; export for a named destination (summary, record, JSON download); history from the audit log | `PUT /patients/{id}/doctor`, `POST/DELETE /patients/{id}/wearable`, `GET/POST /patients/{id}/disorders`, `POST /patients/{id}/exports` |
 | Devices | Devices granted to the organisation, read-only: status, path, gateway, last heard from, patient | `GET /devices` |
+| Gateways | Each gateway: connection and uptime, wearables connected, alerts in the last 24 h, last heard from; totals (added 2026-10-30, D17) | `GET /gateways` |
+| Gateway | Connection, online or offline since; the wearables on it with patient and connected time; alert times, wearables and patients, without the classification (D9); the connectivity log, filtered by gateway or wearables. Re-read every 15 s | `GET /gateways/{id}`, `/gateways/{id}/connectivity`, `/gateways/{id}/alerts`, `/patients` |
 | Audit log | The organisation's changes, with people by name and patients by pseudonym | `GET /audit` |
 
 ### Doctor (own current patients only)

@@ -1347,6 +1347,194 @@
     }
    }
   },
+  "/gateways": {
+   "get": {
+    "tags": [
+     "gateways"
+    ],
+    "summary": "Organisation Gateways",
+    "operationId": "organisation_gateways_gateways_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/OrgGateway"
+         },
+         "type": "array",
+         "title": "Response Organisation Gateways Gateways Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/gateways/{gateway_id}": {
+   "get": {
+    "tags": [
+     "gateways"
+    ],
+    "summary": "Gateway Detail",
+    "operationId": "gateway_detail_gateways__gateway_id__get",
+    "parameters": [
+     {
+      "name": "gateway_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Gateway Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/GatewayDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/gateways/{gateway_id}/connectivity": {
+   "get": {
+    "tags": [
+     "gateways"
+    ],
+    "summary": "Gateway Connectivity",
+    "description": "The gateway's connections and its wearables' presence through it, newest first. Rows of\nwearables not granted to the organisation are left out.",
+    "operationId": "gateway_connectivity_gateways__gateway_id__connectivity_get",
+    "parameters": [
+     {
+      "name": "gateway_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Gateway Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/ConnectivityEvent"
+         },
+         "title": "Response Gateway Connectivity Gateways  Gateway Id  Connectivity Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/gateways/{gateway_id}/alerts": {
+   "get": {
+    "tags": [
+     "gateways"
+    ],
+    "summary": "Gateway Alerts",
+    "description": "When the organisation's patients' alerts came through the gateway, newest first.",
+    "operationId": "gateway_alerts_gateways__gateway_id__alerts_get",
+    "parameters": [
+     {
+      "name": "gateway_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Gateway Id"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000,
+       "minimum": 1,
+       "default": 200,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/GatewayAlert"
+         },
+         "title": "Response Gateway Alerts Gateways  Gateway Id  Alerts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/alerts": {
    "get": {
     "tags": [
@@ -2165,6 +2353,143 @@
     ],
     "title": "Classification"
    },
+   "ConnectedWearable": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "last_seen": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen"
+     },
+     "connected_since": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Connected Since"
+     },
+     "patient_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "status",
+     "last_seen",
+     "connected_since",
+     "patient_id"
+    ],
+    "title": "ConnectedWearable"
+   },
+   "Connectivity": {
+    "properties": {
+     "state": {
+      "type": "string",
+      "enum": [
+       "online",
+       "offline",
+       "unknown"
+      ],
+      "title": "State"
+     },
+     "since": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Since"
+     }
+    },
+    "type": "object",
+    "required": [
+     "state",
+     "since"
+    ],
+    "title": "Connectivity"
+   },
+   "ConnectivityEvent": {
+    "properties": {
+     "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Event Id"
+     },
+     "at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "At"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "device_type": {
+      "type": "string",
+      "title": "Device Type"
+     },
+     "state": {
+      "type": "string",
+      "title": "State"
+     },
+     "reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "event_id",
+     "at",
+     "device_id",
+     "device_type",
+     "state",
+     "reason"
+    ],
+    "title": "ConnectivityEvent"
+   },
    "Credential": {
     "properties": {
      "credential_id": {
@@ -2494,6 +2819,105 @@
     ],
     "title": "ExportIn"
    },
+   "GatewayAlert": {
+    "properties": {
+     "at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "At"
+     },
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "patient_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Patient Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "at",
+     "device_id",
+     "patient_id"
+    ],
+    "title": "GatewayAlert",
+    "description": "When an alert came through the gateway, and from whom. Not the alert's content (D9)."
+   },
+   "GatewayDetail": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "last_seen": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen"
+     },
+     "connectivity": {
+      "$ref": "#/components/schemas/Connectivity"
+     },
+     "wearables_connected": {
+      "type": "integer",
+      "title": "Wearables Connected"
+     },
+     "other_wearables_connected": {
+      "type": "integer",
+      "title": "Other Wearables Connected"
+     },
+     "alerts_24h": {
+      "type": "integer",
+      "title": "Alerts 24H"
+     },
+     "last_alert_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Alert At"
+     },
+     "wearables": {
+      "items": {
+       "$ref": "#/components/schemas/ConnectedWearable"
+      },
+      "type": "array",
+      "title": "Wearables"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "status",
+     "last_seen",
+     "connectivity",
+     "wearables_connected",
+     "other_wearables_connected",
+     "alerts_24h",
+     "last_alert_at",
+     "wearables"
+    ],
+    "title": "GatewayDetail"
+   },
    "Grant": {
     "properties": {
      "grant_id": {
@@ -2723,6 +3147,70 @@
      "patient_id"
     ],
     "title": "OrgDevice"
+   },
+   "OrgGateway": {
+    "properties": {
+     "device_id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Device Id"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "last_seen": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Seen"
+     },
+     "connectivity": {
+      "$ref": "#/components/schemas/Connectivity"
+     },
+     "wearables_connected": {
+      "type": "integer",
+      "title": "Wearables Connected"
+     },
+     "other_wearables_connected": {
+      "type": "integer",
+      "title": "Other Wearables Connected"
+     },
+     "alerts_24h": {
+      "type": "integer",
+      "title": "Alerts 24H"
+     },
+     "last_alert_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Alert At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "device_id",
+     "status",
+     "last_seen",
+     "connectivity",
+     "wearables_connected",
+     "other_wearables_connected",
+     "alerts_24h",
+     "last_alert_at"
+    ],
+    "title": "OrgGateway"
    },
    "Organisation": {
     "properties": {
