@@ -1,0 +1,41 @@
+run_at: 2026-10-30T10:44:26+05:00
+host: Linux 7.2.5-200.fc44.x86_64 x86_64
+python: Python 3.14.7
+packages: cryptography==50.0.2 fastapi==0.161.1 httpx==0.28.1 paho-mqtt==2.1.0 psycopg==3.3.6 pydantic-settings==2.16.1 PyJWT==2.15.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
+compose: Docker Compose version v5.4.0
+engine: docker 29.7.2
+images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev medmusketeer/cloud-emqx:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev alpine:3.22.2 
+base images: python:3.14.9-slim-trixie emqx/emqx:6.3.2 timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
+commit: feae10f0124d1db6ea35b4b7e7a11eac63556262
+uncommitted changes:
+ M cloud/backend/app/dev_seed.py
+ M cloud/backend/app/ingest.py
+ M cloud/backend/app/main.py
+ M cloud/backend/tests/integration/test_access.py
+ M cloud/backend/tests/integration/test_schema.py
+ M cloud/backend/tests/integration/world.py
+ M docs/decisions/cloud-backend.md
+ M docs/iterations/iteration-6-dashboard.md
+ M docs/testing/test_traceability.md
+ M web/dashboard/e2e/mock/org-admin.spec.ts
+ M web/dashboard/src/api/openapi.json
+ M web/dashboard/src/api/schema.d.ts
+ M web/dashboard/src/api/types.ts
+ M web/dashboard/src/config/navigation.ts
+ M web/dashboard/src/features/org/org-dashboard.tsx
+ M web/dashboard/src/features/org/org-devices.tsx
+ M web/dashboard/src/lib/date-time.ts
+ M web/dashboard/src/services/api.ts
+ M web/dashboard/src/services/contracts.ts
+ M web/dashboard/src/services/mock/mock-data-source.test.ts
+ M web/dashboard/src/services/mock/mock-data-source.ts
+ M web/dashboard/src/services/mock/sample-session.ts
+ M web/dashboard/src/services/mock/world.ts
+?? cloud/backend/app/gateways.py
+?? cloud/backend/migrations/versions/0005_gateway_connectivity.py
+?? cloud/backend/tests/integration/test_gateways.py
+?? docs/testing/evidence/2026-10-30/gateway-view/
+?? web/dashboard/src/app/org/gateways/
+?? web/dashboard/src/features/org/gateway-detail.tsx
+?? web/dashboard/src/features/org/gateways.test.ts
+?? web/dashboard/src/features/org/gateways.tsx
