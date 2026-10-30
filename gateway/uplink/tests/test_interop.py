@@ -103,13 +103,17 @@ def test_tc_b05_a_listed_wearable_is_cut_off_on_its_open_connection(world):
 
     uplink = world.start_uplink()
     assert wait(lambda: world.reported(1) is False and "online" in world.cloud.statuses()) is not None  # no list yet
+    reloads = gw.log().count("Reloading config")
     started = time.monotonic()
     world.cloud.publish_list(json.dumps(listing(2, a)))
     applied = wait(lambda: uplink.enforcer.enforced_version == 2)
     assert applied is not None and applied < 10
     assert f"user {a}\ntopic deny #" in gw.acl.read_text()
     assert wait(lambda: world.reported(2)) is not None  # the cloud learns the version enforced
+    # The uplink counts the list as enforced once it has sent SIGHUP; Mosquitto reloads after that.
+    assert gw.wait_log("Reloading config", reloads + 1)
     elapsed = time.monotonic() - started
+    assert elapsed < 10
 
     send(pub_a, "a-after")
     send(pub_b, "b-after")
