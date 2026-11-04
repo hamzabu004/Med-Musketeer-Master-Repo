@@ -22,7 +22,7 @@ export function AccountScreen() {
   const person = details.status === "ready" ? details.data.person : null;
   const organisation = details.status === "ready" ? details.data.organisation : null;
   const rows: [string, React.ReactNode][] = [
-    ["Name", person ? `${person.given_name ?? ""} ${person.family_name ?? ""}`.trim() || "—" : session.role === "system_admin" ? "Shown in ZITADEL" : "—"],
+    ["Name", person ? `${person.given_name ?? ""} ${person.family_name ?? ""}`.trim() || "—" : "—"],
     ["Role", roleLabels[session.role]],
     ["Organisation", organisation?.name ?? (session.role === "system_admin" ? "All (registry)" : "—")],
     ["Account id", <span key="id" className="font-mono text-xs">{session.userId}</span>],
@@ -45,7 +45,7 @@ export function AccountScreen() {
         <p className="text-[var(--color-text-muted)]">
           {dataSource === "mock"
             ? "This is a sample account; signing out discards the changes made in this tab."
-            : "Your name, e-mail and password are kept by the sign-in service (ZITADEL). To change your password, use \"Reset password\" on the sign-in page."}
+            : "To change your password, use \"Reset password\" on the sign-in page."}
         </p>
         <Button type="button" variant="secondary" onClick={() => void signOut()}>Sign out</Button>
       </Card>
