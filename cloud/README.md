@@ -14,7 +14,7 @@ The MedMusketeer cloud platform (M7), built in Iteration 3 (`docs/iterations/ite
 | `api` | built from `backend/` (Python 3.14) | MedMusketeer API | 8000 |
 | `adapter` | the `api` image, `python -m app.adapter` | MQTT adapter: reads `ingest/#` from EMQX, posts ingest-v1 to the API | — |
 
-Every image is pinned to an exact version with amd64 and arm64 builds, so the same file runs on the cloud Pi. Upgrading an image is a deliberate change with a change-log entry.
+Every image is pinned to an exact version with amd64 and arm64 builds, so the same file runs on the cloud VM (amd64) or a Pi (arm64). Upgrading an image is a deliberate change with a change-log entry.
 
 Configuration is built into the `postgres`, `proxy` and `emqx` images, not bind-mounted: Docker Desktop's file sharing for the repository's drive proved unreliable (stale mount paths), and baked-in config behaves the same on the Pi. Rebuild after editing it (`docker compose up -d --build`). Database roles, created on an empty volume by `postgres/init/010-databases.sh` (copied into the `postgres` image): `zitadel` (owns `zitadel`), `mm_migrator` (owns `medmusketeer`, runs the migrations), `mm_api` (the API's runtime login).
 
@@ -34,6 +34,44 @@ curl -s http://127.0.0.1:8000/healthz
 - Development data with sign-in accounts for every role: `docker compose exec api python -m app.manage seed-dev` on an empty stack. It prints the accounts and their shared password (`cloud-backend.md` D14).
 - A `.env` made before Slice 4 needs `EMQX_HOOK_SECRET`, `EMQX_ADAPTER_PASSWORD` and `EMQX_NODE_COOKIE`, one made before Slice 5 needs `INGEST_SECRET`, and one made before Iteration 4 needs `EMQX_API_SECRET` (random letters and digits; see `scripts/init-env.sh`). For example: `printf 'EMQX_API_SECRET=%s\n' "$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 48)" >> .env`.
 
+## Public deployment
+
+`compose.public.yaml`, layered on `compose.yaml`, publishes the stack on a domain. The proxy terminates HTTPS with Let's Encrypt (HTTP-01 on port 80) and is the only way in to the dashboard, the API and ZITADEL. It does not route the API's `/internal`, `/docs`, `/redoc` or `/openapi.json`. Gateways use mutual TLS on 8883, which needs no public certificate.
+
+In `.env`:
+
+```bash
+ZITADEL_DOMAIN=auth.example.org
+API_HOST=api.example.org
+DASHBOARD_HOST=app.example.org
+DASHBOARD_API_URL=https://api.example.org
+DASHBOARD_ORIGINS=https://app.example.org
+ACME_EMAIL=                     # optional: Let's Encrypt no longer sends expiry e-mails
+PROXY_BIND_ADDRESS=127.0.0.1    # not used by this file's proxy
+API_BIND_ADDRESS=127.0.0.1
+DASHBOARD_BIND_ADDRESS=127.0.0.1
+EMQX_GATEWAY_BIND_ADDRESS=0.0.0.0
+```
+
+```bash
+docker compose -f compose.yaml -f compose.public.yaml up -d --wait --build
+```
+
+- Point the three host names, and one for MQTT, at the server with `A` records first, and open 80, 443 and 8883 to the internet and nothing else: Let's Encrypt must reach port 80. Trying a new set-up? Set `ACME_CA_SERVER` to Let's Encrypt's staging address first, because production limits repeated failures, then remove it and the `letsencrypt` volume.
+- The deployment at `medmusketeer.site` (2026-11-04): `app`, `api`, `auth` and `mqtt` have `A` records for the VM's reserved address, and Oracle's security list opens 22, 80, 443 and 8883 only (`docs/decisions/cloud-backend.md` D18). Let's Encrypt's staging server was unreachable from the VM, so the production server was used once port 80 was confirmed reachable from outside.
+- Register ZITADEL's first admin as the system admin as in "ZITADEL set-up", with the `-f` options above. Never run `seed-dev` on a public server: its accounts share one printed password.
+- ZITADEL keeps its domain from its first start, so a change of `ZITADEL_DOMAIN` means starting ZITADEL from scratch. `docker compose down --volumes` deletes all data, and the EMQX certificate must be installed again.
+
+### Server set-up (Oracle Linux 9)
+
+Done once on a new VM, before the stack (2026-11-04):
+1. Attach a block volume (paravirtualized). Format it with XFS and mount it at `/var/lib/docker` by UUID (`defaults,noatime,_netdev,nofail`). Bind `/var/lib/docker/containerd-root` onto `/var/lib/containerd`, because Docker 29 keeps images there. Device names (`sda`, `sdb`) change between boots, so use the UUID.
+2. Install Docker Engine and the compose plugin from Docker's CentOS repository (`docker-ce.repo`), and git. Add a systemd drop-in with `RequiresMountsFor=/var/lib/docker /var/lib/containerd` for both `docker` and `containerd`, so neither starts without the volume.
+3. Disable `rpcbind`, which nothing here uses. Leave `firewalld` on; Docker opens the ports it publishes.
+4. Copy the repository, run `scripts/init-env.sh`, set the `.env` values above, install the EMQX certificate (`scripts/install-emqx-certs.sh`), and start the stack.
+
+Check after a reboot that the volume is mounted and all services are healthy.
+
 ## EMQX gateway listener
 
 Gateways connect with mutual TLS on port 8883 (`docs/decisions/cloud-backend.md` D1, D4, D5, D13). The listener needs the cloud server certificate from the CA tool; until it is installed, EMQX runs with the listener off and logs a warning.
@@ -46,7 +84,7 @@ cloud/scripts/install-emqx-certs.sh           # reads ~/medmusketeer-ca; restart
 - A gateway connects only if its certificate chains to the MedMusketeer CA and is registered as an active `x509_mtls` credential (its SHA-256 fingerprint, as `mmca issue` prints it) of an active `fixed_gateway`. Register it as the system admin: `POST /admin/devices`, `POST /admin/devices/{id}/credentials` with `credential_ref` = the fingerprint, `POST /admin/devices/{id}/activate`.
 - Gateways verify the cloud as `cloud.medmusketeer.local` (CN/SAN pin), whatever address they connect to.
 - Gateway messages are republished to `ingest/{gateway id}/{topic}` for the adapter (`mm-adapter` on the internal listener, password `EMQX_ADAPTER_PASSWORD`).
-- On the cloud Pi, set `EMQX_GATEWAY_BIND_ADDRESS` to its Tailscale address.
+- On the public server, set `EMQX_GATEWAY_BIND_ADDRESS=0.0.0.0` ("Public deployment").
 - EMQX also republishes each gateway's connect and disconnect to `ingest/{gateway id}/broker/client.connected|client.disconnected` (rule `mm_presence`), for its liveness.
 
 ## Wearable revocation list

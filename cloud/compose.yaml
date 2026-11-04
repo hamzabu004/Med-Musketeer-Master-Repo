@@ -1,5 +1,5 @@
 # MedMusketeer cloud backend (Iteration 3). Development stack; the same file is deployed to the
-# cloud Pi in Slice 6. Every image is pinned and has amd64 and arm64 builds. Secrets come from
+# cloud server in Slice 6, with compose.public.yaml layered on it. Every image is pinned and has amd64 and arm64 builds. Secrets come from
 # .env (create it with scripts/init-env.sh); published ports bind to 127.0.0.1 only.
 # Configuration is built into the postgres and proxy images rather than bind-mounted.
 name: medmusketeer-cloud
@@ -131,7 +131,7 @@ services:
       MM_EMQX_API_SECRET: ${EMQX_API_SECRET:?set in .env}
     ports:
       - 127.0.0.1:${EMQX_DASHBOARD_PUBLISHED_PORT:-18083}:18083
-      # Gateways connect here. On the cloud Pi, bind to its Tailscale address.
+      # Gateways connect here. On the public server, bind to all addresses (0.0.0.0).
       - ${EMQX_GATEWAY_BIND_ADDRESS:-127.0.0.1}:${EMQX_GATEWAY_PUBLISHED_PORT:-8883}:8883
       # Service listener, for the adapter and tests on this machine only.
       - 127.0.0.1:${EMQX_INTERNAL_PUBLISHED_PORT:-1883}:1883

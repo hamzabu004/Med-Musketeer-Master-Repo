@@ -1,0 +1,54 @@
+# Public deployment, layered on compose.yaml:
+#   docker compose -f compose.yaml -f compose.public.yaml up -d --wait --build
+# The proxy terminates HTTPS on 443 with Let's Encrypt certificates (HTTP-01 on 80) and is the only
+# way in to the dashboard, the API and ZITADEL. Gateways reach EMQX on 8883 with mutual TLS. The
+# API and dashboard ports stay on API_BIND_ADDRESS and DASHBOARD_BIND_ADDRESS: keep them on 127.0.0.1.
+services:
+  proxy:
+    command:
+      - --providers.file.directory=/etc/traefik/public
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.ping.address=:8082
+      - --ping=true
+      - --ping.entrypoint=ping
+      - --accesslog=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.caserver=${ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}
+    environment:
+      ZITADEL_DOMAIN: ${ZITADEL_DOMAIN:?set in .env}
+      API_HOST: ${API_HOST:?set in .env}
+      DASHBOARD_HOST: ${DASHBOARD_HOST:?set in .env}
+    ports: !override
+      - ${PUBLIC_HTTP_PORT:-80}:80
+      - ${PUBLIC_HTTPS_PORT:-443}:443
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping", "--ping.entrypoint=ping", "--entrypoints.ping.address=:8082"]
+    volumes:
+      - letsencrypt:/letsencrypt
+
+  zitadel-api:
+    environment:
+      ZITADEL_EXTERNALPORT: 443
+      ZITADEL_EXTERNALSECURE: "true"
+      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_BASEURI: https://${ZITADEL_DOMAIN}/ui/v2/login/
+      ZITADEL_OIDC_DEFAULTLOGINURLV2: https://${ZITADEL_DOMAIN}/ui/v2/login/login?authRequest=
+      ZITADEL_OIDC_DEFAULTLOGOUTURLV2: https://${ZITADEL_DOMAIN}/ui/v2/login/logout?post_logout_redirect=
+
+  zitadel-login:
+    environment:
+      CUSTOM_REQUEST_HEADERS: Host:${ZITADEL_DOMAIN},X-Forwarded-Proto:https
+
+  zitadel-bootstrap:
+    environment:
+      MM_ZITADEL_ISSUER: https://${ZITADEL_DOMAIN}
+
+  dashboard:
+    profiles: !reset []
+
+volumes:
+  letsencrypt:
