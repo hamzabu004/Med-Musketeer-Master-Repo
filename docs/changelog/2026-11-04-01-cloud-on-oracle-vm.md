@@ -3,7 +3,7 @@
 - **Date:** 2026-11-04
 - **Type:** ops
 - **Module:** M7 cloud | M8 dashboard
-- **Commits:** pending
+- **Commits:** 931ae3e (server set-up steps in `cloud/README.md`), 35b49f1 (D18 and the documents it updates); merged to main as 92d794d (PR #10)
 
 ## What changed
 - The cloud stack and the dashboard run on an Oracle Cloud VM (`VM.Standard.E5.Flex`, 4 OCPU, 12 GB, Oracle Linux 9, Singapore) instead of the second Raspberry Pi. They are public at `app`, `api` and `auth.medmusketeer.site` over HTTPS, and gateways connect to `mqtt.medmusketeer.site:8883` with mutual TLS. Recorded as `cloud-backend.md` D18. The hosting row in `stack.md`, Iteration 3's Slice 6, Iteration 6's deployment section and `gaps.md` are updated to match.
