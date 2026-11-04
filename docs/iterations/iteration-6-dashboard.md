@@ -3,7 +3,7 @@
 - **Owner:** Hamza Tariq (M8 dashboard)
 - **Status:**
   - The screens for all four roles are built and tested in both data modes (2026-10-26, branch `feat/dashboard`).
-  - Deployment on the cloud Pi is not set up yet.
+  - Deployed on 2026-11-04 at https://app.medmusketeer.site, on the cloud VM (`cloud-backend.md` D18).
   - Live alert push and on-demand recording wait for cloud work (below).
 - **Depends on:** the cloud API of Iteration 3 (D9 access matrix and D14 sign-in in `docs/decisions/cloud-backend.md`), `stack.md` (liveness, the latency methodology), `scope.md` (roles)
 - **Code:** `web/dashboard/` (`README.md` there has run and test commands)
@@ -128,13 +128,14 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 
 ## Deployment
 
-- The dashboard is served from the **cloud Pi**, next to the cloud stack. It is not hosted on Vercel.
-- This is not set up yet. It belongs with the cloud's deployment to the Pi (Iteration 3, Slice 6) and its public domain with a Let's Encrypt certificate (`stack.md`, "Certificate scope").
-- What the deployment has to provide:
+- The dashboard is served at **https://app.medmusketeer.site** from the cloud VM, next to the cloud stack (Iteration 3, Slice 6; `cloud-backend.md` D18). It is not hosted on Vercel.
+- It runs as the stack's `dashboard` container behind the proxy, with a Let's Encrypt certificate. Set-up: `cloud/README.md`, "Public deployment".
+- Checked on 2026-11-04: a browser outside the tailnet signed in as the system admin through ZITADEL (PKCE) and reached `/system/dashboard`, with the token in sessionStorage only. The API-mode browser suite has not been run against it, because it relies on `seed-dev`, which must not run on the public server.
+- What the deployment provides:
   - a build in API mode with `NEXT_PUBLIC_API_URL` set to the cloud's public address;
   - `next start`, or a container, behind the stack's reverse proxy;
   - the dashboard's https origin in `DASHBOARD_ORIGINS`, so that the ZITADEL app's redirect URIs and the API's CORS match it (all-https origins turn ZITADEL's dev mode off).
-- **Open:** D14 chose CORS over a same-origin proxy because the dashboard was to be hosted on Vercel. Served by the same proxy as the API, it could share the API's origin, and CORS would not be needed. Decide when the Pi deployment is built.
+- **Decided (2026-10-30):** the dashboard keeps its own host name and CORS, as D14 chose. Separate host names need no dashboard change. Set-up: `cloud/README.md`, "Public deployment".
 
 ## Tests
 

@@ -57,7 +57,7 @@ Last updated: 2026-10-30
 
 ## Dashboard
 - ~~No screen-level spec for the new dashboard~~ — resolved 2026-10-26: `docs/iterations/iteration-6-dashboard.md` (all four roles built and tested on the cloud API)
-- Dashboard deployment on the cloud Pi (with the cloud's Slice 6 and the public domain); whether it shares the API's origin through the proxy, which would make CORS unnecessary (`cloud-backend.md` D14)
+- ~~Dashboard deployment and whether it shares the API's origin~~ — resolved 2026-11-04: served at `app.medmusketeer.site` with its own host name and CORS (`cloud-backend.md` D18)
 - Cloud endpoints the dashboard works around: a single alert (`GET /alerts/{id}`), an organisation's admins for the system admin, grants by organisation, a single patient and an audit filter by target for the org admin, and paging past 1000 rows (audit, security events, alerts). Details: the iteration doc, "Waiting for the cloud"
 - The ECG gain (ADC counts per mV) is not stored with segments; the dashboard assumes 200 counts/mV (MIT-BIH) and says so on every strip
 - ZITADEL's login offers "Register new user": a self-registered user has no role and gets "no access". Decide whether the bootstrap turns self-registration off
@@ -67,11 +67,14 @@ Last updated: 2026-10-30
 - NTP on the gateway hotspot (the wearable already retries SNTP before MQTT; the benchmark methodology requires synchronised clocks on every hop)
 - Buffer size/overflow policy for the wearable's "buffer unsent measurements" IPS behaviour, under real resource constraints
 - No OTA/firmware update strategy (`device_updates` exists only if remote updates are adopted) — relevant if credentials ever need pushing to deployed devices
-- Public-certificate operations: ACME client, automated renewal and EMQX reload, one domain/cert or separate subdomains
+- Public-certificate operations: ACME and renewal for the web addresses are done by Traefik, with one certificate per subdomain (`cloud-backend.md` D18). Open: a public certificate on EMQX for the phone relay's listener, and reloading EMQX when it renews
+- Backups of the cloud are not scheduled and not copied off the VM; `.env` exists only on the VM, and ZITADEL's data cannot be restored without its masterkey
+- Public SSH (port 22) is open on the cloud VM; limit it (Tailscale, or Oracle's security list to known addresses)
+- Docker's SELinux option for containers is off on the cloud VM (the host enforces SELinux)
 - No platform ops logging/monitoring (distinct from IDS/IPS event logging)
 - ~~The invite-code onboarding is not tested past ZITADEL issuing the code~~ — resolved 2026-10-26: the dashboard's API-mode browser tests redeem codes in ZITADEL's login for a new org admin and a new patient (TC-D05)
 - ~~The API returns no names~~ — resolved 2026-10-25: `GET /directory` reads them from ZITADEL (`cloud-backend.md` D14)
-- ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume) before the cloud is exposed beyond Tailscale
+- ZITADEL's API and Login UI containers run as root (`user: "0"`, as in ZITADEL's reference compose) so they can share the bootstrap PAT file; drop root (e.g. a one-off step that chowns the `zitadel-bootstrap` volume). The cloud is public since 2026-11-04, so this is due before real patient data
 - `is_testbed` exists as a registry field, but physical/logical separation of testbed hardware from anything resembling real patient data isn't specified
 - RSA key size (2048 assumed) and whether an RSA-CA variant is run for the key-type benchmark
 

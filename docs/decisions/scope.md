@@ -163,7 +163,7 @@ Only these have been measured. Everything else is a target.
 
 - Dashboard (proof of concept, deployment/interaction only): https://med-muskeeter.vercel.app/
 - **Important:** the POC only demonstrates dashboard interaction and deployment — never imply it validates model, hardware or security performance.
-- The new dashboard (`web/dashboard/`, Iteration 6) replaces the POC. It runs on the cloud API and will be served from the cloud Pi, not Vercel. See `docs/iterations/iteration-6-dashboard.md`.
+- The new dashboard (`web/dashboard/`, Iteration 6) replaces the POC. It runs on the cloud API and is served at https://app.medmusketeer.site from the cloud VM, not Vercel. See `docs/iterations/iteration-6-dashboard.md`.
 
 **Key related research consulted:**
 - Knowledge-distillation lightweight arrhythmia classification (teacher/student)
