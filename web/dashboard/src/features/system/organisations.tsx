@@ -49,7 +49,7 @@ function CreateOrganisation({ onCreated }: { onCreated: () => void }) {
           {busy ? "Creating…" : "Create"}
         </Button>
       </form>
-      <p className="text-xs text-[var(--color-text-muted)]">Also creates its organisation in ZITADEL, where its people sign in. Add its first administrator on the organisation&apos;s page.</p>
+      <p className="text-xs text-[var(--color-text-muted)]">Add its first administrator on the organisation&apos;s page.</p>
       <Notice notice={notice} />
     </Card>
   );

@@ -62,6 +62,16 @@ docker compose -f compose.yaml -f compose.public.yaml up -d --wait --build
 - Register ZITADEL's first admin as the system admin as in "ZITADEL set-up", with the `-f` options above. Never run `seed-dev` on a public server: its accounts share one printed password.
 - ZITADEL keeps its domain from its first start, so a change of `ZITADEL_DOMAIN` means starting ZITADEL from scratch. `docker compose down --volumes` deletes all data, and the EMQX certificate must be installed again.
 
+### Continuous deployment
+
+A push to `main` deploys itself to the server at `medmusketeer.site` (2026-11-04):
+- **When:** `.github/workflows/deploy.yml` runs after the `Dashboard` or `Cloud backend` workflow finishes on a push to `main`. It deploys only once every one of the two that the commit started has passed. If one failed, nothing is deployed; if one is still running, its own completion deploys. A push that starts neither (docs, firmware, gateway) does not deploy.
+- **How:** it connects over SSH as `opc` with a key that may run only `cloud/scripts/deploy.sh` (a forced command in `~/.ssh/authorized_keys`, with no shell, port or agent forwarding), sending the commit SHA. The script checks the commit is on `main`, checks it out in `~/medmusketeer` (a sparse clone of `cloud`, `shared` and `web/dashboard`), runs `up -d --wait --build --remove-orphans` with both compose files, and removes dangling images. It never replaces a newer deployed commit with an older one. Data is safe across deploys: volumes belong to the compose project `medmusketeer-cloud`, and `cloud/.env` is not tracked.
+- **Secrets** (repository): `DEPLOY_SSH_KEY` (the private key), `DEPLOY_HOST` (the server's address), `DEPLOY_KNOWN_HOSTS` (the server's pinned host key).
+- **Manual redeploy:** Actions, Deploy, "Run workflow" (deploys the head of `main`), or on the server `~/medmusketeer/cloud/scripts/deploy.sh <sha>`.
+- **Rollback:** on the server, `~/medmusketeer/cloud/scripts/deploy.sh --rollback <older sha of main>`. The next push to `main` deploys forward again.
+- The deploy's output, including each service's health, is in the workflow's log; a service that does not become healthy fails it.
+
 ### Server set-up (Oracle Linux 9)
 
 Done once on a new VM, before the stack (2026-11-04):

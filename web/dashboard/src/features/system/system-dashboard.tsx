@@ -8,7 +8,6 @@ import { PageIntro } from "@/components/ui/page-intro";
 import { formatAgo, formatDateTime } from "@/lib/date-time";
 import { useResource } from "@/lib/use-resource";
 import { AuditTable } from "./audit-table";
-import { SecurityEventTable } from "./security-event-table";
 
 const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
 
@@ -16,14 +15,13 @@ export function SystemDashboard() {
   const { data } = useData();
   const resource = useResource(
     async () => {
-      const [organisations, devices, events, audit, revocation] = await Promise.all([
+      const [organisations, devices, audit, revocation] = await Promise.all([
         data.registry.organisations(),
         data.registry.devices(),
-        data.registry.securityEvents(5),
         data.registry.audit(5),
         data.registry.revocation(),
       ]);
-      return { organisations, devices, events, audit, revocation };
+      return { organisations, devices, audit, revocation };
     },
     [],
   );
@@ -32,7 +30,7 @@ export function SystemDashboard() {
     <section className="mx-auto max-w-7xl space-y-5">
       <PageIntro title="Dashboard" description="The registry at a glance. The system administrator sees devices and organisations, never patient data." />
       <Loaded resource={resource} label="Loading the registry">
-        {({ organisations, devices, events, audit, revocation }, { fetchedAt }) => {
+        {({ organisations, devices, audit, revocation }, { fetchedAt }) => {
           const count = (status: string) => devices.filter((d) => d.status === status).length;
           return (
             <>
@@ -53,10 +51,6 @@ export function SystemDashboard() {
                     : "No list published yet"}
                 />
               </div>
-              <SectionTitle actions={<Link className="text-sm text-[var(--color-info)] underline" href="/system/security-events">All security events</Link>}>
-                Latest security events
-              </SectionTitle>
-              <SecurityEventTable events={events} empty="No security events reported by the gateways." />
               <SectionTitle actions={<Link className="text-sm text-[var(--color-info)] underline" href="/system/audit">Full audit log</Link>}>
                 Latest registry changes
               </SectionTitle>
