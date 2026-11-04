@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { expectFitsViewport, signInAs } from "./helpers";
 
 const roles = [
-  { name: "Sana Sysadmin", home: "/system/dashboard", nav: ["Organisations", "Devices", "Security Events"], foreign: "/doctor/alerts" },
+  { name: "Sana Sysadmin", home: "/system/dashboard", nav: ["Organisations", "Devices", "Audit Log"], foreign: "/doctor/alerts" },
   { name: "Omar Admin", home: "/org/dashboard", nav: ["Accounts", "Patients", "Devices"], foreign: "/system/devices" },
   { name: "Sarah Ahmed", home: "/doctor/dashboard", nav: ["Patients", "Alerts"], foreign: "/org/accounts" },
   { name: "Ali Khan", home: "/patient/dashboard", nav: ["Alerts", "ECG Recordings"], foreign: "/doctor/patients" },
