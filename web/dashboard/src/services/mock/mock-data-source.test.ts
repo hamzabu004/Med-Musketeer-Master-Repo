@@ -251,3 +251,37 @@ describe("sample data, the wearable revocation list (D16)", () => {
   });
 });
 
+
+describe("sample data, gateways (D17)", () => {
+  const gatewayOf = (org: string) => world.devices.find((d) => d.type === "fixed_gateway" && world.grants.some((g) => g.device_id === d.device_id && g.org_id === org))!.device_id;
+  const devHospital = () => world.organisations.find((o) => o.name === "Dev Hospital")!.org_id;
+  const northside = () => world.organisations.find((o) => o.name === "Northside Clinic")!.org_id;
+
+  it("is for the org admin only, and only for their own gateways", async () => {
+    for (const user of ["sysadmin", "doctor1", "patient1"]) expect(await statusOf(as(user).gateways.list())).toBe(403);
+    const admin = as("orgadmin");
+    expect((await admin.gateways.list()).map((g) => g.device_id)).toEqual([gatewayOf(devHospital())]);
+    for (const call of [admin.gateways.detail, admin.gateways.connectivity, admin.gateways.alerts]) {
+      expect(await statusOf(call(gatewayOf(northside())))).toBe(404);
+    }
+    expect(await statusOf(admin.gateways.detail(world.devices.find((d) => d.type === "wearable")!.device_id))).toBe(404);
+  });
+
+  it("dates the connection from the newest log row, and lists the wearables on it", async () => {
+    const admin = as("orgadmin");
+    const gateway = gatewayOf(devHospital());
+    const detail = await admin.gateways.detail(gateway);
+    expect(detail.connectivity).toEqual({ state: "online", since: new Date(Date.parse("2026-10-25T12:00:00Z") - 200 * 60_000).toISOString() });
+    expect(detail.wearables.map((w) => w.patient_id)).toEqual([patientId("P-1001")]);
+    const log = await admin.gateways.connectivity(gateway);
+    expect(log.map((e) => `${e.device_type} ${e.state}`)).toEqual([
+      "wearable online", "fixed_gateway online", "fixed_gateway offline", "wearable offline", "wearable online", "fixed_gateway online",
+    ]);
+  });
+
+  it("gives alert times, wearables and patients only: never what the alert said (D9)", async () => {
+    const alerts = await as("orgadmin").gateways.alerts(gatewayOf(devHospital()));
+    expect(alerts).toHaveLength(3); // P-1001's, on the fixed path; P-1002's came over the mobile path
+    for (const alert of alerts) expect(Object.keys(alert).sort()).toEqual(["at", "device_id", "patient_id"]);
+  });
+});

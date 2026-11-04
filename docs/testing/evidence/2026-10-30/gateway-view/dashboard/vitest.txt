@@ -1,0 +1,13 @@
+
+ RUN  v5.0.5 /run/media/hmz-gul/01DB003D88B96CA0/FYP/Projects/Med-Musketeer-Master-Repo/web/dashboard
+
+
+ Test Files  14 passed (14)
+      Tests  111 passed (111)
+   Start at  10:44:27
+   Duration  24.87s (environment 46%, tests 34%, setup 17%, import 3%, transform 1%)
+
+Environment  jsdom was created 14 times · 29.73s total, 46% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

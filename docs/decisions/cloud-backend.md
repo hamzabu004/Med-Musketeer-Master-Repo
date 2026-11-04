@@ -1,8 +1,8 @@
 # MedMusketeer — Cloud Backend Design (Iteration 3)
 
-Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard, D15 from Slice 5, and D16 for Iteration 4's revocation sync. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 and D16 on 2026-10-29). D16's cloud side is Implemented (Iteration 4 Slice 1, TC-C28 to TC-C31), and its gateway side is container-tested (Slice 2, TC-B05 to TC-B08, `gateway/uplink`). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
+Companion to `stack.md`. Records decisions D1 to D10 from Slice 0 of `docs/iterations/iteration-3-cloud.md`, D11 and D12 taken while building Slice 3, D13 from Slice 4, D14 for the dashboard, D15 from Slice 5, D16 for Iteration 4's revocation sync, D17 for the org admin's gateway view, and D18 for the deployment. Status markers follow `stack.md`. All are **Decided** (D1 to D10 on 2026-10-23, D11 to D13 on 2026-10-24, D14 on 2026-10-25, D15 and D16 on 2026-10-29, D17 and D18 on 2026-10-30). D16's cloud side is Implemented (Iteration 4 Slice 1, TC-C28 to TC-C31), and its gateway side is container-tested (Slice 2, TC-B05 to TC-B08, `gateway/uplink`). D1, D4 and D5 are **Implemented** and container-tested (Slice 4, TC-C14 to TC-C18); D6, D7 and D15 likewise (Slice 5, TC-C20 to TC-C26). Details marked "verify in Slice N" are to be confirmed against the pinned versions while building.
 
-Last updated: 2026-10-29
+Last updated: 2026-10-30
 
 ## Overview
 
@@ -185,6 +185,7 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Devices, credentials: register, suspend, revoke | ✔ | ✘ | ✘ | ✘ |
 | Device grants to organisations | ✔ | ✘ | ✘ | ✘ |
 | Devices of own organisation: list, live status | ✔ (all) | ✔ | ✔ (own patients' devices) | ✘ |
+| Gateways of own organisation: connectivity log, connected wearables, alert times (D17) | ✘ | ✔ | ✘ | ✘ |
 | Doctor/patient accounts: create, disable | ✘ | ✔ (own org) | ✘ | ✘ |
 | Issue a wearable to a patient | ✘ | ✔ | ✘ | ✘ |
 | Assign a doctor to a patient | ✘ | ✔ | ✘ | ✘ |
@@ -198,7 +199,7 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Audit log (grants, issues, exports) | ✔ (device side) | ✔ (own org) | ✘ | ✘ |
 | Directory: names of the people one works with (D14) | ✘ | ✔ (own org, with e-mail) | ✔ (self, own patients) | ✔ (self, own doctor) |
 
-- The organisation admin **cannot read patient ECG data**, classifications or alerts.
+- The organisation admin **cannot read patient ECG data**, classifications or alerts. The one exception (D17, 2026-10-30): per gateway, the time, wearable and patient of each alert that came through it, never its classification, confidence or ECG.
 - Open: how a patient export works when the org admin cannot read ECG (whether the export bundle includes ECG, produced by the API without the org admin viewing it). Until decided, `POST /patients/{id}/exports` returns the pseudonym, disorders, care and wearable history with `ecg_included: false`, and logs the export.
 - Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3; "Directory" on 2026-10-25 for the dashboard (D14). Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
 
@@ -212,6 +213,7 @@ Endpoints (2026-10-25):
 | Patients | `GET /patients`, `PUT /patients/{id}/doctor`, `POST/DELETE /patients/{id}/wearable`, `GET/POST /patients/{id}/disorders`, `POST /patients/{id}/exports` |
 | ECG and alerts (doctor, patient) | `GET /alerts`, `GET /patients/{id}/alerts`, `POST /alerts/{id}/acknowledge`, `GET /patients/{id}/segments`, `GET /segments/{id}` |
 | Audit (org admin) | `GET /audit` |
+| Gateways (org admin, D17) | `GET /gateways`, `GET /gateways/{id}`, `GET /gateways/{id}/connectivity`, `GET /gateways/{id}/alerts` |
 | Directory (D14) | `GET /directory` |
 | Public | `GET /livez`, `GET /healthz`, `GET /auth/config` (the dashboard's sign-in settings) |
 
@@ -267,7 +269,7 @@ emqx (image built from cloud/emqx/)
 
 - The configuration is `etc/emqx.conf`, which takes precedence over dashboard changes, so nothing can be loosened at runtime. EMQX 6 does not substitute environment variables in it (verified), so `mm-entrypoint.sh` renders it from a template at start with the hook secret and the Erlang cookie (both from `.env`, alphanumeric only).
 - The cloud server certificate (`mmca issue cloud`) is streamed into the `emqx-certs` volume by `cloud/scripts/install-emqx-certs.sh` (no bind mount). Without it EMQX starts with the gateway listener off and a warning.
-- Published ports: 8883 on `EMQX_GATEWAY_BIND_ADDRESS` (127.0.0.1 on the laptop, the Tailscale address on the cloud Pi), 1883 on 127.0.0.1 only.
+- Published ports: 8883 on `EMQX_GATEWAY_BIND_ADDRESS` (127.0.0.1 on the laptop, all addresses on the public server, D18), 1883 on 127.0.0.1 only.
 - Rejected alternative: per-listener built-in password database for the adapter (would need a credentials file baked into the image or a bind mount).
 
 ## D14 — Dashboard sign-in, CORS and the name directory (Decided 2026-10-25)
@@ -295,7 +297,25 @@ browser ── Authorization: Bearer … (CORS: DASHBOARD_ORIGINS) ──► api
 - Rejected alternatives:
   - The dashboard reading names from ZITADEL itself: a user's token cannot read other users.
   - A name column in `users`: names would then live in two places (D12 keeps them in ZITADEL).
-  - A same-origin reverse proxy instead of CORS: the dashboard was to be hosted on Vercel, the API on the cloud Pi. **Revisit (2026-10-26):** the dashboard will now be served from the cloud Pi, so it could share the API's origin through the stack's proxy and CORS would not be needed. To be decided with the Pi deployment (`docs/iterations/iteration-6-dashboard.md`, Deployment).
+  - A same-origin reverse proxy instead of CORS: the dashboard was to be hosted on Vercel, the API on the cloud Pi. **Revisited (2026-10-26, decided 2026-10-30):** the dashboard is now served by the same proxy as the API, so it could share the API's origin. It keeps its own host name and CORS instead (D18), which needs no dashboard change.
+
+## D18 — Deployment: Oracle Cloud VM on a public domain (Decided 2026-10-30, deployed 2026-11-04)
+
+```
+internet ── 443 (Let's Encrypt) ──► Traefik ──► app.medmusketeer.site   dashboard
+                  80: redirect, ACME         ├─► api.medmusketeer.site   API (not /internal, /docs, /redoc, /openapi.json)
+                                             └─► auth.medmusketeer.site  ZITADEL API and Login UI
+gateways ── 8883 (mutual TLS, private CA) ──────► EMQX                   mqtt.medmusketeer.site
+```
+
+- **Host:** an Oracle Cloud VM (`VM.Standard.E5.Flex`, 4 OCPU, 12 GB, Oracle Linux 9, Singapore) instead of the second Raspberry Pi. The Pi stays an alternate once it has an SSD; the compose files run on both (amd64 and arm64 images).
+- **Disk:** Docker's data (`/var/lib/docker`, and `/var/lib/containerd` bound onto it, where Docker 29 keeps images) is on a separate 100 GB block volume, mounted by UUID. Docker and containerd start only when it is mounted. If the VM is lost, the volume can be attached to a new one.
+- **Public access:** `cloud/compose.public.yaml`, layered on `compose.yaml`. The proxy is the only way in to the dashboard, the API and ZITADEL; their own ports stay on 127.0.0.1. Oracle's security list opens 22, 80, 443 and 8883 only. Gateways keep the private-CA mTLS listener and pin `cloud.medmusketeer.local` ("Certificate scope" in `stack.md`). The proxy also sets HSTS and a per-client rate limit (50 requests a second, bursts of 100).
+- **Why public, not Tailscale only:** the dashboard is for users who are not on the tailnet. Browsers also allow its sign-in (PKCE, which needs `crypto.subtle`) only on HTTPS or localhost.
+- **Dashboard origin:** its own host name with CORS (D14), rather than sharing the API's origin. Separate host names need no dashboard change.
+- **Database:** Postgres stays in the stack. Rejected: OCI Database with PostgreSQL, whose supported extensions do not include TimescaleDB (checked 2026-10-30) and whose versions stop at PostgreSQL 17, so the hypertables and retention policy (`0001_initial_schema.py`) would have to be rewritten. Also rejected: a second VM for Postgres, which would add cost and a link to secure without removing the single point of failure.
+- **Encryption at rest:** Oracle encrypts block and boot volumes by default with keys it holds (not checked on these volumes). Recorded as an accepted shortcut; customer-held keys are future work.
+- **Open before real patient data:** off-VM backups, including a copy of `.env` (ZITADEL's data is sealed with its masterkey); ZITADEL's containers still run as root (`gaps.md`); Docker's SELinux option for containers is off; public SSH. One VM is a single point of failure.
 
 ## D15 — Ingestion: presence and IDS payloads, idempotency, liveness (Decided 2026-10-29)
 
@@ -364,3 +384,24 @@ Why push + cache, and the accepted tradeoffs: `stack.md`, "Gateway/wearable cred
   - An MQTT publisher account for the API: it would be one more client with publish rights; the REST API is needed for the disconnect anyway.
   - An outbox table (the first plan): one state row with a published version does the same for a single list.
 - **EMQX API key:** `mm-api`, role `administrator` (it publishes and disconnects clients), its secret `EMQX_API_SECRET` in `.env`. `mm-entrypoint.sh` writes the bootstrap file at every start. Unset in the API: the list is not published and gateways are not disconnected at once (logged).
+
+## D17 — Gateway connectivity log and the org admin's gateway view (Decided 2026-10-30; Implemented)
+
+The organisation admin gets a view of each fixed gateway granted to the organisation: whether it is connected to the cloud and since when (its uptime), the wearables on it, when alerts came through it, and a log of its connections and of its wearables joining and leaving.
+
+- **Log** (`connectivity_events`, migration 0005): one row per change of state of a device on a gateway, written by ingestion from the status-v1 messages of D15. A gateway's own rows (`device_id = gateway_id`) come from EMQX's connect and disconnect events and from its own status; a wearable's from the presence its gateway forwards.
+  - A report of the state already logged adds nothing. On connect, the broker's event and the gateway's own status both say online, and the gateway repeats its status after each new revocation list.
+  - A report older than the newest row for that device and gateway adds nothing either, so rows are appended in time order. The newest gateway row's `at` is therefore when its current connection began: that is its uptime.
+  - A suspended gateway's disconnect is logged, as it is accepted (D15). Rejected messages roll back and are not logged.
+  - The API may only append (`REVOKE UPDATE, DELETE`), as for `audit_log` and `ingested_messages`.
+- **Alerts:** `alerts.gateway_id` is the gateway that attested the alert (D1). It is null for alerts stored before migration 0005 and, later, on the mobile path.
+- **Offline:** a gateway is shown as offline after its disconnect. D15's rule against "offline" is about wearables, whose path the cloud may not know. A gateway's session with EMQX is known for certain. Its wearables become `unknown` (D15) and are not counted as connected.
+- **Scope** (`app/gateways.py`, org admin only, 404 for a device that is not a fixed gateway with an open grant to the organisation):
+  - wearables of other organisations on the gateway are counted (`other_wearables_connected`), never named, and their log rows are left out;
+  - alerts are those of the organisation's patients, as `{at, device_id, patient_id}` (the D9 exception above);
+  - the log and alerts are not cut at the grant's start, so a gateway granted after serving another organisation shows its own earlier connections. Their rows name no other organisation's devices.
+- **Tests:** TC-C33 to TC-C35, `tests/integration/test_gateways.py` and `test_access.py`.
+- Rejected alternatives:
+  - A `connected_since` column on `devices`: one value, no history, and the history is what the admin asked for.
+  - Logging every report: repeated "online" rows would hide the changes, and uptime would need a search for the first online after the last offline.
+  - Showing the org admin full alerts: D9 keeps classifications and ECG for doctors and patients.

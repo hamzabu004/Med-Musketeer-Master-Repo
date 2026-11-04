@@ -7,15 +7,19 @@ import type {
   Alert,
   AuditEvent,
   CareAssignment,
+  ConnectivityEvent,
   Credential,
   CredentialIn,
   Device,
   DeviceIn,
   Disorder,
+  GatewayAlert,
+  GatewayDetail,
   Grant,
   Me,
   NewAccount,
   OrgDevice,
+  OrgGateway,
   Organisation,
   OrganisationIn,
   OwnOrganisation,
@@ -123,6 +127,15 @@ export interface DataSource {
     recordDisorder(patientId: string, disorder: string): Promise<Disorder>;
     exportPatient(patientId: string, destination: string): Promise<PatientExport>;
     audit(limit?: number): Promise<AuditEvent[]>;
+  };
+
+  /** Org admin: the gateways granted to the organisation (D17). Alerts are their times only (D9). */
+  gateways: {
+    list(): Promise<OrgGateway[]>;
+    detail(gatewayId: string): Promise<GatewayDetail>;
+    /** The gateway's connections and its wearables' presence through it, newest first. */
+    connectivity(gatewayId: string, limit?: number): Promise<ConnectivityEvent[]>;
+    alerts(gatewayId: string, limit?: number): Promise<GatewayAlert[]>;
   };
 
   /** Org admin (whole organisation) and doctor (own patients). */

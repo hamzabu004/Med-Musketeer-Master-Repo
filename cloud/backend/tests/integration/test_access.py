@@ -52,6 +52,11 @@ MATRIX = [
     ("GET", "/devices", {OA, DR}, None),
     ("GET", "/audit", {OA}, None),
     ("GET", "/directory", {OA, DR, PT}, None),
+    # gateways of own organisation (D17)
+    ("GET", "/gateways", {OA}, None),
+    ("GET", "/gateways/{a.gateway}", {OA}, None),
+    ("GET", "/gateways/{a.gateway}/connectivity", {OA}, None),
+    ("GET", "/gateways/{a.gateway}/alerts", {OA}, None),
     # accounts (organisation admin)
     ("GET", "/accounts", {OA}, None),
     ("POST", "/accounts", {OA}, {"role": "doctor", "email": "doc@a.example", "given_name": "Dee", "family_name": "Doc"}),
@@ -181,7 +186,10 @@ def test_tc_c10_an_org_admin_cannot_reach_another_organisation(make_client, worl
                       json={"device_id": str(world.b.wearable)}).status_code == 404  # granted to B
     assert admin.post(f"/accounts/{world.b.doctor.user_id}/disable").status_code == 404
     assert admin.post(f"/patients/{other}/exports", json={"destination": "x"}).status_code == 404
-    for path in ("/patients", "/accounts", "/devices", "/audit"):
+    for path in ("", "/connectivity", "/alerts"):
+        assert admin.get(f"/gateways/{world.b.gateway}{path}").status_code == 404, path
+    for path in ("/patients", "/accounts", "/devices", "/audit", "/gateways", f"/gateways/{world.a.gateway}",
+                 f"/gateways/{world.a.gateway}/connectivity", f"/gateways/{world.a.gateway}/alerts"):
         body = ids_in(admin.get(path))
         assert not any(secret in body for secret in world.b.secrets), path
 
@@ -192,6 +200,15 @@ def test_tc_c10_an_org_admin_reads_no_ecg_and_exports_without_it(make_client, wo
     assert export.status_code == 201
     assert export.json()["ecg_included"] is False
     assert str(world.a.segment) not in export.text and str(world.a.alert) not in export.text
+
+
+def test_tc_c35_an_org_admin_sees_when_alerts_came_through_a_gateway_not_what_they_said(make_client, world):
+    alerts = make_client(world.a.admin).get(f"/gateways/{world.a.gateway}/alerts")
+    assert alerts.status_code == 200
+    assert {(row["device_id"], row["patient_id"]) for row in alerts.json()} == {
+        (str(world.a.wearable), str(world.a.patient_id)), (str(world.a.other_wearable), str(world.a.other_patient_id))}
+    assert all(set(row) == {"at", "device_id", "patient_id"} for row in alerts.json())
+    assert str(world.a.alert) not in alerts.text and str(world.a.segment) not in alerts.text
 
 
 # --- TC-C11 ------------------------------------------------------------------------------------

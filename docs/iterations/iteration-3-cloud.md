@@ -1,13 +1,13 @@
 # Iteration 3 — Cloud backend
 
 - **Owner:** Hamza Tariq (M7 cloud platform; M1 CA tool for the cloud certificate)
-- **Status:** Slices 0 to 5 done (2026-10-29); Slice 6, the deployment to the cloud Pi, remains
+- **Status:** Slices 0 to 5 done (2026-10-29). Slice 6: deployed on 2026-11-04 to an Oracle Cloud VM at `medmusketeer.site` instead of the cloud Pi (`cloud-backend.md` D18); TC-C27, backups and the gateway's connection remain
 - **Depends on:** `docs/decisions/stack.md`, `gaps.md`, the cloud schema in the mid report §5 "Data Design"
 - **Followed by:** Iteration 4 (uplink bridge on the gateway → this backend)
 
 ## Goal
 
-A cloud backend that a gateway could connect to: PostgreSQL + TimescaleDB with the device registry, organisations and device grants; ZITADEL with the four roles; the ingestion API; and EMQX with the gateway mTLS listener and a live credential check. A test script plays the gateway's part. It is developed with Docker Compose on the laptop and deployed to the second Raspberry Pi at the end.
+A cloud backend that a gateway could connect to: PostgreSQL + TimescaleDB with the device registry, organisations and device grants; ZITADEL with the four roles; the ingestion API; and EMQX with the gateway mTLS listener and a live credential check. A test script plays the gateway's part. It is developed with Docker Compose on the laptop and deployed at the end, to an Oracle Cloud VM rather than the second Raspberry Pi first planned (D18).
 
 ## Scope
 
@@ -20,7 +20,7 @@ A cloud backend that a gateway could connect to: PostgreSQL + TimescaleDB with t
 - Ingestion of gateway messages: alerts with their ECG segment, presence/status, IDS/IPS events
 - A cloud server certificate profile in the CA tool (`cloud.medmusketeer.local`, serverAuth)
 - Tests with TC-C IDs and stored evidence
-- Deployment of the same stack to the cloud Pi, reachable over Tailscale
+- Deployment of the same stack to the cloud server (first planned: the cloud Pi over Tailscale; done: an Oracle Cloud VM on a public domain, D18)
 
 **Out (later iterations):**
 - Uplink bridge on the gateway → Iteration 4
@@ -33,7 +33,7 @@ A cloud backend that a gateway could connect to: PostgreSQL + TimescaleDB with t
 
 ## Exit criteria
 
-1. `docker compose up` on the laptop and on the cloud Pi brings every service up healthy.
+1. `docker compose up` on the laptop and on the cloud server brings every service up healthy.
 2. All migrations apply to an empty database; the schema matches the report's table list.
 3. A test gateway with an active credential connects over mTLS; a revoked, unknown-CA, missing or wearable certificate is refused.
 4. An alert published by the test gateway for an issued wearable lands in `monitoring_sessions`, `ecg_segments`, `ecg_chunks` and `alerts` with the right `patient_id`, `org_id` and `attested_by`; an alert for an unissued wearable is rejected and logged.
@@ -136,11 +136,13 @@ Alerts carry no severity: the wearable sends a label and a confidence, and neith
 - Alert push: `NOTIFY` on new alerts and a WebSocket endpoint that delivers them to the right doctor (stretch goal; the dashboard uses it in Iteration 6).
 - **Tests:** TC-C20 an alert for an issued wearable lands in all four tables with `attested_by`; TC-C21 an alert for an unissued wearable is rejected and logged; TC-C22 a redelivered message is stored once; TC-C23 a malformed payload is rejected; TC-C24 an IDS event is stored; TC-C25 reassigning a wearable ends the session, so later data goes to the new patient; TC-C26 a gateway going offline shows its wearables as unknown, not offline.
 
-### Slice 6 — Deploy to the cloud Pi (S)
+### Slice 6 — Deploy to the cloud server (S)
 
-- Same compose stack on the second Pi (arm64), reachable over Tailscale; volumes and a database backup script; secrets in the Pi's `.env` only.
-- Decide disk encryption on the Pi (the report plans encryption at rest with the cloud platform) or record it as an accepted shortcut.
-- **Tests:** TC-C27 the smoke suite (C01, C14, C20) passes against the Pi from the laptop; memory and CPU use recorded at idle.
+First planned for the second Pi over Tailscale. Changed on 2026-10-30 to an Oracle Cloud VM on the public domain `medmusketeer.site` (`cloud-backend.md` D18).
+- Same compose stack, with `compose.public.yaml` for HTTPS (Let's Encrypt) through the proxy; volumes on a separate block volume; a database backup script (`scripts/backup-db.sh`); secrets in the server's `.env` only. **Done 2026-11-04** (`cloud/README.md`, "Public deployment" and "Server set-up").
+- Disk encryption: Oracle's default encryption at rest with keys it holds, recorded as an accepted shortcut (D18).
+- Memory at idle: about 1.9 GB used of 12 GB, all eight services healthy after a reboot (2026-11-04). Not yet recorded as evidence with CPU use.
+- **Remaining:** TC-C27, the smoke suite (C01, C14, C20), against the server from the laptop; scheduled off-VM backups; the gateway pointed at `mqtt.medmusketeer.site:8883`.
 
 ## Testing approach
 
@@ -154,7 +156,7 @@ Alerts carry no severity: the wearable sends a label and a confidence, and neith
 | Risk | Mitigation |
 |---|---|
 | ZITADEL setup is the largest unknown (bootstrap, token claims, management API) | Start Slice 3's bootstrap early, in parallel with Slice 2; keep the API's auth behind one module so unit tests do not need ZITADEL |
-| The Pi's memory may not hold Postgres + ZITADEL + EMQX + the API | Record its model and RAM before Slice 6; measure idle use on the laptop first; fall back to a VM if needed |
+| The Pi's memory may not hold Postgres + ZITADEL + EMQX + the API | Resolved: deployed to a VM with 12 GB (D18); about 1.9 GB is used at idle |
 | The alert payload (D6) must match what the firmware sends | Keep the schema in `shared/contracts/` and share it with the Iteration 2 firmware work before Slice 5 |
 | EMQX licence terms change in a later version | D10: 6.3.2 is pinned and its BSL 1.1 terms checked; any upgrade re-checks the licence and gets a change-log entry |
 | Open gaps (on-demand start/stop, `status` semantics) | Out of scope here; ingestion rejects unknown message types with a logged reason |

@@ -179,6 +179,15 @@ def seed_database(conn, zitadel_org: str, people: list[Person], rng: random.Rand
     for wearable, mode, via, seen in live:
         conn.execute(text("UPDATE devices SET current_mode = :m, current_gateway_id = :g, last_seen = :t WHERE device_id = :d"),
                      {"m": mode, "g": via, "t": seen, "d": wearable})
+    # Connectivity log (D17): the gateway was down for 20 minutes this morning and has been up since;
+    # patient1's wearable joined it after, patient2's left it for the mobile path.
+    for device, state, reason, minutes_ago in (
+            (gateway, "online", None, 60 * 26), (wearables[1], "online", None, 60 * 25),
+            (wearables[1], "offline", "mode_switch", 60 * 8), (gateway, "offline", None, 60 * 3 + 40),
+            (gateway, "online", None, 60 * 3 + 20), (wearables[0], "online", None, 60 * 3 + 15)):
+        insert(conn, """INSERT INTO connectivity_events (device_id, gateway_id, state, reason, at)
+                        VALUES (:d, :g, :s, :r, :t) RETURNING 1""",
+               d=device, g=gateway, s=state, r=reason, t=now - timedelta(minutes=minutes_ago))
 
     assignments = [("patient1", "doctor1"), ("patient2", "doctor1"), ("patient3", "doctor2")]
     for patient, doctor in assignments:
@@ -224,9 +233,10 @@ def seed_database(conn, zitadel_org: str, people: list[Person], rng: random.Rand
                 g=segment, src="gateway" if path == "fixed" else "cloud", l=label, c=confidence,
                 t=start + timedelta(seconds=SEGMENT_S + 1))
             insert(conn, """INSERT INTO alerts (device_id, patient_id, classification_id, origin, created_at,
-                                                acknowledged_by, acknowledged_at)
-                            VALUES (:d, :p, :c, :origin, :t, :ab, :at) RETURNING 1""",
+                                                acknowledged_by, acknowledged_at, gateway_id)
+                            VALUES (:d, :p, :c, :origin, :t, :ab, :at, :gw) RETURNING 1""",
                    d=wearable, p=patient_id, c=classification, origin="gateway" if path == "fixed" else "cloud",
+                   gw=gateway if path == "fixed" else None,
                    t=start + timedelta(seconds=SEGMENT_S + 1), ab=by["doctor1"].user_id if acked else None,
                    at=start + timedelta(minutes=12) if acked else None)
             alerts += 1

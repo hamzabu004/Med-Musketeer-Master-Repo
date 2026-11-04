@@ -469,6 +469,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gateways": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Organisation Gateways */
+        get: operations["organisation_gateways_gateways_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateways/{gateway_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gateway Detail */
+        get: operations["gateway_detail_gateways__gateway_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateways/{gateway_id}/connectivity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gateway Connectivity
+         * @description The gateway's connections and its wearables' presence through it, newest first. Rows of
+         *     wearables not granted to the organisation are left out.
+         */
+        get: operations["gateway_connectivity_gateways__gateway_id__connectivity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gateways/{gateway_id}/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gateway Alerts
+         * @description When the organisation's patients' alerts came through the gateway, newest first.
+         */
+        get: operations["gateway_alerts_gateways__gateway_id__alerts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/alerts": {
         parameters: {
             query?: never;
@@ -837,6 +912,56 @@ export interface components {
              */
             created_at: string;
         };
+        /** ConnectedWearable */
+        ConnectedWearable: {
+            /**
+             * Device Id
+             * Format: uuid
+             */
+            device_id: string;
+            /** Status */
+            status: string;
+            /** Last Seen */
+            last_seen: string | null;
+            /** Connected Since */
+            connected_since: string | null;
+            /** Patient Id */
+            patient_id: string | null;
+        };
+        /** Connectivity */
+        Connectivity: {
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "online" | "offline" | "unknown";
+            /** Since */
+            since: string | null;
+        };
+        /** ConnectivityEvent */
+        ConnectivityEvent: {
+            /**
+             * Event Id
+             * Format: uuid
+             */
+            event_id: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Device Id
+             * Format: uuid
+             */
+            device_id: string;
+            /** Device Type */
+            device_type: string;
+            /** State */
+            state: string;
+            /** Reason */
+            reason: string | null;
+        };
         /** Credential */
         Credential: {
             /**
@@ -974,6 +1099,50 @@ export interface components {
             /** Destination */
             destination: string;
         };
+        /**
+         * GatewayAlert
+         * @description When an alert came through the gateway, and from whom. Not the alert's content (D9).
+         */
+        GatewayAlert: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Device Id
+             * Format: uuid
+             */
+            device_id: string;
+            /**
+             * Patient Id
+             * Format: uuid
+             */
+            patient_id: string;
+        };
+        /** GatewayDetail */
+        GatewayDetail: {
+            /**
+             * Device Id
+             * Format: uuid
+             */
+            device_id: string;
+            /** Status */
+            status: string;
+            /** Last Seen */
+            last_seen: string | null;
+            connectivity: components["schemas"]["Connectivity"];
+            /** Wearables Connected */
+            wearables_connected: number;
+            /** Other Wearables Connected */
+            other_wearables_connected: number;
+            /** Alerts 24H */
+            alerts_24h: number;
+            /** Last Alert At */
+            last_alert_at: string | null;
+            /** Wearables */
+            wearables: components["schemas"]["ConnectedWearable"][];
+        };
         /** Grant */
         Grant: {
             /**
@@ -1068,6 +1237,27 @@ export interface components {
             last_seen: string | null;
             /** Patient Id */
             patient_id: string | null;
+        };
+        /** OrgGateway */
+        OrgGateway: {
+            /**
+             * Device Id
+             * Format: uuid
+             */
+            device_id: string;
+            /** Status */
+            status: string;
+            /** Last Seen */
+            last_seen: string | null;
+            connectivity: components["schemas"]["Connectivity"];
+            /** Wearables Connected */
+            wearables_connected: number;
+            /** Other Wearables Connected */
+            other_wearables_connected: number;
+            /** Alerts 24H */
+            alerts_24h: number;
+            /** Last Alert At */
+            last_alert_at: string | null;
         };
         /** Organisation */
         Organisation: {
@@ -2323,6 +2513,123 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PatientExport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    organisation_gateways_gateways_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrgGateway"][];
+                };
+            };
+        };
+    };
+    gateway_detail_gateways__gateway_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                gateway_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gateway_connectivity_gateways__gateway_id__connectivity_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                gateway_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectivityEvent"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gateway_alerts_gateways__gateway_id__alerts_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                gateway_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GatewayAlert"][];
                 };
             };
             /** @description Validation Error */

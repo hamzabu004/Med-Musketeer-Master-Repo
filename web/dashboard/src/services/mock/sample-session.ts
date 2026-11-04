@@ -30,8 +30,8 @@ export function sampleWorld(): World {
   if (!world) {
     const stored = read(WORLD_KEY);
     const parsed = stored ? (JSON.parse(stored) as Partial<World>) : null;
-    // A world stored by an older build lacks newer parts (e.g. `revocation`): start afresh.
-    world = parsed?.revocation ? (parsed as World) : createWorld();
+    // A world stored by an older build lacks newer parts (e.g. `connectivity`): start afresh.
+    world = parsed?.connectivity ? (parsed as World) : createWorld();
   }
   return world;
 }

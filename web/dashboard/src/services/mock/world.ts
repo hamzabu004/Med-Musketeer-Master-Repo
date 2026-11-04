@@ -69,6 +69,19 @@ export interface MockAlert {
   created_at: string;
   acknowledged_by: string | null;
   acknowledged_at: string | null;
+  /** The gateway that attested it (fixed path); null on the mobile path. */
+  gateway_id: string | null;
+}
+
+/** A connectivity_events row (D17): a change of state of a device on a gateway; a gateway's own
+ * rows have device_id = gateway_id. */
+export interface MockConnectivityEvent {
+  event_id: string;
+  device_id: string;
+  gateway_id: string;
+  state: "online" | "offline";
+  reason: string | null;
+  at: string;
 }
 
 export interface World {
@@ -84,6 +97,7 @@ export interface World {
   segments: MockSegment[];
   classifications: MockClassification[];
   alerts: MockAlert[];
+  connectivity: MockConnectivityEvent[];
   securityEvents: SecurityEvent[];
   audit: AuditEvent[];
   attackTests: AttackTest[];
@@ -100,7 +114,7 @@ export function mockId(kind: number, n: number): string {
   return `${hex(n * 0x9e37 + kind, 8).slice(-8)}-${hex(kind, 4)}-4000-8000-${hex(n, 12)}`;
 }
 
-const ID = { org: 1, user: 2, patient: 3, device: 4, credential: 5, grant: 6, care: 7, segment: 8, session: 9, classification: 10, alert: 11, security: 12, audit: 13, attack: 14, command: 15 };
+const ID = { org: 1, user: 2, patient: 3, device: 4, credential: 5, grant: 6, care: 7, segment: 8, session: 9, classification: 10, alert: 11, security: 12, audit: 13, attack: 14, command: 15, connectivity: 16 };
 
 export function createWorld(now = Date.now()): World {
   const at = (minutesAgo: number) => new Date(now - minutesAgo * 60_000).toISOString();
@@ -180,6 +194,17 @@ export function createWorld(now = Date.now()): World {
   live(nsWearable, "mobile", null, 2);
   live(nsGateway, "fixed", null, 1);
 
+  // Connectivity log, as seed-dev writes it: the gateway was down for 20 minutes this morning and
+  // has been up since; patient1's wearable joined it after, patient2's left it for the mobile path.
+  const connectivity: MockConnectivityEvent[] = ([
+    [gateway, gateway, "online", null, 60 * 26], [wearables[1], gateway, "online", null, 60 * 25],
+    [wearables[1], gateway, "offline", "mode_switch", 60 * 8], [gateway, gateway, "offline", null, 60 * 3 + 40],
+    [gateway, gateway, "online", null, 60 * 3 + 20], [wearables[0], gateway, "online", null, 60 * 3 + 15],
+    [nsGateway, nsGateway, "online", null, 60 * 50],
+  ] as const).map(([device_id, gateway_id, state, reason, minutesAgo], i) => ({
+    event_id: mockId(ID.connectivity, i + 1), device_id, gateway_id, state, reason, at: at(minutesAgo),
+  }));
+
   const careAssignments: CareAssignment[] = [
     [p1, doctor1, orgadmin], [p2, doctor1, orgadmin], [p3, doctor2, orgadmin], [p4, nsDoctor, nsAdmin],
   ].map(([patient_id, doctor_id, assigned_by], i) => ({
@@ -229,6 +254,7 @@ export function createWorld(now = Date.now()): World {
         alert_id: next(ID.alert), device_id, patient_id, classification_id, origin: path === "fixed" ? "gateway" : "cloud",
         created_at: new Date(start + 11_000).toISOString(),
         acknowledged_by: acknowledged ? acknowledger : null, acknowledged_at: acknowledged ? new Date(start + 12 * 60_000).toISOString() : null,
+        gateway_id: path === "fixed" ? gateway : null,
       });
     }
   }
@@ -278,7 +304,7 @@ export function createWorld(now = Date.now()): World {
 
   return {
     organisations, users, patients, devices, credentials, grants, careAssignments, wearableAssignments,
-    disorders, segments, classifications, alerts, securityEvents, audit, attackTests, recordings, exports: 0,
+    disorders, segments, classifications, alerts, connectivity, securityEvents, audit, attackTests, recordings, exports: 0,
     revocation: { version: 2, published_at: at(60 * 3) },
   };
 }

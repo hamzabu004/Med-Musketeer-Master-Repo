@@ -1,5 +1,5 @@
 # MedMusketeer cloud backend (Iteration 3). Development stack; the same file is deployed to the
-# cloud Pi in Slice 6. Every image is pinned and has amd64 and arm64 builds. Secrets come from
+# cloud server in Slice 6, with compose.public.yaml layered on it. Every image is pinned and has amd64 and arm64 builds. Secrets come from
 # .env (create it with scripts/init-env.sh); published ports bind to 127.0.0.1 only.
 # Configuration is built into the postgres and proxy images rather than bind-mounted.
 name: medmusketeer-cloud
@@ -103,7 +103,7 @@ services:
       - --ping.entrypoint=web
       - --accesslog=true
     ports:
-      - 127.0.0.1:${PROXY_HTTP_PUBLISHED_PORT:-8080}:80
+      - ${PROXY_BIND_ADDRESS:-127.0.0.1}:${PROXY_HTTP_PUBLISHED_PORT:-8080}:80
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping", "--ping.entrypoint=web", "--entrypoints.web.address=:80"]
       interval: 10s
@@ -131,7 +131,7 @@ services:
       MM_EMQX_API_SECRET: ${EMQX_API_SECRET:?set in .env}
     ports:
       - 127.0.0.1:${EMQX_DASHBOARD_PUBLISHED_PORT:-18083}:18083
-      # Gateways connect here. On the cloud Pi, bind to its Tailscale address.
+      # Gateways connect here. On the public server, bind to all addresses (0.0.0.0).
       - ${EMQX_GATEWAY_BIND_ADDRESS:-127.0.0.1}:${EMQX_GATEWAY_PUBLISHED_PORT:-8883}:8883
       # Service listener, for the adapter and tests on this machine only.
       - 127.0.0.1:${EMQX_INTERNAL_PUBLISHED_PORT:-1883}:1883
@@ -201,7 +201,7 @@ services:
       MM_INGEST_SECRET: ${INGEST_SECRET:?set in .env}
       MM_CORS_ORIGINS: ${DASHBOARD_ORIGINS:-http://localhost:3000}
     ports:
-      - 127.0.0.1:${API_PUBLISHED_PORT:-8000}:8000
+      - ${API_BIND_ADDRESS:-127.0.0.1}:${API_PUBLISHED_PORT:-8000}:8000
     volumes:
       - mm-config:/var/lib/medmusketeer:ro
       - mm-secrets:/var/lib/medmusketeer-secrets:ro
@@ -237,6 +237,28 @@ services:
       start_period: 5s
     depends_on:
       emqx:
+        condition: service_healthy
+
+  # The dashboard, in API mode. Browsers call the API directly, so the API's address is built in.
+  # Not started by a plain `up` on the laptop, where `npm run dev` serves it.
+  dashboard:
+    build:
+      context: ../web/dashboard
+      args:
+        NEXT_PUBLIC_API_URL: ${DASHBOARD_API_URL:-http://localhost:8000}
+    image: medmusketeer/cloud-dashboard:dev
+    profiles: [dashboard]
+    restart: unless-stopped
+    ports:
+      - ${DASHBOARD_BIND_ADDRESS:-127.0.0.1}:${DASHBOARD_PUBLISHED_PORT:-3000}:3000
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    depends_on:
+      api:
         condition: service_healthy
 
   # One-off tool, not started by `up`: writes the cloud certificate into the emqx-certs volume.

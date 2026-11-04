@@ -42,7 +42,7 @@ scripts/api-e2e.sh # browser tests in API mode: brings up its own cloud stack, s
 
 ## Deployment
 
-The dashboard is served from the cloud Pi, next to the cloud stack; it is not set up yet. It needs:
+The dashboard is served at https://app.medmusketeer.site from the cloud VM, as the cloud stack's `dashboard` container (`cloud/README.md`, "Public deployment"). It needs:
 - a build in API mode with `NEXT_PUBLIC_API_URL` set to the cloud's public address;
 - `next start` (or a container) behind the stack's reverse proxy;
 - its https origin in the cloud's `DASHBOARD_ORIGINS`.

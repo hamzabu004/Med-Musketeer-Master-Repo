@@ -2,7 +2,7 @@
  * rules the API applies (403 for a role that may not call an endpoint, 404 for a patient outside the
  * caller's reach) and the same state rules (409/422), so screens behave alike in both modes. */
 import { ApiError } from "@/api/errors";
-import type { Account, Alert, AuditEvent, Me, NewAccount, PatientSummary, Person, SegmentDetail } from "@/api/types";
+import type { Account, Alert, AuditEvent, GatewayDetail, Me, NewAccount, OrgGateway, PatientSummary, Person, SegmentDetail } from "@/api/types";
 import type { Role } from "@/auth/roles";
 import { encodeSamples } from "@/lib/ecg";
 import type { AlertQuery, AttackTest, DataSource, RecordingRequest } from "../contracts";
@@ -202,6 +202,37 @@ export function createMockDataSource(world: World, principal: Principal, onChang
 
   const newest = (events: AuditEvent[], limit = 200) =>
     [...events].sort((a, b) => b.at.localeCompare(a.at)).slice(0, limit);
+
+  // Gateways (app.gateways, D17): the org admin's own gateways; other organisations' wearables are counted, not named.
+  const grantedToOrg = (deviceId: string) => world.grants.some((g) => g.device_id === deviceId && g.org_id === principal.org_id && g.revoked_at === null);
+  const latestEvent = (deviceId: string, gatewayId: string, state?: "online") =>
+    world.connectivity
+      .filter((e) => e.device_id === deviceId && e.gateway_id === gatewayId && (!state || e.state === state))
+      .sort((a, b) => b.at.localeCompare(a.at))[0];
+  const onGateway = (gatewayId: string) => world.devices.filter((w) => w.current_gateway_id === gatewayId && w.current_mode === "fixed");
+  const gatewayAlerts = (gatewayId: string) =>
+    world.alerts
+      .filter((a) => a.gateway_id === gatewayId && world.patients.some((p) => p.patient_id === a.patient_id && p.org_id === principal.org_id))
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  function gatewayView(deviceId: string): OrgGateway {
+    const d = device(deviceId);
+    const latest = latestEvent(deviceId, deviceId);
+    const alerts = gatewayAlerts(deviceId);
+    const connected = onGateway(deviceId);
+    return {
+      device_id: d.device_id, status: d.status, last_seen: d.last_seen,
+      connectivity: { state: latest?.state ?? "unknown", since: latest?.at ?? null },
+      wearables_connected: connected.filter((w) => grantedToOrg(w.device_id)).length,
+      other_wearables_connected: connected.filter((w) => !grantedToOrg(w.device_id)).length,
+      alerts_24h: alerts.filter((a) => Date.parse(a.created_at) > Date.now() - 86_400_000).length,
+      last_alert_at: alerts[0]?.created_at ?? null,
+    };
+  }
+  function gatewayInScope(gatewayId: string): OrgGateway {
+    const d = world.devices.find((x) => x.device_id === gatewayId);
+    if (!d || d.type !== "fixed_gateway" || !grantedToOrg(gatewayId)) throw notFound("gateway");
+    return gatewayView(gatewayId);
+  }
 
   return {
     me: () => answer<Me>(["system_admin", "org_admin", "doctor", "patient"], () => ({ ...principal })),
@@ -458,6 +489,42 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           };
         }, true),
       audit: (limit) => answer(["org_admin"], () => newest(world.audit.filter((e) => e.org_id === principal.org_id), limit)),
+    },
+
+    gateways: {
+      list: () =>
+        answer(["org_admin"], () =>
+          world.devices
+            .filter((d) => d.type === "fixed_gateway" && grantedToOrg(d.device_id))
+            .sort((a, b) => a.device_id.localeCompare(b.device_id))
+            .map((d) => gatewayView(d.device_id)),
+        ),
+      detail: (gatewayId) =>
+        answer(["org_admin"], (): GatewayDetail => ({
+          ...gatewayInScope(gatewayId),
+          wearables: onGateway(gatewayId)
+            .filter((w) => grantedToOrg(w.device_id))
+            .sort((a, b) => a.device_id.localeCompare(b.device_id))
+            .map((w) => ({
+              device_id: w.device_id, status: w.status, last_seen: w.last_seen,
+              connected_since: latestEvent(w.device_id, gatewayId, "online")?.at ?? null,
+              patient_id: world.wearableAssignments.find((a) => a.device_id === w.device_id && a.unassigned_at === null)?.patient_id ?? null,
+            })),
+        })),
+      connectivity: (gatewayId, limit = 200) =>
+        answer(["org_admin"], () => {
+          gatewayInScope(gatewayId);
+          return world.connectivity
+            .filter((e) => e.gateway_id === gatewayId && (e.device_id === gatewayId || grantedToOrg(e.device_id)))
+            .sort((a, b) => b.at.localeCompare(a.at))
+            .slice(0, limit)
+            .map(({ gateway_id: _gateway, ...e }) => ({ ...e, device_type: device(e.device_id).type }));
+        }),
+      alerts: (gatewayId, limit = 200) =>
+        answer(["org_admin"], () => {
+          gatewayInScope(gatewayId);
+          return gatewayAlerts(gatewayId).slice(0, limit).map((a) => ({ at: a.created_at, device_id: a.device_id, patient_id: a.patient_id }));
+        }),
     },
 
     patients: () =>

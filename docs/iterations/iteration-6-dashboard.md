@@ -3,7 +3,7 @@
 - **Owner:** Hamza Tariq (M8 dashboard)
 - **Status:**
   - The screens for all four roles are built and tested in both data modes (2026-10-26, branch `feat/dashboard`).
-  - Deployment on the cloud Pi is not set up yet.
+  - Deployed on 2026-11-04 at https://app.medmusketeer.site, on the cloud VM (`cloud-backend.md` D18).
   - Live alert push and on-demand recording wait for cloud work (below).
 - **Depends on:** the cloud API of Iteration 3 (D9 access matrix and D14 sign-in in `docs/decisions/cloud-backend.md`), `stack.md` (liveness, the latency methodology), `scope.md` (roles)
 - **Code:** `web/dashboard/` (`README.md` there has run and test commands)
@@ -54,11 +54,13 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 
 | Screen | Content and actions | Endpoints |
 |---|---|---|
-| Dashboard | Organisation; doctors, patients, wearables issued and free, gateways; patients without a doctor or wearable; latest changes | `/organisation`, `/accounts`, `/patients`, `/devices`, `/audit` |
+| Dashboard | Organisation; doctors, patients, wearables issued and free, gateways and how many are online; patients without a doctor or wearable; latest changes | `/organisation`, `/accounts`, `/patients`, `/devices`, `/gateways`, `/audit` |
 | Accounts | List with names and e-mail, filtered by role and status; create a doctor or patient (a patient needs a pseudonym), with the invite code shown once; disable a doctor or patient, with the consequences for their patients or wearable spelled out | `GET/POST /accounts`, `POST /accounts/{id}/disable`, `/directory` |
 | Patients | Search; filter by no doctor, no wearable, or disabled account | `/patients`, `/directory` |
 | Patient | Assign or change the doctor; issue a free active wearable, return it; record disorders; export for a named destination (summary, record, JSON download); history from the audit log | `PUT /patients/{id}/doctor`, `POST/DELETE /patients/{id}/wearable`, `GET/POST /patients/{id}/disorders`, `POST /patients/{id}/exports` |
 | Devices | Devices granted to the organisation, read-only: status, path, gateway, last heard from, patient | `GET /devices` |
+| Gateways | Each gateway: connection and uptime, wearables connected, alerts in the last 24 h, last heard from; totals (added 2026-10-30, D17) | `GET /gateways` |
+| Gateway | Connection, online or offline since; the wearables on it with patient and connected time; alert times, wearables and patients, without the classification (D9); the connectivity log, filtered by gateway or wearables. Re-read every 15 s | `GET /gateways/{id}`, `/gateways/{id}/connectivity`, `/gateways/{id}/alerts`, `/patients` |
 | Audit log | The organisation's changes, with people by name and patients by pseudonym | `GET /audit` |
 
 ### Doctor (own current patients only)
@@ -126,13 +128,14 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 
 ## Deployment
 
-- The dashboard is served from the **cloud Pi**, next to the cloud stack. It is not hosted on Vercel.
-- This is not set up yet. It belongs with the cloud's deployment to the Pi (Iteration 3, Slice 6) and its public domain with a Let's Encrypt certificate (`stack.md`, "Certificate scope").
-- What the deployment has to provide:
+- The dashboard is served at **https://app.medmusketeer.site** from the cloud VM, next to the cloud stack (Iteration 3, Slice 6; `cloud-backend.md` D18). It is not hosted on Vercel.
+- It runs as the stack's `dashboard` container behind the proxy, with a Let's Encrypt certificate. Set-up: `cloud/README.md`, "Public deployment".
+- Checked on 2026-11-04: a browser outside the tailnet signed in as the system admin through ZITADEL (PKCE) and reached `/system/dashboard`, with the token in sessionStorage only. The API-mode browser suite has not been run against it, because it relies on `seed-dev`, which must not run on the public server.
+- What the deployment provides:
   - a build in API mode with `NEXT_PUBLIC_API_URL` set to the cloud's public address;
   - `next start`, or a container, behind the stack's reverse proxy;
   - the dashboard's https origin in `DASHBOARD_ORIGINS`, so that the ZITADEL app's redirect URIs and the API's CORS match it (all-https origins turn ZITADEL's dev mode off).
-- **Open:** D14 chose CORS over a same-origin proxy because the dashboard was to be hosted on Vercel. Served by the same proxy as the API, it could share the API's origin, and CORS would not be needed. Decide when the Pi deployment is built.
+- **Decided (2026-10-30):** the dashboard keeps its own host name and CORS, as D14 chose. Separate host names need no dashboard change. Set-up: `cloud/README.md`, "Public deployment".
 
 ## Tests
 
