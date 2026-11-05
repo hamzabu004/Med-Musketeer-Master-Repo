@@ -3,7 +3,7 @@
 - **Date:** 2026-11-06
 - **Type:** hardware
 - **Module:** M2 firmware
-- **Commits:** pending
+- **Commits:** ac7e96c (pin layout, AD8232 options, this entry); merged in b8e75ab (PR #15)
 
 ## What changed
 - The wearable was rewired and the AD8232 ECG module added for testing. The menuconfig defaults in `firmware/wearable/main/Kconfig.projbuild` follow the new wiring:
