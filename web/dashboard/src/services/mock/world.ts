@@ -84,11 +84,19 @@ export interface MockConnectivityEvent {
   at: string;
 }
 
+/** A row of `devices`, with the live status the system admin's `Device` leaves out (D9, 2026-11-05). */
+export interface MockDevice extends Device {
+  current_mode: string;
+  current_gateway_id: string | null;
+  last_seen: string | null;
+  revocation_version: number | null; // gateways: the revocation list version they reported last
+}
+
 export interface World {
   organisations: Organisation[];
   users: MockUser[];
   patients: MockPatient[];
-  devices: Device[];
+  devices: MockDevice[];
   credentials: Credential[];
   grants: Grant[];
   careAssignments: CareAssignment[];
@@ -158,7 +166,7 @@ export function createWorld(now = Date.now()): World {
   ];
   const [p1, p2, p3, p4] = patients.map((patient) => patient.patient_id);
 
-  const devices: Device[] = [];
+  const devices: MockDevice[] = [];
   const credentials: Credential[] = [];
   const grants: Grant[] = [];
   const device = (n: number, type: string, org: string | null, status: Device["status"] = "active"): string => {
@@ -179,8 +187,8 @@ export function createWorld(now = Date.now()): World {
   const wearables = [2, 3, 4, 5].map((n) => device(n, "wearable", devHospital));
   const nsWearable = device(6, "wearable", northside);
   device(7, "wearable", null, "pending"); // registered, no credential yet: for the registry screens
-  // Gateways report the revocation list version they enforce; Northside's is behind, so the
-  // system admin's screens show the stale-list flag.
+  // Gateways report the revocation list version they enforce; Northside's is behind, so its org
+  // admin's gateway screens show the stale-list flag.
   const nsGateway = device(8, "fixed_gateway", northside);
   Object.assign(devices.find((d) => d.device_id === gateway)!, { revocation_version: 2 });
   Object.assign(devices.find((d) => d.device_id === nsGateway)!, { revocation_version: 1 });

@@ -10,14 +10,11 @@ import { Checkbox, Field, Select, TextInput } from "@/components/ui/form";
 import { Notice } from "@/components/ui/notice";
 import { Loaded } from "@/components/ui/page-state";
 import { PageIntro } from "@/components/ui/page-intro";
-import { RecordId } from "@/components/ui/record-id";
 import { Status, statusTone } from "@/components/ui/status";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
-import { formatAgo } from "@/lib/date-time";
 import { deviceType, labelize } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
-import { gatewayListState } from "./revocation-list";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -75,10 +72,7 @@ function RegisterDevice({ onRegistered }: { onRegistered: (deviceId: string) => 
 
 export function Devices() {
   const { data } = useData();
-  const resource = useResource(async () => {
-    const [devices, revocation] = await Promise.all([data.registry.devices(), data.registry.revocation()]);
-    return { devices, revocation };
-  }, []);
+  const resource = useResource(async () => ({ devices: await data.registry.devices() }), []);
   const [filter, setFilter] = useState({ query: "", type: "", status: "", testbed: "" });
 
   const devices = resource.status === "ready" ? resource.data.devices : null;
@@ -95,7 +89,7 @@ export function Devices() {
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
-      <PageIntro title="Devices" description="Every wearable and fixed gateway known to the cloud. Status here decides whether the broker lets a device in, and gateways refuse suspended and revoked wearables through the revocation list." />
+      <PageIntro title="Devices" description="Every wearable and fixed gateway known to the cloud. Status here decides whether the broker lets a device in, and gateways refuse suspended and revoked wearables through the revocation list. How devices are doing (connection, last seen) is for the organisation they are granted to." />
       <RegisterDevice onRegistered={() => resource.reload()} />
       <div className="grid gap-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label="Search by id">
@@ -125,10 +119,10 @@ export function Devices() {
         </Field>
       </div>
       <Loaded resource={resource} label="Loading devices">
-        {({ revocation }) =>
+        {() =>
           filtered.length ? (
-            <Table label="Devices" minWidth={960}>
-              <THead columns={["Device", "Type", "Status", "Testbed", "Mode", "Last seen", "Revocation list"]} />
+            <Table label="Devices" minWidth={720}>
+              <THead columns={["Device", "Type", "Status", "Testbed"]} />
               <tbody>
                 {filtered.map((d) => (
                   <Tr key={d.device_id}>
@@ -140,12 +134,6 @@ export function Devices() {
                     <Td>{deviceType(d.type)}</Td>
                     <Td><Status label={labelize(d.status)} tone={statusTone(d.status)} /></Td>
                     <Td>{d.is_testbed ? "Testbed" : "Production"}</Td>
-                    <Td>{labelize(d.current_mode)}{d.current_gateway_id && <span className="block text-xs text-[var(--color-text-muted)]">via <RecordId id={d.current_gateway_id} /></span>}</Td>
-                    <Td>{formatAgo(d.last_seen)}</Td>
-                    <Td>{(() => {
-                      const state = gatewayListState(d, revocation);
-                      return state ? <Status label={state.label} tone={state.tone} /> : <span className="text-[var(--color-text-muted)]">—</span>;
-                    })()}</Td>
                   </Tr>
                 ))}
               </tbody>

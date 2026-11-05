@@ -229,7 +229,8 @@ export interface paths {
         };
         /**
          * Revocation Status
-         * @description The wearable revocation list's version, what EMQX holds, and the gateways behind it (D16).
+         * @description The wearable revocation list's version and what EMQX holds (D16). Which gateways enforce it is
+         *     the organisation admin's view (`GET /gateways`, D17).
          */
         get: operations["revocation_status_admin_revocation_get"];
         put?: never;
@@ -1025,19 +1026,11 @@ export interface components {
             status: "pending" | "active" | "suspended" | "revoked";
             /** Is Testbed */
             is_testbed: boolean;
-            /** Current Mode */
-            current_mode: string;
-            /** Current Gateway Id */
-            current_gateway_id: string | null;
-            /** Last Seen */
-            last_seen: string | null;
             /**
              * Status Changed At
              * Format: date-time
              */
             status_changed_at: string;
-            /** Revocation Version */
-            revocation_version: number | null;
             /** Registered By */
             registered_by: string | null;
             /**
@@ -1132,6 +1125,7 @@ export interface components {
             /** Last Seen */
             last_seen: string | null;
             connectivity: components["schemas"]["Connectivity"];
+            revocation: components["schemas"]["RevocationListState"];
             /** Wearables Connected */
             wearables_connected: number;
             /** Other Wearables Connected */
@@ -1250,6 +1244,7 @@ export interface components {
             /** Last Seen */
             last_seen: string | null;
             connectivity: components["schemas"]["Connectivity"];
+            revocation: components["schemas"]["RevocationListState"];
             /** Wearables Connected */
             wearables_connected: number;
             /** Other Wearables Connected */
@@ -1401,6 +1396,19 @@ export interface components {
             /** Family Name */
             family_name: string;
         };
+        /**
+         * RevocationListState
+         * @description Whether the gateway enforces the published wearable revocation list (D16). It may still let in
+         *     a wearable revoked since the version it reported last.
+         */
+        RevocationListState: {
+            /** Reported Version */
+            reported_version: number | null;
+            /** Published Version */
+            published_version: number;
+            /** Current */
+            current: boolean;
+        };
         /** RevocationStatus */
         RevocationStatus: {
             /** Version */
@@ -1409,8 +1417,6 @@ export interface components {
             published_version: number;
             /** Published At */
             published_at: string | null;
-            /** Stale Gateways */
-            stale_gateways: string[];
         };
         /** SecurityEvent */
         SecurityEvent: {

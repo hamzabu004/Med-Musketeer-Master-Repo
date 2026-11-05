@@ -237,3 +237,27 @@ def test_tc_c11_the_system_admin_gets_no_patient_or_doctor_data(make_client, wor
         if not path.startswith("/admin"):
             assert call(admin, method, fill(path, world), fill(body, world)).status_code == 403, path
     assert "patient_id" not in json.dumps(admin.get("/admin/devices").json()[0])
+
+
+LIVE_STATUS = ("last_seen", "current_mode", "current_gateway_id", "revocation_version", "stale_gateways",
+               "connectivity")
+
+
+def test_tc_c11_the_system_admin_gets_no_live_status_of_devices(make_client, world):
+    """D9 (2026-11-05): the system admin manages the registry; how devices and gateways are doing
+    (last seen, path, connection, revocation list enforced) is the organisation admin's view."""
+    admin = make_client(world.system_admin)
+    devices = [str(world.a.wearable), str(world.a.gateway)]
+    paths = ["/admin/devices", "/admin/revocation", *(f"/admin/devices/{d}" for d in devices)]
+    for path in paths:
+        response = admin.get(path)
+        assert response.status_code == 200, path
+        leaked = [key for key in LIVE_STATUS if f'"{key}"' in response.text]
+        assert not leaked, (path, leaked)
+    for action in ("suspend", "activate"):  # the lifecycle responses are the same Device model
+        response = admin.post(f"/admin/devices/{world.a.gateway}/{action}")
+        assert response.status_code == 200 and not [k for k in LIVE_STATUS if f'"{k}"' in response.text], action
+    # the organisation admin still sees them for its own devices
+    org_admin = make_client(world.a.admin)
+    assert "last_seen" in org_admin.get("/devices").json()[0]
+    assert org_admin.get(f"/gateways/{world.a.gateway}").json()["connectivity"]["state"] == "online"

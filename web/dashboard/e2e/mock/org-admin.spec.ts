@@ -120,3 +120,22 @@ test("the gateways page shows each gateway's uptime, wearables, alert times and 
   await expect(log.getByText("Mode switch")).toBeVisible();
   await expectFitsViewport(page);
 });
+
+test("each gateway shows whether it enforces the published wearable revocation list (D16)", async ({ page, browser }) => {
+  await page.goto("/org/gateways");
+  const table = page.getByRole("table", { name: "Gateways" });
+  await expect(table.getByText("Current (v2)")).toHaveCount(1);
+  await table.getByRole("row").nth(1).getByRole("link").click();
+  await expect(page.getByRole("term").filter({ hasText: /^Revocation list$/ })).toBeVisible();
+  await expect(page.getByText("Current (v2)")).toBeVisible();
+
+  // Northside's gateway reports an older list, so its admin is told it may let a revoked wearable in.
+  const northside = await browser.newPage(); // a context of its own, signed out
+  await signInAs(northside, "Nadia Malik");
+  await northside.goto("/org/gateways");
+  const theirs = northside.getByRole("table", { name: "Gateways" });
+  await expect(theirs.getByText("Behind: v1 of v2")).toHaveCount(1);
+  await theirs.getByRole("row").nth(1).getByRole("link").click();
+  await expect(northside.getByText("may still let in a wearable revoked since", { exact: false })).toBeVisible();
+  await northside.close();
+});

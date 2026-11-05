@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Device, Organisation, RevocationStatus } from "@/api/types";
+import type { Device, Organisation } from "@/api/types";
 import { useData } from "@/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,14 +13,12 @@ import { SectionTitle } from "@/components/ui/metric";
 import { Notice } from "@/components/ui/notice";
 import { Loaded } from "@/components/ui/page-state";
 import { PageIntro } from "@/components/ui/page-intro";
-import { RecordId } from "@/components/ui/record-id";
 import { Status, statusTone } from "@/components/ui/status";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
-import { formatAgo, formatDateTime } from "@/lib/date-time";
+import { formatDateTime } from "@/lib/date-time";
 import { deviceType, labelize, shortId } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
-import { gatewayListState } from "./revocation-list";
 
 /** A SHA-256 fingerprint as `mmca issue` prints it: 64 hex digits, colons allowed. */
 export function normaliseFingerprint(value: string): string | null {
@@ -28,23 +26,14 @@ export function normaliseFingerprint(value: string): string | null {
   return /^[0-9A-F]{64}$/.test(hex) ? hex : null;
 }
 
-function Facts({ device, revocation }: { device: Device; revocation: RevocationStatus }) {
-  const listState = gatewayListState(device, revocation);
+/** Registry facts only: how the device is doing is its organisation admin's view (D9, 2026-11-05). */
+function Facts({ device }: { device: Device }) {
   const facts: [string, React.ReactNode][] = [
     ["Type", deviceType(device.type)],
     ["Testbed", device.is_testbed ? "Yes: attack tests may target it" : "No: production device"],
-    ["Mode", labelize(device.current_mode)],
-    ["Current gateway", device.current_gateway_id ? <Link href={`/system/devices/${device.current_gateway_id}`} className="text-[var(--color-info)]"><RecordId id={device.current_gateway_id} /></Link> : "—"],
-    ["Last seen", device.last_seen ? `${formatAgo(device.last_seen)} (${formatDateTime(device.last_seen)})` : "Never"],
     ["Registered", formatDateTime(device.created_at)],
     ["Status since", formatDateTime(device.status_changed_at)],
   ];
-  if (listState) {
-    facts.push(["Revocation list", <>
-      <Status label={listState.label} tone={listState.tone} />
-      {listState.stale && <span className="mt-1 block text-xs text-[var(--color-text-muted)]">This gateway may still let in a wearable revoked since. It catches up when it next reaches the cloud.</span>}
-    </>]);
-  }
   return (
     <Card className="p-4">
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
@@ -66,14 +55,13 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
   const [grantTo, setGrantTo] = useState("");
 
   const resource = useResource(async () => {
-    const [device, credentials, grants, organisations, revocation] = await Promise.all([
+    const [device, credentials, grants, organisations] = await Promise.all([
       data.registry.device(deviceId),
       data.registry.credentials(deviceId),
       data.registry.grants(deviceId),
       data.registry.organisations(),
-      data.registry.revocation(),
     ]);
-    return { device, credentials, grants, organisations, revocation };
+    return { device, credentials, grants, organisations };
   }, [deviceId]);
 
   async function change<T>(name: string, task: () => Promise<T>, success: string) {
@@ -87,7 +75,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
 
   return (
     <Loaded resource={resource} label="Loading the device">
-      {({ device, credentials, grants, organisations, revocation }) => {
+      {({ device, credentials, grants, organisations }) => {
         const orgName = (id: string) => organisations.find((o: Organisation) => o.org_id === id)?.name ?? id;
         const openGrant = grants.find((g) => g.revoked_at === null);
         const activeCredentials = credentials.filter((c) => c.status === "active");
@@ -111,7 +99,7 @@ export function DeviceDetail({ deviceId }: { deviceId: string }) {
               <Link href="/system/devices" className="text-[var(--color-info)] underline">All devices</Link>
             </p>
             <Notice notice={action.notice} />
-            <Facts device={device} revocation={revocation} />
+            <Facts device={device} />
 
             <SectionTitle>Lifecycle</SectionTitle>
             <Card className="flex flex-wrap items-center gap-2 p-4">

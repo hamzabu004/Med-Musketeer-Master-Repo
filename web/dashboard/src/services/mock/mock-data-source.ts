@@ -2,12 +2,12 @@
  * rules the API applies (403 for a role that may not call an endpoint, 404 for a patient outside the
  * caller's reach) and the same state rules (409/422), so screens behave alike in both modes. */
 import { ApiError } from "@/api/errors";
-import type { Account, Alert, AuditEvent, GatewayDetail, Me, NewAccount, OrgGateway, PatientSummary, Person, SegmentDetail } from "@/api/types";
+import type { Account, Alert, AuditEvent, Device, GatewayDetail, Me, NewAccount, OrgGateway, PatientSummary, Person, SegmentDetail } from "@/api/types";
 import type { Role } from "@/auth/roles";
 import { encodeSamples } from "@/lib/ecg";
 import type { AlertQuery, AttackTest, DataSource, RecordingRequest } from "../contracts";
 import { FS_HZ, seededRandom, syntheticEcg } from "./synthetic-ecg";
-import type { MockPatient, MockUser, World } from "./world";
+import type { MockDevice, MockPatient, MockUser, World } from "./world";
 
 export interface Principal {
   user_id: string;
@@ -166,6 +166,12 @@ export function createMockDataSource(world: World, principal: Principal, onChang
     return request;
   }
 
+  /** A device as the registry returns it to the system admin: no live status (D9, 2026-11-05). */
+  function registryView(d: MockDevice): Device {
+    const { current_mode: _mode, current_gateway_id: _gateway, last_seen: _seen, revocation_version: _version, ...row } = d;
+    return row;
+  }
+
   function device(deviceId: string) {
     const found = world.devices.find((d) => d.device_id === deviceId);
     if (!found) throw notFound("device");
@@ -222,6 +228,12 @@ export function createMockDataSource(world: World, principal: Principal, onChang
     return {
       device_id: d.device_id, status: d.status, last_seen: d.last_seen,
       connectivity: { state: latest?.state ?? "unknown", since: latest?.at ?? null },
+      // As the API (D16): only an active gateway can be behind; sample data publishes every version at once.
+      revocation: {
+        reported_version: d.revocation_version,
+        published_version: world.revocation.version,
+        current: d.status !== "active" || (d.revocation_version !== null && d.revocation_version >= world.revocation.version),
+      },
       wearables_connected: connected.filter((w) => grantedToOrg(w.device_id)).length,
       other_wearables_connected: connected.filter((w) => !grantedToOrg(w.device_id)).length,
       alerts_24h: alerts.filter((a) => Date.parse(a.created_at) > Date.now() - 86_400_000).length,
@@ -280,8 +292,8 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           return org;
         }, true),
       createOrganisationAdmin: (orgId, body) => answer(["system_admin"], () => createAccount(orgId, "org_admin", body), true),
-      devices: () => answer(["system_admin"], () => world.devices),
-      device: (deviceId) => answer(["system_admin"], () => device(deviceId)),
+      devices: () => answer(["system_admin"], () => world.devices.map(registryView)),
+      device: (deviceId) => answer(["system_admin"], () => registryView(device(deviceId))),
       registerDevice: (body) =>
         answer(["system_admin"], () => {
           if (world.devices.some((d) => d.device_id === body.device_id)) {
@@ -291,11 +303,11 @@ export function createMockDataSource(world: World, principal: Principal, onChang
             status_changed_at: now(), revocation_version: null, registered_by: principal.user_id, created_at: now() };
           world.devices.push(d);
           audit("registry", "device.registered", null, d.device_id, { type: d.type });
-          return d;
+          return registryView(d);
         }, true),
-      activateDevice: (deviceId) => answer(["system_admin"], () => changeDeviceStatus(deviceId, "activate"), true),
-      suspendDevice: (deviceId) => answer(["system_admin"], () => changeDeviceStatus(deviceId, "suspend"), true),
-      revokeDevice: (deviceId) => answer(["system_admin"], () => changeDeviceStatus(deviceId, "revoke"), true),
+      activateDevice: (deviceId) => answer(["system_admin"], () => registryView(changeDeviceStatus(deviceId, "activate")), true),
+      suspendDevice: (deviceId) => answer(["system_admin"], () => registryView(changeDeviceStatus(deviceId, "suspend")), true),
+      revokeDevice: (deviceId) => answer(["system_admin"], () => registryView(changeDeviceStatus(deviceId, "revoke")), true),
       credentials: (deviceId) => answer(["system_admin"], () => world.credentials.filter((c) => c.device_id === deviceId)),
       addCredential: (deviceId, body) =>
         answer(["system_admin"], () => {
@@ -354,11 +366,7 @@ export function createMockDataSource(world: World, principal: Principal, onChang
       revocation: () =>
         answer(["system_admin"], () => {
           const { version, published_at } = world.revocation;
-          const stale = world.devices
-            .filter((d) => d.type === "fixed_gateway" && d.status === "active" && (d.revocation_version === null || d.revocation_version < version))
-            .map((d) => d.device_id)
-            .sort();
-          return { version, published_version: version, published_at, stale_gateways: stale };
+          return { version, published_version: version, published_at };
         }),
     },
 

@@ -18,7 +18,7 @@ import { PageIntro } from "@/components/ui/page-intro";
 import { RecordId } from "@/components/ui/record-id";
 import { Status, statusTone } from "@/components/ui/status";
 import { Table, Td, THead, Tr } from "@/components/ui/table";
-import { formatAgo, formatDateTime } from "@/lib/date-time";
+import { formatDateTime } from "@/lib/date-time";
 import { deviceType, labelize } from "@/lib/labels";
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
@@ -168,14 +168,13 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
           <SectionTitle>Devices granted</SectionTitle>
           {devices.length ? (
             <Table label="Devices granted" minWidth={640}>
-              <THead columns={["Device", "Type", "Status", "Last seen", "Granted"]} />
+              <THead columns={["Device", "Type", "Status", "Granted"]} />
               <tbody>
                 {devices.map(({ grant, device }) => (
                   <Tr key={grant.grant_id}>
                     <Td><Link href={`/system/devices/${device.device_id}`} className="text-[var(--color-info)]"><RecordId id={device.device_id} /></Link></Td>
                     <Td>{deviceType(device.type)}</Td>
                     <Td><Status label={labelize(device.status)} tone={statusTone(device.status)} /></Td>
-                    <Td>{formatAgo(device.last_seen)}</Td>
                     <Td className="metric-number">{formatDateTime(grant.granted_at)}</Td>
                   </Tr>
                 ))}

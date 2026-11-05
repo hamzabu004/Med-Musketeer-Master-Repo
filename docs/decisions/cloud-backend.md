@@ -184,8 +184,8 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Patients: list | ✘ | ✔ (own org) | ✔ (own patients) | ✘ |
 | Devices, credentials: register, suspend, revoke | ✔ | ✘ | ✘ | ✘ |
 | Device grants to organisations | ✔ | ✘ | ✘ | ✘ |
-| Devices of own organisation: list, live status | ✔ (all) | ✔ | ✔ (own patients' devices) | ✘ |
-| Gateways of own organisation: connectivity log, connected wearables, alert times (D17) | ✘ | ✔ | ✘ | ✘ |
+| Devices of own organisation: list, live status | ✘ | ✔ | ✔ (own patients' devices) | ✘ |
+| Gateways of own organisation: connectivity log, connected wearables, alert times, revocation list enforced (D17) | ✘ | ✔ | ✘ | ✘ |
 | Doctor/patient accounts: create, disable | ✘ | ✔ (own org) | ✘ | ✘ |
 | Issue a wearable to a patient | ✘ | ✔ | ✘ | ✘ |
 | Assign a doctor to a patient | ✘ | ✔ | ✘ | ✘ |
@@ -199,6 +199,7 @@ SQLAlchemy 2 Core (no ORM models), Alembic migrations, psycopg 3.
 | Audit log (grants, issues, exports) | ✔ (device side) | ✔ (own org) | ✘ | ✘ |
 | Directory: names of the people one works with (D14) | ✘ | ✔ (own org, with e-mail) | ✔ (self, own patients) | ✔ (self, own doctor) |
 
+- The system admin **sees no live status** (changed 2026-11-05). They register devices, create organisations and grant devices to them, so the registry shows each device's lifecycle status (pending, active, suspended, revoked) and when it last changed, its credentials and its grants. It does not show when a device was last seen, its path or gateway, whether a gateway is connected, or which revocation list version a gateway enforces. Those belong to the organisation admin, for the devices granted to it (`GET /devices`, `GET /gateways`). Before this change `GET /admin/devices` returned `last_seen`, `current_mode`, `current_gateway_id` and `revocation_version`, and `GET /admin/revocation` returned `stale_gateways`. Tested by TC-C11 (`test_tc_c11_the_system_admin_gets_no_live_status_of_devices`).
 - The organisation admin **cannot read patient ECG data**, classifications or alerts. The one exception (D17, 2026-10-30): per gateway, the time, wearable and patient of each alert that came through it, never its classification, confidence or ECG.
 - Open: how a patient export works when the org admin cannot read ECG (whether the export bundle includes ECG, produced by the API without the org admin viewing it). Until decided, `POST /patients/{id}/exports` returns the pseudonym, disorders, care and wearable history with `ecg_included: false`, and logs the export.
 - Rows "Organisation admin accounts" and "Patients: list" were added on 2026-10-24 while building Slice 3; "Directory" on 2026-10-25 for the dashboard (D14). Not implemented yet: on-demand ECG (start/stop design open) and attack tests (Iteration 5); their rows are tested when the endpoints exist.
@@ -376,7 +377,7 @@ Why push + cache, and the accepted tradeoffs: `stack.md`, "Gateway/wearable cred
   - What changes the list: a wearable's status moving into or out of `suspended`/`revoked`, and revoking an `x509_mtls` credential of a wearable that is not listed itself. An expired certificate drops off at the next publish without a new version; expiry refuses it anyway.
   - A publish failure never fails the registry change; it is logged and left to the reconciler.
 - **Gateway disconnect:** suspending or revoking a gateway, or revoking one of its credentials, disconnects its sessions through the REST API (`GET /api/v5/clients?username=`, `DELETE /api/v5/clients/{clientid}`; the client gets reason 0x98). This builds the D4 "may". paho-mqtt 2.1.0 does not read the reason from EMQX's 2-byte DISCONNECT and reports "Normal disconnection" (`mosquitto_sub` shows 152), so the gateway's uplink must not tell a kick from other disconnects by paho's reason code.
-- **Staleness:** `status-v1` gains an optional `revocation_version`, sent by a gateway in its own status (a wearable's status with it is rejected). Ingestion stores it on the gateway (`devices.revocation_version`; an older report than the gateway's `last_seen` is ignored). `GET /admin/revocation` returns `version`, `published_version`, `published_at` and `stale_gateways`: the active gateways whose reported version is missing or below the published one. The system admin's dashboard flags those gateways (Slice 3, 2026-10-30).
+- **Staleness:** `status-v1` gains an optional `revocation_version`, sent by a gateway in its own status (a wearable's status with it is rejected). Ingestion stores it on the gateway (`devices.revocation_version`; an older report than the gateway's `last_seen` is ignored). `GET /admin/revocation` returns `version`, `published_version` and `published_at`. A gateway is behind when it is active, a list has been published, and its reported version is missing or below the published one. Slice 3 (2026-10-30) showed this to the system admin as `stale_gateways`. Since 2026-11-05 it is the organisation admin's, per gateway, as `revocation` on `GET /gateways[/{id}]` (D17, D9).
 - **Outage backlog:** `devices.status_changed_at` (migration 0004, set on every status change) records when a wearable was suspended or revoked; it is the list's `since`. Backlog data sent after it is to be quarantined instead of rejected. That is a requirement on the backlog design (moved there from Slice 3 on 2026-10-30, with TC-C32; `gaps.md`).
 - Rejected alternatives:
   - A signed list (the earlier candidate): it arrives only over the gateway's mTLS session, so a signature adds nothing, and signing would need a key online.
@@ -395,6 +396,7 @@ The organisation admin gets a view of each fixed gateway granted to the organisa
   - A suspended gateway's disconnect is logged, as it is accepted (D15). Rejected messages roll back and are not logged.
   - The API may only append (`REVOKE UPDATE, DELETE`), as for `audit_log` and `ingested_messages`.
 - **Alerts:** `alerts.gateway_id` is the gateway that attested the alert (D1). It is null for alerts stored before migration 0005 and, later, on the mobile path.
+- **Revocation list** (added 2026-11-05): each gateway carries `revocation: {reported_version, published_version, current}`, with D16's staleness rule. A gateway that is not current may still let in a wearable revoked since the version it reported.
 - **Offline:** a gateway is shown as offline after its disconnect. D15's rule against "offline" is about wearables, whose path the cloud may not know. A gateway's session with EMQX is known for certain. Its wearables become `unknown` (D15) and are not counted as connected.
 - **Scope** (`app/gateways.py`, org admin only, 404 for a device that is not a fixed gateway with an open grant to the organisation):
   - wearables of other organisations on the gateway are counted (`other_wearables_connected`), never named, and their log rows are left out;
