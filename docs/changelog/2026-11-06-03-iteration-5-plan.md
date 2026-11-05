@@ -3,7 +3,7 @@
 - **Date:** 2026-11-06
 - **Type:** decision
 - **Module:** M2 firmware | M5 gateway | M7 cloud | M8 dashboard | project
-- **Commits:** pending
+- **Commits:** e9256f8 (plan, doc updates, this entry); merged in b19959f (PR #18)
 
 ## What changed
 - New plan `docs/iterations/iteration-5-ecg-on-demand.md`:
