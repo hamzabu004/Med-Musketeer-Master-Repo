@@ -15,12 +15,12 @@ endchoice
 config WEARABLE_OLED_SDA_GPIO
     int "SH1106 I2C SDA GPIO"
     range 0 48
-    default 8
+    default 9
 
 config WEARABLE_OLED_SCL_GPIO
     int "SH1106 I2C SCL GPIO"
     range 0 48
-    default 9
+    default 3
 
 config WEARABLE_OLED_I2C_ADDRESS
     hex "SH1106 I2C address"
@@ -30,9 +30,32 @@ config WEARABLE_OLED_I2C_ADDRESS
 config WEARABLE_ALERT_BUTTON_GPIO
     int "Alert push button GPIO (active low, internal pull-up)"
     range 0 48
-    default 4
+    default 21
     help
         A press publishes one alert with a synthetic ECG segment. It stands in for the on-device
         model until Iteration 5.
+
+config WEARABLE_ECG_OUTPUT_GPIO
+    int "AD8232 OUTPUT GPIO (ADC1: GPIO 1-10)"
+    range 1 10
+    default 2
+    help
+        Analog ECG signal. Must be an ADC1 pin, because ADC2 is shared with Wi-Fi.
+        The firmware does not sample the AD8232 until Iteration 5.
+
+config WEARABLE_ECG_LO_PLUS_GPIO
+    int "AD8232 LO+ (leads-off detect) GPIO"
+    range 0 48
+    default 15
+
+config WEARABLE_ECG_LO_MINUS_GPIO
+    int "AD8232 LO- (leads-off detect) GPIO"
+    range 0 48
+    default 38
+
+config WEARABLE_ECG_SDN_GPIO
+    int "AD8232 SDN (shutdown, active low) GPIO"
+    range 0 48
+    default 5
 
 endmenu

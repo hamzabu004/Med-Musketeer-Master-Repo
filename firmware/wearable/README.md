@@ -6,11 +6,12 @@ This ESP-IDF project is the wearable's firmware: BLE Wi-Fi onboarding and a fixe
 
 - ESP32-S3
 - SH1106 128×64 I²C OLED
-- Default I²C pins: SDA GPIO 8, SCL GPIO 9
+- Default I²C pins: SDA GPIO 9, SCL GPIO 3
 - Default OLED address: `0x3C`
-- Alert push button between GPIO 4 and GND (active low; the internal pull-up is used)
+- Alert push button between GPIO 21 and GND (active low; the internal pull-up is used)
+- AD8232 ECG front end, wired but not yet read by the firmware (Iteration 5): OUTPUT GPIO 2 (must be an ADC1 pin, GPIO 1–10, since ADC2 is shared with Wi-Fi), LO+ GPIO 15, LO− GPIO 38, SDN GPIO 5
 
-Change the OLED pins/address and the button GPIO under **MedMusketeer Wearable** in `idf.py menuconfig`.
+Change the OLED pins/address, the button GPIO and the AD8232 pins under **MedMusketeer Wearable** in `idf.py menuconfig`.
 
 ## Build mode
 
