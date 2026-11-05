@@ -30,7 +30,7 @@ container that stands in for the Pi; **H** needs the ESP32-S3, phone, or Pi (see
 | TC-B01 | A-container + H | `test_broker_interop::test_tc_b01_*` | Includes foreign CA, no certificate, and connecting without the role name. Pi: H-B, passed 2026-10-22. |
 | TC-B02 | A-container + H | `test_broker_interop::test_tc_b02_*` | All four own publish topics and the own command subscription. |
 | TC-B03 | A-container + H | `test_broker_interop::test_tc_b03_*` | Judged by a services-listener monitor and `Denied PUBLISH` in the broker log. |
-| TC-B04 | A-container + H | `test_broker_interop::test_tc_b04_*` | The services username is a UUIDv4 so that a wearable CN can equal it. On the Pi it is `gw_services`, so H-B uses a scratch CA. TC-B02 to B04 on the Pi: blocked (Pi not available; after the CA replacement). |
+| TC-B04 | A-container + H | `test_broker_interop::test_tc_b04_*` | The services username is a UUIDv4 so that a wearable CN can equal it. On the Pi it is `gw_services`, so H-B uses a scratch CA. TC-B02 to B04 on the Pi: not run yet (unblocked 2026-11-05). |
 | TC-B05 | A-container + H | `gateway/uplink/tests/test_interop.py::test_tc_b05_*` | Iteration 4 (D16). The uplink gets a list from a cloud stand-in and applies it within 10 s. On an open connection, the listed wearable's publishes are refused and commands no longer reach it; it stays connected; another wearable is unaffected; the version is reported to the cloud. Pi: H-B06. |
 | TC-B06 | A-container + A | `test_interop::test_tc_b06_*`; `test_revocations::*` | Older, equal and invalid lists are ignored, and so is a device id that would inject an ACL line; the stored list and the ACL file stay as they were. |
 | TC-B07 | A-container + A | `test_interop::test_tc_b07_*`; `test_revocations::test_only_newer_versions_are_kept_and_survive_a_restart`; `test_enforce::*` | A restarted uplink applies the stored list to a broker that lost it, before the cloud is reached (cloud down). The ACL file and the stored list are 0600. A failed reload is retried. |
@@ -42,9 +42,9 @@ Automated tests: `firmware/wearable/tools/test_check_capture.py`, run with the c
 
 | ID | Kind | Tests | Notes |
 |---|---|---|---|
-| TC-W01 | A-host + H | `test_check_capture::test_tc_w01_*` | `main/alert.c` built on the host; its alerts pass alert-payload-v1 (`cloud/backend/app/contracts.py`) and fit the 4096-byte MQTT buffer. Pi: H-W01, blocked (Pi not available). |
-| TC-W02 | H | H-W02 | Retained `online` on connect, Last Will `offline`. Blocked (Pi not available). |
-| TC-W03 | H | H-W03 | A press while disconnected is dropped, not queued. Blocked (Pi not available). |
+| TC-W01 | A-host + H | `test_check_capture::test_tc_w01_*` | `main/alert.c` built on the host; its alerts pass alert-payload-v1 (`cloud/backend/app/contracts.py`) and fit the 4096-byte MQTT buffer. Pi: H-W01, not run yet. |
+| TC-W02 | H | H-W02 | Retained `online` on connect, Last Will `offline`. Not run yet. |
+| TC-W03 | H | H-W03 | A press while disconnected is dropped, not queued. Not run yet. |
 | TC-W04 | A | `test_check_capture::test_tc_w04_*` | The capture checker refuses what ingestion would (the old test alert, a wrong sample count, unknown topics), a wearable status with `revocation_version`, another device's topic, seq gaps, repeated `msg_id`, and `segment_start` after `sent_at`. A reboot's `seq` 0 is accepted. |
 
 ## Cloud backend (Iteration 3)

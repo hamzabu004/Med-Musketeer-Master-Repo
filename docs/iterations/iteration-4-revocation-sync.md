@@ -1,7 +1,7 @@
 # Iteration 4 — Revocation push and cache
 
 - **Owner:** Hamza Tariq (M7 cloud platform, M5 gateway)
-- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slice 1 (cloud) done (2026-10-29). Slice 2 (gateway) done and container-tested (2026-10-30); its Pi run (H-B06) waits for the CA replacement. Slice 3 done for its unblocked parts (2026-10-30): the dashboard's stale-list flag and the gateway clock. The backlog quarantine and TC-C32 moved to the backlog design (decided 2026-10-30).
+- **Status:** Slice 0 done (2026-10-29): mechanisms chosen by spike, CA replacement decided (carried out by the CA custodian, below). Slice 1 (cloud) done (2026-10-29). Slice 2 (gateway) done and container-tested (2026-10-30). The CA was replaced on 2026-10-30, and the uplink has run on the Pi, connected to the cloud VM, since 2026-11-05; its Pi run (H-B06) is unblocked but not run yet. Slice 3 done for its unblocked parts (2026-10-30): the dashboard's stale-list flag and the gateway clock. The backlog quarantine and TC-C32 moved to the backlog design (decided 2026-10-30).
 - **Part of:** Iteration 4 (gateway uplink). The gateway side lives in the uplink service. Slice 2 built a minimal uplink (`gateway/uplink`, decided 2026-10-30): the cloud connection, the gateway's status, and the revocation list. Forwarding and the backlog are added to it with the uplink bridge.
 - **Depends on:** `cloud-backend.md` D4, D5, D15; `mqtt-fixed-path-topics.md`; `tools/Fixed-Gateway-Setup/setup_mosquitto.sh`; the decision on the CA's missing key identifiers (`gaps.md`)
 - **Assumption:** the gateway normally has internet access. Losing the cloud is temporary, never permanent.
@@ -95,7 +95,9 @@ Scripts, raw output and broker logs: `docs/testing/evidence/2026-10-29/revocatio
 - `GET /api/v5/clients?username=` finds a client, and `DELETE /api/v5/clients/{clientid}` disconnects it with reason 0x98 (administrative action).
 - The retained message is lost when the container is recreated with the default `storage_type = ram`, and kept with `disc`.
 
-**CA key identifiers: replace the CA** (decided 2026-10-29). The current CA (created 2026-10-13) has no Subject Key Identifier, so Python 3.13+'s strict verification, which the uplink uses, refuses its chains. It has issued one gateway (`64e33c48-…`, deployed) and one wearable (`8f0f5194-…`, flashed), and no cloud certificate yet. The custodian replaces it before Slice 2, keeping the device ids:
+**CA key identifiers: replace the CA** (decided 2026-10-29). The current CA (created 2026-10-13) has no Subject Key Identifier, so Python 3.13+'s strict verification, which the uplink uses, refuses its chains. It has issued one gateway (`64e33c48-…`, deployed) and one wearable (`8f0f5194-…`, flashed), and no cloud certificate yet. The custodian replaces it before Slice 2, keeping the device ids. **Carried out 2026-10-30** (CA `90F91212…`, with key identifiers; the gateway, wearable and cloud certificates re-issued, deployed, flashed and installed). Step 6 was not needed: the devices were first registered in the cloud on 2026-11-05, with the new fingerprints.
+
+The steps:
 
 1. `mmca replace-ca --confirm-phrase 'REPLACE MEDMUSKETEER CA'` (the old CA is archived under `ca/archive/<time>/`).
 2. `mmca issue gateway --device-id 64e33c48-5c41-4afe-8772-e937e51d67a0`, then `mmca deploy --device-id 64e33c48-5c41-4afe-8772-e937e51d67a0 --host <pi> --user pi --restart` (deploys the new `ca.crt` as well).
@@ -112,7 +114,7 @@ Tests: TC-C28 to TC-C31 (TC-C27 is the Pi smoke test); `tests/integration/test_r
 - TC-C31: the gateway's reported version is stored, and a gateway behind the current version is reported as stale.
 
 ### Slice 2 — Gateway: cache and enforce (M) — Done 2026-10-30 (container); Pi run pending
-Tests: TC-B05 to TC-B08 in `gateway/uplink/tests/`, against Mosquitto 2.0.21 containers. The cloud is a Mosquitto stand-in with the cloud certificate; the real EMQX side is TC-C29/C30. The Pi run is H-B06, after the CA replacement.
+Tests: TC-B05 to TC-B08 in `gateway/uplink/tests/`, against Mosquitto 2.0.21 containers. The cloud is a Mosquitto stand-in with the cloud certificate; the real EMQX side is TC-C29/C30. The Pi run is H-B06 (unblocked since the CA replacement, not run yet).
 
 As built:
 - **Runs as `mosquitto`.** Mosquitto 2.x warns that later versions will refuse an ACL file not owned by it or readable by others. Running as `mosquitto`, the uplink writes the file 0600 under its own name and reloads the broker by SIGHUP to the PID in Mosquitto's `pid_file`, with no sudo rule. The uplink reads the same gateway key as the broker, so it adds no new trust.
@@ -207,4 +209,4 @@ As built:
 | Mosquitto cannot disconnect a client identified by its certificate (confirmed in Slice 0) | Accepted: topic denial plus the services layer stop its data; the open connection carries nothing |
 | The database and the retained message drift apart | Outbox in the same transaction; reconciler on start and every 5 minutes |
 | The gateway clock is wrong after an offline reboot | RTC or `fake-hwclock`; backlog records say whether the clock was synchronised |
-| The uplink cannot connect because of the CA's missing key identifiers | CA replacement decided in Slice 0; carried out before Slice 2 |
+| The uplink cannot connect because of the CA's missing key identifiers | CA replacement decided in Slice 0; carried out 2026-10-30 |

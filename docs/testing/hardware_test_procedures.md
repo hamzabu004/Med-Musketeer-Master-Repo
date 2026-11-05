@@ -92,7 +92,7 @@ reachable over BLE, and accepts corrected settings.
 
 ## H-B — Broker interop on the Pi (TC-B01 to TC-B04)
 
-**Blocked: the Pi is not available, and the run waits for the CA replacement** (`docs/iterations/iteration-4-revocation-sync.md`, Slice 0), so that it checks the final trust anchor and the uplink's generated ACL. It can share a session with H-B06.
+**Not run yet; unblocked 2026-11-05:** the Pi is reachable again and the CA was replaced on 2026-10-30 (`docs/iterations/iteration-4-revocation-sync.md`, Slice 0), so the run checks the final trust anchor and the uplink's generated ACL. It can share a session with H-B06.
 
 The same checks run automatically against a Mosquitto container (`test_broker_interop.py`). TC-B01 already passed on the Pi on 2026-10-22 (`evidence/2026-10-22/hardware/README.md`); TC-B02 to B04 were not run because the `gw_services` password was not at hand. Use the commands recorded in `evidence/<date>/broker/broker_cases.json`, with `journalctl -u mosquitto` as the broker log. The services listener (1883) accepts only loopback, so run its subscribers on the Pi over SSH. Wearable-side clients connect to `gateway.medmusketeer.local:8883`, resolved to the Pi in `/etc/hosts`.
 
@@ -105,7 +105,7 @@ Record any difference between the Pi configuration and the container one.
 
 ## H-W01 — Alert from the push button (TC-W01)
 
-**Blocked: the Pi is not available.**
+**Not run yet** (the Pi is reachable again since 2026-11-05).
 
 1. Flash the Iteration 2 firmware (button on the GPIO set in menuconfig, default 4, to GND) and provision it with the `MM-WR-` app build; wait for `MQTT REACHABLE`.
 2. On the Pi: `mosquitto_sub -h 127.0.0.1 -u gw_services -P "$PI_GW_SERVICES_PASS" -v -t 'mm/fixed/+/#' | tee capture.txt`.
@@ -117,7 +117,7 @@ Keep `capture.txt` and the serial log as evidence.
 
 ## H-W02 — Presence and Last Will (TC-W02)
 
-**Blocked: the Pi is not available.**
+**Not run yet** (the Pi is reachable again since 2026-11-05).
 
 1. With the subscriber of H-W01 running, reset the board. Expected: `{"v":1,"state":"online"}` on `mm/fixed/<id>/status` after it reconnects.
 2. Start a new subscriber. Expected: it receives the retained `online` at once.
@@ -126,7 +126,7 @@ Keep `capture.txt` and the serial log as evidence.
 
 ## H-W03 — Button pressed while not connected (TC-W03)
 
-**Blocked: the Pi is not available.**
+**Not run yet** (the Pi is reachable again since 2026-11-05).
 
 1. With the board connected, stop the broker (`sudo systemctl stop mosquitto`) and wait for `MQTT DISCONNECTED`.
 2. Press the button. Expected: the OLED shows `ALERT DROPPED` / `NOT CONNECTED`; the serial log says the alert was dropped.

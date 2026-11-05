@@ -1,7 +1,7 @@
 # Iteration 2 — The wearable's alert, its presence, and the ACL check on the Pi
 
 - **Owner:** Hamza Tariq (M2 firmware, M3 provisioning app, M5 gateway)
-- **Status:** Slices 1 to 4 done (2026-10-30): built, compiled for the ESP32-S3, and the alert checked on the host against the cloud's contract. Every hardware check (H-W01 to H-W03, H-B for TC-B02 to B04) is **blocked: the Pi is not available**. The H-B run also waits for the CA replacement (`iteration-4-revocation-sync.md`, Slice 0).
+- **Status:** Slices 1 to 4 done (2026-10-30): built, compiled for the ESP32-S3, and the alert checked on the host against the cloud's contract. The hardware checks (H-W01 to H-W03, H-B for TC-B02 to B04) are unblocked but not run yet: the Pi is reachable again (2026-11-05) and the CA was replaced on 2026-10-30 (`iteration-4-revocation-sync.md`, Slice 0).
 - **Scope change (2026-10-30):** the ECG evaluation that `scope.md` listed under Iteration 2 moved to Iteration 5. The classifier code is still in its own repository (`scope.md`, M4).
 - **Depends on:** `cloud-backend.md` D6 (alert-payload-v1), D15 (status-v1), D16 (a wearable's status carries no `revocation_version`); `mqtt-fixed-path-topics.md`; `shared/contracts/`
 
@@ -37,15 +37,15 @@ The `online` message is queued from the MQTT event handler (`esp_mqtt_client_enq
 ### Slice 4 — Message checker and procedures (S) — Done 2026-10-30
 `firmware/wearable/tools/check_capture.py` checks a `mosquitto_sub -v` capture with the cloud's own models plus per-device rules (seq, `msg_id`, times). Its tests build `main/alert.c` on the host and check the output (TC-W01, TC-W04), locally and in the `payload` job of `firmware.yml`. H-W01 to H-W03 are written in `hardware_test_procedures.md`.
 
-### Slice 5 — ACL denials on the Pi — Blocked (Pi not available; after the CA replacement)
+### Slice 5 — ACL denials on the Pi — Not run yet (unblocked 2026-11-05)
 H-B in `hardware_test_procedures.md` is now a numbered procedure: a new `gw_services` password set over SSH, TC-B02 and B03 with the real CA, TC-B04 with a scratch CA restored afterwards, and TC-B02/B03 again above the uplink's deny blocks. TC-B01 already passed on the Pi on 2026-10-22.
 
 ## Exit criteria
 
 1. The firmware builds for the ESP32-S3 in CI. **Met.**
 2. The firmware's alert passes alert-payload-v1 (TC-W01, host). **Met.**
-3. On the Pi, button alerts and the wearable's status pass `check_capture.py` (H-W01, H-W02), and a press while disconnected sends nothing (H-W03). **Blocked.**
-4. TC-B02 to B04 pass on the Pi (H-B). **Blocked.**
+3. On the Pi, button alerts and the wearable's status pass `check_capture.py` (H-W01, H-W02), and a press while disconnected sends nothing (H-W03). **Not run yet.**
+4. TC-B02 to B04 pass on the Pi (H-B). **Not run yet.**
 
 The iteration is done when 3 and 4 are met.
 
