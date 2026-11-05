@@ -27,7 +27,7 @@ A cloud backend that a gateway could connect to: PostgreSQL + TimescaleDB with t
 - Public-certificate listener for the phone relay, Let's Encrypt, public domain → Iteration 6
 - Envelope verification, cloud classification, replay windows in use → Iteration 6
 - Dashboard UI → Iteration 6 (this iteration only exposes the API it will use)
-- Attack-test module → with IDS/IPS integration (Iteration 5)
+- Attack-test module → with IDS/IPS integration (Iteration 7, since 2026-11-06)
 - On-demand recordings (`telemetry`) ingestion → after the start/stop design is decided (gap)
 - The registry link in the CA tool → may be pulled in at the end if time allows (`mmca revoke` was removed on 2026-10-29: revocation is done through the registry API)
 

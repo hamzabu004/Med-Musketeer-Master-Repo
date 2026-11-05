@@ -44,12 +44,13 @@ Last updated: 2026-10-30
 
 ## ECG / model layer
 - **TinyDL on-device screening model** has no architectural spec. Because only screening-flagged alerts leave the wearable (ADR-1), this blocks the real alert pipeline and the path benchmark, and its recall limits the whole system. Until it exists, a push button sends alerts with a synthetic segment and the stub screening `button-stub-0` (Iteration 2)
-- Model choice: the base-paper method (LightGBM, 72–77% patient-level) is dropped; the teacher/student candidates (classical ML search; 1D-CNN, RNN, LSTM, KAN-Former) are evaluated in Iteration 5 (moved from Iteration 2 on 2026-10-30); no teacher has reached the 95% lock threshold yet
-- Signal preprocessing: sampling rate (MIT-BIH is 360 Hz), window length, input unit (samples, beats or seconds), filtering and segmentation
+- Model choice: the base-paper method (LightGBM, 72–77% patient-level) is dropped; the teacher/student candidates (classical ML search; 1D-CNN, RNN, LSTM, KAN-Former) are evaluated in Iteration 7 (moved from Iteration 2 to 5 on 2026-10-30, and to 7 on 2026-11-06); no teacher has reached the 95% lock threshold yet
+- Signal preprocessing: the wearable samples at 500 SPS (Iteration 5, D-1) while MIT-BIH is 360 Hz, so the classifier resamples; window length, input unit (samples, beats or seconds), filtering and segmentation
 - Whether the gateway multiclass model and the cloud multiclass model (mobile path) are the same model redeployed or separately tuned for different compute budgets
 - **Hardware:** the ADS1292 digital front end has been requested from the lab and not received; the firmware sampling path must be re-checked against it on arrival. Until then only the AD8232 (testing only)
 
 ## IDS/IPS
+- **Schedule risk:** IDS/IPS moved from Iteration 5 to the parallel Iteration 7 on 2026-11-06. The FYP-1 Final milestone (`scope.md`) needs it; review the milestone when Iteration 7 is planned
 - Final model not chosen (offline Random Forest and XGBoost baselines on CICIoMT2024 exist); next steps listed in the mid report §10 (confusion analysis, realistic class distribution, leakage checks)
 - Gateway feature extraction: reproducing the 45 CICIoMT2024 features from the gateway's own capture pipeline
 - IPS action mechanism: iptables? application-layer rate limiting? which layer on the RPi actually implements "reject/throttle"

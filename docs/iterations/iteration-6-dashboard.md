@@ -47,7 +47,7 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 | Devices | List with filters; register by certificate UUID, type and testbed flag; each active gateway's revocation list state (current, behind, not reported) | `GET/POST /admin/devices`, `GET /admin/revocation` |
 | Device | Facts and liveness, status since, a gateway's revocation list state; activate (needs an active credential), suspend, revoke with its cascade and what the broker does spelled out; add a credential by SHA-256 fingerprint, revoke it; grant to an organisation, end the grant, grant history | `/admin/devices/{id}/…` |
 | Security events | Filter by mode, class and outcome; detail panel | `GET /admin/security-events` |
-| Attack tests | Start and stop against testbed devices only; results compare each window with the IDS events (detected after N s, missed, not covered) | Not served yet (Iteration 5); sample mode only |
+| Attack tests | Start and stop against testbed devices only; results compare each window with the IDS events (detected after N s, missed, not covered) | Not served yet (Iteration 7); sample mode only |
 | Audit log | Registry changes, filtered by kind | `GET /admin/audit` |
 
 ### Organisation administrator (sees no ECG, classifications or alerts)
@@ -117,7 +117,7 @@ Every list loads with a skeleton, says when it is empty, and shows an error with
 |---|---|---|
 | Live alert push | Polls every 15 s | Slice 5 ingestion with `NOTIFY` and a WebSocket |
 | On-demand recording | Unavailable in API mode. Sample mode follows a provisional contract shaped on `commands` (sent, acked, expired) and the `recording` segment | The start/stop design (`gaps.md`), then an endpoint |
-| Attack tests | Unavailable in API mode; sample mode only | Iteration 5 endpoints |
+| Attack tests | Unavailable in API mode; sample mode only | Iteration 7 endpoints |
 | A single alert | Searched for among the newest 1000 unacknowledged and newest 1000 alerts | `GET /alerts/{alert_id}` |
 | Organisation admins, for the system admin | Read from `account.created` audit rows (newest 1000) | An endpoint listing an organisation's admins |
 | Devices granted to an organisation, for the system admin | One grants request per device | Grants filtered by organisation |
