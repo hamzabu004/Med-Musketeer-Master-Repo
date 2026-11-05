@@ -3,7 +3,7 @@
 - **Date:** 2026-11-05
 - **Type:** ops
 - **Module:** M5 gateway | M7 cloud
-- **Commits:** pending
+- **Commits:** 810e7e8 (gateway connection, deferrals, evidence), e9bda70 (status updates)
 
 ## What changed
 - The production registry at `medmusketeer.site` has its first devices. Through the dashboard, the system admin registered the fixed gateway `64e33c48-5c41-4afe-8772-e937e51d67a0` and the wearable `8f0f5194-93bf-4e1d-8e72-f96fa1f3df21`, both as production devices (not testbed). Each got its certificate's SHA-256 fingerprint as an `x509_mtls` credential and was activated. Both certificates were issued by the CA that replaced the original on 2026-10-30.
