@@ -3,7 +3,7 @@
 - **Date:** 2026-11-05
 - **Type:** code | decision
 - **Module:** M7 cloud | M8 dashboard
-- **Commits:** pending
+- **Commits:** 523e03a
 
 ## What changed
 - `cloud-backend.md` D9: the system admin column of "Devices of own organisation: list, live status" is now ✘. The system admin keeps the registry: each device's lifecycle status (pending, active, suspended, revoked) and when it changed, credentials, grants, and the testbed flag. D16 and D17 were updated to match.
