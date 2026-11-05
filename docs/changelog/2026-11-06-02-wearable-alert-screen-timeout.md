@@ -3,7 +3,7 @@
 - **Date:** 2026-11-06
 - **Type:** code
 - **Module:** M2 firmware
-- **Commits:** pending
+- **Commits:** 151b40d (screen timeout, README, this entry); merged in 1cc61ed (PR #17)
 
 ## What changed
 - After an alert press, `ALERT SENT` (or `ALERT DROPPED`) stays on the OLED for 3 s (`ALERT_SCREEN_MS` in `firmware/wearable/main/fixed_path.c`). The screen then returns to `WIFI CONNECTED` / `MQTT REACHABLE` if Wi-Fi and MQTT are still up. If the connection dropped meanwhile, the network handlers' status screen is left as it is.
