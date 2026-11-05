@@ -132,7 +132,7 @@ Wearable (ECG acquisition, TinyDL screening, alerts with the triggering segment,
 
 Only these have been measured. Everything else is a target.
 
-- **ECG:** base-paper method (LightGBM) replicated on a patient-level split: **72–77% accuracy** for both binary and five-class (100 Optuna trials for five-class, 50 for binary, each repeated 5 times) — well short of the 95% teacher target. The base-paper method is therefore **dropped**; the evaluation moves to new feature sets, a wide classical-ML search, and 1D-CNN/RNN/LSTM/KAN-Former in parallel (Iteration 5 since 2026-10-30).
+- **ECG:** base-paper method (LightGBM) replicated on a patient-level split: **72–77% accuracy** for both binary and five-class (100 Optuna trials for five-class, 50 for binary, each repeated 5 times) — well short of the 95% teacher target. The base-paper method is therefore **dropped**; the evaluation moves to new feature sets, a wide classical-ML search, and 1D-CNN/RNN/LSTM/KAN-Former in parallel (Iteration 7 since 2026-11-06; Iteration 5 from 2026-10-30).
 - **IDS (offline, CICIoMT2024):** binary — Random Forest 98.00% accuracy, XGBoost 98.50%; multiclass — Random Forest 84.14% accuracy / 82.56% macro-F1, XGBoost 81.37% / 79.78%. Offline only; no testbed or zero-shot results yet.
 - **Provisioning chain and first fixed-path hop:** 56 automated tests pass (CA tool, secret scan, broker interop on a container broker); hardware procedures recorded. The wearable connects to the Pi's Mosquitto over mTLS and its periodic test alert was received (replaced by the alert payload in Iteration 2). Evidence: `docs/testing/evidence/2026-10-22/`.
 
@@ -145,11 +145,12 @@ Only these have been measured. Everything else is a target.
 ## Timeline / iterations
 
 - **Iteration 1 (done):** secure-provisioning slice — CA tool, wearable credentials, BLE provisioning app, gateway broker, first fixed-path messages.
-- **Iteration 2:** the wearable's test alert replaced by the planned alert payload (a push button and a synthetic ECG segment until the edge model exists), its presence (`status` and LWT), and ACL denials verified on the Pi itself. Plan: `docs/iterations/iteration-2-wearable-alert.md`. (ECG evaluation moved to Iteration 5 on 2026-10-30.)
+- **Iteration 2:** the wearable's test alert replaced by the planned alert payload (a push button and a synthetic ECG segment until the edge model exists), its presence (`status` and LWT), and ACL denials verified on the Pi itself. Plan: `docs/iterations/iteration-2-wearable-alert.md`. (ECG evaluation moved to Iteration 5 on 2026-10-30, then to Iteration 7 on 2026-11-06.)
 - **Iteration 3:** cloud backend setup — PostgreSQL + TimescaleDB, device registry with organisations and device grants, ingestion API, EMQX with two listeners, ZITADEL with the four roles.
 - **Iteration 4:** uplink bridge from the gateway broker to the cloud over mTLS (`attested_by`, backlog upload); verified wearable → cloud database.
-- **Iteration 5:** ECG evaluation on patient-level splits (teacher/student candidates), edge model on the device, gateway classifier and uplink integration, IDS/IPS on the gateway with overhead measurements.
+- **Iteration 5:** ECG read from the sensor on the wearable (AD8232 for testing, behind an interface the ADS1292 will use), and live ECG on request from the dashboard through the fixed path. The button alert is unchanged. Plan: `docs/iterations/iteration-5-ecg-on-demand.md`. (Changed on 2026-11-06; the earlier Iteration 5 work moved to Iteration 7.)
 - **Iteration 6 (end of FYP-1):** relay app and envelope, dashboard, integrated baseline validation of both routes.
+- **Iteration 7 (in parallel with 5 and 6):** ECG evaluation on patient-level splits (teacher/student candidates), edge model on the device, gateway classifier and uplink integration, IDS/IPS on the gateway with overhead measurements, and the attack-test module. FYP-1 Final needs IDS/IPS, so Iteration 7 must finish by then or the milestone moves (`gaps.md`).
 
 **Milestones:**
 - **FYP-1 Mid (Week 8):** model baselines, ECG acquisition, gateway transport, dashboard prototype, requirements/design. Partly reached; secure provisioning delivered in addition.

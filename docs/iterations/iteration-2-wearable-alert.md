@@ -51,7 +51,7 @@ The iteration is done when 3 and 4 are met.
 
 ## Out of scope
 
-- ECG evaluation, the edge model, ECG acquisition (AD8232 or ADS1292) → Iteration 5
+- ECG acquisition (AD8232 or ADS1292) → Iteration 5; ECG evaluation and the edge model → Iteration 7 (since 2026-11-06)
 - The gateway forwarding alerts and wearable status to the cloud → the uplink bridge (Iteration 4)
 - `telemetry`, `command`, `command_ack`, the mode switch, buffering while disconnected
 
