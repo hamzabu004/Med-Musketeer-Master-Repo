@@ -414,7 +414,7 @@ The wearable encrypts/signs the payload itself, addressed to the cloud, *before*
 - the connection stays open, because stock Mosquitto cannot drop a client identified by its certificate (the dynamic security plugin does not authenticate certificate identities, so it was rejected);
 - the ACL sees only the CN, so revoking one credential of a wearable that stays active is enforced by the cloud only; on the gateway it means suspending the wearable until it is re-issued.
 
-**Gateway side (Implemented 2026-10-30, Slice 2, TC-B05 to TC-B08):** the gateway uplink (`gateway/uplink`, `mm-uplink`) keeps the list in `/var/lib/medmusketeer/revocations.json` and generates `/var/lib/medmusketeer/wearables.acl`. It runs as the `mosquitto` user: Mosquitto 2.x wants the ACL file owned by it with mode 0600, and the uplink can then reload the broker by SIGHUP. Not yet run on the Pi (H-B06, waits for the CA replacement).
+**Gateway side (Implemented 2026-10-30, Slice 2, TC-B05 to TC-B08):** the gateway uplink (`gateway/uplink`, `mm-uplink`) keeps the list in `/var/lib/medmusketeer/revocations.json` and generates `/var/lib/medmusketeer/wearables.acl`. It runs as the `mosquitto` user: Mosquitto 2.x wants the ACL file owned by it with mode 0600, and the uplink can then reload the broker by SIGHUP. Installed on the Pi and connected to the cloud VM since 2026-11-05; H-B06 itself is not run yet.
 
 ## Device presence/liveness detection (online/offline status)
 

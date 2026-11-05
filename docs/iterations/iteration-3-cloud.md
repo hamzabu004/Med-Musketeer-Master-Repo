@@ -1,7 +1,7 @@
 # Iteration 3 — Cloud backend
 
 - **Owner:** Hamza Tariq (M7 cloud platform; M1 CA tool for the cloud certificate)
-- **Status:** Slices 0 to 5 done (2026-10-29). Slice 6: deployed on 2026-11-04 to an Oracle Cloud VM at `medmusketeer.site` instead of the cloud Pi (`cloud-backend.md` D18); TC-C27, backups and the gateway's connection remain
+- **Status:** Slices 0 to 5 done (2026-10-29). Slice 6: deployed on 2026-11-04 to an Oracle Cloud VM at `medmusketeer.site` instead of the cloud Pi (`cloud-backend.md` D18); the fixed gateway connected to it on 2026-11-05. TC-C27 and scheduled off-VM backups are deferred (2026-11-05, `gaps.md`)
 - **Depends on:** `docs/decisions/stack.md`, `gaps.md`, the cloud schema in the mid report §5 "Data Design"
 - **Followed by:** Iteration 4 (uplink bridge on the gateway → this backend)
 
@@ -142,7 +142,10 @@ First planned for the second Pi over Tailscale. Changed on 2026-10-30 to an Orac
 - Same compose stack, with `compose.public.yaml` for HTTPS (Let's Encrypt) through the proxy; volumes on a separate block volume; a database backup script (`scripts/backup-db.sh`); secrets in the server's `.env` only. **Done 2026-11-04** (`cloud/README.md`, "Public deployment" and "Server set-up").
 - Disk encryption: Oracle's default encryption at rest with keys it holds, recorded as an accepted shortcut (D18).
 - Memory at idle: about 1.9 GB used of 12 GB, all eight services healthy after a reboot (2026-11-04). Not yet recorded as evidence with CPU use.
-- **Remaining:** TC-C27, the smoke suite (C01, C14, C20), against the server from the laptop; scheduled off-VM backups; the gateway pointed at `mqtt.medmusketeer.site:8883`.
+- **Gateway connected (2026-11-05):** the fixed gateway `64e33c48-…` and the wearable `8f0f5194-…` were registered, given their certificates' fingerprints and activated through the dashboard as the system admin. The gateway's uplink was pointed at `mqtt.medmusketeer.site:8883`. Before activation EMQX refused it ("Not authorized"); after it, the uplink connected with strict TLS checks in both directions, received revocation list version 1 and reloaded the gateway broker's ACL. The cloud recorded the gateway online. Evidence: `docs/testing/evidence/2026-11-05/gateway-cloud/`. The gateway forwards no wearable data yet (Iteration 4's uplink bridge).
+- **Deferred (2026-11-05), tracked in `gaps.md` "Non-functional / ops":**
+  - TC-C27, the smoke suite (C01, C14, C20) against the server from the laptop. The stack tests rely on the throwaway stack's internals (`compose exec`, internal ports, the database), so a production version uses the public endpoints only. It also needs a decision on test data on production: C14 and C20 need a testbed gateway and an issued wearable there.
+  - Scheduled backups copied off the VM. `scripts/backup-db.sh` exists, but nothing on the server runs it yet.
 
 ## Testing approach
 
