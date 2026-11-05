@@ -64,6 +64,7 @@ static const char *TAG = "fixed_path";
 #define MQTT_BUFFER_SIZE 4096 /* an alert is about 3.2 KB; the default buffer is 1 KB */
 #define BUTTON_DEBOUNCE_MS 50
 #define BUTTON_COOLDOWN_MS 2000
+#define ALERT_SCREEN_MS 3000 /* how long an alert result stays on the OLED */
 #define STATUS_ONLINE "{\"v\":1,\"state\":\"online\"}"
 #define STATUS_OFFLINE "{\"v\":1,\"state\":\"offline\"}"
 #define CLOCK_VALID_AFTER 1704067200
@@ -569,13 +570,28 @@ static void IRAM_ATTR alert_button_isr(void *arg)
 }
 
 /* One alert per button press. A press while MQTT is down is dropped: buffering waits for the
- * wearable buffer design (gaps.md). seq restarts at 0 on every boot. */
+ * wearable buffer design (gaps.md). seq restarts at 0 on every boot.
+ * The alert result stays on the OLED for ALERT_SCREEN_MS; then the connected screen returns. If
+ * the connection dropped meanwhile, the network handlers' screen is left as it is. */
 static void alert_publish_task(void *arg)
 {
     (void)arg;
     uint64_t seq = 0;
+    bool restore_pending = false;
+    TickType_t restore_at = 0;
     for (;;) {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        TickType_t wait = portMAX_DELAY;
+        if (restore_pending) {
+            const int32_t left = (int32_t)(restore_at - xTaskGetTickCount());
+            wait = left > 0 ? (TickType_t)left : 0;
+        }
+        if (ulTaskNotifyTake(pdTRUE, wait) == 0) { /* no press before the alert screen timed out */
+            restore_pending = false;
+            if (mqtt_connected && wifi_has_ip) {
+                display_show_text("WIFI CONNECTED", "MQTT REACHABLE", "", "", "", "");
+            }
+            continue;
+        }
         vTaskDelay(pdMS_TO_TICKS(BUTTON_DEBOUNCE_MS));
         if (gpio_get_level(CONFIG_WEARABLE_ALERT_BUTTON_GPIO) != 0) continue; /* bounce */
 
@@ -609,6 +625,8 @@ static void alert_publish_task(void *arg)
                 }
             }
         }
+        restore_pending = true;
+        restore_at = xTaskGetTickCount() + pdMS_TO_TICKS(ALERT_SCREEN_MS);
         vTaskDelay(pdMS_TO_TICKS(BUTTON_COOLDOWN_MS));
         ulTaskNotifyTake(pdTRUE, 0); /* ignore presses during the cooldown */
     }
