@@ -2,7 +2,7 @@
 # MedMusketeer - gateway uplink setup on the fixed gateway (Raspberry Pi). Run with sudo, after
 # setup_mosquitto.sh and `mmca deploy` (the uplink uses the same gateway certificate).
 # Usage: sudo ./setup_uplink.sh CLOUD_HOST [path/to/gateway/uplink]
-#   CLOUD_HOST: the cloud Pi's Tailscale address (the cloud is verified by name, not address).
+#   CLOUD_HOST: the cloud's MQTT address, e.g. mqtt.medmusketeer.site (the cloud is verified by name, not address).
 # Installs gateway/uplink into /opt/medmusketeer/uplink, writes /etc/medmusketeer/uplink.toml and
 # the systemd unit medmusketeer-uplink (runs as mosquitto; see docs/iterations/iteration-4-revocation-sync.md).
 set -euo pipefail

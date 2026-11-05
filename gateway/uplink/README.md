@@ -29,11 +29,11 @@ mm-uplink: validate, keep only a newer version, store /var/lib/medmusketeer/revo
 After `setup_mosquitto.sh` and `mmca deploy`, run:
 
 ```bash
-sudo tools/Fixed-Gateway-Setup/setup_uplink.sh <cloud Pi Tailscale address>
+sudo tools/Fixed-Gateway-Setup/setup_uplink.sh mqtt.medmusketeer.site
 journalctl -u medmusketeer-uplink -f
 ```
 
-It installs the package into `/opt/medmusketeer/uplink`, writes `/etc/medmusketeer/uplink.toml` (every key is documented in `deploy/uplink.toml.example`), and enables `medmusketeer-uplink.service`. The cloud's certificate chain must verify strictly. A CA made by `mmca` before 2026-10-24 does not; replace it first (`iteration-4-revocation-sync.md`, Slice 0).
+It installs the package into `/opt/medmusketeer/uplink`, writes `/etc/medmusketeer/uplink.toml` (every key is documented in `deploy/uplink.toml.example`), and enables `medmusketeer-uplink.service`. An existing `uplink.toml` is left alone: to move a gateway to another cloud address, edit its `host` and `sudo systemctl restart medmusketeer-uplink`. The cloud refuses the gateway ("Not authorized") until the system admin has registered it, added its certificate's fingerprint and activated it (`cloud/README.md`, "EMQX gateway listener"). The cloud's certificate chain must verify strictly. A CA made by `mmca` before 2026-10-24 does not; replace it first (`iteration-4-revocation-sync.md`, Slice 0).
 
 ## Tests
 

@@ -2,7 +2,7 @@
 # tools/Fixed-Gateway-Setup/setup_uplink.sh.
 
 [cloud]
-host = "CLOUD_HOST"                  # the cloud Pi's Tailscale address
+host = "CLOUD_HOST"                  # the cloud's MQTT address, e.g. mqtt.medmusketeer.site
 port = 8883                          # EMQX gateway listener
 name = "cloud.medmusketeer.local"    # the name the cloud's certificate must carry (pinned)
 

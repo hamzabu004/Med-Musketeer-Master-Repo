@@ -1,0 +1,26 @@
+# gateway f-gateway, 2026-11-05T04:50:41+00:00
+5:host = "mqtt.medmusketeer.site"           # the cloud VM's public MQTT name (cloud-backend.md D18)
+6:port = 8883                          # EMQX gateway listener
+7:name = "cloud.medmusketeer.local"    # the name the cloud's certificate must carry (pinned)
+subject=CN=64e33c48-5c41-4afe-8772-e937e51d67a0
+sha256 Fingerprint=B0:E7:E0:31:FF:61:D8:50:77:A4:83:1D:49:0A:B4:B9:7A:30:68:3F:EB:84:1E:98:CA:22:A2:5A:31:E2:18:14
+
+# journal of medmusketeer-uplink since the change (refusals deduplicated: first two kept)
+2026-11-05T04:13:24+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:13:24,556 WARNING mm_uplink.revocations: no revocation list stored yet (/var/lib/medmusketeer/revocations.json): no wearable is refused until one arrives
+2026-11-05T04:13:24+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:13:24,564 INFO mm_uplink.service: gateway 64e33c48-5c41-4afe-8772-e937e51d67a0 connecting to mqtt.medmusketeer.site:8883 as cloud.medmusketeer.local
+2026-11-05T04:13:25+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:13:25,079 WARNING mm_uplink.service: cloud refused the connection: Not authorized
+2026-11-05T04:13:25+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:13:25,080 WARNING mm_uplink.service: disconnected from the cloud (Unspecified error); the stored revocation list stays enforced
+2026-11-05T04:13:26+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:13:26,567 WARNING mm_uplink.service: cloud refused the connection: Not authorized
+2026-11-05T04:13:26+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:13:26,567 WARNING mm_uplink.service: disconnected from the cloud (Unspecified error); the stored revocation list stays enforced
+2026-11-05T04:20:35+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:20:35,380 INFO mm_uplink.service: connected to the cloud
+2026-11-05T04:20:35+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:20:35,492 INFO mm_uplink.revocations: revocation list version 1 stored: 0 wearables, 0 certificates
+2026-11-05T04:20:35+00:00 f-gateway mm-uplink[2526]: 2026-11-05 04:20:35,499 INFO mm_uplink.enforce: broker ACL reloaded: 0 wearables refused
+
+# /var/lib/medmusketeer/revocations.json
+{
+ "v": 1,
+ "version": 1,
+ "issued_at": "2026-11-05T04:19:39.743705Z",
+ "devices": [],
+ "certificates": []
+}

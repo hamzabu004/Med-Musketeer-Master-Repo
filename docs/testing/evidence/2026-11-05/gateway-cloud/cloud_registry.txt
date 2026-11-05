@@ -1,0 +1,47 @@
+# cloud VM, 2026-11-05T04:50:27+00:00, deployed 5370be0
+              device_id               |     type      | status | is_testbed |         last_seen          
+--------------------------------------+---------------+--------+------------+----------------------------
+ 64e33c48-5c41-4afe-8772-e937e51d67a0 | fixed_gateway | active | f          | 2026-11-05 04:20:35.702+00
+ 8f0f5194-93bf-4e1d-8e72-f96fa1f3df21 | wearable      | active | f          | 
+(2 rows)
+
+              device_id               | auth_method |                          credential_ref                          | status 
+--------------------------------------+-------------+------------------------------------------------------------------+--------
+ 64e33c48-5c41-4afe-8772-e937e51d67a0 | x509_mtls   | B0E7E031FF61D85077A4831D490AB4B97A30683FEB841E98CA22A25A31E21814 | active
+ 8f0f5194-93bf-4e1d-8e72-f96fa1f3df21 | x509_mtls   | DD6569326C097154AE35560C176FB2751BDF34D077AC6B27995BD4D606BDBD4F | active
+(2 rows)
+
+              device_id               | state  |             at             
+--------------------------------------+--------+----------------------------
+ 64e33c48-5c41-4afe-8772-e937e51d67a0 | online | 2026-11-05 04:20:35.328+00
+(1 row)
+
+      action       |              at               
+-------------------+-------------------------------
+ device.registered | 2026-11-05 04:15:06.760196+00
+ grant.created     | 2026-11-05 04:15:43.651583+00
+ credential.added  | 2026-11-05 04:17:10.136839+00
+ account.created   | 2026-11-05 04:17:41.802124+00
+ device.active     | 2026-11-05 04:20:14.854813+00
+ device.registered | 2026-11-05 04:22:07.160278+00
+ credential.added  | 2026-11-05 04:22:26.736318+00
+ device.active     | 2026-11-05 04:22:31.151933+00
+(8 rows)
+
+emqx-1  | 2026-11-05T04:13:25.029101+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authenticator_rejection, peername: 203.99.61.238:42417, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.307706.0>, reason: not_authorized, provider: emqx_authn_http, authenticator: <<"password_based:http">>
+emqx-1  | 2026-11-05T04:13:25.029411+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authentication_failure, peername: 203.99.61.238:42417, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.307706.0>, reason: not_authorized
+emqx-1  | 2026-11-05T04:13:26.516602+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authenticator_rejection, peername: 203.99.61.238:52013, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.307711.0>, reason: not_authorized, provider: emqx_authn_http, authenticator: <<"password_based:http">>
+emqx-1  | 2026-11-05T04:14:32.284166+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authenticator_rejection, peername: 203.99.61.238:40091, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.307978.0>, reason: not_authorized, provider: emqx_authn_http, authenticator: <<"password_based:http">>
+emqx-1  | 2026-11-05T04:14:32.284327+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authentication_failure, peername: 203.99.61.238:40091, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.307978.0>, reason: not_authorized
+emqx-1  | 2026-11-05T04:15:32.819529+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authenticator_rejection, peername: 203.99.61.238:44187, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.308219.0>, reason: not_authorized, provider: emqx_authn_http, authenticator: <<"password_based:http">>
+emqx-1  | 2026-11-05T04:15:32.819694+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authentication_failure, peername: 203.99.61.238:44187, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.308219.0>, reason: not_authorized
+emqx-1  | 2026-11-05T04:16:33.340690+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authenticator_rejection, peername: 203.99.61.238:32831, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.308459.0>, reason: not_authorized, provider: emqx_authn_http, authenticator: <<"password_based:http">>
+emqx-1  | 2026-11-05T04:16:33.340856+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authentication_failure, peername: 203.99.61.238:32831, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.308459.0>, reason: not_authorized
+emqx-1  | 2026-11-05T04:17:33.854348+00:00 [warning] tag: AUTHN, clientid: 64e33c48-5c41-4afe-8772-e937e51d67a0, msg: authenticator_rejection, peername: 149.40.228.114:39049, username: 64e33c48-5c41-4afe-8772-e937e51d67a0, pid: <0.308696.0>, reason: not_authorized, provider: emqx_authn_http, authenticator: <<"password_based:http">>
+# ingested_messages (alerts and wearable messages only; the gateway status is not recorded there) and presence
+ device_id | msg_type | attested_by | sent_at | broker_at | ingested_at 
+-----------+----------+-------------+---------+-----------+-------------
+(0 rows)
+
+64e33c48-5c41-4afe-8772-e937e51d67a0|2026-11-05 04:20:35.702+00|unknown
+8f0f5194-93bf-4e1d-8e72-f96fa1f3df21||unknown
