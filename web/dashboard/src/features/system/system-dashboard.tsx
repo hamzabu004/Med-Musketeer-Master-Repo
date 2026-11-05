@@ -28,7 +28,7 @@ export function SystemDashboard() {
 
   return (
     <section className="mx-auto max-w-7xl space-y-5">
-      <PageIntro title="Dashboard" description="The registry at a glance. The system administrator sees devices and organisations, never patient data." />
+      <PageIntro title="Dashboard" description="The registry at a glance. The system administrator sees devices and organisations, never patient data. How devices are doing is for the organisation they are granted to." />
       <Loaded resource={resource} label="Loading the registry">
         {({ organisations, devices, audit, revocation }, { fetchedAt }) => {
           const count = (status: string) => devices.filter((d) => d.status === status).length;
@@ -44,10 +44,10 @@ export function SystemDashboard() {
                 <Metric label="Pending activation" value={count("pending")} detail="Registered, waiting for a credential or activation" />
                 <Metric label="Suspended or revoked" value={count("suspended") + count("revoked")} detail={`${count("suspended")} suspended, ${count("revoked")} revoked`} />
                 <Metric
-                  label="Gateways behind the revocation list"
-                  value={revocation.stale_gateways.length}
+                  label="Wearable revocation list"
+                  value={revocation.published_version ? `v${revocation.published_version}` : "None"}
                   detail={revocation.published_version
-                    ? `List v${revocation.published_version}, published ${formatAgo(revocation.published_at)}`
+                    ? `Published ${formatAgo(revocation.published_at)}${revocation.version > revocation.published_version ? `; v${revocation.version} waiting` : ""}`
                     : "No list published yet"}
                 />
               </div>

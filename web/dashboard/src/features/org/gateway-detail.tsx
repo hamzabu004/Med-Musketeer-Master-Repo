@@ -18,6 +18,7 @@ import { labelize, shortId } from "@/lib/labels";
 import { useResource } from "@/lib/use-resource";
 import { usePolling } from "../care/use-polling";
 import { ConnectionStatus, GATEWAY_POLL_MS } from "./gateways";
+import { gatewayListState } from "./revocation-list";
 
 /** Rows the screens ask for; the API serves up to 1000. */
 export const GATEWAY_LOG_LIMIT = 200;
@@ -59,6 +60,13 @@ export function GatewayDetail({ gatewayId }: { gatewayId: string }) {
           ["Alerts, last 24 h", gateway.alerts_24h],
           ["Last alert", gateway.last_alert_at ? formatDateTime(gateway.last_alert_at) : "None yet"],
         ];
+        const listState = gatewayListState(gateway);
+        if (listState) {
+          facts.push(["Revocation list", <>
+            <Status label={listState.label} tone={listState.tone} />
+            {listState.stale && <span className="mt-1 block text-xs text-[var(--color-text-muted)]">This gateway may still let in a wearable revoked since. It catches up when it next reaches the cloud.</span>}
+          </>]);
+        }
         return (
           <section className="mx-auto max-w-6xl space-y-5">
             <PageIntro

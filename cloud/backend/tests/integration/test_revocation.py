@@ -13,11 +13,12 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy import text
 
+from app.auth import Principal
 from app.contracts import RevocationList
 from app.emqx_api import EmqxError
 from app.revocation import TOPIC
 from tests.integration.test_ingest import ADAPTER, SECRET
-from tests.integration.world import make_device
+from tests.integration.world import insert, make_device, make_user
 from tests.messages import ingest, status_payload
 
 pytestmark = pytest.mark.integration
@@ -120,7 +121,7 @@ def test_tc_c28_the_list_follows_every_wearable_transition(admin, emqx):
     assert emqx.last.certificates == []
     assert emqx.last.devices[0].since <= datetime.now(UTC)
     assert state(admin) | {"published_at": None} == {
-        "version": 5, "published_version": 5, "published_at": None, "stale_gateways": []}
+        "version": 5, "published_version": 5, "published_at": None}
 
 
 def test_tc_c28_expired_certificates_drop_off_the_list(admin, emqx):
@@ -150,7 +151,7 @@ def test_tc_c28_a_change_commits_even_when_emqx_is_down_and_is_published_later(a
     assert admin.post(f"/admin/devices/{wearable}/suspend").status_code == 200
     assert db.scalar(text("SELECT status FROM devices WHERE device_id = :d"), {"d": wearable}) == "suspended"
     assert state(admin) | {"published_at": None} == {
-        "version": 2, "published_version": 0, "published_at": None, "stale_gateways": []}
+        "version": 2, "published_version": 0, "published_at": None}
 
     emqx.down = False
     assert publish(admin) == 2  # the reconciler's next step
@@ -186,26 +187,58 @@ def gateway_status(admin, gateway, version, received_at=None):
     return admin.post("/internal/ingest", json=message, headers=ADAPTER)
 
 
-def test_tc_c31_gateways_report_the_version_they_enforce_and_stale_ones_are_listed(admin, emqx, db):
+@pytest.fixture
+def org_admin(make_client, db, system_admin):
+    """The admin of an organisation the test grants its gateways to (D17: the gateway view is theirs)."""
+    org_id = insert(db, """INSERT INTO organisations (name, kind, zitadel_org_id, registered_by)
+                           VALUES ('Ward', 'public', :z, :by) RETURNING org_id""",
+                    z=f"z-ward-{uuid.uuid4().hex[:6]}", by=system_admin.user_id)
+    client = make_client(Principal(make_user(db, "org_admin", org_id), "org_admin", org_id))
+    client.org_id = str(org_id)
+    return client
+
+
+def list_state(org_admin, gateway) -> dict:
+    response = org_admin.get(f"/gateways/{gateway}")
+    assert response.status_code == 200, response.text
+    return response.json()["revocation"]
+
+
+def behind(org_admin) -> set[str]:
+    return {g["device_id"] for g in org_admin.get("/gateways").json() if not g["revocation"]["current"]}
+
+
+def test_tc_c31_gateways_report_the_version_they_enforce_and_the_org_admin_sees_stale_ones(admin, org_admin, emqx):
     first, _, _ = register(admin, "fixed_gateway")
     second, _, _ = register(admin, "fixed_gateway")
-    assert state(admin)["stale_gateways"] == []  # nothing published yet
+    for gateway in (first, second):
+        assert admin.post(f"/admin/devices/{gateway}/grants", json={"org_id": org_admin.org_id}).status_code == 201
+    assert list_state(org_admin, first) == {"reported_version": None, "published_version": 0, "current": True}
+    assert behind(org_admin) == set()  # nothing published yet
     assert publish(admin, force=True) == 1
-    assert set(state(admin)["stale_gateways"]) == {first, second}  # neither has reported
+    assert behind(org_admin) == {first, second}  # neither has reported
 
     assert gateway_status(admin, first, 1).status_code == 200
-    assert state(admin)["stale_gateways"] == [second]
-    assert admin.get(f"/admin/devices/{first}").json()["revocation_version"] == 1
+    assert behind(org_admin) == {second}
+    assert list_state(org_admin, first) == {"reported_version": 1, "published_version": 1, "current": True}
 
     wearable, _, _ = register(admin, "wearable")
     assert admin.post(f"/admin/devices/{wearable}/suspend").status_code == 200  # version 2 published
-    assert set(state(admin)["stale_gateways"]) == {first, second}
+    assert behind(org_admin) == {first, second}
     assert gateway_status(admin, first, 2).status_code == 200
     assert gateway_status(admin, first, 1, received_at=datetime.now(UTC) - timedelta(minutes=5)).status_code == 200
-    assert admin.get(f"/admin/devices/{first}").json()["revocation_version"] == 2  # the older report is stale
+    assert list_state(org_admin, first)["reported_version"] == 2  # the older report is stale
 
     assert admin.post(f"/admin/devices/{second}/suspend").status_code == 200
-    assert state(admin)["stale_gateways"] == []  # only active gateways count
+    assert behind(org_admin) == set()  # only active gateways count
+
+
+def test_tc_c31_the_system_admin_does_not_see_which_gateways_enforce_the_list(admin, emqx):
+    gateway, _, _ = register(admin, "fixed_gateway")
+    assert publish(admin, force=True) == 1
+    assert gateway_status(admin, gateway, 1).status_code == 200
+    assert set(state(admin)) == {"version", "published_version", "published_at"}
+    assert "revocation_version" not in admin.get(f"/admin/devices/{gateway}").json()
 
 
 def test_tc_c31_a_wearable_status_cannot_carry_a_revocation_version(admin, emqx):

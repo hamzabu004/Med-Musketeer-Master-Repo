@@ -74,11 +74,9 @@ class Device(BaseModel):
     type: str
     status: DeviceStatus
     is_testbed: bool
-    current_mode: str
-    current_gateway_id: UUID | None
-    last_seen: datetime | None
+    # No live status (mode, gateway, last seen, reported revocation list version): the system admin
+    # manages the registry, the organisation admin watches its devices (D9, 2026-11-05).
     status_changed_at: datetime
-    revocation_version: int | None  # gateways: the revocation list version they reported last
     registered_by: UUID | None
     created_at: datetime
 
@@ -132,7 +130,6 @@ class RevocationStatus(BaseModel):
     version: int
     published_version: int  # the version EMQX holds as the retained list
     published_at: datetime | None
-    stale_gateways: list[UUID]  # active gateways that have not reported the published version
 
 
 class SecurityEvent(BaseModel):
@@ -405,15 +402,9 @@ async def revoke_grant(grant_id: UUID, admin: SystemAdmin, conn: Conn):
 
 @router.get("/revocation", response_model=RevocationStatus)
 async def revocation_status(admin: SystemAdmin, conn: Conn):
-    """The wearable revocation list's version, what EMQX holds, and the gateways behind it (D16)."""
-    state = await one(conn, "SELECT version, published_version, published_at FROM revocation_state")
-    stale = await many(conn, """
-        SELECT device_id FROM devices
-        WHERE type = 'fixed_gateway' AND status = 'active' AND :published > 0
-          AND (revocation_version IS NULL OR revocation_version < :published)
-        ORDER BY device_id
-    """, published=state["published_version"])
-    return {**state, "stale_gateways": [row["device_id"] for row in stale]}
+    """The wearable revocation list's version and what EMQX holds (D16). Which gateways enforce it is
+    the organisation admin's view (`GET /gateways`, D17)."""
+    return await one(conn, "SELECT version, published_version, published_at FROM revocation_state")
 
 
 # --- audit log and security events -------------------------------------------------------------

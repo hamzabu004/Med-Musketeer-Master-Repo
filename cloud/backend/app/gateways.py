@@ -27,11 +27,20 @@ class Connectivity(BaseModel):
     since: datetime | None  # when the state began; online: the gateway's uptime
 
 
+class RevocationListState(BaseModel):
+    """Whether the gateway enforces the published wearable revocation list (D16). It may still let in
+    a wearable revoked since the version it reported last."""
+    reported_version: int | None  # what the gateway reported last in its status; None: never
+    published_version: int  # what EMQX holds as the retained list; 0: none published yet
+    current: bool  # True also when nothing is published yet or the gateway is not active
+
+
 class OrgGateway(BaseModel):
     device_id: UUID
     status: str
     last_seen: datetime | None
     connectivity: Connectivity
+    revocation: RevocationListState
     wearables_connected: int  # the organisation's wearables now on its fixed path
     other_wearables_connected: int  # other organisations' wearables on it, not named
     alerts_24h: int
@@ -71,6 +80,7 @@ ORG_WEARABLE = """EXISTS (SELECT 1 FROM device_grants wg WHERE wg.device_id = w.
 
 GATEWAY_SQL = f"""
     SELECT d.device_id, d.status, d.last_seen, c.state AS connectivity_state, c.at AS connectivity_since,
+           d.revocation_version, r.published_version,
            (SELECT count(*) FROM devices w WHERE w.current_gateway_id = d.device_id AND w.current_mode = 'fixed'
                                              AND {ORG_WEARABLE}) AS wearables_connected,
            (SELECT count(*) FROM devices w WHERE w.current_gateway_id = d.device_id AND w.current_mode = 'fixed'
@@ -81,6 +91,7 @@ GATEWAY_SQL = f"""
             WHERE a.gateway_id = d.device_id) AS last_alert_at
     FROM devices d
     JOIN device_grants g ON g.device_id = d.device_id AND g.revoked_at IS NULL AND g.org_id = :org
+    CROSS JOIN revocation_state r
     LEFT JOIN LATERAL (SELECT state, at FROM connectivity_events e
                        WHERE e.device_id = d.device_id AND e.gateway_id = d.device_id
                        ORDER BY e.at DESC LIMIT 1) c ON TRUE
@@ -90,7 +101,11 @@ GATEWAY_SQL = f"""
 
 def gateway_view(row: dict) -> dict:
     state, since = row.pop("connectivity_state"), row.pop("connectivity_since")
-    return {**row, "connectivity": {"state": state or "unknown", "since": since}}
+    reported, published = row.pop("revocation_version"), row.pop("published_version")
+    # Same rule as D16's staleness: only an active gateway can be behind, and only once a list is out.
+    behind = row["status"] == "active" and published > 0 and (reported is None or reported < published)
+    return {**row, "connectivity": {"state": state or "unknown", "since": since},
+            "revocation": {"reported_version": reported, "published_version": published, "current": not behind}}
 
 
 async def gateway_in_scope(conn: AsyncConnection, admin, gateway_id: UUID) -> dict:

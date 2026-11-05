@@ -14,6 +14,7 @@ import { formatAgo, formatDateTime, formatDuration } from "@/lib/date-time";
 import { labelize } from "@/lib/labels";
 import { useResource } from "@/lib/use-resource";
 import { usePolling } from "../care/use-polling";
+import { gatewayListState } from "./revocation-list";
 
 /** How often gateway screens re-read the connectivity log. */
 export const GATEWAY_POLL_MS = 15_000;
@@ -56,8 +57,8 @@ export function OrgGateways() {
               <Metric label="Wearables connected" value={gateways.reduce((n, g) => n + g.wearables_connected, 0)} detail="Your wearables on a gateway now" />
               <Metric label="Alerts, last 24 h" value={gateways.reduce((n, g) => n + g.alerts_24h, 0)} detail="Through your gateways" />
             </div>
-            <Table label="Gateways" minWidth={860}>
-              <THead columns={["Gateway", "Status", "Connection", "Wearables connected", "Alerts (24 h)", "Last heard from"]} />
+            <Table label="Gateways" minWidth={1000}>
+              <THead columns={["Gateway", "Status", "Connection", "Wearables connected", "Alerts (24 h)", "Last heard from", "Revocation list"]} />
               <tbody>
                 {gateways.map((g) => (
                   <Tr key={g.device_id}>
@@ -75,6 +76,10 @@ export function OrgGateways() {
                       <span className="block text-xs text-[var(--color-text-muted)]">{g.last_alert_at ? `Last ${formatAgo(g.last_alert_at)}` : "None yet"}</span>
                     </Td>
                     <Td title={g.last_seen ? formatDateTime(g.last_seen) : undefined}>{formatAgo(g.last_seen)}</Td>
+                    <Td>{(() => {
+                      const state = gatewayListState(g);
+                      return state ? <Status label={state.label} tone={state.tone} /> : <span className="text-[var(--color-text-muted)]">—</span>;
+                    })()}</Td>
                   </Tr>
                 ))}
               </tbody>

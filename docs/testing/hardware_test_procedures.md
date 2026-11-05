@@ -136,7 +136,7 @@ Keep `capture.txt` and the serial log as evidence.
 
 **Blocked until the MedMusketeer CA is replaced.** The current CA has no Subject Key Identifier, so the uplink's strict verification refuses the cloud's chain. The steps are in `docs/iterations/iteration-4-revocation-sync.md`, Slice 0.
 
-1. Run `setup_mosquitto.sh`, then `mmca deploy`, then `setup_uplink.sh <cloud Tailscale address>`. Check that `journalctl -u medmusketeer-uplink` shows "connected to the cloud", and that `GET /admin/revocation` on the cloud no longer lists this gateway as stale.
+1. Run `setup_mosquitto.sh`, then `mmca deploy`, then `setup_uplink.sh <cloud Tailscale address>`. Check that `journalctl -u medmusketeer-uplink` shows "connected to the cloud", and that the organisation admin's gateway page (`/org/gateways/<gateway id>`, or `GET /gateways/{id}`) shows the revocation list as current.
 2. With the wearable connected and sending, suspend it as the system admin (`POST /admin/devices/{id}/suspend`). Within 10 s:
    - `/var/lib/medmusketeer/wearables.acl` holds its deny block;
    - `journalctl -u mosquitto` shows "Reloading config" and `Denied PUBLISH` from it;

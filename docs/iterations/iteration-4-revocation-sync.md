@@ -55,7 +55,7 @@ A wearable whose device or credential is revoked is refused by every gateway: wi
 1. **Publishing:** the API publishes through EMQX's REST API (`POST /api/v5/publish`, `retain: true`) with an API key loaded from EMQX's `api_key.bootstrap_file`, written from `.env`. A REST publish does not go through client authorisation, so no MQTT account gets publish rights to the topic. The retainer is set to `storage_type = disc`: EMQX's default (`ram`) loses the list when the container is recreated.
 2. **When:** every registry change that alters the list (a wearable's status moving into or out of suspended/revoked, revoking a certificate of a wearable that is not listed) raises `revocation_state.version` in the same transaction. After the commit, the API publishes the current list and records it as `published_version`. A reconciler task in the API publishes any unpublished version every 5 seconds, and the whole list every 5 minutes from its start. The repeat costs nothing (gateways ignore an equal version) and repairs a retained message lost with EMQX's data. (The first plan had an outbox table; one state row does the same for a single list.)
 3. **Gateway disconnect:** revoking or suspending a gateway, or revoking one of its credentials, kicks its sessions through the REST API (`GET /api/v5/clients?username=…`, then `DELETE /api/v5/clients/{clientid}`). Closes the D4 "may" in `gaps.md`.
-4. **Staleness:** the gateway adds `revocation_version` to its own `status-v1` message. Ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind the current version.
+4. **Staleness:** the gateway adds `revocation_version` to its own `status-v1` message. Ingestion stores it on the gateway, and the system admin's device screens flag a gateway that is behind the current version. (Since 2026-11-05 the organisation admin's gateway screens show this instead; the system admin sees no live status, `cloud-backend.md` D9.)
 
 ### Gateway (three layers)
 
@@ -131,6 +131,7 @@ As built:
   - System dashboard: a "Gateways behind the revocation list" metric.
   - All three use `GET /admin/revocation`, with the API's stale rule (`features/system/revocation-list.ts`).
   - Sample mode: mirrors the API's version rules, and has a second (Northside) gateway that is behind.
+  - 2026-11-05: moved to the org admin's gateway list and page (`features/org/revocation-list.ts`, `revocation` on `GET /gateways`). The system dashboard shows only the list's version (D9).
   - Tests: unit tests, and a sample-mode browser test (desktop and phone).
 - **Gateway clock (done):** `setup_uplink.sh` installs `fake-hwclock` and reminds about the Pi 5 RTC battery. The uplink logs at start whether the clock has been synchronised since boot (systemd-timesyncd's flag, `clock_synchronised()`), which backlog records will carry.
 - **Moved to the backlog design** (decided 2026-10-30; the backlog payload does not exist yet, `gaps.md`):

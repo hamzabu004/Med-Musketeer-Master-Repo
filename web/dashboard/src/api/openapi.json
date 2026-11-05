@@ -701,7 +701,7 @@
      "system admin"
     ],
     "summary": "Revocation Status",
-    "description": "The wearable revocation list's version, what EMQX holds, and the gateways behind it (D16).",
+    "description": "The wearable revocation list's version and what EMQX holds (D16). Which gateways enforce it is\nthe organisation admin's view (`GET /gateways`, D17).",
     "operationId": "revocation_status_admin_revocation_get",
     "responses": {
      "200": {
@@ -2638,49 +2638,10 @@
       "type": "boolean",
       "title": "Is Testbed"
      },
-     "current_mode": {
-      "type": "string",
-      "title": "Current Mode"
-     },
-     "current_gateway_id": {
-      "anyOf": [
-       {
-        "type": "string",
-        "format": "uuid"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Current Gateway Id"
-     },
-     "last_seen": {
-      "anyOf": [
-       {
-        "type": "string",
-        "format": "date-time"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Last Seen"
-     },
      "status_changed_at": {
       "type": "string",
       "format": "date-time",
       "title": "Status Changed At"
-     },
-     "revocation_version": {
-      "anyOf": [
-       {
-        "type": "integer"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Revocation Version"
      },
      "registered_by": {
       "anyOf": [
@@ -2706,11 +2667,7 @@
      "type",
      "status",
      "is_testbed",
-     "current_mode",
-     "current_gateway_id",
-     "last_seen",
      "status_changed_at",
-     "revocation_version",
      "registered_by",
      "created_at"
     ],
@@ -2872,6 +2829,9 @@
      "connectivity": {
       "$ref": "#/components/schemas/Connectivity"
      },
+     "revocation": {
+      "$ref": "#/components/schemas/RevocationListState"
+     },
      "wearables_connected": {
       "type": "integer",
       "title": "Wearables Connected"
@@ -2910,6 +2870,7 @@
      "status",
      "last_seen",
      "connectivity",
+     "revocation",
      "wearables_connected",
      "other_wearables_connected",
      "alerts_24h",
@@ -3174,6 +3135,9 @@
      "connectivity": {
       "$ref": "#/components/schemas/Connectivity"
      },
+     "revocation": {
+      "$ref": "#/components/schemas/RevocationListState"
+     },
      "wearables_connected": {
       "type": "integer",
       "title": "Wearables Connected"
@@ -3205,6 +3169,7 @@
      "status",
      "last_seen",
      "connectivity",
+     "revocation",
      "wearables_connected",
      "other_wearables_connected",
      "alerts_24h",
@@ -3579,6 +3544,37 @@
     ],
     "title": "PersonIn"
    },
+   "RevocationListState": {
+    "properties": {
+     "reported_version": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reported Version"
+     },
+     "published_version": {
+      "type": "integer",
+      "title": "Published Version"
+     },
+     "current": {
+      "type": "boolean",
+      "title": "Current"
+     }
+    },
+    "type": "object",
+    "required": [
+     "reported_version",
+     "published_version",
+     "current"
+    ],
+    "title": "RevocationListState",
+    "description": "Whether the gateway enforces the published wearable revocation list (D16). It may still let in\na wearable revoked since the version it reported last."
+   },
    "RevocationStatus": {
     "properties": {
      "version": {
@@ -3600,22 +3596,13 @@
        }
       ],
       "title": "Published At"
-     },
-     "stale_gateways": {
-      "items": {
-       "type": "string",
-       "format": "uuid"
-      },
-      "type": "array",
-      "title": "Stale Gateways"
      }
     },
     "type": "object",
     "required": [
      "version",
      "published_version",
-     "published_at",
-     "stale_gateways"
+     "published_at"
     ],
     "title": "RevocationStatus"
    },
