@@ -1,0 +1,272 @@
+Sending build context to Docker daemon     819B
+
+STEP 1/3: FROM timescale/timescaledb:2.31.0-pg18
+STEP 2/3: COPY --chmod=0755 init/010-databases.sh /docker-entrypoint-initdb.d/010-databases.sh
+--> Using cache b617873fdc02349754d9001ce62f6c99e49557f9a6e966bec5cf186f47a4c9c2
+--> b617873fdc02
+STEP 3/3: LABEL "com.docker.compose.image.builder"="classic"
+--> Using cache 7a3d883acee9326c62132c7983b39a7a99503b432e14ddb1620b2884f2522297
+COMMIT docker.io/medmusketeer/cloud-postgres:dev
+--> 7a3d883acee9
+Successfully tagged docker.io/medmusketeer/cloud-postgres:dev
+7a3d883acee9326c62132c7983b39a7a99503b432e14ddb1620b2884f2522297
+Successfully built 7a3d883acee9
+Successfully tagged medmusketeer/cloud-postgres:dev
+Sending build context to Docker daemon  1.107kB
+
+STEP 1/4: FROM traefik:v3.7.16
+STEP 2/4: COPY dynamic.yml /etc/traefik/dynamic/dynamic.yml
+Sending build context to Docker daemon  85.57kB
+
+STEP 1/13: FROM python:3.14.9-slim-trixie
+STEP 2/13: ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PIP_NO_CACHE_DIR=1     PIP_DISABLE_PIP_VERSION_CHECK=1
+--> Using cache 19c9b766aacbd9dfc550560c706146516faa95b43e49faf085ed9300f846732f
+--> 19c9b766aacb
+STEP 3/13: WORKDIR /srv
+--> Using cache c4d2f98d14a020fe8a6a3a4c7962e9fdd55525392efb198d720235df8fd4a981
+--> c4d2f98d14a0
+STEP 4/13: COPY requirements.lock .
+--> Using cache 5cdafa230874fef5f7d337b0a8dbab1dc7deb82e971f6437b4c6b8d2c8b12e92
+--> 5cdafa230874
+STEP 3/4: COPY public.yml /etc/traefik/public/public.yml
+--> Using cache 4214f698b3c8fd771f52189b6dfca3797ee77ff8b88932c917f589503242b25a
+--> 4214f698b3c8
+STEP 5/13: RUN pip install --require-hashes -r requirements.lock
+--> Using cache dae7e88e3debc2fdff50554076d0892316ae047e45f4c89b4800c9b314806215
+--> dae7e88e3deb
+STEP 6/13: COPY pyproject.toml alembic.ini ./
+--> Using cache 66090f938983925c2482ee0c16709473b1bcf6dbd3ddff4789e5f8b3a3e70581
+--> 66090f938983
+STEP 4/4: LABEL "com.docker.compose.image.builder"="classic"
+--> Using cache 3b9e65d2b8c50dffb3a07fc50ab4d797fe95703b81346f52bba2edb099657595
+COMMIT docker.io/medmusketeer/cloud-proxy:dev
+--> 3b9e65d2b8c5
+Successfully tagged docker.io/medmusketeer/cloud-proxy:dev
+3b9e65d2b8c50dffb3a07fc50ab4d797fe95703b81346f52bba2edb099657595
+Successfully built 3b9e65d2b8c5
+Successfully tagged medmusketeer/cloud-proxy:dev
+--> Using cache 43064f54829955455cd8026cf40c4ee778a107ddc1a005a8f236cbd908cc5b97
+--> 43064f548299
+STEP 7/13: COPY app ./app
+--> Using cache cc9c9e710324fa131d7e5d545e200f63009c0fdb2ae71084011e96a9c87c3507
+--> cc9c9e710324
+STEP 8/13: COPY migrations ./migrations
+--> Using cache ec3c7c41d55607aba04362a808e490fe9d0f2889e9495c88c97a41615ee9d632
+--> ec3c7c41d556
+STEP 9/13: RUN pip install --no-deps . && useradd --system --no-create-home mm     && install -d -o mm -g mm /var/lib/medmusketeer     && install -d -o mm -g mm -m 700 /var/lib/medmusketeer-secrets  # mount points of mm-config, mm-secrets
+--> Using cache e4c8bd893c0afd509cff30802ce1ef8340476ddc71a692332ee154f62638d5c4
+--> e4c8bd893c0a
+STEP 10/13: USER mm
+--> Using cache 6a673680e8e6c02ec98014efb2ee229a0d8732f9c8c0945afce8bfccbc19a090
+--> 6a673680e8e6
+STEP 11/13: EXPOSE 8000
+--> Using cache 87b773b0dcb01d256a9bbd36b3f38bd51e1d3a3f794c31d08b8a948dd96f36da
+--> 87b773b0dcb0
+STEP 12/13: CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+--> Using cache 9f03c0dd3dcf09722098b964d26fa37eecd5ee6b31b7ab1c0f5e6bd327180115
+--> 9f03c0dd3dcf
+STEP 13/13: LABEL "com.docker.compose.image.builder"="classic"
+--> Using cache 780f985f7a31bba65cc476799dfe2595b3b7b7ece67a8423e1c0498b37220485
+COMMIT docker.io/medmusketeer/cloud-api:dev
+--> 780f985f7a31
+Successfully tagged docker.io/medmusketeer/cloud-api:dev
+780f985f7a31bba65cc476799dfe2595b3b7b7ece67a8423e1c0498b37220485
+Successfully built 780f985f7a31
+Successfully tagged medmusketeer/cloud-api:dev
+Sending build context to Docker daemon  85.57kB
+
+STEP 1/13: FROM python:3.14.9-slim-trixie
+STEP 2/13: ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PIP_NO_CACHE_DIR=1     PIP_DISABLE_PIP_VERSION_CHECK=1
+--> Using cache 19c9b766aacbd9dfc550560c706146516faa95b43e49faf085ed9300f846732f
+--> 19c9b766aacb
+STEP 3/13: WORKDIR /srv
+--> Using cache c4d2f98d14a020fe8a6a3a4c7962e9fdd55525392efb198d720235df8fd4a981
+--> c4d2f98d14a0
+STEP 4/13: COPY requirements.lock .
+--> Using cache 4214f698b3c8fd771f52189b6dfca3797ee77ff8b88932c917f589503242b25a
+--> 4214f698b3c8
+STEP 5/13: RUN pip install --require-hashes -r requirements.lock
+--> Using cache dae7e88e3debc2fdff50554076d0892316ae047e45f4c89b4800c9b314806215
+--> dae7e88e3deb
+STEP 6/13: COPY pyproject.toml alembic.ini ./
+--> Using cache 43064f54829955455cd8026cf40c4ee778a107ddc1a005a8f236cbd908cc5b97
+--> 43064f548299
+STEP 7/13: COPY app ./app
+--> Using cache cc9c9e710324fa131d7e5d545e200f63009c0fdb2ae71084011e96a9c87c3507
+--> cc9c9e710324
+STEP 8/13: COPY migrations ./migrations
+--> Using cache ec3c7c41d55607aba04362a808e490fe9d0f2889e9495c88c97a41615ee9d632
+--> ec3c7c41d556
+STEP 9/13: RUN pip install --no-deps . && useradd --system --no-create-home mm     && install -d -o mm -g mm /var/lib/medmusketeer     && install -d -o mm -g mm -m 700 /var/lib/medmusketeer-secrets  # mount points of mm-config, mm-secrets
+--> Using cache e4c8bd893c0afd509cff30802ce1ef8340476ddc71a692332ee154f62638d5c4
+--> e4c8bd893c0a
+STEP 10/13: USER mm
+--> Using cache 6a673680e8e6c02ec98014efb2ee229a0d8732f9c8c0945afce8bfccbc19a090
+--> 6a673680e8e6
+STEP 11/13: EXPOSE 8000
+--> Using cache 87b773b0dcb01d256a9bbd36b3f38bd51e1d3a3f794c31d08b8a948dd96f36da
+--> 87b773b0dcb0
+STEP 12/13: CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+--> Using cache 9f03c0dd3dcf09722098b964d26fa37eecd5ee6b31b7ab1c0f5e6bd327180115
+--> 9f03c0dd3dcf
+STEP 13/13: LABEL "com.docker.compose.image.builder"="classic"
+--> Using cache 780f985f7a31bba65cc476799dfe2595b3b7b7ece67a8423e1c0498b37220485
+COMMIT docker.io/medmusketeer/cloud-api:dev
+--> 780f985f7a31
+Successfully tagged docker.io/medmusketeer/cloud-api:dev
+780f985f7a31bba65cc476799dfe2595b3b7b7ece67a8423e1c0498b37220485
+Successfully built 780f985f7a31
+Successfully tagged medmusketeer/cloud-api:dev
+Sending build context to Docker daemon  3.231kB
+
+STEP 1/6: FROM emqx/emqx:6.3.2
+STEP 2/6: COPY --chown=emqx:emqx emqx.conf.template /opt/emqx/etc/emqx.conf.template
+--> Using cache 2b1835a98583e178b1d2479c5131d6a7c77d68104673a0d53c88cc0e656e55c8
+--> 2b1835a98583
+STEP 3/6: COPY --chmod=755 mm-entrypoint.sh /usr/local/bin/mm-entrypoint.sh
+--> Using cache 21a69f2a65445ec2e3f51922d77fc88c58703b79505d1475e19535ff1e554b24
+--> 21a69f2a6544
+STEP 4/6: ENTRYPOINT ["/usr/local/bin/mm-entrypoint.sh"]
+--> Using cache 1575fef77427a07013f423349a91467317471b128acf13164c45a37d8089aa05
+--> 1575fef77427
+STEP 5/6: CMD ["/opt/emqx/bin/emqx", "foreground"]
+--> Using cache 01e27e398cb5ceff672dfa51c3d83e6d2c88d1aa7d9a55b7e0637149e03ea911
+--> 01e27e398cb5
+STEP 6/6: LABEL "com.docker.compose.image.builder"="classic"
+--> Using cache bc70a1dca493bf8643b3a966cd227e064c1fa421eb8602f443b653aa823bdc73
+COMMIT docker.io/medmusketeer/cloud-emqx:dev
+--> bc70a1dca493
+Successfully tagged docker.io/medmusketeer/cloud-emqx:dev
+bc70a1dca493bf8643b3a966cd227e064c1fa421eb8602f443b653aa823bdc73
+Successfully built bc70a1dca493
+Successfully tagged medmusketeer/cloud-emqx:dev
+[4m>>>> Executing external compose provider "/home/hmz-gul/.docker/cli-plugins/docker-compose". Please see podman-compose(1) for how to disable this message. <<<<
+
+[0m Image medmusketeer/cloud-postgres:dev Building 
+ Image medmusketeer/cloud-postgres:dev Building 
+ Image medmusketeer/cloud-postgres:dev Built 
+ Image medmusketeer/cloud-postgres:dev Built 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-proxy:dev Building 
+ Image medmusketeer/cloud-proxy:dev Building 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-proxy:dev Built 
+ Image medmusketeer/cloud-proxy:dev Built 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-api:dev Building 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-api:dev Built 
+ Image medmusketeer/cloud-emqx:dev Building 
+ Image medmusketeer/cloud-emqx:dev Building 
+ Image medmusketeer/cloud-emqx:dev Built 
+ Image medmusketeer/cloud-emqx:dev Built 
+ Volume mm-cloud-tc_emqx-data Creating 
+ Volume mm-cloud-tc_emqx-log Creating 
+ Volume mm-cloud-tc_emqx-data Creating 
+ Network mm-cloud-tc_default Creating 
+ Volume mm-cloud-tc_zitadel-bootstrap Creating 
+ Volume mm-cloud-tc_mm-config Creating 
+ Volume mm-cloud-tc_zitadel-bootstrap Creating 
+ Volume mm-cloud-tc_postgres-data Creating 
+ Volume mm-cloud-tc_mm-secrets Creating 
+ Network mm-cloud-tc_default Creating 
+ Volume mm-cloud-tc_postgres-data Creating 
+ Volume mm-cloud-tc_mm-secrets Creating 
+ Volume mm-cloud-tc_mm-config Creating 
+ Volume mm-cloud-tc_emqx-log Creating 
+ Network mm-cloud-tc_default Created 
+ Network mm-cloud-tc_default Created 
+ Container mm-cloud-tc-mailpit-1 Creating 
+ Volume mm-cloud-tc_emqx-data Created 
+ Volume mm-cloud-tc_emqx-data Created 
+ Volume mm-cloud-tc_mm-secrets Created 
+ Volume mm-cloud-tc_mm-secrets Created 
+ Volume mm-cloud-tc_emqx-log Created 
+ Volume mm-cloud-tc_emqx-log Created 
+ Volume mm-cloud-tc_postgres-data Created 
+ Volume mm-cloud-tc_postgres-data Created 
+ Container mm-cloud-tc-postgres-1 Creating 
+ Container mm-cloud-tc-mailpit-1 Created 
+ Volume mm-cloud-tc_mm-config Created 
+ Volume mm-cloud-tc_mm-config Created 
+ Volume mm-cloud-tc_zitadel-bootstrap Created 
+ Volume mm-cloud-tc_zitadel-bootstrap Created 
+ Container mm-cloud-tc-postgres-1 Created 
+ Container mm-cloud-tc-migrate-1 Creating 
+ Container mm-cloud-tc-zitadel-api-1 Creating 
+ Container mm-cloud-tc-zitadel-api-1 Created 
+ Container mm-cloud-tc-migrate-1 Created 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Creating 
+ Container mm-cloud-tc-zitadel-login-1 Creating 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Created 
+ Container mm-cloud-tc-api-1 Creating 
+ Container mm-cloud-tc-zitadel-login-1 Created 
+ Container mm-cloud-tc-proxy-1 Creating 
+ Container mm-cloud-tc-proxy-1 Created 
+ Container mm-cloud-tc-api-1 Created 
+ Container mm-cloud-tc-emqx-1 Creating 
+ Container mm-cloud-tc-emqx-1 Created 
+ Container mm-cloud-tc-adapter-1 Creating 
+ Container mm-cloud-tc-adapter-1 Created 
+ Container mm-cloud-tc-postgres-1 Starting 
+ Container mm-cloud-tc-mailpit-1 Starting 
+ Container mm-cloud-tc-mailpit-1 Started 
+ Container mm-cloud-tc-postgres-1 Started 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-migrate-1 Starting 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-zitadel-api-1 Starting 
+ Container mm-cloud-tc-migrate-1 Started 
+ Container mm-cloud-tc-zitadel-api-1 Started 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Starting 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-login-1 Starting 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Started 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Waiting 
+ Container mm-cloud-tc-migrate-1 Waiting 
+ Container mm-cloud-tc-zitadel-login-1 Started 
+ Container mm-cloud-tc-zitadel-login-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-migrate-1 Exited 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Exited 
+ Container mm-cloud-tc-api-1 Starting 
+ Container mm-cloud-tc-api-1 Started 
+ Container mm-cloud-tc-api-1 Waiting 
+ Container mm-cloud-tc-zitadel-login-1 Healthy 
+ Container mm-cloud-tc-proxy-1 Starting 
+ Container mm-cloud-tc-proxy-1 Started 
+ Container mm-cloud-tc-api-1 Healthy 
+ Container mm-cloud-tc-emqx-1 Starting 
+ Container mm-cloud-tc-emqx-1 Started 
+ Container mm-cloud-tc-emqx-1 Waiting 
+ Container mm-cloud-tc-emqx-1 Healthy 
+ Container mm-cloud-tc-adapter-1 Starting 
+ Container mm-cloud-tc-adapter-1 Started 
+ Container mm-cloud-tc-api-1 Waiting 
+ Container mm-cloud-tc-migrate-1 Waiting 
+ Container mm-cloud-tc-zitadel-api-1 Waiting 
+ Container mm-cloud-tc-proxy-1 Waiting 
+ Container mm-cloud-tc-zitadel-login-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Waiting 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Waiting 
+ Container mm-cloud-tc-adapter-1 Waiting 
+ Container mm-cloud-tc-mailpit-1 Waiting 
+ Container mm-cloud-tc-emqx-1 Waiting 
+ Container mm-cloud-tc-postgres-1 Healthy 
+ Container mm-cloud-tc-emqx-1 Healthy 
+ Container mm-cloud-tc-api-1 Healthy 
+ Container mm-cloud-tc-zitadel-api-1 Healthy 
+ Container mm-cloud-tc-proxy-1 Healthy 
+ Container mm-cloud-tc-zitadel-login-1 Healthy 
+ Container mm-cloud-tc-zitadel-bootstrap-1 Exited 
+ Container mm-cloud-tc-migrate-1 Exited 
+ Container mm-cloud-tc-mailpit-1 Healthy 
+ Container mm-cloud-tc-adapter-1 Healthy 
