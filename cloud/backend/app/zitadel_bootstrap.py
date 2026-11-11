@@ -11,7 +11,10 @@ Idempotent, so it runs on every `compose up`:
 5. the dashboard's OIDC app "MedMusketeer Dashboard" (D14): a browser app (authorization code with
    PKCE, no secret) with JWT access tokens, whose redirect URIs follow MM_DASHBOARD_ORIGINS on every
    run (an empty value leaves an existing app untouched and records no client id);
-6. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
+6. the instance's SMTP provider "MedMusketeer SMTP" from MM_SMTP_* (Resend in production), created
+   or updated on every run and made the active one, so ZITADEL can send e-mail such as the
+   password reset link of its login page (an empty MM_SMTP_HOST leaves the instance untouched);
+7. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
 
 Uses the IAM_OWNER service account token created by ZITADEL's first start
 (ZITADEL_FIRSTINSTANCE_PATPATH). Run: python -m app.zitadel_bootstrap
@@ -41,6 +44,7 @@ API_INSTANCE_ROLE = "IAM_ORG_MANAGER"
 API_TOKEN_LIFETIME = timedelta(days=365)
 DASHBOARD_APP = "MedMusketeer Dashboard"
 DASHBOARD_CALLBACK = "/auth/callback"  # web/dashboard's login callback route
+SMTP_PROVIDER = "MedMusketeer SMTP"  # the description that identifies the provider the job manages
 
 
 class Zitadel:
@@ -158,6 +162,26 @@ class Zitadel:
             raise RuntimeError(f"updating the dashboard app: HTTP {response.status_code}: {response.text[:300]}")
         return app["oidcConfig"]["clientId"]
 
+    def ensure_smtp_provider(self, smtp: dict) -> str:
+        """The instance's SMTP provider, created once and brought in line with `smtp` on every run
+        (the password too, so a rotated key takes effect), then activated; returns its id."""
+        found = self.call("POST", "/admin/v1/email/_search", json={})
+        ours = [provider for provider in found.get("result", []) if provider.get("description") == SMTP_PROVIDER]
+        body = {"description": SMTP_PROVIDER, **smtp}
+        if not ours:
+            provider_id = self.call("POST", "/admin/v1/email/smtp", json=body)["id"]
+            log.info("created the SMTP provider %s (%s)", provider_id, smtp["host"])
+            state = None
+        else:
+            provider_id, state = ours[0]["id"], ours[0].get("state")
+            response = self.http.put(f"/admin/v1/email/smtp/{provider_id}", json=body)
+            if response.status_code != 200 and not (response.status_code == 400 and message(response).startswith("No changes")):
+                raise RuntimeError(f"updating the SMTP provider: HTTP {response.status_code}: {response.text[:300]}")
+        if state != "EMAIL_PROVIDER_ACTIVE":
+            self.call("POST", f"/admin/v1/email/{provider_id}/_activate", json={})
+            log.info("activated the SMTP provider %s", provider_id)
+        return provider_id
+
     def ensure_user_grant(self, org: str, user_id: str, project_id: str, roles: list[str],
                           project_grant_id: str | None = None) -> None:
         found = self.call("POST", "/management/v1/users/grants/_search", org=org, json={"queries": [
@@ -178,6 +202,30 @@ def message(response: httpx.Response) -> str:
         return ""
 
 
+def smtp_settings(env: dict[str, str]) -> dict | None:
+    """The SMTP provider from MM_SMTP_*, or None when MM_SMTP_HOST is empty."""
+    host = env.get("MM_SMTP_HOST", "").strip()
+    if not host:
+        return None
+    if ":" not in host:
+        raise SystemExit(f"MM_SMTP_HOST must be host:port, e.g. smtp.resend.com:465 (got {host!r})")
+    sender = env.get("MM_SMTP_SENDER", "").strip()
+    if "@" not in sender:
+        raise SystemExit("MM_SMTP_SENDER must be the sender address, e.g. no-reply@medmusketeer.site")
+    tls = env.get("MM_SMTP_TLS", "true").strip().lower()
+    if tls not in ("true", "false"):
+        raise SystemExit(f"MM_SMTP_TLS must be true or false (got {tls!r})")
+    return {
+        "host": host,
+        "user": env.get("MM_SMTP_USER", ""),
+        "password": env.get("MM_SMTP_PASSWORD", ""),
+        "tls": tls == "true",
+        "senderAddress": sender,
+        "senderName": env.get("MM_SMTP_SENDER_NAME", "").strip() or "MedMusketeer",
+        "replyToAddress": env.get("MM_SMTP_REPLY_TO", "").strip(),
+    }
+
+
 def write_private(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
@@ -195,6 +243,7 @@ def main() -> int:
     config_file = Path(os.environ["MM_ZITADEL_CONFIG_FILE"])
     api_token_file = Path(os.environ["MM_ZITADEL_API_TOKEN_FILE"])
     dashboard_origins = parse_origins(os.environ.get("MM_DASHBOARD_ORIGINS", ""))
+    smtp = smtp_settings(dict(os.environ))
 
     if set(ROLE_NAMES) != set(ROLES):
         raise SystemExit("ROLE_NAMES and app.auth.ROLES disagree")
@@ -222,6 +271,12 @@ def main() -> int:
         dashboard_client_id = zitadel.ensure_dashboard_app(default_org, project_id, dashboard_origins)
     else:
         log.warning("MM_DASHBOARD_ORIGINS is empty: no dashboard app, so nobody can sign in from a browser")
+
+    if smtp:
+        zitadel.ensure_smtp_provider(smtp)
+    else:
+        log.warning("MM_SMTP_HOST is empty: ZITADEL's SMTP settings are left as they are, so without a "
+                    "provider no e-mail (such as a password reset link) is sent")
 
     config = {"issuer": issuer, "project_id": project_id, "default_org_id": default_org,
               "dashboard_client_id": dashboard_client_id}

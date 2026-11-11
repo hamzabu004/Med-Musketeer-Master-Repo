@@ -1,11 +1,12 @@
-"""The bootstrap's dashboard app (D14) against a scripted ZITADEL: created once, then kept in line
-with the configured origins. The real ZITADEL is covered by TC-C19 (test_stack)."""
+"""The bootstrap's dashboard app (D14) and SMTP provider against a scripted ZITADEL: each created
+once, then kept in line with the configuration. The real ZITADEL is covered by TC-C19 and TC-C43
+(test_stack)."""
 import json
 
 import httpx
 import pytest
 
-from app.zitadel_bootstrap import DASHBOARD_APP, Zitadel
+from app.zitadel_bootstrap import DASHBOARD_APP, SMTP_PROVIDER, Zitadel, smtp_settings
 
 PROJECT = "p1"
 ORG = "o1"
@@ -70,3 +71,69 @@ def test_a_refused_update_stops_the_bootstrap(message):
     })
     with pytest.raises(RuntimeError):
         zitadel.ensure_dashboard_app(ORG, PROJECT, ["https://dash.example"])
+
+
+RESEND = {"MM_SMTP_HOST": "smtp.resend.com:465", "MM_SMTP_USER": "resend", "MM_SMTP_PASSWORD": "re_key",
+          "MM_SMTP_SENDER": "no-reply@medmusketeer.site"}
+SMTP = smtp_settings(RESEND)
+
+
+def test_smtp_settings_default_to_tls_and_the_medmusketeer_sender_name():
+    assert SMTP == {"host": "smtp.resend.com:465", "user": "resend", "password": "re_key", "tls": True,
+                    "senderAddress": "no-reply@medmusketeer.site", "senderName": "MedMusketeer", "replyToAddress": ""}
+    assert smtp_settings({**RESEND, "MM_SMTP_TLS": "False"})["tls"] is False
+
+
+def test_no_smtp_host_means_no_provider():
+    assert smtp_settings({}) is None and smtp_settings({"MM_SMTP_HOST": "  ", "MM_SMTP_SENDER": "x@y.z"}) is None
+
+
+@pytest.mark.parametrize("override", [{"MM_SMTP_HOST": "smtp.resend.com"}, {"MM_SMTP_SENDER": ""},
+                                      {"MM_SMTP_TLS": "yes"}])
+def test_bad_smtp_settings_stop_the_bootstrap(override):
+    with pytest.raises(SystemExit):
+        smtp_settings({**RESEND, **override})
+
+
+def test_the_smtp_provider_is_created_and_activated():
+    zitadel, requests = scripted({
+        ("POST", "/admin/v1/email/_search"): (200, {"result": [{"id": "other", "description": "someone else's"}]}),
+        ("POST", "/admin/v1/email/smtp"): (200, {"id": "s1"}),
+        ("POST", "/admin/v1/email/s1/_activate"): (200, {}),
+    })
+    assert zitadel.ensure_smtp_provider(SMTP) == "s1"
+    assert json.loads(requests[1].content) == {"description": SMTP_PROVIDER, **SMTP}
+    assert [r.url.path for r in requests][-1] == "/admin/v1/email/s1/_activate"
+
+
+@pytest.mark.parametrize("status,body", [(200, {}), (400, {"message": "No changes (COMMAND-...)"})])
+def test_an_active_smtp_provider_is_updated_and_not_activated_again(status, body):
+    zitadel, requests = scripted({
+        ("POST", "/admin/v1/email/_search"): (200, {"result": [
+            {"id": "s1", "description": SMTP_PROVIDER, "state": "EMAIL_PROVIDER_ACTIVE"}]}),
+        ("PUT", "/admin/v1/email/smtp/s1"): (status, body),
+    })
+    assert zitadel.ensure_smtp_provider(SMTP) == "s1"
+    assert [(r.method, r.url.path) for r in requests] == [("POST", "/admin/v1/email/_search"),
+                                                          ("PUT", "/admin/v1/email/smtp/s1")]
+    assert json.loads(requests[1].content)["password"] == "re_key"  # a rotated key takes effect
+
+
+def test_an_inactive_smtp_provider_is_activated():
+    zitadel, requests = scripted({
+        ("POST", "/admin/v1/email/_search"): (200, {"result": [
+            {"id": "s1", "description": SMTP_PROVIDER, "state": "EMAIL_PROVIDER_INACTIVE"}]}),
+        ("PUT", "/admin/v1/email/smtp/s1"): (200, {}),
+        ("POST", "/admin/v1/email/s1/_activate"): (200, {}),
+    })
+    zitadel.ensure_smtp_provider(SMTP)
+    assert requests[-1].url.path == "/admin/v1/email/s1/_activate"
+
+
+def test_a_refused_smtp_update_stops_the_bootstrap():
+    zitadel, _ = scripted({
+        ("POST", "/admin/v1/email/_search"): (200, {"result": [{"id": "s1", "description": SMTP_PROVIDER}]}),
+        ("PUT", "/admin/v1/email/smtp/s1"): (400, {"message": "invalid host"}),
+    })
+    with pytest.raises(RuntimeError):
+        zitadel.ensure_smtp_provider(SMTP)

@@ -13,6 +13,7 @@ The MedMusketeer cloud platform (M7), built in Iteration 3 (`docs/iterations/ite
 | `emqx` | built from `emqx/` on `emqx/emqx:6.3.2` | MQTT broker: gateway mTLS listener, internal service listener, hooks to the API, republish rule | 8883 (gateways), 1883 (services), 18083 (dashboard) |
 | `api` | built from `backend/` (Python 3.14) | MedMusketeer API | 8000 |
 | `adapter` | the `api` image, `python -m app.adapter` | MQTT adapter: reads `ingest/#` from EMQX, posts ingest-v1 to the API | — |
+| `mailpit` | `axllent/mailpit:v1.32.0` | Development and tests only (`mail` profile): catches ZITADEL's e-mail | 8025 |
 
 Every image is pinned to an exact version with amd64 and arm64 builds, so the same file runs on the cloud VM (amd64) or a Pi (arm64). Upgrading an image is a deliberate change with a change-log entry.
 
@@ -61,6 +62,27 @@ docker compose -f compose.yaml -f compose.public.yaml up -d --wait --build
 - The deployment at `medmusketeer.site` (2026-11-04): `app`, `api`, `auth` and `mqtt` have `A` records for the VM's reserved address, and Oracle's security list opens 22, 80, 443 and 8883 only (`docs/decisions/cloud-backend.md` D18). Let's Encrypt's staging server was unreachable from the VM, so the production server was used once port 80 was confirmed reachable from outside.
 - Register ZITADEL's first admin as the system admin as in "ZITADEL set-up", with the `-f` options above. Never run `seed-dev` on a public server: its accounts share one printed password.
 - ZITADEL keeps its domain from its first start, so a change of `ZITADEL_DOMAIN` means starting ZITADEL from scratch. `docker compose down --volumes` deletes all data, and the EMQX certificate must be installed again.
+
+### E-mail (password reset)
+
+ZITADEL e-mails the link behind "Reset password" on its login page, so it needs an SMTP provider. The `zitadel-bootstrap` job sets one up from `SMTP_*` in `.env` on every `up`: it creates or updates ZITADEL's provider "MedMusketeer SMTP" (the password too, so a rotated key takes effect) and makes it the active one. With an empty `SMTP_HOST`, ZITADEL's settings are left as they are; without a provider, no e-mail is sent. The API still sends none: invite codes are shown once, as before.
+
+The public deployment sends through [Resend](https://resend.com) (free tier: 3,000 e-mails a month, 100 a day):
+1. In Resend, add the domain `medmusketeer.site` and create the DNS records it lists at the registrar (DKIM `TXT`, and the `MX` and SPF `TXT` of its sending subdomain). Wait until Resend shows the domain as verified: until then it refuses mail from that domain.
+2. Create an API key with **sending access** only, for that domain.
+3. In `cloud/.env` on the server (not tracked; never commit the key):
+   ```bash
+   SMTP_HOST=smtp.resend.com:465   # implicit TLS
+   SMTP_TLS=true
+   SMTP_USER=resend
+   SMTP_PASSWORD=re_...             # the API key
+   SMTP_SENDER=no-reply@medmusketeer.site
+   SMTP_SENDER_NAME=MedMusketeer
+   ```
+4. Apply it with the next deploy, or at once with `docker compose -f compose.yaml -f compose.public.yaml up -d --wait`. The `zitadel-bootstrap` log says "created the SMTP provider" or nothing about it when it was already in line.
+5. Check: "Reset password" on `https://auth.medmusketeer.site/ui/v2/login` for a real account. Resend's dashboard lists each e-mail with its delivery status. A refused send shows in `docker compose logs zitadel-api` (search for `smtp`).
+
+Development: `COMPOSE_PROFILES=mail`, `SMTP_HOST=mailpit:1025`, `SMTP_TLS=false`, any `SMTP_SENDER`. ZITADEL's e-mail is then caught by Mailpit at `http://localhost:8025` (`MAILPIT_PUBLISHED_PORT`) and never delivered. The stack tests do this (TC-C43).
 
 ### Continuous deployment
 

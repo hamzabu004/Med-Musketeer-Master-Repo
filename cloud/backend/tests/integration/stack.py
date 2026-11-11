@@ -23,7 +23,13 @@ PORTS = {"PROXY_HTTP_PUBLISHED_PORT": "18080", "API_PUBLISHED_PORT": "18000", "E
          "EMQX_GATEWAY_PUBLISHED_PORT": "28883", "EMQX_INTERNAL_PUBLISHED_PORT": "21883"}
 # No periodic full republish of the revocation list during a test session: TC-C29 checks that the
 # retained list survives EMQX being recreated without being published again.
-SETTINGS = {**PORTS, "REVOCATION_REPUBLISH_S": "86400"}
+MAILPIT_PORT = "18025"
+# ZITADEL's e-mail goes to the Mailpit catcher (the `mail` profile), with SMTP authentication as with
+# Resend (Mailpit accepts any credentials) but without TLS (TC-C43).
+SMTP_SENDER = "no-reply@medmusketeer.example"
+MAIL = {"COMPOSE_PROFILES": "mail", "MAILPIT_PUBLISHED_PORT": MAILPIT_PORT, "SMTP_HOST": "mailpit:1025",
+        "SMTP_TLS": "false", "SMTP_USER": "resend", "SMTP_PASSWORD": "re_test_not_a_key", "SMTP_SENDER": SMTP_SENDER}
+SETTINGS = {**PORTS, **MAIL, "REVOCATION_REPUBLISH_S": "86400"}
 
 
 def compose(env_file: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:

@@ -175,6 +175,14 @@ services:
       MM_ZITADEL_CONFIG_FILE: /var/lib/medmusketeer/zitadel.json
       MM_ZITADEL_API_TOKEN_FILE: /var/lib/medmusketeer-secrets/zitadel-api.pat
       MM_DASHBOARD_ORIGINS: ${DASHBOARD_ORIGINS:-http://localhost:3000}
+      # ZITADEL's SMTP provider, for the e-mail its login sends (password reset). Empty host: none.
+      MM_SMTP_HOST: ${SMTP_HOST:-}
+      MM_SMTP_TLS: ${SMTP_TLS:-true}
+      MM_SMTP_USER: ${SMTP_USER:-}
+      MM_SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MM_SMTP_SENDER: ${SMTP_SENDER:-}
+      MM_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME:-MedMusketeer}
+      MM_SMTP_REPLY_TO: ${SMTP_REPLY_TO:-}
     volumes:
       - zitadel-bootstrap:/zitadel/bootstrap:ro
       - mm-config:/var/lib/medmusketeer
@@ -270,6 +278,24 @@ services:
     entrypoint: ["sh", "-c", "rm -f /certs/* && tar -x -C /certs && chown -R 1000:1000 /certs && chmod 644 /certs/ca.crt /certs/server.crt && chmod 600 /certs/server.key && ls -l /certs"]
     volumes:
       - emqx-certs:/certs
+
+  # A mail catcher for development and the stack tests (the `mail` profile): with
+  # SMTP_HOST=mailpit:1025 and SMTP_TLS=false, ZITADEL's e-mail lands here instead of being
+  # delivered, readable at http://localhost:${MAILPIT_PUBLISHED_PORT}. Never used in production.
+  mailpit:
+    image: axllent/mailpit:v1.32.0
+    restart: unless-stopped
+    profiles: ["mail"]
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    ports:
+      - 127.0.0.1:${MAILPIT_PUBLISHED_PORT:-8025}:8025
 
 volumes:
   postgres-data:
