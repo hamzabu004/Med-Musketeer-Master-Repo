@@ -5,7 +5,9 @@ The stack itself is the session fixture `stack` (tests.integration.stack, confte
 import base64
 import hashlib
 import json
+import re
 import secrets
+import time
 import urllib.request
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -13,12 +15,12 @@ from urllib.parse import parse_qs, urlsplit
 import httpx
 import pytest
 
-from tests.integration.stack import (API, PORTS, compose, evidence, machine_token, read_volume_file, register_user,
-                                     zitadel_admin)
+from tests.integration.stack import (API, MAILPIT_PORT, PORTS, SMTP_SENDER, compose, evidence, machine_token,
+                                     read_volume_file, register_user, zitadel_admin)
 
 pytestmark = pytest.mark.integration
 
-SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api", "adapter"}
+SERVICES = {"postgres", "zitadel-api", "zitadel-login", "proxy", "emqx", "api", "adapter", "mailpit"}
 JOBS = {"migrate", "zitadel-bootstrap"}
 
 
@@ -245,3 +247,71 @@ def test_tc_c19_seeded_accounts_sign_in_to_the_dashboard_and_get_their_role(stac
                                                                "password": {"password": "wrong-Password1!"}}})
     assert wrong.status_code >= 400
     evidence("tc_c19_dashboard_sign_in.json", json.dumps(record, indent=2))
+
+
+MAILPIT = f"http://127.0.0.1:{MAILPIT_PORT}/api/v1"
+
+
+def wait_for_mail(to: str, timeout: float = 60) -> dict:
+    """The newest message Mailpit caught for `to`, waiting for ZITADEL's notification worker."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        found = httpx.get(f"{MAILPIT}/search", params={"query": f"to:{to}"}, timeout=10).json()
+        if found.get("messages"):
+            return httpx.get(f"{MAILPIT}/message/{found['messages'][0]['ID']}", timeout=10).json()
+        time.sleep(1)
+    raise AssertionError(f"no e-mail for {to} within {timeout} s")
+
+
+def test_tc_c43_the_login_sends_a_password_reset_link_that_sets_a_new_password(stack):
+    zitadel, config = zitadel_admin(stack)
+    record = {}
+
+    # The bootstrap set up the SMTP provider from SMTP_* and made it the active one.
+    providers = zitadel.call("POST", "/admin/v1/email/_search", json={})["result"]
+    ours = [provider for provider in providers if provider.get("description") == "MedMusketeer SMTP"]
+    assert len(ours) == 1, providers
+    smtp = ours[0]["smtp"]
+    # ZITADEL's JSON leaves out a false boolean.
+    record["provider"] = {"state": ours[0]["state"], "tls": smtp.get("tls", False), **{key: smtp.get(key) for key in (
+        "host", "user", "senderAddress", "senderName")}}
+    assert record["provider"] == {"state": "EMAIL_PROVIDER_ACTIVE", "host": "mailpit:1025", "tls": False,
+                                  "user": "resend", "senderAddress": SMTP_SENDER, "senderName": "MedMusketeer"}
+
+    email = f"tc-c43-{secrets.token_hex(4)}@hospital.example"
+    old_password, new_password = f"Tc43-{secrets.token_urlsafe(9)}1a!", f"Tc43-{secrets.token_urlsafe(9)}2b!"
+    user_id = zitadel.call("POST", "/v2/users/human", ok=(200, 201), json={
+        "organization": {"orgId": config["default_org_id"]}, "username": email,
+        "profile": {"givenName": "Reset", "familyName": "Test"},
+        "email": {"email": email, "isVerified": True},
+        "password": {"password": old_password, "changeRequired": False}})["userId"]
+
+    # "Reset password" in ZITADEL's login: the login asks ZITADEL to e-mail a link to its own page.
+    login = login_client(config)
+    template = (f"{config['issuer']}/ui/v2/login/password/set?code={{{{.Code}}}}&userId={{{{.UserID}}}}"
+                "&organization={{.OrgID}}")
+    login.call("POST", f"/v2/users/{user_id}/password_reset", json={
+        "sendLink": {"notificationType": "NOTIFICATION_TYPE_Email", "urlTemplate": template}})
+
+    mail = wait_for_mail(email)
+    links = re.findall(r"https?://[^\s\"'<>]+/ui/v2/login/password/set\?[^\s\"'<>]+", mail.get("Text", "") + mail.get("HTML", ""))
+    assert links, mail.get("Text")
+    link = urlsplit(links[0].replace("&amp;", "&"))
+    query = parse_qs(link.query)
+    record["mail"] = {"from": mail["From"]["Address"], "to": [to["Address"] for to in mail["To"]],
+                      "subject": mail["Subject"], "link": f"{link.scheme}://{link.netloc}{link.path}",
+                      "user_id_matches": query["userId"] == [user_id]}
+    assert mail["From"]["Address"] == SMTP_SENDER and record["mail"]["to"] == [email]
+    assert f"{link.scheme}://{link.netloc}" == config["issuer"] and query["userId"] == [user_id]
+
+    # The login's "set password" page sends the code from the link with the new password.
+    login.call("POST", f"/v2/users/{user_id}/password", json={
+        "newPassword": {"password": new_password, "changeRequired": False}, "verificationCode": query["code"][0]})
+    signed_in = login.http.post("/v2/sessions", json={"checks": {"user": {"loginName": email},
+                                                                  "password": {"password": new_password}}})
+    assert signed_in.status_code in (200, 201), signed_in.text
+    old = login.http.post("/v2/sessions", json={"checks": {"user": {"loginName": email},
+                                                            "password": {"password": old_password}}})
+    assert old.status_code >= 400
+    record["new_password_signs_in"], record["old_password_refused"] = True, True
+    evidence("tc_c43_password_reset_mail.json", json.dumps(record, indent=2))
