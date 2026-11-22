@@ -315,3 +315,39 @@ def test_tc_c43_the_login_sends_a_password_reset_link_that_sets_a_new_password(s
     assert old.status_code >= 400
     record["new_password_signs_in"], record["old_password_refused"] = True, True
     evidence("tc_c43_password_reset_mail.json", json.dumps(record, indent=2))
+
+
+def test_tc_c44_the_login_offers_no_self_registration(stack):
+    zitadel, config = zitadel_admin(stack)
+    record = {}
+
+    # The bootstrap turned "Register new user" off in the default login policy and kept the rest.
+    policy = zitadel.call("GET", "/admin/v1/policies/login")["policy"]
+    record["policy"] = {key: policy.get(key, False) for key in ("allowRegister", "allowUsernamePassword",
+                                                                "passwordlessType", "hidePasswordReset")}
+    assert record["policy"]["allowRegister"] is False
+    assert record["policy"]["allowUsernamePassword"] is True and record["policy"]["hidePasswordReset"] is False
+
+    # What ZITADEL's login reads for an organisation the API created: the same, as it has no policy of its own.
+    login = login_client(config)
+    org = zitadel.call("POST", "/v2/organizations", ok=(200, 201), json={"name": f"tc-c44-{secrets.token_hex(4)}"})
+    settings = login.call("GET", "/v2/settings/login", params={"ctx.orgId": org["organizationId"]})["settings"]
+    record["org_settings"] = {"allowRegister": settings.get("allowRegister", False),
+                              "inheritance": settings.get("resourceOwnerType")}
+    assert record["org_settings"]["allowRegister"] is False
+
+    # The login's own pages. Its sign-in form draws the "Register new user" button (data-testid
+    # "register-button") only when the settings allow registration; the register page itself says
+    # registration is off. The login keeps the settings for 15 minutes, so the page cannot be
+    # checked against a policy changed during the test, only against the bootstrap's.
+    base = f"{config['issuer']}/ui/v2/login"
+    pages = {path: httpx.get(f"{base}/{path}", follow_redirects=True, timeout=30) for path in ("loginname", "register")}
+    shown = {path: re.findall(r">([^<>]+)<", page.text) for path, page in pages.items()}
+    record["pages"] = {"loginname": {"status": pages["loginname"].status_code,
+                                     "register_button": 'data-testid="register-button"' in pages["loginname"].text},
+                       "register": {"status": pages["register"].status_code,
+                                    "shows": [text for text in shown["register"] if "egistration" in text and len(text) < 120]}}
+    assert pages["loginname"].status_code == 200 and 'data-testid="username-text-input"' in pages["loginname"].text
+    assert record["pages"]["loginname"]["register_button"] is False
+    assert pages["register"].status_code == 200 and "Registration disabled" in shown["register"]
+    evidence("tc_c44_no_self_registration.json", json.dumps(record, indent=2))

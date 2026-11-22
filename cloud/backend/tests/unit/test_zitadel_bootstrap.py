@@ -1,12 +1,12 @@
-"""The bootstrap's dashboard app (D14) and SMTP provider against a scripted ZITADEL: each created
-once, then kept in line with the configuration. The real ZITADEL is covered by TC-C19 and TC-C43
-(test_stack)."""
+"""The bootstrap's dashboard app (D14), SMTP provider and login policy against a scripted ZITADEL:
+each created or changed once, then kept in line with the configuration. The real ZITADEL is covered
+by TC-C19, TC-C43 and TC-C44 (test_stack)."""
 import json
 
 import httpx
 import pytest
 
-from app.zitadel_bootstrap import DASHBOARD_APP, SMTP_PROVIDER, Zitadel, smtp_settings
+from app.zitadel_bootstrap import DASHBOARD_APP, LOGIN_POLICY_FIELDS, SMTP_PROVIDER, Zitadel, smtp_settings
 
 PROJECT = "p1"
 ORG = "o1"
@@ -137,3 +137,39 @@ def test_a_refused_smtp_update_stops_the_bootstrap():
     })
     with pytest.raises(RuntimeError):
         zitadel.ensure_smtp_provider(SMTP)
+
+
+LOGIN_POLICY = "/admin/v1/policies/login"
+# The default policy as ZITADEL returns it: false booleans left out, read-only fields included.
+DEFAULT_POLICY = {"details": {"sequence": "3"}, "isDefault": True, "allowUsernamePassword": True, "allowRegister": True,
+                  "passwordlessType": "PASSWORDLESS_TYPE_ALLOWED", "passwordCheckLifetime": "864000s",
+                  "secondFactors": ["SECOND_FACTOR_TYPE_OTP"], "multiFactors": ["MULTI_FACTOR_TYPE_U2F_WITH_VERIFICATION"]}
+
+
+def test_tc_c44_self_registration_is_turned_off_and_the_rest_of_the_policy_kept():
+    zitadel, requests = scripted({
+        ("GET", LOGIN_POLICY): (200, {"policy": DEFAULT_POLICY}),
+        ("PUT", LOGIN_POLICY): (200, {}),
+    })
+    assert zitadel.ensure_no_self_registration() is True
+    sent = json.loads(requests[1].content)
+    assert sent == {"allowUsernamePassword": True, "allowRegister": False, "passwordlessType": "PASSWORDLESS_TYPE_ALLOWED",
+                    "passwordCheckLifetime": "864000s"}
+    assert set(sent) <= set(LOGIN_POLICY_FIELDS)  # nothing the update does not take
+
+
+@pytest.mark.parametrize("policy", [{**DEFAULT_POLICY, "allowRegister": False},
+                                    {key: value for key, value in DEFAULT_POLICY.items() if key != "allowRegister"}])
+def test_tc_c44_a_policy_without_self_registration_is_left_alone(policy):
+    zitadel, requests = scripted({("GET", LOGIN_POLICY): (200, {"policy": policy})})
+    assert zitadel.ensure_no_self_registration() is False
+    assert [r.method for r in requests] == ["GET"]
+
+
+def test_tc_c44_a_refused_login_policy_update_stops_the_bootstrap():
+    zitadel, _ = scripted({
+        ("GET", LOGIN_POLICY): (200, {"policy": DEFAULT_POLICY}),
+        ("PUT", LOGIN_POLICY): (400, {"message": "invalid argument"}),
+    })
+    with pytest.raises(RuntimeError):
+        zitadel.ensure_no_self_registration()
