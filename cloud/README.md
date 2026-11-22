@@ -169,6 +169,8 @@ It also creates the API's own service account `mm-api` with the instance role `I
 
 New accounts get no password: the API returns an invite code once, which the person redeems in ZITADEL's login to set their own credentials.
 
+Nobody can create their own account: the job turns off self-registration in ZITADEL's default login policy (the organisations the API creates use that policy), so the login shows no "Register new user". Its other login settings are left as they are (TC-C44). ZITADEL's login keeps its settings for 15 minutes, so on a running server the button can stay for that long after the change; `docker compose restart zitadel-login` applies it at once.
+
 Register the first admin as the MedMusketeer system admin once; the job's log prints the exact command:
 
 ```bash

@@ -14,7 +14,11 @@ Idempotent, so it runs on every `compose up`:
 6. the instance's SMTP provider "MedMusketeer SMTP" from MM_SMTP_* (Resend in production), created
    or updated on every run and made the active one, so ZITADEL can send e-mail such as the
    password reset link of its login page (an empty MM_SMTP_HOST leaves the instance untouched);
-7. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
+7. the instance's default login policy with self-registration off, so the login shows no "Register
+   new user": accounts are created by an administrator and redeemed with an invite code, and a
+   self-registered user would only reach "No access" (the organisations the API creates have no
+   login policy of their own, so they use this one);
+8. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
 
 Uses the IAM_OWNER service account token created by ZITADEL's first start
 (ZITADEL_FIRSTINSTANCE_PATPATH). Run: python -m app.zitadel_bootstrap
@@ -45,6 +49,14 @@ API_TOKEN_LIFETIME = timedelta(days=365)
 DASHBOARD_APP = "MedMusketeer Dashboard"
 DASHBOARD_CALLBACK = "/auth/callback"  # web/dashboard's login callback route
 SMTP_PROVIDER = "MedMusketeer SMTP"  # the description that identifies the provider the job manages
+# The settings of ZITADEL's login policy that its update takes. The update replaces the whole policy,
+# so the job sends back what it read with only allowRegister changed.
+LOGIN_POLICY_FIELDS = (
+    "allowUsernamePassword", "allowRegister", "allowExternalIdp", "forceMfa", "forceMfaLocalOnly", "passwordlessType",
+    "hidePasswordReset", "ignoreUnknownUsernames", "defaultRedirectUri", "passwordCheckLifetime",
+    "externalLoginCheckLifetime", "mfaInitSkipLifetime", "secondFactorCheckLifetime", "multiFactorCheckLifetime",
+    "allowDomainDiscovery", "disableLoginWithEmail", "disableLoginWithPhone",
+)
 
 
 class Zitadel:
@@ -182,6 +194,20 @@ class Zitadel:
             log.info("activated the SMTP provider %s", provider_id)
         return provider_id
 
+    def ensure_no_self_registration(self) -> bool:
+        """Turns off "Register new user" in the instance's default login policy, keeping its other
+        settings; returns whether it changed anything."""
+        policy = self.call("GET", "/admin/v1/policies/login")["policy"]
+        if not policy.get("allowRegister"):  # ZITADEL's JSON leaves out a false boolean
+            return False
+        body = {key: policy[key] for key in LOGIN_POLICY_FIELDS if key in policy}
+        body["allowRegister"] = False
+        response = self.http.put("/admin/v1/policies/login", json=body)
+        if response.status_code != 200 and not (response.status_code == 400 and message(response).startswith("No changes")):
+            raise RuntimeError(f"updating the login policy: HTTP {response.status_code}: {response.text[:300]}")
+        log.info("turned off self-registration in the default login policy")
+        return True
+
     def ensure_user_grant(self, org: str, user_id: str, project_id: str, roles: list[str],
                           project_grant_id: str | None = None) -> None:
         found = self.call("POST", "/management/v1/users/grants/_search", org=org, json={"queries": [
@@ -277,6 +303,8 @@ def main() -> int:
     else:
         log.warning("MM_SMTP_HOST is empty: ZITADEL's SMTP settings are left as they are, so without a "
                     "provider no e-mail (such as a password reset link) is sent")
+
+    zitadel.ensure_no_self_registration()
 
     config = {"issuer": issuer, "project_id": project_id, "default_org_id": default_org,
               "dashboard_client_id": dashboard_client_id}

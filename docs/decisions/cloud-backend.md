@@ -255,6 +255,7 @@ API (as mm-api)                                     ZITADEL
 - The token lasts a year. The bootstrap job checks it on every `up` and replaces it (deleting the account's old tokens) when it is missing or no longer works. The API starts after the job and reloads the file when ZITADEL refuses the token it holds.
 - ZITADEL is changed first (`users.zitadel_sub` needs its id). If a later ZITADEL step or the database insert fails, the ZITADEL user or organisation is deleted again. Anything left behind is inert: the API refuses ZITADEL users it has not registered.
 - No password is set by the API. The invite code is returned once, to the admin who created the account, who hands it to the person; the person then sets their own password or passkey in ZITADEL's login. The dashboard's invite page explains it, and the dashboard's API-mode browser tests redeem codes in ZITADEL's login (TC-D05).
+- Self-registration is off (2026-11-23): the bootstrap sets `allowRegister: false` in ZITADEL's default login policy, so the only way in is an account an administrator created. A self-registered user had no role and could only reach "No access" (FYP website review).
 - Names and e-mail addresses live only in ZITADEL; the database keeps the role, organisation and, for patients, the pseudonym.
 
 ## D13 — EMQX configuration and the internal service listener (Decided 2026-10-24)
