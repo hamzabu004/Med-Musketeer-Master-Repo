@@ -1,0 +1,13 @@
+total 12
+-rw-r--r--    1 1000     1000           570 Nov 22 19:25 ca.crt
+-rw-r--r--    1 1000     1000           700 Nov 22 19:25 server.crt
+-rw-------    1 1000     1000           241 Nov 22 19:25 server.key
+Installed the certificate for cloud.medmusketeer.local (E2:AE:9F:3C:BE:9F:2A:00:3C:05:E2:12:60:99:31:D1:D8:9C:6E:E2:85:95:45:A3:76:0E:E6:07:65:81:F6:9A).
+[4m>>>> Executing external compose provider "/home/hmz-gul/.docker/cli-plugins/docker-compose". Please see podman-compose(1) for how to disable this message. <<<<
+
+[0m Volume mm-cloud-tc_emqx-certs Creating 
+ Volume mm-cloud-tc_emqx-certs Creating 
+ Volume mm-cloud-tc_emqx-certs Created 
+ Volume mm-cloud-tc_emqx-certs Created 
+ Container mm-cloud-tc-emqx-certs-install-run-0df8d15d163d Creating 
+ Container mm-cloud-tc-emqx-certs-install-run-0df8d15d163d Created 

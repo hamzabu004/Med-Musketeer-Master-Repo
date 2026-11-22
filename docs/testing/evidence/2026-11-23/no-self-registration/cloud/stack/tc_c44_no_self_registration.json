@@ -1,0 +1,25 @@
+{
+  "policy": {
+    "allowRegister": false,
+    "allowUsernamePassword": true,
+    "passwordlessType": "PASSWORDLESS_TYPE_ALLOWED",
+    "hidePasswordReset": false
+  },
+  "org_settings": {
+    "allowRegister": false,
+    "inheritance": "RESOURCE_OWNER_TYPE_INSTANCE"
+  },
+  "pages": {
+    "loginname": {
+      "status": 200,
+      "register_button": false
+    },
+    "register": {
+      "status": 200,
+      "shows": [
+        "Registration disabled",
+        "The registration is disabled. Please contact your administrator."
+      ]
+    }
+  }
+}
