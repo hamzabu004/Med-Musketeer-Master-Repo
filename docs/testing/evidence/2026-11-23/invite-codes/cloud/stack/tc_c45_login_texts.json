@@ -1,0 +1,14 @@
+{
+  "new_organisation_before_bootstrap": {},
+  "levels_set": [
+    "instance",
+    "default organisation",
+    "organisation created by the API, at the next bootstrap"
+  ],
+  "loginname_label": "Login Name",
+  "verify_page": [
+    "Lost the code? Ask your administrator for a new one.",
+    "E-mail me a new code (the old one stops working)",
+    "Enter the invite code your administrator gave you."
+  ]
+}

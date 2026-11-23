@@ -10,11 +10,15 @@ export default function InvitePage() {
         <li>
           Open <Link href="/login" className="text-[var(--color-info)] underline">sign-in</Link> and enter the e-mail address your administrator used.
         </li>
-        <li>When asked, enter the invite code. Then choose how to sign in from now on: a password, or a passkey on this device.</li>
-        <li>You return here signed in, to the pages your role allows.</li>
+        <li>
+          When asked, enter the invite code. Don&apos;t choose &ldquo;E-mail me a new code&rdquo;: that replaces the code you have with one sent by
+          e-mail.
+        </li>
+        <li>Choose how to sign in from now on: a password, or a passkey on this device.</li>
+        <li>You are taken to your MedMusketeer dashboard, already signed in.</li>
       </ol>
       <p className="mt-4 text-sm text-[var(--color-text-muted)]">
-        If the code was lost or no longer works, ask your administrator. A doctor or patient asks their organisation administrator; an organisation administrator asks the system administrator.
+        If the code was lost or no longer works, ask your administrator for a new one. A doctor or patient asks their organisation administrator; an organisation administrator asks the system administrator.
       </p>
     </AuthCard>
   );

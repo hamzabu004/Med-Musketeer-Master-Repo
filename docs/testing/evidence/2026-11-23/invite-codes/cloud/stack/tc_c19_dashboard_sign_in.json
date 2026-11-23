@@ -1,0 +1,45 @@
+{
+  "app": {
+    "appType": "OIDC_APP_TYPE_USER_AGENT",
+    "authMethodType": "OIDC_AUTH_METHOD_TYPE_NONE",
+    "accessTokenType": "OIDC_TOKEN_TYPE_JWT",
+    "redirectUris": [
+      "http://localhost:3000/auth/callback"
+    ],
+    "postLogoutRedirectUris": [
+      "http://localhost:3000/"
+    ],
+    "devMode": true
+  },
+  "seeded": {
+    "org_id": "f6dcb09f-8efb-4ab7-9e89-3c58653fe053",
+    "gateway": "02671a01-94de-4c8a-a982-f9ed90478eb2",
+    "wearables": [
+      "c8ad13d7-ce08-4b29-b43b-87e63510385a",
+      "df19241e-27b2-4220-89ed-deb9bd993bb4",
+      "6cf294ba-e397-4e05-8e1b-b7d1fb401342",
+      "51fc428f-1f99-4345-b911-d7fbf7fc7d2e"
+    ],
+    "alerts": 5
+  },
+  "sign_in": {
+    "system_admin:sysadmin": "system_admin",
+    "org_admin:orgadmin": "org_admin",
+    "doctor:doctor1": "doctor",
+    "patient:patient1": "patient"
+  },
+  "doctor": {
+    "directory": [
+      "Ali Khan",
+      "Fatima Noor",
+      "Sarah Ahmed"
+    ],
+    "alerts": 5
+  },
+  "patient": {
+    "directory": [
+      "Ali Khan",
+      "Sarah Ahmed"
+    ]
+  }
+}

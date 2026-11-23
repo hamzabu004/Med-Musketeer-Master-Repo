@@ -22,10 +22,18 @@ test("organisation, its administrator through the invite code, and a device from
   await page.getByLabel("Family name").fill("Admin");
   await page.getByLabel("E-mail").fill(adminEmail);
   await page.getByRole("button", { name: "Create" }).click();
+  const lost = (await page.locator("code").textContent())!.trim();
+  expect(lost).toMatch(/^[A-Z0-9]{6,}$/);
+  await page.getByRole("button", { name: "I have passed it on" }).click();
+  const admins = page.getByRole("table", { name: "Administrators created" });
+  await expect(admins.getByRole("row")).toHaveCount(2);
+  // The first code was lost: a new one replaces it, and the administrator signs up with that.
+  await admins.getByRole("button", { name: "New invite code" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "New invite code" }).click();
+  await expect(page.locator("code")).not.toHaveText(lost);
   const code = (await page.locator("code").textContent())!.trim();
   expect(code).toMatch(/^[A-Z0-9]{6,}$/);
   await page.getByRole("button", { name: "I have passed it on" }).click();
-  await expect(page.getByRole("table", { name: "Administrators created" }).getByRole("row")).toHaveCount(2);
 
   await page.goto("/system/devices");
   await page.getByLabel("Device id").fill(deviceId);

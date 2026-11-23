@@ -25,7 +25,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from app.accounts import NewAccount, PersonIn, create_account, idp_error
+from app.accounts import ACCOUNT_SQL, InviteCode, NewAccount, PersonIn, create_account, idp_error, new_invite_code
 from app.auth import SystemAdmin, Zitadel
 from app.db import Conn, audit, many, not_found, one
 from app.organisation import AuditEvent
@@ -189,6 +189,15 @@ async def create_organisation(body: OrganisationIn, admin: SystemAdmin, conn: Co
 async def create_organisation_admin(org_id: UUID, body: PersonIn, admin: SystemAdmin, conn: Conn, zitadel: Zitadel):
     """An organisation admin account, in ZITADEL and in `users`; the invite code is shown once."""
     return await create_account(conn, zitadel, admin, org_id, "org_admin", body)
+
+
+@router.post("/organisations/{org_id}/admins/{user_id}/invite_code", response_model=InviteCode)
+async def new_organisation_admin_invite_code(org_id: UUID, user_id: UUID, admin: SystemAdmin, conn: Conn, zitadel: Zitadel):
+    """A new invite code for an organisation admin who has not signed in yet."""
+    account = await one(conn, ACCOUNT_SQL + " WHERE u.user_id = :u AND u.org_id = :o", u=user_id, o=org_id)
+    if account is None or account["role"] != "org_admin":
+        raise not_found("account")
+    return await new_invite_code(conn, zitadel, admin, account)
 
 
 @router.get("/organisations", response_model=list[Organisation])

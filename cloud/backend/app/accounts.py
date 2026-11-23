@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from app.auth import OrgAdmin, Principal, Zitadel
 from app.db import Conn, audit, many, not_found, one
 from app.organisation import end_wearable_assignment
-from app.zitadel import ZitadelAdmin, ZitadelError
+from app.zitadel import ALREADY_SET_UP, ZitadelAdmin, ZitadelError
 
 router = APIRouter(tags=["organisation admin"])
 
@@ -60,6 +60,10 @@ class Account(BaseModel):
 
 class NewAccount(Account):
     invite_code: str  # shown once; the person uses it in ZITADEL's login to set their credentials
+
+
+class InviteCode(BaseModel):
+    invite_code: str  # shown once; replaces the account's earlier code, which stops working
 
 
 ACCOUNT_SQL = """
@@ -114,6 +118,24 @@ async def create_account(conn: AsyncConnection, zitadel: ZitadelAdmin, actor: Pr
     return {**account, "invite_code": new_user.invite_code}
 
 
+async def new_invite_code(conn: AsyncConnection, zitadel: ZitadelAdmin, actor: Principal, account: dict) -> dict:
+    """A new invite code for an active account that has not signed in yet (its earlier code was lost,
+    or replaced by "Resend code" in ZITADEL's login); the caller has checked the actor's rights."""
+    if account["status"] != "active":
+        raise HTTPException(status.HTTP_409_CONFLICT, "the account is disabled")
+    try:
+        code = await zitadel.new_invite_code(account["zitadel_sub"])
+    except ZitadelError as error:
+        if error.status == 400 and ALREADY_SET_UP in error.message:
+            raise HTTPException(status.HTTP_409_CONFLICT, "the account has already set up a password or passkey; "
+                                "it signs in with that and needs no invite code") from error
+        raise idp_error(error) from error
+    scope = "registry" if actor.role == "system_admin" else "organisation"
+    await audit(conn, actor.user_id, scope, "account.invite_code", org_id=account["org_id"],
+                target_id=account["user_id"], role=account["role"])
+    return {"invite_code": code}
+
+
 # --- endpoints ---------------------------------------------------------------------------------
 
 @router.post("/accounts", status_code=status.HTTP_201_CREATED, response_model=NewAccount)
@@ -151,3 +173,12 @@ async def disable_account(user_id: UUID, admin: OrgAdmin, conn: Conn, zitadel: Z
         if error.status != 404:  # a user already deleted in ZITADEL cannot sign in either
             raise idp_error(error) from error
     return {**account, "status": "disabled"}
+
+
+@router.post("/accounts/{user_id}/invite_code", response_model=InviteCode)
+async def new_doctor_or_patient_invite_code(user_id: UUID, admin: OrgAdmin, conn: Conn, zitadel: Zitadel):
+    """A new invite code for a doctor or patient of the organisation who has not signed in yet."""
+    account = await one(conn, ACCOUNT_SQL + " WHERE u.user_id = :u AND u.org_id = :o", u=user_id, o=admin.org_id)
+    if account is None or account["role"] not in ("doctor", "patient"):
+        raise not_found("account")
+    return await new_invite_code(conn, zitadel, admin, account)

@@ -51,6 +51,9 @@ main() {
 
     cd cloud
     docker compose -f compose.yaml -f compose.public.yaml up -d --wait --build --remove-orphans
+    # ZITADEL's login keeps the login settings and texts it read for up to an hour; the bootstrap
+    # above may have changed them, so start it afresh (a few seconds without the login page).
+    docker compose -f compose.yaml -f compose.public.yaml up -d --wait --force-recreate --no-deps zitadel-login
     docker image prune -f > /dev/null
     docker compose -f compose.yaml -f compose.public.yaml ps --format '{{.Service}}: {{.Status}}'
     echo "deploy: $sha is live"

@@ -1,0 +1,46 @@
+{
+  "tc_c20_c22": {
+    "alerts": 1,
+    "row": [
+      "74bea31d-44c6-414f-b3bb-38a3160e29c8",
+      "x509_mtls",
+      "1080",
+      "1b2cf11c-f8c8-4825-ba3d-0ab6351ddc6d",
+      "fixed",
+      "wearable",
+      "7",
+      "t",
+      "74bea31d-44c6-414f-b3bb-38a3160e29c8"
+    ]
+  },
+  "tc_c21_c23": {
+    "api": [
+      "api-1  | 2026-11-23T04:16:44.396 WARNING app.ingest: ingest rejected device=8718c2f4-bb6f-4294-b75c-a636b8feb8c4 msg_type=alert reason=the wearable is not issued to a patient"
+    ],
+    "adapter": [
+      "adapter-1  | adapter dropped ingest/07ef890c-6ba8-4646-90b7-28fa439b745b/mm/fixed/7aa4bb97-57ac-45ae-9539-7a5848207f7b/alert: payload: lead: Field required; n_samples: Field required; encoding: Field required; samples: Field required; screening: Field required; segment_start: Field required",
+      "adapter-1  | adapter dropped ingest/07ef890c-6ba8-4646-90b7-28fa439b745b/mm/gateway/07ef890c-6ba8-4646-90b7-28fa439b745b/status: payload: v: Field required; state: Field required; online: Extra inputs are not permitted",
+      "adapter-1  | adapter dropped ingest/07ef890c-6ba8-4646-90b7-28fa439b745b/mm/fixed/792bb2d4-f923-4cf4-97d4-d37529a347a9/status: the payload is not JSON",
+      "adapter-1  | adapter dropped ingest/74bea31d-44c6-414f-b3bb-38a3160e29c8/mm/fixed/35cb19bb-6a2a-4c31-ab2b-8f9fceaeaf77/alert: payload: fs_hz: Input should be greater than or equal to 1",
+      "adapter-1  | adapter dropped ingest/74bea31d-44c6-414f-b3bb-38a3160e29c8/mm/fixed/35cb19bb-6a2a-4c31-ab2b-8f9fceaeaf77/alert: the payload is not JSON"
+    ]
+  },
+  "tc_c24": [
+    [
+      "74bea31d-44c6-414f-b3bb-38a3160e29c8",
+      "35cb19bb-6a2a-4c31-ab2b-8f9fceaeaf77",
+      "ips",
+      "dos_flood"
+    ]
+  ],
+  "tc_c26": {
+    "after_disconnect": [
+      "unknown",
+      "74bea31d-44c6-414f-b3bb-38a3160e29c8"
+    ]
+  },
+  "adapter_restart": {
+    "before": 1,
+    "after": 2
+  }
+}

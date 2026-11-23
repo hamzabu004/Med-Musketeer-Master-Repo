@@ -14,7 +14,11 @@ Idempotent, so it runs on every `compose up`:
 6. the instance's SMTP provider "MedMusketeer SMTP" from MM_SMTP_* (Resend in production), created
    or updated on every run and made the active one, so ZITADEL can send e-mail such as the
    password reset link of its login page (an empty MM_SMTP_HOST leaves the instance untouched);
-7. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
+7. the English texts of ZITADEL's login where the defaults mislead (app.login_texts), on the
+   instance and on every organisation: the invite code page asks for the code the administrator
+   gave, not one from an e-mail, and warns that "Resend code" replaces it; the login name label;
+   the wrong-password message;
+8. MM_ZITADEL_CONFIG_FILE = {"issuer", "project_id", "default_org_id", "dashboard_client_id"}.
 
 Uses the IAM_OWNER service account token created by ZITADEL's first start
 (ZITADEL_FIRSTINSTANCE_PATPATH). Run: python -m app.zitadel_bootstrap
@@ -30,6 +34,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from app.auth import ROLES
+from app.login_texts import LOGIN_TEXTS, LOGIN_TEXTS_LOCALE, TRANSLATIONS
 from app.settings import parse_origins
 
 log = logging.getLogger("zitadel_bootstrap")
@@ -182,6 +187,22 @@ class Zitadel:
             log.info("activated the SMTP provider %s", provider_id)
         return provider_id
 
+    def ensure_login_texts(self, texts: dict, org_id: str | None = None, locale: str = LOGIN_TEXTS_LOCALE) -> bool:
+        """Makes the own texts of the login in `locale` exactly `texts` (ZITADEL's defaults fill in the
+        rest), for the instance or for organisation `org_id`; returns whether it changed anything."""
+        level = {"organizationId": org_id} if org_id else {"instance": "true"}
+        current = self.call("GET", TRANSLATIONS, params={**level, "locale": locale, "ignoreInheritance": "true"})
+        if current.get("translations", {}) == texts:
+            return False
+        level = {"organizationId": org_id} if org_id else {"instance": True}
+        self.call("PUT", TRANSLATIONS, json={**level, "locale": locale, "translations": texts})
+        log.info("set the login's %s texts of %s", locale, f"organisation {org_id}" if org_id else "the instance")
+        return True
+
+    def organisation_ids(self) -> list[str]:
+        found = self.call("POST", "/v2/organizations/_search", json={"query": {"limit": 1000}})
+        return [org["id"] for org in found.get("result", [])]
+
     def ensure_user_grant(self, org: str, user_id: str, project_id: str, roles: list[str],
                           project_grant_id: str | None = None) -> None:
         found = self.call("POST", "/management/v1/users/grants/_search", org=org, json={"queries": [
@@ -277,6 +298,11 @@ def main() -> int:
     else:
         log.warning("MM_SMTP_HOST is empty: ZITADEL's SMTP settings are left as they are, so without a "
                     "provider no e-mail (such as a password reset link) is sent")
+
+    # On the instance and on every organisation: ZITADEL does not pass the instance's texts on.
+    zitadel.ensure_login_texts(LOGIN_TEXTS)
+    for org_id in zitadel.organisation_ids():
+        zitadel.ensure_login_texts(LOGIN_TEXTS, org_id)
 
     config = {"issuer": issuer, "project_id": project_id, "default_org_id": default_org,
               "dashboard_client_id": dashboard_client_id}

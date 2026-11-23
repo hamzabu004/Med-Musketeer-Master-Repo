@@ -72,6 +72,28 @@ describe("sample data, state rules", () => {
     expect(await statusOf(admin.org.createAccount({ role: "patient", email: "b@x.example", given_name: "B", family_name: "P", pseudonym: "P-1004" }))).toBe(409);
   });
 
+  it("gives a new invite code only to an account that has not signed in yet", async () => {
+    const admin = as("orgadmin");
+    const created = await admin.org.createAccount({ role: "doctor", email: "late@x.example", given_name: "L", family_name: "D", pseudonym: null });
+    const renewed = await admin.org.newInviteCode(created.user_id);
+    expect(renewed.invite_code).toMatch(/^[A-Z2-9]{6}$/);
+    expect(world.audit.at(-1)).toMatchObject({ action: "account.invite_code", target_id: created.user_id, details: { role: "doctor" } });
+    const doctor1 = world.users.find((u) => u.email.startsWith("doctor1@"))!; // signs in already
+    expect(await statusOf(admin.org.newInviteCode(doctor1.user_id))).toBe(409);
+    const ownAdmin = world.users.find((u) => u.email.startsWith("orgadmin@"))!;
+    expect(await statusOf(admin.org.newInviteCode(ownAdmin.user_id))).toBe(404); // the system admin's to renew
+    await admin.org.disableAccount(created.user_id);
+    expect(await statusOf(admin.org.newInviteCode(created.user_id))).toBe(409);
+
+    const system = as("sysadmin");
+    const org = world.organisations.find((o) => o.org_id === ownAdmin.org_id)!;
+    const newAdmin = await system.registry.createOrganisationAdmin(org.org_id, { email: "admin2@x.example", given_name: "A", family_name: "Two" });
+    expect((await system.registry.newOrganisationAdminInviteCode(org.org_id, newAdmin.user_id)).invite_code).toMatch(/^[A-Z2-9]{6}$/);
+    expect(await statusOf(system.registry.newOrganisationAdminInviteCode(org.org_id, ownAdmin.user_id))).toBe(409);
+    expect(await statusOf(system.registry.newOrganisationAdminInviteCode(org.org_id, doctor1.user_id))).toBe(404);
+    expect(await statusOf(admin.registry.newOrganisationAdminInviteCode(org.org_id, newAdmin.user_id))).toBe(403);
+  });
+
   it("ends a disabled doctor's care assignments and returns a disabled patient's wearable", async () => {
     const admin = as("orgadmin");
     const doctor1 = world.users.find((u) => u.email.startsWith("doctor1@"))!;

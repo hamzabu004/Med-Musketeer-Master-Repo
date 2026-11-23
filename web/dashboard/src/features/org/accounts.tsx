@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { Account, NewAccount, PatientSummary } from "@/api/types";
+import type { Account, PatientSummary } from "@/api/types";
 import { useData } from "@/auth/session";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, Select, TextInput } from "@/components/ui/form";
 import { Notice } from "@/components/ui/notice";
-import { OneTimeCode } from "@/components/ui/one-time-code";
+import { INVITE_CONSEQUENCES, OneTimeCode } from "@/components/ui/one-time-code";
 import { Loaded } from "@/components/ui/page-state";
 import { PageIntro } from "@/components/ui/page-intro";
 import { RecordId } from "@/components/ui/record-id";
@@ -22,7 +22,7 @@ import { loadPeople, NAMES_UNAVAILABLE, peopleById, personName } from "@/lib/peo
 import { useAction } from "@/lib/use-action";
 import { useResource } from "@/lib/use-resource";
 
-type Invite = { account: NewAccount; recipient: string };
+type Invite = { code: string; recipient: string };
 type Role = "doctor" | "patient";
 const EMPTY = { email: "", given_name: "", family_name: "", pseudonym: "" };
 
@@ -46,7 +46,7 @@ function CreateAccount({ role, onRole, onCreated }: { role: Role; onRole: (role:
     };
     const account = await run("create", () => data.org.createAccount(body));
     if (account) {
-      onCreated({ account, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
+      onCreated({ code: account.invite_code, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
     }
   }
 
@@ -126,6 +126,11 @@ export function Accounts() {
     [loaded, filter],
   );
 
+  async function newCode(account: Account, recipient: string) {
+    const issued = await run(`invite-${account.user_id}`, () => data.org.newInviteCode(account.user_id));
+    if (issued) setInvite({ code: issued.invite_code, recipient });
+  }
+
   async function disable(account: Account, name: string) {
     if (await run(`disable-${account.user_id}`, () => data.org.disableAccount(account.user_id), `${name}'s account is disabled.`)) resource.reload();
   }
@@ -134,7 +139,7 @@ export function Accounts() {
     <section className="mx-auto max-w-7xl space-y-5">
       <PageIntro title="Accounts" description="Doctors and patients of your organisation, and its administrators. Accounts are created here and disabled here; names and passwords live in the identity provider." />
       {invite ? (
-        <OneTimeCode code={invite.account.invite_code} recipient={invite.recipient} onDone={() => setInvite(null)} />
+        <OneTimeCode code={invite.code} recipient={invite.recipient} onDone={() => setInvite(null)} />
       ) : (
         <CreateAccount
           role={role}
@@ -184,8 +189,18 @@ export function Accounts() {
                           <Td>{a.patient_id ? <Link href={`/org/patients/${a.patient_id}`} className="text-[var(--color-info)]">{a.pseudonym}</Link> : "—"}</Td>
                           <Td><Status label={labelize(a.status)} tone={statusTone(a.status)} /></Td>
                           <Td className="metric-number whitespace-nowrap">{formatDateTime(a.created_at)}</Td>
-                          <Td>
-                            {/* The API disables doctors and patients only; administrators are managed by the system administrator. */}
+                          <Td className="space-x-2 whitespace-nowrap">
+                            {/* Doctors and patients only; administrators are managed by the system administrator. */}
+                            {a.status === "active" && (a.role === "doctor" || a.role === "patient") && (
+                              <ConfirmButton
+                                label="New invite code"
+                                variant="secondary"
+                                title={`New invite code for ${name ?? `this ${a.role}`}?`}
+                                consequences={INVITE_CONSEQUENCES}
+                                disabled={busy !== null || invite !== null}
+                                onConfirm={() => void newCode(a, `${name ?? labelize(a.role)}${person?.email ? ` (${person.email})` : ""}`)}
+                              />
+                            )}
                             {a.status === "active" && (a.role === "doctor" || a.role === "patient") && (
                               <ConfirmButton
                                 label="Disable"

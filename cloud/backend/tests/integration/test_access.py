@@ -32,6 +32,7 @@ MATRIX = [
     ("PATCH", "/admin/organisations/{a.org_id}", {SA}, {"status": "active"}),
     ("POST", "/admin/organisations/{a.org_id}/admins", {SA},
      {"email": "admin2@a.example", "given_name": "Ada", "family_name": "Admin"}),
+    ("POST", "/admin/organisations/{a.org_id}/admins/{a.admin.user_id}/invite_code", {SA}, None),
     ("GET", "/admin/devices", {SA}, None),
     ("POST", "/admin/devices", {SA}, {"device_id": "{new_id}", "type": "wearable", "is_testbed": True}),
     ("GET", "/admin/devices/{a.wearable}", {SA}, None),
@@ -61,6 +62,7 @@ MATRIX = [
     ("GET", "/accounts", {OA}, None),
     ("POST", "/accounts", {OA}, {"role": "doctor", "email": "doc@a.example", "given_name": "Dee", "family_name": "Doc"}),
     ("POST", "/accounts/{spare_doctor}/disable", {OA}, None),
+    ("POST", "/accounts/{a.doctor.user_id}/invite_code", {OA}, None),
     # patients
     ("GET", "/patients", {OA, DR}, None),
     ("PUT", "/patients/{spare_patient}/doctor", {OA}, {"doctor_id": "{spare_doctor}"}),

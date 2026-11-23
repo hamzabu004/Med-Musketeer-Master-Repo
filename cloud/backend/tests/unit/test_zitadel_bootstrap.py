@@ -1,11 +1,13 @@
 """The bootstrap's dashboard app (D14) and SMTP provider against a scripted ZITADEL: each created
 once, then kept in line with the configuration. The real ZITADEL is covered by TC-C19 and TC-C43
-(test_stack)."""
+(test_stack). The login texts: TC-C45."""
 import json
+import re
 
 import httpx
 import pytest
 
+from app.login_texts import LOGIN_TEXTS, TRANSLATIONS
 from app.zitadel_bootstrap import DASHBOARD_APP, SMTP_PROVIDER, Zitadel, smtp_settings
 
 PROJECT = "p1"
@@ -137,3 +139,38 @@ def test_a_refused_smtp_update_stops_the_bootstrap():
     })
     with pytest.raises(RuntimeError):
         zitadel.ensure_smtp_provider(SMTP)
+
+
+def test_tc_c45_the_login_texts_are_set_when_they_differ():
+    zitadel, requests = scripted({
+        ("GET", TRANSLATIONS): (200, {"translations": {"verify": {"verify": {"description": "old"}}}}),
+        ("PUT", TRANSLATIONS): (200, {"etag": "e1"}),
+    })
+    assert zitadel.ensure_login_texts(LOGIN_TEXTS) is True
+    assert dict(requests[0].url.params) == {"instance": "true", "locale": "en", "ignoreInheritance": "true"}
+    assert json.loads(requests[1].content) == {"instance": True, "locale": "en", "translations": LOGIN_TEXTS}
+
+
+def test_tc_c45_an_organisations_texts_are_set_at_its_level():
+    zitadel, requests = scripted({
+        ("GET", TRANSLATIONS): (200, {}),  # none of its own yet
+        ("PUT", TRANSLATIONS): (200, {"etag": "e1"}),
+    })
+    assert zitadel.ensure_login_texts(LOGIN_TEXTS, "org-7") is True
+    assert dict(requests[0].url.params) == {"organizationId": "org-7", "locale": "en", "ignoreInheritance": "true"}
+    assert json.loads(requests[1].content) == {"organizationId": "org-7", "locale": "en", "translations": LOGIN_TEXTS}
+
+
+def test_tc_c45_login_texts_already_in_place_are_left_alone():
+    zitadel, requests = scripted({("GET", TRANSLATIONS): (200, {"translations": LOGIN_TEXTS})})
+    assert zitadel.ensure_login_texts(LOGIN_TEXTS) is False
+    assert [r.method for r in requests] == ["GET"]
+
+
+def test_tc_c45_the_invite_page_texts_speak_of_the_administrators_code():
+    verify = LOGIN_TEXTS["verify"]["verify"]
+    assert "administrator" in verify["description"] and "e-mail" not in verify["description"].lower()
+    assert "old one stops working" in verify["resendCode"]
+    # The login fills these in itself; a misspelt placeholder would show as written.
+    assert {"{failedAttempts}", "{maxPasswordAttempts}", "{lockoutMessage}"} <= set(
+        re.findall(r"\{\w+\}", LOGIN_TEXTS["password"]["errors"]["failedToAuthenticate"]))

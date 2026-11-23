@@ -88,7 +88,7 @@ Development: `COMPOSE_PROFILES=mail`, `SMTP_HOST=mailpit:1025`, `SMTP_TLS=false`
 
 A push to `main` deploys itself to the server at `medmusketeer.site` (2026-11-04):
 - **When:** `.github/workflows/deploy.yml` runs after the `Dashboard` or `Cloud backend` workflow finishes on a push to `main`. It deploys only once every one of the two that the commit started has passed. If one failed, nothing is deployed; if one is still running, its own completion deploys. A push that starts neither (docs, firmware, gateway) does not deploy.
-- **How:** it connects over SSH as `opc` with a key that may run only `cloud/scripts/deploy.sh` (a forced command in `~/.ssh/authorized_keys`, with no shell, port or agent forwarding), sending the commit SHA. The script checks the commit is on `main`, checks it out in `~/medmusketeer` (a sparse clone of `cloud`, `shared` and `web/dashboard`), runs `up -d --wait --build --remove-orphans` with both compose files, and removes dangling images. It never replaces a newer deployed commit with an older one. Data is safe across deploys: volumes belong to the compose project `medmusketeer-cloud`, and `cloud/.env` is not tracked.
+- **How:** it connects over SSH as `opc` with a key that may run only `cloud/scripts/deploy.sh` (a forced command in `~/.ssh/authorized_keys`, with no shell, port or agent forwarding), sending the commit SHA. The script checks the commit is on `main`, checks it out in `~/medmusketeer` (a sparse clone of `cloud`, `shared` and `web/dashboard`), runs `up -d --wait --build --remove-orphans` with both compose files, re-creates `zitadel-login` (it keeps the login settings and texts it read for up to an hour, and the bootstrap may have changed them), and removes dangling images. It never replaces a newer deployed commit with an older one. Data is safe across deploys: volumes belong to the compose project `medmusketeer-cloud`, and `cloud/.env` is not tracked.
 - **Secrets** (repository): `DEPLOY_SSH_KEY` (the private key), `DEPLOY_HOST` (the server's address), `DEPLOY_KNOWN_HOSTS` (the server's pinned host key).
 - **Manual redeploy:** Actions, Deploy, "Run workflow" (deploys the head of `main`), or on the server `~/medmusketeer/cloud/scripts/deploy.sh <sha>`.
 - **Rollback:** on the server, `~/medmusketeer/cloud/scripts/deploy.sh --rollback <older sha of main>`. The next push to `main` deploys forward again.
@@ -151,9 +151,9 @@ adapter ── validates (shared/contracts), builds ingest-v1 ── POST /inter
 | `GET /me` | The caller's user id, role, organisation and (patients) patient id |
 | `GET /auth/config` | Public: the issuer, client id and scopes the dashboard signs in with |
 | `GET /directory` | Names (from ZITADEL) of the people the caller works with |
-| `/admin/...` | System admin: organisations and their admins, devices, credentials, device grants, the revocation list's state, registry audit log, security events |
+| `/admin/...` | System admin: organisations and their admins (with a new invite code for one who has not signed in), devices, credentials, device grants, the revocation list's state, registry audit log, security events |
 | `/organisation`, `/devices`, `/audit` | Own organisation, its devices (doctor: their patients' wearables), its audit log (org admin) |
-| `/accounts` | Org admin: create (in ZITADEL and `users`, returns an invite code), list, disable doctor and patient accounts |
+| `/accounts` | Org admin: create (in ZITADEL and `users`, returns an invite code), list, disable doctor and patient accounts; a new invite code for one who has not signed in |
 | `/patients/...` | Org admin: patients, doctor assignment, wearable issue/return, disorders, exports. Doctor: their patients and disorders |
 | `/alerts`, `/patients/{id}/alerts`, `/patients/{id}/segments`, `/segments/{id}` | Doctor (own patients) and patient (self): alerts, acknowledgement (doctor), ECG segments with samples |
 | `/internal/emqx/...` | EMQX's authentication and authorisation hooks; only with the shared `EMQX_HOOK_SECRET`, not in the API description |
@@ -168,6 +168,10 @@ The one-off `zitadel-bootstrap` job runs on every `up`. With the IAM_OWNER servi
 It also creates the API's own service account `mm-api` with the instance role `IAM_ORG_MANAGER` and writes its token to the `mm-secrets` volume (mounted read-only by the API, mode 0600). The API uses it to create organisations, organisation admins, doctors and patients in ZITADEL. The token is valid for a year; the job replaces it when it is missing or no longer works, and the API reloads it when ZITADEL refuses the old one. Without it, account and organisation creation answer 503.
 
 New accounts get no password: the API returns an invite code once, which the person redeems in ZITADEL's login to set their own credentials.
+
+A lost code is replaced, not read again: `POST /accounts/{id}/invite_code` (org admin, for a doctor or patient) or `POST /admin/organisations/{org}/admins/{id}/invite_code` (system admin, for an organisation admin) returns a new one once, and the old one stops working. ZITADEL refuses it for someone who has already set up a password or passkey (409). The login's own "Resend code" also replaces the code, with one e-mailed to the person.
+
+The job also sets English texts of ZITADEL's login (`app/login_texts.py`) where the defaults mislead: the invite code page asks for the code the administrator gave instead of "the Code provided in the verification email", and says that e-mailing a new code makes the old one stop working; the "Login Name" label; the wrong-password message. ZITADEL v4.20 does not pass the instance's texts on to an organisation, and only an instance owner may set an organisation's, so the job sets them on the instance and on every organisation: an organisation created since the last deploy shows ZITADEL's defaults until the next one (TC-C45).
 
 Register the first admin as the MedMusketeer system admin once; the job's log prints the exact command:
 

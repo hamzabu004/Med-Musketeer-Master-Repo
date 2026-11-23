@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { NewAccount } from "@/api/types";
 import { ApiError } from "@/api/errors";
 import { useData } from "@/auth/session";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Field, TextInput } from "@/components/ui/form";
 import { SectionTitle } from "@/components/ui/metric";
 import { Notice } from "@/components/ui/notice";
-import { OneTimeCode } from "@/components/ui/one-time-code";
+import { INVITE_CONSEQUENCES, OneTimeCode } from "@/components/ui/one-time-code";
 import { Loaded } from "@/components/ui/page-state";
 import { PageIntro } from "@/components/ui/page-intro";
 import { RecordId } from "@/components/ui/record-id";
@@ -26,7 +25,7 @@ import { useResource } from "@/lib/use-resource";
 /** The API's largest page of audit rows. */
 const AUDIT_LIMIT = 1000;
 
-type Invite = { account: NewAccount; recipient: string };
+type Invite = { code: string; recipient: string };
 
 function CreateAdmin({ orgId, disabled, onCreated }: { orgId: string; disabled: boolean; onCreated: (invite: Invite) => void }) {
   const { data } = useData();
@@ -39,7 +38,7 @@ function CreateAdmin({ orgId, disabled, onCreated }: { orgId: string; disabled: 
     const account = await run("create", () => data.registry.createOrganisationAdmin(orgId, body));
     if (account) {
       setForm({ email: "", given_name: "", family_name: "" });
-      onCreated({ account, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
+      onCreated({ code: account.invite_code, recipient: `${body.given_name} ${body.family_name} (${body.email})` });
     }
   }
 
@@ -90,6 +89,12 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
     };
   }, [orgId]);
 
+  async function newCode(userId: string) {
+    const issued = await run(`invite-${userId}`, () => data.registry.newOrganisationAdminInviteCode(orgId, userId));
+    // Names stay with the organisation: the system admin knows the administrator by account id.
+    if (issued) setInvite({ code: issued.invite_code, recipient: `administrator ${userId}` });
+  }
+
   async function setStatus(status: "active" | "suspended") {
     if (await run(status, () => data.registry.setOrganisationStatus(orgId, status), status === "suspended" ? "Organisation suspended." : "Organisation reactivated.")) {
       resource.reload();
@@ -98,7 +103,7 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
-      {invite && <OneTimeCode code={invite.account.invite_code} recipient={invite.recipient} onDone={() => setInvite(null)} />}
+      {invite && <OneTimeCode code={invite.code} recipient={invite.recipient} onDone={() => setInvite(null)} />}
       <Loaded resource={resource} label="Loading the organisation">
       {({ org, devices, admins, auditFull }) => (
         <section className="space-y-5">
@@ -150,13 +155,25 @@ export function OrganisationDetail({ orgId }: { orgId: string }) {
             <p className="text-xs text-[var(--color-text-muted)]">Searched the newest {AUDIT_LIMIT} registry changes only; administrators created before them are not listed.</p>
           )}
           {admins.length ? (
-            <Table label="Administrators created" minWidth={480}>
-              <THead columns={["Account", "Created"]} />
+            <Table label="Administrators created" minWidth={640}>
+              <THead columns={["Account", "Created", ""]} />
               <tbody>
                 {admins.map((event) => (
                   <Tr key={event.event_id}>
                     <Td><RecordId id={event.target_id} /></Td>
                     <Td className="metric-number">{formatDateTime(event.at)}</Td>
+                    <Td>
+                      {event.target_id && (
+                        <ConfirmButton
+                          label="New invite code"
+                          variant="secondary"
+                          title="New invite code for this administrator?"
+                          consequences={INVITE_CONSEQUENCES}
+                          disabled={busy !== null || invite !== null}
+                          onConfirm={() => void newCode(event.target_id!)}
+                        />
+                      )}
+                    </Td>
                   </Tr>
                 ))}
               </tbody>

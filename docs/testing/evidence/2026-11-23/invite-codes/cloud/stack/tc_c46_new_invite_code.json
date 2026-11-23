@@ -1,0 +1,12 @@
+{
+  "old_code": "Code is invalid (COMMAND-Wgn4q)",
+  "new_code_verified": true,
+  "after_password": {
+    "status": 409,
+    "detail": "the account has already set up a password or passkey; it signs in with that and needs no invite code"
+  },
+  "audit": [
+    "account.invite_code",
+    "account.created"
+  ]
+}

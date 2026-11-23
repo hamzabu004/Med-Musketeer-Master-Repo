@@ -22,7 +22,16 @@ test("creates an organisation and its administrator, showing the invite code onc
   await expect(page.getByText("shown only now", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: "I have passed it on" }).click();
   await expect(code).toHaveCount(0); // gone for good: the API cannot return it again
-  await expect(page.getByRole("table", { name: "Administrators created" }).getByRole("row")).toHaveCount(2);
+  const admins = page.getByRole("table", { name: "Administrators created" });
+  await expect(admins.getByRole("row")).toHaveCount(2);
+
+  // The code was lost: a new one, shown once again.
+  await admins.getByRole("button", { name: "New invite code" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Their current code stops working");
+  await page.getByRole("dialog").getByRole("button", { name: "New invite code" }).click();
+  await expect(code).toHaveText(/^[A-Z2-9]{6}$/);
+  await page.getByRole("button", { name: "I have passed it on" }).click();
+  await expect(code).toHaveCount(0);
 });
 
 test("registers a device, adds its certificate, activates it and grants it", async ({ page }) => {

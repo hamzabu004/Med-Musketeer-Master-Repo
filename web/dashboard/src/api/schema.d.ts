@@ -42,6 +42,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/organisations/{org_id}/admins/{user_id}/invite_code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Organisation Admin Invite Code
+         * @description A new invite code for an organisation admin who has not signed in yet.
+         */
+        post: operations["new_organisation_admin_invite_code_admin_organisations__org_id__admins__user_id__invite_code_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/organisations/{org_id}": {
         parameters: {
             query?: never;
@@ -311,6 +331,26 @@ export interface paths {
          *     assigns a new one); a patient's wearable is returned, ending the monitoring session.
          */
         post: operations["disable_account_accounts__user_id__disable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounts/{user_id}/invite_code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * New Doctor Or Patient Invite Code
+         * @description A new invite code for a doctor or patient of the organisation who has not signed in yet.
+         */
+        post: operations["new_doctor_or_patient_invite_code_accounts__user_id__invite_code_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1182,6 +1222,11 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** InviteCode */
+        InviteCode: {
+            /** Invite Code */
+            invite_code: string;
+        };
         /** NewAccount */
         NewAccount: {
             /**
@@ -1654,6 +1699,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NewAccount"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    new_organisation_admin_invite_code_admin_organisations__org_id__admins__user_id__invite_code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InviteCode"];
                 };
             };
             /** @description Validation Error */
@@ -2226,6 +2303,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Account"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    new_doctor_or_patient_invite_code_accounts__user_id__invite_code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InviteCode"];
                 };
             };
             /** @description Validation Error */
