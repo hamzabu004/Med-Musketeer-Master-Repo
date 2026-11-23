@@ -1,0 +1,8 @@
+{
+  "status": "ok",
+  "checks": {
+    "database": "ok",
+    "zitadel": "ok",
+    "emqx": "ok"
+  }
+}

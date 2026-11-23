@@ -1,0 +1,29 @@
+{
+  "tc_c29": {
+    "retained_on_subscribe": 1,
+    "forged_publish": "Not authorized",
+    "new_version": 2,
+    "revoke_to_gateway_s": 0.061
+  },
+  "tc_c29_recreate": {
+    "version_after_recreate": 2,
+    "published_at_unchanged": "2026-11-23T04:17:16.012582Z"
+  },
+  "tc_c30": {
+    "credential revoked": {
+      "disconnect_s": 0.02,
+      "disconnect_packet_from_server": true,
+      "reconnect": "Not authorized"
+    },
+    "device suspended": {
+      "disconnect_s": 0.01,
+      "disconnect_packet_from_server": true,
+      "reconnect": "Not authorized"
+    },
+    "device revoked": {
+      "disconnect_s": 0.011,
+      "disconnect_packet_from_server": true,
+      "reconnect": "Not authorized"
+    }
+  }
+}

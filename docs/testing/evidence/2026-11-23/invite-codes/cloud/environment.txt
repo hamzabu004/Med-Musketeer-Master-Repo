@@ -1,0 +1,43 @@
+run_at: 2026-11-23T09:14:48+05:00
+host: Linux 7.2.15-200.fc44.x86_64 x86_64
+python: Python 3.14.7
+packages: cryptography==50.0.2 fastapi==0.161.1 httpx==0.28.1 paho-mqtt==2.1.0 psycopg==3.3.6 pydantic-settings==2.16.1 PyJWT==2.15.1 pytest==9.1.1 pytest-cov==7.1.0 SQLAlchemy==2.1.6 
+compose: [4m>>>> Executing external compose provider "/home/hmz-gul/.docker/cli-plugins/docker-compose". Please see podman-compose(1) for how to disable this message. <<<<
+missing
+engine: podman 5.8.4
+images: medmusketeer/cloud-postgres:dev ghcr.io/zitadel/zitadel:v4.20.0 ghcr.io/zitadel/zitadel-login:v4.20.0 medmusketeer/cloud-proxy:dev medmusketeer/cloud-emqx:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-api:dev medmusketeer/cloud-dashboard:dev alpine:3.22.2 axllent/mailpit:v1.32.0 
+base images: python:3.14.9-slim-trixie emqx/emqx:6.3.2 timescale/timescaledb:2.31.0-pg18 traefik:v3.7.16 
+commit: dd7bb8ff4ef9c5fc780db9fac0e5fd8f3a9369f0
+uncommitted changes:
+ M cloud/README.md
+ M cloud/backend/app/accounts.py
+ M cloud/backend/app/registry.py
+ M cloud/backend/app/zitadel.py
+ M cloud/backend/app/zitadel_bootstrap.py
+ M cloud/backend/tests/fake_zitadel.py
+ M cloud/backend/tests/integration/test_access.py
+ M cloud/backend/tests/integration/test_organisation.py
+ M cloud/backend/tests/integration/test_stack.py
+ M cloud/backend/tests/unit/test_zitadel.py
+ M cloud/backend/tests/unit/test_zitadel_bootstrap.py
+ M cloud/scripts/deploy.sh
+ M docs/decisions/cloud-backend.md
+ M docs/testing/test_traceability.md
+ M web/dashboard/e2e/api/system-admin.spec.ts
+ M web/dashboard/e2e/mock/org-admin.spec.ts
+ M web/dashboard/e2e/mock/system-admin.spec.ts
+ M web/dashboard/src/api/openapi.json
+ M web/dashboard/src/api/schema.d.ts
+ M web/dashboard/src/api/types.ts
+ M web/dashboard/src/app/invite/page.tsx
+ M web/dashboard/src/components/ui/one-time-code.tsx
+ M web/dashboard/src/features/org/accounts.tsx
+ M web/dashboard/src/features/system/organisation-detail.tsx
+ M web/dashboard/src/lib/labels.ts
+ M web/dashboard/src/services/api.ts
+ M web/dashboard/src/services/contracts.ts
+ M web/dashboard/src/services/mock/mock-data-source.test.ts
+ M web/dashboard/src/services/mock/mock-data-source.ts
+?? cloud/backend/app/login_texts.py
+?? docs/explainer/
+?? docs/testing/evidence/2026-11-23/
