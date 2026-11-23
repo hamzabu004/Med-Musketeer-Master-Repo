@@ -24,6 +24,9 @@ log = logging.getLogger(__name__)
 ORG_ROLES = ("org_admin", "doctor", "patient")  # granted to every client organisation (D3)
 PROFILE_TTL_S = 60  # how long a name read from ZITADEL is reused (app.directory)
 PROFILE_BATCH = 100
+# ZITADEL's error id for an invite code asked for a user who already has a password or passkey
+# ("User is already initialized", v4.20).
+ALREADY_SET_UP = "COMMAND-EF34g"
 
 
 class ZitadelError(Exception):
@@ -138,6 +141,12 @@ class ZitadelAdmin:
             await self.undo(self.delete_user, user_id)
             raise
         return NewUser(user_id=user_id, invite_code=code)
+
+    async def new_invite_code(self, user_id: str) -> str:
+        """A new invite code for a user who has not set up a password or passkey yet. It replaces the
+        user's earlier code, which stops working. ZITADEL refuses a user who is already set up:
+        ZitadelError 400 with ALREADY_SET_UP in the message."""
+        return (await self._call("POST", f"/v2/users/{user_id}/invite_code", json={"returnCode": {}}))["inviteCode"]
 
     async def deactivate_user(self, user_id: str) -> None:
         """Idempotent: a user who is already inactive (an earlier attempt whose answer was lost, or a

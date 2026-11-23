@@ -4,6 +4,7 @@ The stack itself is the session fixture `stack` (tests.integration.stack, confte
 """
 import base64
 import hashlib
+import html
 import json
 import re
 import secrets
@@ -315,3 +316,95 @@ def test_tc_c43_the_login_sends_a_password_reset_link_that_sets_a_new_password(s
     assert old.status_code >= 400
     record["new_password_signs_in"], record["old_password_refused"] = True, True
     evidence("tc_c43_password_reset_mail.json", json.dumps(record, indent=2))
+
+
+# --- TC-C45 and TC-C46: invite codes -------------------------------------------------------------
+
+def test_tc_c45_the_login_asks_for_the_administrators_invite_code(stack):
+    from app.login_texts import LOGIN_TEXTS
+
+    zitadel, config = zitadel_admin(stack)
+    sa_id, sa = machine_token(zitadel, config, config["default_org_id"], "tc-c45-admin", "system_admin")
+    register_user(stack, sa_id, "system_admin")
+    record = {}
+
+    def own_texts(level: dict) -> dict:
+        return zitadel.call("GET", "/v2/settings/hosted_login_translation",
+                            params={**level, "locale": "en", "ignoreInheritance": "true"}).get("translations", {})
+
+    # The bootstrap set them on the instance and on the organisations there were: ZITADEL does not
+    # pass the instance's texts on to an organisation. Only an instance owner may set them, so an
+    # organisation the API creates gets them when the bootstrap next runs (each deploy).
+    assert own_texts({"instance": "true"}) == LOGIN_TEXTS
+    assert own_texts({"organizationId": config["default_org_id"]}) == LOGIN_TEXTS
+    org = httpx.post(f"{API}/admin/organisations", headers=sa, json={"name": "TC-C45 Clinic", "kind": "private"}).json()
+    record["new_organisation_before_bootstrap"] = own_texts({"organizationId": org["zitadel_org_id"]})
+    assert record["new_organisation_before_bootstrap"] == {}
+    compose(stack, "run", "--rm", "zitadel-bootstrap")
+    assert own_texts({"organizationId": org["zitadel_org_id"]}) == LOGIN_TEXTS
+    merged = zitadel.call("GET", "/v2/settings/hosted_login_translation",
+                          params={"organizationId": org["zitadel_org_id"], "locale": "en"})["translations"]
+    assert merged["verify"]["verify"]["title"] == "Verify user"  # ZITADEL's defaults fill in the rest
+    record["levels_set"] = ["instance", "default organisation", "organisation created by the API, at the next bootstrap"]
+
+    # The login shows them: the sign-in page's label, and the code page of that organisation's new admin.
+    admin = httpx.post(f"{API}/admin/organisations/{org['org_id']}/admins", headers=sa,
+                       json={"email": "tc-c45-admin@clinic.example", "given_name": "Ola", "family_name": "Admin"})
+    assert admin.status_code == 201, admin.text
+    base = f"{config['issuer']}/ui/v2/login"
+    shown = {}
+    for name, path, params in (("loginname", "loginname", {}),
+                               ("verify", "verify", {"loginName": "tc-c45-admin@clinic.example", "invite": "true",
+                                                     "organization": org["zitadel_org_id"]})):
+        page = httpx.get(f"{base}/{path}", params=params, follow_redirects=True, timeout=30)
+        assert page.status_code == 200, page.text[:300]
+        # What the page shows, not the script data it also carries (which holds ZITADEL's defaults too).
+        shown[name] = [html.unescape(text.strip()) for text in re.findall(r">([^<>]+)<", page.text)
+                       if text.strip() and "__next_f" not in text and "$R" not in text]
+    texts = LOGIN_TEXTS["verify"]["verify"]
+    assert LOGIN_TEXTS["loginname"]["labels"]["loginname"] in shown["loginname"]
+    for key in ("description", "noCodeReceived", "resendCode"):
+        assert texts[key] in shown["verify"], key
+    assert not any("verification email" in text for text in shown["verify"])
+    record["loginname_label"] = LOGIN_TEXTS["loginname"]["labels"]["loginname"]
+    record["verify_page"] = [text for text in shown["verify"] if text in texts.values()]
+    evidence("tc_c45_login_texts.json", json.dumps(record, indent=2))
+
+
+def test_tc_c46_a_new_invite_code_replaces_the_old_one(stack):
+    zitadel, config = zitadel_admin(stack)
+    sa_id, sa = machine_token(zitadel, config, config["default_org_id"], "tc-c46-admin", "system_admin")
+    register_user(stack, sa_id, "system_admin")
+    record = {}
+
+    org = httpx.post(f"{API}/admin/organisations", headers=sa, json={"name": "TC-C46 Clinic", "kind": "private"}).json()
+    admin = httpx.post(f"{API}/admin/organisations/{org['org_id']}/admins", headers=sa,
+                       json={"email": "tc-c46-admin@clinic.example", "given_name": "Ira", "family_name": "Admin"})
+    assert admin.status_code == 201, admin.text
+    first, sub = admin.json()["invite_code"], admin.json()["zitadel_sub"]
+    path = f"{API}/admin/organisations/{org['org_id']}/admins/{admin.json()['user_id']}/invite_code"
+
+    # The system admin gets a new code: the first stops working, as after "Resend code" in the login.
+    second = httpx.post(path, headers=sa)
+    assert second.status_code == 200, second.text
+    second = second.json()["invite_code"]
+    assert second != first
+    old = zitadel.http.post(f"/v2/users/{sub}/invite_code/verify", json={"verificationCode": first})
+    assert old.status_code == 400 and "Code is invalid" in old.text
+    record["old_code"] = old.json()["message"]
+    new = zitadel.http.post(f"/v2/users/{sub}/invite_code/verify", json={"verificationCode": second})
+    assert new.status_code == 200, new.text
+    record["new_code_verified"] = True
+
+    # Once the person has set a password, no more codes: they sign in with it.
+    zitadel.call("POST", f"/v2/users/{sub}/password", json={"newPassword": {"password": f"Tc46-{secrets.token_urlsafe(9)}1a!",
+                                                                             "changeRequired": False}})
+    refused = httpx.post(path, headers=sa)
+    assert refused.status_code == 409 and "already set up" in refused.json()["detail"], refused.text
+    record["after_password"] = {"status": refused.status_code, "detail": refused.json()["detail"]}
+
+    actions = [event["action"] for event in httpx.get(f"{API}/admin/audit", headers=sa).json()
+               if event["target_id"] == admin.json()["user_id"]]
+    assert actions == ["account.invite_code", "account.created"]
+    record["audit"] = actions
+    evidence("tc_c46_new_invite_code.json", json.dumps(record, indent=2))

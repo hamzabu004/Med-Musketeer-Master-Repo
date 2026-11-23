@@ -6,7 +6,7 @@ a ZITADEL failure leaves no database rows behind.
 """
 import itertools
 
-from app.zitadel import NewUser, Profile, ZitadelAdmin, ZitadelError
+from app.zitadel import ALREADY_SET_UP, NewUser, Profile, ZitadelAdmin, ZitadelError
 
 
 class FakeZitadelAdmin:
@@ -14,6 +14,7 @@ class FakeZitadelAdmin:
         self._ids = itertools.count(1)
         self.organisations: dict[str, str] = {}  # zitadel org id -> name
         self.users: dict[str, dict] = {}  # zitadel user id -> {org, role, email, state}
+        self.set_up: set[str] = set()  # users with a password or passkey; tests add them
         self.failures: dict[str, ZitadelError] = {}
         self.names: dict[str, tuple[str, str]] = {}  # zitadel user id -> (given, family); also set by tests
 
@@ -46,6 +47,15 @@ class FakeZitadelAdmin:
         self.users[user_id] = {"org": org_id, "role": role, "email": email, "state": "active"}
         self.names[user_id] = (given_name, family_name)
         return NewUser(user_id=user_id, invite_code=f"INVITE-{user_id}")
+
+    async def new_invite_code(self, user_id: str) -> str:
+        self._maybe_fail("new_invite_code")
+        if user_id in self.set_up:
+            raise ZitadelError(400, f"User is already initialized ({ALREADY_SET_UP})")
+        # Users arranged directly in the database are taken to exist in ZITADEL too.
+        user = self.users.setdefault(user_id, {"state": "active"})
+        user["invites"] = user.get("invites", 0) + 1
+        return f"INVITE-{user_id}-{user['invites']}"
 
     async def deactivate_user(self, user_id: str) -> None:
         self._maybe_fail("deactivate_user")

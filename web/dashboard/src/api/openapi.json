@@ -123,6 +123,60 @@
     }
    }
   },
+  "/admin/organisations/{org_id}/admins/{user_id}/invite_code": {
+   "post": {
+    "tags": [
+     "system admin"
+    ],
+    "summary": "New Organisation Admin Invite Code",
+    "description": "A new invite code for an organisation admin who has not signed in yet.",
+    "operationId": "new_organisation_admin_invite_code_admin_organisations__org_id__admins__user_id__invite_code_post",
+    "parameters": [
+     {
+      "name": "org_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Org Id"
+      }
+     },
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InviteCode"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/admin/organisations/{org_id}": {
    "patch": {
     "tags": [
@@ -907,6 +961,50 @@
        "application/json": {
         "schema": {
          "$ref": "#/components/schemas/Account"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/accounts/{user_id}/invite_code": {
+   "post": {
+    "tags": [
+     "organisation admin"
+    ],
+    "summary": "New Doctor Or Patient Invite Code",
+    "description": "A new invite code for a doctor or patient of the organisation who has not signed in yet.",
+    "operationId": "new_doctor_or_patient_invite_code_accounts__user_id__invite_code_post",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InviteCode"
         }
        }
       }
@@ -2969,6 +3067,19 @@
     },
     "type": "object",
     "title": "HTTPValidationError"
+   },
+   "InviteCode": {
+    "properties": {
+     "invite_code": {
+      "type": "string",
+      "title": "Invite Code"
+     }
+    },
+    "type": "object",
+    "required": [
+     "invite_code"
+    ],
+    "title": "InviteCode"
    },
    "NewAccount": {
     "properties": {

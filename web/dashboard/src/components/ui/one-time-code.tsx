@@ -4,6 +4,13 @@ import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./button";
 
+/** What a new invite code does, for the confirmation before asking for one. */
+export const INVITE_CONSEQUENCES = [
+  "For someone who lost their code, or whose code no longer works.",
+  "Their current code stops working: give them the new one.",
+  "If they have already set up a password or passkey, this is refused: they sign in with that.",
+];
+
 /** An invite code the API returns once: shown until the admin confirms they passed it on. */
 export function OneTimeCode({ code, recipient, onDone }: { code: string; recipient: string; onDone: () => void }) {
   const [copy, setCopy] = useState<"idle" | "copied" | "failed">("idle");
@@ -11,7 +18,8 @@ export function OneTimeCode({ code, recipient, onDone }: { code: string; recipie
     <div role="status" className="space-y-3 rounded-[var(--radius-md)] border border-[var(--color-warning)] bg-[var(--color-surface)] p-4">
       <p className="text-sm">
         Invite code for <strong>{recipient}</strong>. It is shown <strong>only now</strong>: give it to them before closing this.
-        They enter it at sign-in with their e-mail address, then choose a password.
+        They enter it at sign-in with their e-mail address, then choose a password. Asking the sign-in page to e-mail a
+        new code replaces this one.
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <code className="metric-number rounded-[var(--radius-sm)] border border-[var(--color-border-strong)] bg-[var(--color-surface-subtle)] px-3 py-1.5 text-lg tracking-[0.2em]">

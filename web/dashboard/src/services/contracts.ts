@@ -16,6 +16,7 @@ import type {
   GatewayAlert,
   GatewayDetail,
   Grant,
+  InviteCode,
   Me,
   NewAccount,
   OrgDevice,
@@ -89,6 +90,8 @@ export interface DataSource {
     setOrganisationStatus(orgId: string, status: "active" | "suspended"): Promise<Organisation>;
     /** Returns the invite code once; it cannot be read again. */
     createOrganisationAdmin(orgId: string, body: PersonIn): Promise<NewAccount>;
+    /** A new invite code for an organisation admin who has not signed in yet; the old code stops working. */
+    newOrganisationAdminInviteCode(orgId: string, userId: string): Promise<InviteCode>;
     devices(): Promise<Device[]>;
     device(deviceId: string): Promise<Device>;
     registerDevice(body: DeviceIn): Promise<Device>;
@@ -121,6 +124,8 @@ export interface DataSource {
     /** Returns the invite code once; it cannot be read again. */
     createAccount(body: AccountIn): Promise<NewAccount>;
     disableAccount(userId: string): Promise<Account>;
+    /** A new invite code for a doctor or patient who has not signed in yet; the old code stops working. */
+    newInviteCode(userId: string): Promise<InviteCode>;
     assignDoctor(patientId: string, doctorId: string): Promise<CareAssignment>;
     issueWearable(patientId: string, deviceId: string): Promise<WearableAssignment>;
     returnWearable(patientId: string): Promise<WearableAssignment>;

@@ -6,6 +6,28 @@ test.beforeEach(async ({ page }) => {
   await expect(page).toHaveURL(/\/org\/dashboard$/);
 });
 
+test("gives a new invite code to an account that has not signed in, and refuses one that has", async ({ page }) => {
+  await page.goto("/org/accounts");
+  await page.getByLabel("Given name").fill("Nadia");
+  await page.getByLabel("Family name").fill("Khan");
+  await page.getByLabel("E-mail").fill("nadia@dev-hospital.example");
+  await page.getByRole("button", { name: "Create" }).click();
+  const code = page.locator("code");
+  await expect(code).toHaveText(/^[A-Z2-9]{6}$/);
+  await page.getByRole("button", { name: "I have passed it on" }).click();
+
+  await page.getByRole("row", { name: /Nadia Khan/ }).getByRole("button", { name: "New invite code" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "New invite code" }).click();
+  await expect(code).toHaveText(/^[A-Z2-9]{6}$/);
+  await expect(page.getByRole("status").filter({ hasText: "Invite code for" })).toContainText("Nadia Khan (nadia@dev-hospital.example)");
+  await page.getByRole("button", { name: "I have passed it on" }).click();
+
+  await page.getByRole("row", { name: /Bilal Raza/ }).getByRole("button", { name: "New invite code" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "New invite code" }).click();
+  await expect(page.getByText("it signs in with that and needs no invite code", { exact: false })).toBeVisible();
+  await expect(code).toHaveCount(0);
+});
+
 test("creates a patient with a one-time invite code, then assigns a doctor, issues a wearable, records a disorder and exports", async ({ page }) => {
   await page.goto("/org/accounts");
   await page.getByLabel("Role").first().selectOption("patient");

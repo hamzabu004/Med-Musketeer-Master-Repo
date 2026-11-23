@@ -7,6 +7,7 @@ export function labelize(value: string | null | undefined): string {
 }
 
 const NAMES: Record<string, string> = {
+  "account.invite_code": "New invite code",
   dos_flood: "DoS flood",
   syn_flood: "SYN flood",
   mqtt_flood: "MQTT flood",

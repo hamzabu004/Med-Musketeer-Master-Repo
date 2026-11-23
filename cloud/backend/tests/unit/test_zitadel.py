@@ -14,7 +14,7 @@ CLIENT_ORG = "400000000000000001"
 
 
 class ScriptedZitadel:
-    """Answers by (method, path); records every request. An answer may be a status code."""
+    """Answers by (method, path); records every request. An answer may be a status code or a response."""
 
     def __init__(self, answers: dict):
         self.answers = answers
@@ -25,6 +25,8 @@ class ScriptedZitadel:
         answer = self.answers[(request.method, request.url.path)]
         if callable(answer):
             answer = answer(request)
+        if isinstance(answer, httpx.Response):
+            return answer
         if isinstance(answer, int):
             return httpx.Response(answer, json={"code": 9, "message": f"status {answer}"})
         return httpx.Response(200, json=answer)
@@ -178,3 +180,19 @@ def test_a_zitadel_failure_reading_profiles_is_raised(token_file):
     script = ScriptedZitadel({("POST", "/v2/users"): 503})
     with pytest.raises(ZitadelError):
         asyncio.run(admin(script, token_file).profiles(["u1"]))
+
+
+def test_tc_c46_a_new_invite_code_is_returned_not_sent(token_file):
+    script = ScriptedZitadel({("POST", "/v2/users/u-1/invite_code"): {"inviteCode": "NEW456"}})
+    assert asyncio.run(admin(script, token_file).new_invite_code("u-1")) == "NEW456"
+    assert json.loads(script.requests[0].content) == {"returnCode": {}}  # no e-mail: the admin hands it over
+
+
+def test_tc_c46_a_user_already_set_up_is_an_error_with_zitadels_id(token_file):
+    def already(request):
+        return httpx.Response(400, json={"code": 9, "message": "User is already initialized (COMMAND-EF34g)"})
+
+    script = ScriptedZitadel({("POST", "/v2/users/u-1/invite_code"): already})
+    with pytest.raises(ZitadelError) as raised:
+        asyncio.run(admin(script, token_file).new_invite_code("u-1"))
+    assert raised.value.status == 400 and "COMMAND-EF34g" in raised.value.message

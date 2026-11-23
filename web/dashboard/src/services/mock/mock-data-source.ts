@@ -113,6 +113,25 @@ export function createMockDataSource(world: World, principal: Principal, onChang
     };
   }
 
+  /** Accounts created in this session: they have not signed in, so they may get a new invite code.
+   * The sample world's own people have set up their sign-in. */
+  const invited = new Set<string>();
+
+  function inviteCode(): string {
+    // ZITADEL's invite codes are short and single-use; this one only looks like one.
+    return Array.from({ length: 6 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+  }
+
+  /** As the API: an active account that has not set up a password or passkey; replaces the old code. */
+  function newInviteCode(user: MockUser) {
+    if (user.status !== "active") throw conflict("the account is disabled");
+    if (!invited.has(user.user_id)) {
+      throw conflict("the account has already set up a password or passkey; it signs in with that and needs no invite code");
+    }
+    audit(principal.role === "system_admin" ? "registry" : "organisation", "account.invite_code", user.org_id, user.user_id, { role: user.role });
+    return { invite_code: inviteCode() };
+  }
+
   function createAccount(orgId: string, role: Role, body: { email: string; given_name: string; family_name: string }, pseudonym?: string | null): NewAccount {
     const org = world.organisations.find((o) => o.org_id === orgId);
     if (!org) throw notFound("organisation");
@@ -130,9 +149,8 @@ export function createMockDataSource(world: World, principal: Principal, onChang
     world.users.push(user);
     if (pseudonym != null) world.patients.push({ patient_id: newId(), user_id: user.user_id, org_id: orgId, pseudonym, created_at: now() });
     audit(principal.role === "system_admin" ? "registry" : "organisation", "account.created", orgId, user.user_id, { role });
-    // ZITADEL's invite codes are short and single-use; this one only looks like one.
-    const invite_code = Array.from({ length: 6 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
-    return { ...accountView(user), invite_code };
+    invited.add(user.user_id);
+    return { ...accountView(user), invite_code: inviteCode() };
   }
 
   /** Sample behaviour of an on-demand recording, worked out when read so it needs no timer: a
@@ -292,6 +310,12 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           return org;
         }, true),
       createOrganisationAdmin: (orgId, body) => answer(["system_admin"], () => createAccount(orgId, "org_admin", body), true),
+      newOrganisationAdminInviteCode: (orgId, userId) =>
+        answer(["system_admin"], () => {
+          const user = world.users.find((u) => u.user_id === userId && u.org_id === orgId && u.role === "org_admin");
+          if (!user) throw notFound("account");
+          return newInviteCode(user);
+        }, true),
       devices: () => answer(["system_admin"], () => world.devices.map(registryView)),
       device: (deviceId) => answer(["system_admin"], () => registryView(device(deviceId))),
       registerDevice: (body) =>
@@ -429,6 +453,12 @@ export function createMockDataSource(world: World, principal: Principal, onChang
           }
           audit("organisation", "account.disabled", principal.org_id, userId);
           return accountView(user);
+        }, true),
+      newInviteCode: (userId) =>
+        answer(["org_admin"], () => {
+          const user = world.users.find((u) => u.user_id === userId && u.org_id === principal.org_id);
+          if (!user || (user.role !== "doctor" && user.role !== "patient")) throw notFound("account");
+          return newInviteCode(user);
         }, true),
       assignDoctor: (patientId, doctorId) =>
         answer(["org_admin"], () => {

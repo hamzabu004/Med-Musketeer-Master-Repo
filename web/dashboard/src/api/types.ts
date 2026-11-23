@@ -6,6 +6,7 @@ type Schemas = components["schemas"];
 export type Account = Schemas["Account"];
 export type AccountIn = Schemas["AccountIn"];
 export type NewAccount = Schemas["NewAccount"];
+export type InviteCode = Schemas["InviteCode"];
 export type Alert = Schemas["Alert"];
 export type AuditEvent = Schemas["AuditEvent"];
 export type CareAssignment = Schemas["CareAssignment"];

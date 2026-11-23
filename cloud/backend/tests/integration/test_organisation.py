@@ -308,3 +308,48 @@ def test_assigning_a_doctor_waits_for_a_concurrent_doctor_disable(admin, world, 
     )
     assert response.status_code == 404  # no active doctor of that id any more
     assert db.scalar(text("SELECT count(*) FROM care_assignments WHERE doctor_id = :d"), {"d": world.spare_doctor}) == 0
+
+
+# --- new invite codes (TC-C46) -----------------------------------------------------------------
+
+def test_tc_c46_an_org_admin_gets_a_new_invite_code_for_a_doctor_or_patient(admin, world, zitadel, db):
+    for user_id in (world.a.doctor.user_id, world.a.patient.user_id):
+        sub = db.scalar(text("SELECT zitadel_sub FROM users WHERE user_id = :u"), {"u": user_id})
+        first = admin.post(f"/accounts/{user_id}/invite_code")
+        assert first.status_code == 200, first.text
+        assert first.json() == {"invite_code": f"INVITE-{sub}-1"}
+        assert admin.post(f"/accounts/{user_id}/invite_code").json() == {"invite_code": f"INVITE-{sub}-2"}
+    events = admin.get("/audit").json()
+    assert [e["action"] for e in events[:4]] == ["account.invite_code"] * 4
+    assert events[0]["target_id"] == str(world.a.patient.user_id) and events[0]["details"] == {"role": "patient"}
+
+
+def test_tc_c46_no_new_invite_code_once_the_account_is_set_up_or_disabled(admin, world, zitadel, db):
+    sub = db.scalar(text("SELECT zitadel_sub FROM users WHERE user_id = :u"), {"u": world.a.doctor.user_id})
+    zitadel.set_up.add(sub)
+    set_up = admin.post(f"/accounts/{world.a.doctor.user_id}/invite_code")
+    assert set_up.status_code == 409 and "already set up" in set_up.json()["detail"]
+    assert admin.post(f"/accounts/{world.spare_doctor}/disable").status_code == 200
+    disabled = admin.post(f"/accounts/{world.spare_doctor}/invite_code")
+    assert disabled.status_code == 409 and "disabled" in disabled.json()["detail"]
+    zitadel.fail("new_invite_code", 503)
+    assert admin.post(f"/accounts/{world.a.patient.user_id}/invite_code").status_code == 502
+    assert [e["action"] for e in admin.get("/audit").json()][0] == "account.disabled"  # nothing recorded
+
+
+def test_tc_c46_an_org_admin_cannot_reissue_for_administrators_or_other_organisations(admin, world):
+    for user_id in (world.a.admin.user_id, world.b.doctor.user_id, world.b.patient.user_id, world.system_admin.user_id):
+        assert admin.post(f"/accounts/{user_id}/invite_code").status_code == 404
+
+
+def test_tc_c46_the_system_admin_gets_a_new_invite_code_for_an_organisation_admin(make_client, world, db):
+    system = make_client(world.system_admin)
+    sub = db.scalar(text("SELECT zitadel_sub FROM users WHERE user_id = :u"), {"u": world.a.admin.user_id})
+    response = system.post(f"/admin/organisations/{world.a.org_id}/admins/{world.a.admin.user_id}/invite_code")
+    assert response.status_code == 200, response.text
+    assert response.json() == {"invite_code": f"INVITE-{sub}-1"}
+    event = system.get("/admin/audit").json()[0]
+    assert (event["action"], event["scope"], event["target_id"]) == ("account.invite_code", "registry", str(world.a.admin.user_id))
+    # Only that organisation's administrators: not its doctors, not another organisation's admin.
+    for org, user_id in ((world.a.org_id, world.a.doctor.user_id), (world.b.org_id, world.a.admin.user_id)):
+        assert system.post(f"/admin/organisations/{org}/admins/{user_id}/invite_code").status_code == 404
