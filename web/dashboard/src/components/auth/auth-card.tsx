@@ -1,4 +1,4 @@
-import { HeartPulse } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 
 /** The centred card of the pages outside the shell (sign-in, callback, invite help). */
 export function AuthCard({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
@@ -8,7 +8,7 @@ export function AuthCard({ children, wide = false }: { children: React.ReactNode
         className={`w-full ${wide ? "max-w-lg" : "max-w-sm"} rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6`}
       >
         <div className="mb-6 flex items-center gap-3">
-          <HeartPulse size={24} strokeWidth={1.8} className="text-[var(--color-accent)]" aria-hidden />
+          <BrandLogo size={44} />
           <div>
             <h1 className="text-xl font-semibold">MedMusketeer</h1>
             <p className="text-xs text-[var(--color-text-muted)]">Clinical monitoring</p>

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, HeartPulse, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { useEffect, useState } from "react";
 import { navigationByRole } from "@/config/navigation";
 import { isWithin, type Role } from "@/auth/roles";
@@ -91,7 +92,7 @@ export function Sidebar({
         )}
       >
         <div className="flex h-16 items-center gap-3 border-b border-[var(--color-nav-border)] px-4">
-          <HeartPulse size={20} strokeWidth={1.8} className="shrink-0 text-[var(--color-accent)]" aria-hidden />
+          <BrandLogo size={28} />
           {!collapsed && <span className="font-semibold">MedMusketeer</span>}
         </div>
         <NavigationLinks role={role} pathname={pathname} collapsed={collapsed} />
@@ -115,7 +116,7 @@ export function Sidebar({
           />
           <aside className="relative flex h-full w-[min(19rem,86vw)] flex-col bg-[var(--color-brand)] text-[var(--color-on-brand)] [box-shadow:var(--shadow-hard)]">
             <div className="flex h-16 items-center gap-3 border-b border-[var(--color-nav-border)] px-4">
-              <HeartPulse size={20} strokeWidth={1.8} className="text-[var(--color-accent)]" aria-hidden />
+              <BrandLogo size={28} />
               <span className="font-semibold">MedMusketeer</span>
               <button
                 type="button"
