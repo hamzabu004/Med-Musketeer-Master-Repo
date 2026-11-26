@@ -3,7 +3,7 @@
 - **Date:** 2026-11-26
 - **Type:** code
 - **Module:** M2 firmware
-- **Commits:** pending
+- **Commits:** 3f2f4f3 (firmware), d3f5d6c (docs)
 
 ## What changed
 - **Page 2, benchmarks:**
