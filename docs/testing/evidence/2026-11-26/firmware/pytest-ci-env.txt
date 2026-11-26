@@ -1,0 +1,51 @@
+$ cloud/backend/.venv/bin/python -m pytest firmware/wearable/tools -v -rs   (the CI environment: no numpy, no MIT-BIH)
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.7.0 -- cloud/backend/.venv/bin/python
+rootdir: <repo>
+plugins: anyio-4.15.1, cov-7.1.0
+collecting ... collected 39 items
+
+firmware/wearable/tools/test_check_capture.py::test_tc_w01_firmware_alert_passes_the_contract PASSED [  2%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_valid_capture_passes PASSED [  5%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_reboot_restarts_seq PASSED [  7%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines0-alert is not valid] PASSED [ 10%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines1-alert is not valid] PASSED [ 12%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines2-expected] PASSED [ 15%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines3-unexpected topic] PASSED [ 17%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines4-revocation_version] PASSED [ 20%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines5-seq 3 follows 1] PASSED [ 23%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines6-repeats] PASSED [ 25%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines7-later than sent_at] PASSED [ 28%]
+firmware/wearable/tools/test_check_capture.py::test_tc_w04_checker_refuses[lines8-alert is not valid] PASSED [ 30%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_finds_every_beat_at_its_r_peak PASSED [ 33%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_window_is_the_signal_at_128_hz PASSED [ 35%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_rr_features PASSED [ 38%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_leads_off_resets_and_detection_resumes PASSED [ 41%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_flat_signal_gives_no_beats PASSED [ 43%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_mitdb_detection SKIPPED [ 46%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_mitdb_classification SKIPPED [ 48%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_three_of_ten_raises_one_alert PASSED [ 51%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_two_of_ten_is_not_enough PASSED [ 53%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_abnormal_beats_age_out_of_the_window PASSED [ 56%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_cooldown PASSED   [ 58%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_label_is_the_more_frequent_class PASSED [ 61%]
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_clear_forgets_the_window PASSED [ 64%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_parses_a_frame PASSED [ 66%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_sign_extends_24_bit_codes PASSED [ 69%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_refuses_a_frame_without_the_status_header PASSED [ 71%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_channel_1_leads_off[12582912-0] PASSED [ 74%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_channel_1_leads_off[12615680-1] PASSED [ 76%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_channel_1_leads_off[12648448-1] PASSED [ 79%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_channel_1_leads_off[13500416-0] PASSED [ 82%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_codes_to_microvolts PASSED [ 84%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_microvolts_to_counts PASSED [ 87%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_counts_clamp_to_int16 PASSED [ 89%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_dc_blocker_removes_the_electrode_offset PASSED [ 92%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_dc_blocker_passes_ecg_frequencies PASSED [ 94%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_dc_blocker_corner PASSED [ 97%]
+firmware/wearable/tools/test_ecg_convert.py::test_tc_w07_counts_leads_off PASSED [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] firmware/wearable/tools/test_ecg_beats.py:177: could not import 'numpy': No module named 'numpy'
+SKIPPED [1] firmware/wearable/tools/test_ecg_beats.py:202: could not import 'numpy': No module named 'numpy'
+======================== 37 passed, 2 skipped in 1.13s =========================

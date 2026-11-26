@@ -109,7 +109,7 @@ Wearable (ECG acquisition, TinyDL screening, alerts with the triggering segment,
                           Dashboard (patient, doctor, organisation admin, system admin views)
 ```
 
-- **Wearable hardware:** ESP32-S3. ECG front end: AD8232 analog module in hand, **used for testing only**; a 2-lead **ADS1292** digital front end (which the product requires) has been requested from the hardware lab and not yet received.
+- **Wearable hardware:** ESP32-S3. ECG front end: the 2-lead **ADS1292** digital front end, received on 2026-11-26 and wired on SPI (lead II on channel 1). The AD8232 analog module used for testing before then is dropped.
 - **Fixed gateway hardware:** Raspberry Pi 4B (trusted — may decrypt and classify), hosting its own WPA2 hotspot.
 - **Mobile relay:** Android phone acting only as an untrusted communication bridge. It is not a MedMusketeer device/security principal, is not enrolled in the device registry, and receives no MedMusketeer client certificate or payload decryption keys. Wearable identity/authenticity remains end-to-end to the cloud.
 - **Path selection:** a physical button on the wearable selects one path at a time; no automatic failover.
@@ -124,7 +124,7 @@ Wearable (ECG acquisition, TinyDL screening, alerts with the triggering segment,
 - **Security:** detection rate, false positives, response time
 - **System:** alert latency, reliability, recovery
 
-**Risks/dependencies:** limited/imbalanced ECG data, wearable resource constraints, the ADS1292 not yet received, hardware/dataset/network/library dependencies.
+**Risks/dependencies:** limited/imbalanced ECG data, wearable resource constraints, hardware/dataset/network/library dependencies.
 
 **GenAI boundary:** GenAI (LLMs) may assist with coding/debugging; final code, design decisions and results must be human-reviewed and validated by the team — never presented as unverified LLM output.
 
@@ -148,9 +148,9 @@ Only these have been measured. Everything else is a target.
 - **Iteration 2:** the wearable's test alert replaced by the planned alert payload (a push button and a synthetic ECG segment until the edge model exists), its presence (`status` and LWT), and ACL denials verified on the Pi itself. Plan: `docs/iterations/iteration-2-wearable-alert.md`. (ECG evaluation moved to Iteration 5 on 2026-10-30, then to Iteration 7 on 2026-11-06.)
 - **Iteration 3:** cloud backend setup — PostgreSQL + TimescaleDB, device registry with organisations and device grants, ingestion API, EMQX with two listeners, ZITADEL with the four roles.
 - **Iteration 4:** uplink bridge from the gateway broker to the cloud over mTLS (`attested_by`, backlog upload); verified wearable → cloud database.
-- **Iteration 5:** ECG read from the sensor on the wearable (AD8232 for testing, behind an interface the ADS1292 will use), and live ECG on request from the dashboard through the fixed path. The button alert is unchanged. Plan: `docs/iterations/iteration-5-ecg-on-demand.md`. (Changed on 2026-11-06; the earlier Iteration 5 work moved to Iteration 7.)
+- **Iteration 5:** ECG read from the ADS1292 on the wearable, the on-device model (a 1D-CNN classifying each beat as N, S or V) raising alerts with the last 10 s of ECG, and live ECG on request from the dashboard through the fixed path. The button stays as a manual alert. Plan: `docs/iterations/iteration-5-ecg-on-demand.md`. (Changed on 2026-11-06, when the earlier Iteration 5 work moved to Iteration 7; on 2026-11-26 the ADS1292 replaced the AD8232 and the edge model moved back in.)
 - **Iteration 6 (end of FYP-1):** relay app and envelope, dashboard, integrated baseline validation of both routes.
-- **Iteration 7 (in parallel with 5 and 6):** ECG evaluation on patient-level splits (teacher/student candidates), edge model on the device, gateway classifier and uplink integration, IDS/IPS on the gateway with overhead measurements, and the attack-test module. FYP-1 Final needs IDS/IPS, so Iteration 7 must finish by then or the milestone moves (`gaps.md`).
+- **Iteration 7 (in parallel with 5 and 6):** ECG evaluation on patient-level splits (teacher/student candidates), training of the edge model (deployed on the device in Iteration 5 since 2026-11-26), gateway classifier and uplink integration, IDS/IPS on the gateway with overhead measurements, and the attack-test module. FYP-1 Final needs IDS/IPS, so Iteration 7 must finish by then or the milestone moves (`gaps.md`).
 
 **Milestones:**
 - **FYP-1 Mid (Week 8):** model baselines, ECG acquisition, gateway transport, dashboard prototype, requirements/design. Partly reached; secure provisioning delivered in addition.

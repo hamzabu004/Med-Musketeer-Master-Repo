@@ -55,12 +55,13 @@ The CA tool uses `~/.ssh/known_hosts`; back it up first.
 3. Connect; the OLED shows `ENTER PASSKEY` and six digits; enter them on the phone.
 4. Send the Pi hotspot SSID/password and `broker_host` 10.42.0.1, `broker_port` 8883.
    Expected: device acknowledges; serial log shows the settings saved, Wi-Fi connected, and
-   `MQTT REACHABLE` on the OLED.
+   `MQTT REACHABLE` on the OLED's gateway page (page 4; since 2026-11-26 every page's header
+   circle is filled once connected).
 
 ## H-P07 — Reboot after provisioning (TC-P07)
 
 Power-cycle the board without touching the phone. Expected: rejoins Wi-Fi and reaches
-`MQTT REACHABLE`; the Pi sees a retained `online` on `mm/fixed/<id>/status`, and `mm/fixed/<id>/alert`
+`MQTT REACHABLE` (OLED page 4, or the filled header circle); the Pi sees a retained `online` on `mm/fixed/<id>/status`, and `mm/fixed/<id>/alert`
 after a button press (`mosquitto_sub` on the services listener).
 
 ## H-P08 — Invalid or damaged QR code (TC-P08)
@@ -107,9 +108,9 @@ Record any difference between the Pi configuration and the container one.
 
 **Blocked: the Pi is not available.**
 
-1. Flash the Iteration 2 firmware (button on the GPIO set in menuconfig, default 4, to GND) and provision it with the `MM-WR-` app build; wait for `MQTT REACHABLE`.
+1. Flash the firmware (button on the GPIO set in menuconfig, default 21, to GND) and provision it with the `MM-WR-` app build; wait for the filled header circle (`MQTT REACHABLE` on page 4).
 2. On the Pi: `mosquitto_sub -h 127.0.0.1 -u gw_services -P "$PI_GW_SERVICES_PASS" -v -t 'mm/fixed/+/#' | tee capture.txt`.
-3. Press the button three times, at least 2 s apart. Expected: the OLED shows `ALERT SENT` with `SEQ 0`, `1`, `2`; three alerts arrive.
+3. Press the button three times, at least 2 s apart. Expected: the OLED shows `ALERT SENT` with `SEQ 0`, `1`, `2`; three alerts arrive. Since 2026-11-26 they carry the last 10 s of ECG (500 SPS, lead `II`, model `button-0`) once the wearable has sampled 10 s, and the synthetic 3 s trace before that. Model alerts (H-W08) share the same `seq`.
 4. On the laptop: `cloud/backend/.venv/bin/python firmware/wearable/tools/check_capture.py capture.txt --device-id $ESP_ID`. Expected: `errors: 0`.
 5. Press twice within 2 s. Expected: one alert only.
 
@@ -131,6 +132,37 @@ Keep `capture.txt` and the serial log as evidence.
 1. With the board connected, stop the broker (`sudo systemctl stop mosquitto`) and wait for `MQTT DISCONNECTED`.
 2. Press the button. Expected: the OLED shows `ALERT DROPPED` / `NOT CONNECTED`; the serial log says the alert was dropped.
 3. Start the broker. Expected: after the reconnect, no alert is sent until the button is pressed again; the next alert's `seq` follows the last one sent.
+
+## H-W04 — ADS1292 sampling (Iteration 5)
+
+Needs the ADS1292 wired as in the firmware README (D-16) and electrodes in lead II, or an ECG simulator. The Pi is needed only for the last step.
+
+1. Flash with **Print ECG samples to the serial log** on and open `idf.py monitor`. Expected at boot: `ecg_ads1292: ADS1292 (ID 0x53) configured`, and no register read-back error. A wrong ID or read-back points at the wiring (DIN/DOUT swapped, CLKSEL low, a 5 V module).
+2. Leave it running 3 minutes with Wi-Fi and MQTT up. Expected: each `ecg_sampler` minute line shows 29 850 to 30 150 samples (500 SPS ±0.5 %) and `0 lost`.
+3. Plot a few `ECG_DUMP` lines (each is 1 s at 200 counts/mV). Expected: a recognisable ECG, R waves of roughly 0.5 to 2 mV, a baseline that settles within a few seconds.
+4. Pull one electrode. Expected: `LEADS OFF` on the OLED within a second and `lo=` above 0 in the dump; put it back and `ECG READY` returns.
+
+Keep the serial log and the plot as evidence.
+
+## H-W08 — The on-device model (Iteration 5)
+
+1. With the set-up of H-W04 on a person at rest (or a simulator's normal sinus rhythm), watch the `edge_model` minute lines for 5 minutes. Expected: the beat count matches the heart rate (count the pulse, or the simulator's rate), nearly all beats `N`, no `Alert:` line. Record `slowest inference` and the lowest `free heap`.
+2. With a simulator producing PVCs (for example one in four beats), expected: `V` beats in the minute line and an `Alert:` line; the OLED shows `ECG ALERT SENT` / `V BEATS nn%`. Without a simulator, build with the SYNTH front end to check the plumbing only: SYNTH beats should all be `N`.
+3. On the Pi, capture as in H-W01 and run `check_capture.py`. Expected: `errors: 0`; the model alert has `fs_hz` 500, `n_samples` 5000, `lead` `II`, `screening.model` `farag-1dcnn-p1best-int8-s0`.
+4. Expected: no second model alert within 60 s of the first.
+
+Keep the serial log and the capture as evidence.
+
+## H-W09 — OLED pages and the menu button
+
+Needs the menu button between GPIO 14 and GND.
+
+1. Provision the board (or boot one that is). Expected: after the pairing screens, `1/4 ECG` with the live trace; the header shows the heart rate and beat class once beats are classified, and `LEADS OFF` with an electrode pulled.
+2. Press the menu button four times. Expected: `2/4 BENCHMARKS` (RAM, flash, a CPU load per core that changes from second to second, the model's inference time once beats are classified, `CURRENT NO SENSOR`), `3/4 LOG` (the newest events at local time, starting with `BOOT`, `WIFI CONNECTED`, `CLOCK SYNCED`, `MQTT CONNECTED`), `4/4 GATEWAY` (network name, signal in dBm, IP address, `MQTT REACHABLE`, broker address), then `1/4 ECG` again. One page per press, even when pressed quickly.
+3. Stop the broker on the Pi. Expected: `MQTT DISCONNECTED` over the page for 3 s, then the page again with a hollow header circle; page 4 shows `MQTT DISCONNECTED`. Start the broker: the circle fills again.
+4. Pull an electrode and put it back, and press the alert button. Expected on the log page: `LEADS OFF`, `LEADS ON`, `BTN ALERT SENT`, newest first, at most 5 lines. Record the benchmarks page (RAM, flash, CPU, inference time) as evidence for H-W08.
+5. Press the alert button, then the menu button within 3 s. Expected: the menu press dismisses `ALERT SENT` and shows the same page, without moving to the next one.
+6. Connect the provisioning app again. Expected: the passkey screen stays while the menu button is pressed.
 
 ## H-B06 — Revocation list on the Pi (TC-B05 to TC-B08)
 

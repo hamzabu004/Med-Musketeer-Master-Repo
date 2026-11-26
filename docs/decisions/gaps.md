@@ -47,7 +47,8 @@ Last updated: 2026-10-30
 - Model choice: the base-paper method (LightGBM, 72–77% patient-level) is dropped; the teacher/student candidates (classical ML search; 1D-CNN, RNN, LSTM, KAN-Former) are evaluated in Iteration 7 (moved from Iteration 2 to 5 on 2026-10-30, and to 7 on 2026-11-06); no teacher has reached the 95% lock threshold yet
 - Signal preprocessing: the wearable samples at 500 SPS (Iteration 5, D-1) while MIT-BIH is 360 Hz, so the classifier resamples; window length, input unit (samples, beats or seconds), filtering and segmentation
 - Whether the gateway multiclass model and the cloud multiclass model (mobile path) are the same model redeployed or separately tuned for different compute budgets
-- **Hardware:** the ADS1292 digital front end has been requested from the lab and not received; the firmware sampling path must be re-checked against it on arrival. Until then only the AD8232 (testing only)
+- **Hardware:** the ADS1292 arrived on 2026-11-26 and the firmware reads it (Iteration 5, D-2). Not yet checked on the board: the sampling rate and lost frames, the noise with Wi-Fi on, the lead-off detection (H-W04), and the on-device model on a person (H-W08)
+- **Edge model on real signals:** the 1D-CNN was trained and tested on MIT-BIH MLII only. Its accuracy on the wearable's lead II through the ADS1292, with motion and electrode noise, is unmeasured; the 3-of-10 alert rule (Iteration 5, D-14) is a guess to be tuned on recordings
 
 ## IDS/IPS
 - **Schedule risk:** IDS/IPS moved from Iteration 5 to the parallel Iteration 7 on 2026-11-06. The FYP-1 Final milestone (`scope.md`) needs it; review the milestone when Iteration 7 is planned
