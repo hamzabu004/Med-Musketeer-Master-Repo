@@ -104,6 +104,8 @@ Done once on a new VM, before the stack (2026-11-04):
 
 Check after a reboot that the volume is mounted and all services are healthy.
 
+Moving the stack to another server or provider: `cloud-migration.md`.
+
 ## EMQX gateway listener
 
 Gateways connect with mutual TLS on port 8883 (`docs/decisions/cloud-backend.md` D1, D4, D5, D13). The listener needs the cloud server certificate from the CA tool; until it is installed, EMQX runs with the listener off and logs a warning.
