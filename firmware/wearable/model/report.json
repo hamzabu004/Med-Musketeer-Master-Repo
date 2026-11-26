@@ -1,0 +1,647 @@
+{
+ "deploy_seed": 0,
+ "seeds": {
+  "0": {
+   "params": 1267,
+   "keras": {
+    "acc": 97.45,
+    "macro_f1": 89.7,
+    "bal_acc": 92.0,
+    "macro_ppv": 87.88,
+    "se_N": 98.26,
+    "ppv_N": 99.02,
+    "se_S": 83.4,
+    "ppv_S": 68.64,
+    "se_V": 94.35,
+    "ppv_V": 95.99,
+    "cm": [
+     [
+      43488,
+      670,
+      101
+     ],
+     [
+      279,
+      1532,
+      26
+     ],
+     [
+      152,
+      30,
+      3039
+     ]
+    ]
+   },
+   "float32": {
+    "acc": 97.45,
+    "macro_f1": 89.7,
+    "bal_acc": 92.0,
+    "macro_ppv": 87.88,
+    "se_N": 98.26,
+    "ppv_N": 99.02,
+    "se_S": 83.4,
+    "ppv_S": 68.64,
+    "se_V": 94.35,
+    "ppv_V": 95.99,
+    "cm": [
+     [
+      43488,
+      670,
+      101
+     ],
+     [
+      279,
+      1532,
+      26
+     ],
+     [
+      152,
+      30,
+      3039
+     ]
+    ]
+   },
+   "int8_ptq": {
+    "acc": 97.34,
+    "macro_f1": 89.45,
+    "bal_acc": 92.37,
+    "macro_ppv": 87.22,
+    "se_N": 98.08,
+    "ppv_N": 99.08,
+    "se_S": 84.49,
+    "ppv_S": 66.75,
+    "se_V": 94.54,
+    "ppv_V": 95.85,
+    "cm": [
+     [
+      43410,
+      742,
+      107
+     ],
+     [
+      260,
+      1552,
+      25
+     ],
+     [
+      145,
+      31,
+      3045
+     ]
+    ]
+   },
+   "int8_agree_keras_pct": 99.7,
+   "float32_bytes": 11372,
+   "int8_bytes": 10816,
+   "int8_memory": {
+    "n_ops": 15,
+    "op_types": [
+     "CONCATENATION",
+     "CONV_2D",
+     "DELEGATE",
+     "FULLY_CONNECTED",
+     "QUANTIZE",
+     "REDUCE_MAX",
+     "RESHAPE",
+     "SOFTMAX",
+     "TANH"
+    ],
+    "activ_sum_bytes": 3268,
+    "activ_peak_bytes": 1476,
+    "const_tensor_bytes": 1485,
+    "n_tensors": 31
+   },
+   "int8_host_latency_us_per_beat": 113.0
+  },
+  "1": {
+   "params": 1267,
+   "keras": {
+    "acc": 97.79,
+    "macro_f1": 90.8,
+    "bal_acc": 91.86,
+    "macro_ppv": 89.85,
+    "se_N": 98.67,
+    "ppv_N": 99.0,
+    "se_S": 82.36,
+    "ppv_S": 75.54,
+    "se_V": 94.54,
+    "ppv_V": 95.01,
+    "cm": [
+     [
+      43669,
+      470,
+      120
+     ],
+     [
+      284,
+      1513,
+      40
+     ],
+     [
+      156,
+      20,
+      3045
+     ]
+    ]
+   },
+   "float32": {
+    "acc": 97.79,
+    "macro_f1": 90.8,
+    "bal_acc": 91.86,
+    "macro_ppv": 89.85,
+    "se_N": 98.67,
+    "ppv_N": 99.0,
+    "se_S": 82.36,
+    "ppv_S": 75.54,
+    "se_V": 94.54,
+    "ppv_V": 95.01,
+    "cm": [
+     [
+      43669,
+      470,
+      120
+     ],
+     [
+      284,
+      1513,
+      40
+     ],
+     [
+      156,
+      20,
+      3045
+     ]
+    ]
+   },
+   "int8_ptq": {
+    "acc": 97.85,
+    "macro_f1": 91.03,
+    "bal_acc": 91.77,
+    "macro_ppv": 90.34,
+    "se_N": 98.76,
+    "ppv_N": 98.98,
+    "se_S": 82.14,
+    "ppv_S": 76.83,
+    "se_V": 94.41,
+    "ppv_V": 95.21,
+    "cm": [
+     [
+      43708,
+      435,
+      116
+     ],
+     [
+      291,
+      1509,
+      37
+     ],
+     [
+      160,
+      20,
+      3041
+     ]
+    ]
+   },
+   "int8_agree_keras_pct": 99.763,
+   "float32_bytes": 11372,
+   "int8_bytes": 10816,
+   "int8_memory": {
+    "n_ops": 15,
+    "op_types": [
+     "CONCATENATION",
+     "CONV_2D",
+     "DELEGATE",
+     "FULLY_CONNECTED",
+     "QUANTIZE",
+     "REDUCE_MAX",
+     "RESHAPE",
+     "SOFTMAX",
+     "TANH"
+    ],
+    "activ_sum_bytes": 3268,
+    "activ_peak_bytes": 1476,
+    "const_tensor_bytes": 1485,
+    "n_tensors": 31
+   },
+   "int8_host_latency_us_per_beat": 107.2
+  },
+  "2": {
+   "params": 1267,
+   "keras": {
+    "acc": 97.76,
+    "macro_f1": 90.27,
+    "bal_acc": 90.04,
+    "macro_ppv": 90.52,
+    "se_N": 98.85,
+    "ppv_N": 98.81,
+    "se_S": 76.21,
+    "ppv_S": 79.28,
+    "se_V": 95.06,
+    "ppv_V": 93.47,
+    "cm": [
+     [
+      43749,
+      355,
+      155
+     ],
+     [
+      378,
+      1400,
+      59
+     ],
+     [
+      148,
+      11,
+      3062
+     ]
+    ]
+   },
+   "float32": {
+    "acc": 97.76,
+    "macro_f1": 90.27,
+    "bal_acc": 90.04,
+    "macro_ppv": 90.52,
+    "se_N": 98.85,
+    "ppv_N": 98.81,
+    "se_S": 76.21,
+    "ppv_S": 79.28,
+    "se_V": 95.06,
+    "ppv_V": 93.47,
+    "cm": [
+     [
+      43749,
+      355,
+      155
+     ],
+     [
+      378,
+      1400,
+      59
+     ],
+     [
+      148,
+      11,
+      3062
+     ]
+    ]
+   },
+   "int8_ptq": {
+    "acc": 97.76,
+    "macro_f1": 90.39,
+    "bal_acc": 90.63,
+    "macro_ppv": 90.16,
+    "se_N": 98.77,
+    "ppv_N": 98.9,
+    "se_S": 77.79,
+    "ppv_S": 78.09,
+    "se_V": 95.34,
+    "ppv_V": 93.49,
+    "cm": [
+     [
+      43714,
+      391,
+      154
+     ],
+     [
+      348,
+      1429,
+      60
+     ],
+     [
+      140,
+      10,
+      3071
+     ]
+    ]
+   },
+   "int8_agree_keras_pct": 99.722,
+   "float32_bytes": 11372,
+   "int8_bytes": 10816,
+   "int8_memory": {
+    "n_ops": 15,
+    "op_types": [
+     "CONCATENATION",
+     "CONV_2D",
+     "DELEGATE",
+     "FULLY_CONNECTED",
+     "QUANTIZE",
+     "REDUCE_MAX",
+     "RESHAPE",
+     "SOFTMAX",
+     "TANH"
+    ],
+    "activ_sum_bytes": 3268,
+    "activ_peak_bytes": 1476,
+    "const_tensor_bytes": 1485,
+    "n_tensors": 31
+   },
+   "int8_host_latency_us_per_beat": 110.3
+  },
+  "3": {
+   "params": 1267,
+   "keras": {
+    "acc": 96.91,
+    "macro_f1": 88.36,
+    "bal_acc": 92.7,
+    "macro_ppv": 85.33,
+    "se_N": 97.55,
+    "ppv_N": 99.11,
+    "se_S": 86.55,
+    "ppv_S": 62.33,
+    "se_V": 94.01,
+    "ppv_V": 94.57,
+    "cm": [
+     [
+      43175,
+      935,
+      149
+     ],
+     [
+      222,
+      1590,
+      25
+     ],
+     [
+      167,
+      26,
+      3028
+     ]
+    ]
+   },
+   "float32": {
+    "acc": 96.91,
+    "macro_f1": 88.36,
+    "bal_acc": 92.7,
+    "macro_ppv": 85.33,
+    "se_N": 97.55,
+    "ppv_N": 99.11,
+    "se_S": 86.55,
+    "ppv_S": 62.33,
+    "se_V": 94.01,
+    "ppv_V": 94.57,
+    "cm": [
+     [
+      43175,
+      935,
+      149
+     ],
+     [
+      222,
+      1590,
+      25
+     ],
+     [
+      167,
+      26,
+      3028
+     ]
+    ]
+   },
+   "int8_ptq": {
+    "acc": 96.88,
+    "macro_f1": 88.27,
+    "bal_acc": 92.7,
+    "macro_ppv": 85.21,
+    "se_N": 97.52,
+    "ppv_N": 99.11,
+    "se_S": 86.5,
+    "ppv_S": 62.0,
+    "se_V": 94.07,
+    "ppv_V": 94.51,
+    "cm": [
+     [
+      43160,
+      949,
+      150
+     ],
+     [
+      222,
+      1589,
+      26
+     ],
+     [
+      166,
+      25,
+      3030
+     ]
+    ]
+   },
+   "int8_agree_keras_pct": 99.692,
+   "float32_bytes": 11372,
+   "int8_bytes": 10816,
+   "int8_memory": {
+    "n_ops": 15,
+    "op_types": [
+     "CONCATENATION",
+     "CONV_2D",
+     "DELEGATE",
+     "FULLY_CONNECTED",
+     "QUANTIZE",
+     "REDUCE_MAX",
+     "RESHAPE",
+     "SOFTMAX",
+     "TANH"
+    ],
+    "activ_sum_bytes": 3268,
+    "activ_peak_bytes": 1476,
+    "const_tensor_bytes": 1485,
+    "n_tensors": 31
+   },
+   "int8_host_latency_us_per_beat": 107.2
+  },
+  "4": {
+   "params": 1267,
+   "keras": {
+    "acc": 97.41,
+    "macro_f1": 89.54,
+    "bal_acc": 91.34,
+    "macro_ppv": 87.93,
+    "se_N": 98.29,
+    "ppv_N": 98.95,
+    "se_S": 81.06,
+    "ppv_S": 71.93,
+    "se_V": 94.66,
+    "ppv_V": 92.9,
+    "cm": [
+     [
+      43504,
+      558,
+      197
+     ],
+     [
+      312,
+      1489,
+      36
+     ],
+     [
+      149,
+      23,
+      3049
+     ]
+    ]
+   },
+   "float32": {
+    "acc": 97.41,
+    "macro_f1": 89.54,
+    "bal_acc": 91.34,
+    "macro_ppv": 87.93,
+    "se_N": 98.29,
+    "ppv_N": 98.95,
+    "se_S": 81.06,
+    "ppv_S": 71.93,
+    "se_V": 94.66,
+    "ppv_V": 92.9,
+    "cm": [
+     [
+      43504,
+      558,
+      197
+     ],
+     [
+      312,
+      1489,
+      36
+     ],
+     [
+      149,
+      23,
+      3049
+     ]
+    ]
+   },
+   "int8_ptq": {
+    "acc": 97.46,
+    "macro_f1": 89.68,
+    "bal_acc": 91.26,
+    "macro_ppv": 88.26,
+    "se_N": 98.37,
+    "ppv_N": 98.93,
+    "se_S": 81.0,
+    "ppv_S": 72.48,
+    "se_V": 94.41,
+    "ppv_V": 93.37,
+    "cm": [
+     [
+      43537,
+      539,
+      183
+     ],
+     [
+      316,
+      1488,
+      33
+     ],
+     [
+      154,
+      26,
+      3041
+     ]
+    ]
+   },
+   "int8_agree_keras_pct": 99.736,
+   "float32_bytes": 11372,
+   "int8_bytes": 10816,
+   "int8_memory": {
+    "n_ops": 15,
+    "op_types": [
+     "CONCATENATION",
+     "CONV_2D",
+     "DELEGATE",
+     "FULLY_CONNECTED",
+     "QUANTIZE",
+     "REDUCE_MAX",
+     "RESHAPE",
+     "SOFTMAX",
+     "TANH"
+    ],
+    "activ_sum_bytes": 3268,
+    "activ_peak_bytes": 1476,
+    "const_tensor_bytes": 1485,
+    "n_tensors": 31
+   },
+   "int8_host_latency_us_per_beat": 105.6
+  }
+ },
+ "mean_of_seeds": {
+  "keras": {
+   "acc": 97.46,
+   "macro_f1": 89.73,
+   "bal_acc": 91.59,
+   "se_N": 98.32,
+   "se_S": 81.92,
+   "se_V": 94.52,
+   "ppv_S": 71.54,
+   "ppv_V": 94.39
+  },
+  "int8_ptq": {
+   "acc": 97.46,
+   "macro_f1": 89.76,
+   "bal_acc": 91.75,
+   "se_N": 98.3,
+   "se_S": 82.38,
+   "se_V": 94.55,
+   "ppv_S": 71.23,
+   "ppv_V": 94.49
+  }
+ },
+ "ensemble": {
+  "keras": {
+   "acc": 97.87,
+   "macro_f1": 91.2,
+   "bal_acc": 92.54,
+   "macro_ppv": 90.01,
+   "se_N": 98.65,
+   "ppv_N": 99.08,
+   "se_S": 83.78,
+   "ppv_S": 75.63,
+   "se_V": 95.19,
+   "ppv_V": 95.31,
+   "cm": [
+    [
+     43661,
+     481,
+     117
+    ],
+    [
+     264,
+     1539,
+     34
+    ],
+    [
+     140,
+     15,
+     3066
+    ]
+   ]
+  },
+  "int8": {
+   "acc": 97.81,
+   "macro_f1": 91.01,
+   "bal_acc": 92.61,
+   "macro_ppv": 89.61,
+   "se_N": 98.57,
+   "ppv_N": 99.09,
+   "se_S": 84.0,
+   "ppv_S": 74.33,
+   "se_V": 95.25,
+   "ppv_V": 95.4,
+   "cm": [
+    [
+     43626,
+     517,
+     116
+    ],
+    [
+     262,
+     1543,
+     32
+    ],
+    [
+     137,
+     16,
+     3068
+    ]
+   ]
+  }
+ }
+}

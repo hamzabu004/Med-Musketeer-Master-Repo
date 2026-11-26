@@ -1,0 +1,31 @@
+$ idf.py build   (ESP-IDF ESP-IDF v6.1, target esp32s3, default menuconfig: ADS1292, model on)
+Bootloader binary size 0x5280 bytes. 0x2d80 bytes (36%) free.
+medmusketeer_wearable.bin binary size 0x14fbf0 bytes. Smallest app partition is 0x1c0000 bytes. 0x70410 bytes (25%) free.
+Project build complete. To flash, run:
+
+$ idf.py size
+                            Memory Type Usage Summary                             
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code          │      1015046 │          │                │               │
+│    .text            │      1015046 │          │                │               │
+│ Flash Data          │       221832 │          │                │               │
+│    .rodata          │       221560 │          │                │               │
+│    .appdesc         │          256 │          │                │               │
+│    .tdata           │           16 │          │                │               │
+│ DIRAM               │       187766 │    54.94 │         153994 │        341760 │
+│    .text            │        99291 │    29.05 │                │               │
+│    .bss             │        65968 │     19.3 │                │               │
+│    .data            │        22507 │     6.59 │                │               │
+│ IRAM                │        16384 │    100.0 │              0 │         16384 │
+│    .text            │        15356 │    93.73 │                │               │
+│    .vectors         │         1028 │     6.27 │                │               │
+│ RTC SLOW            │           36 │     0.44 │           8156 │          8192 │
+│    .force_slow      │           36 │     0.44 │                │               │
+│ RTC FAST            │           24 │     0.29 │           8168 │          8192 │
+│    .rtc_reserved    │           24 │     0.29 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+
+$ idf.py build with synth.defaults: ok
+$ idf.py build with nomodel.defaults: ok

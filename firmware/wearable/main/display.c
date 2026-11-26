@@ -56,6 +56,9 @@ static const uint8_t *glyph(char c)
     case '.': { static const uint8_t g[5] = {0,0x60,0x60,0,0}; return g; }
     case ':': { static const uint8_t g[5] = {0,0x36,0x36,0,0}; return g; }
     case '/': { static const uint8_t g[5] = {0x20,0x10,0x08,0x04,0x02}; return g; }
+    case '%': { static const uint8_t g[5] = {0x23,0x13,0x08,0x64,0x62}; return g; }
+    case '+': { static const uint8_t g[5] = {0x08,0x08,0x3e,0x08,0x08}; return g; }
+    case '>': { static const uint8_t g[5] = {0x00,0x41,0x22,0x14,0x08}; return g; }
     default: return question;
     }
 }
@@ -135,13 +138,57 @@ esp_err_t display_init(void)
     return ESP_OK;
 }
 
+static void draw_lines(const char *const lines[6])
+{
+    memset(framebuffer, 0, sizeof(framebuffer));
+    for (size_t i = 0; i < 6; ++i) draw_text(2, (int)i * 10 + 1, lines[i]);
+    flush();
+}
+
 void display_show_text(const char *line1, const char *line2, const char *line3,
                        const char *line4, const char *line5, const char *line6)
 {
-    const char *lines[] = {line1, line2, line3, line4, line5, line6};
+    const char *const lines[] = {line1, line2, line3, line4, line5, line6};
     if (!display_mutex || xSemaphoreTake(display_mutex, portMAX_DELAY) != pdTRUE) return;
+    draw_lines(lines);
+    xSemaphoreGive(display_mutex);
+}
+
+/* The page header: the title on the left, a link icon on the right (filled: connected to the
+ * gateway, hollow: not), and a rule under both. */
+static void draw_header(const char *title, bool online)
+{
     memset(framebuffer, 0, sizeof(framebuffer));
-    for (size_t i = 0; i < 6; ++i) draw_text(2, (int)i * 10 + 1, lines[i]);
+    draw_text(2, 1, title);
+    for (int dy = -3; dy <= 3; ++dy) {
+        for (int dx = -3; dx <= 3; ++dx) {
+            const int d2 = dx * dx + dy * dy;
+            if (d2 <= 10 && (online || d2 >= 5)) pixel_set(OLED_WIDTH - 5 + dx, 4 + dy, true);
+        }
+    }
+    for (int x = 0; x < OLED_WIDTH; ++x) pixel_set(x, DISPLAY_PAGE_RULE, true);
+}
+
+void display_show_page(const char *title, bool online, const char *const lines[DISPLAY_PAGE_LINES])
+{
+    if (!display_mutex || xSemaphoreTake(display_mutex, portMAX_DELAY) != pdTRUE) return;
+    draw_header(title, online);
+    for (int i = 0; i < DISPLAY_PAGE_LINES; ++i) draw_text(2, DISPLAY_PAGE_RULE + 3 + i * 10, lines[i]);
+    flush();
+    xSemaphoreGive(display_mutex);
+}
+
+void display_show_trace_page(const char *title, bool online,
+                             const uint8_t top[DISPLAY_TRACE_COLUMNS],
+                             const uint8_t bottom[DISPLAY_TRACE_COLUMNS])
+{
+    if (!display_mutex || xSemaphoreTake(display_mutex, portMAX_DELAY) != pdTRUE) return;
+    draw_header(title, online);
+    for (int x = 0; x < DISPLAY_TRACE_COLUMNS && x < OLED_WIDTH; ++x) {
+        for (int y = top[x]; y <= bottom[x] && y < DISPLAY_TRACE_ROWS; ++y) {
+            pixel_set(x, DISPLAY_TRACE_TOP + y, true);
+        }
+    }
     flush();
     xSemaphoreGive(display_mutex);
 }

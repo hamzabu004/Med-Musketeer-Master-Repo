@@ -38,14 +38,20 @@ container that stands in for the Pi; **H** needs the ESP32-S3, phone, or Pi (see
 
 ## Wearable firmware (Iteration 2)
 
-Automated tests: `firmware/wearable/tools/test_check_capture.py`, run with the cloud backend's environment (`cloud/backend/.venv/bin/python -m pytest firmware/wearable/tools`) and in the `payload` job of `.github/workflows/firmware.yml`. **A-host**: the firmware's own C source built and run on the development machine with stand-ins for the ESP-IDF calls.
+Automated tests: `firmware/wearable/tools/test_check_capture.py`, `test_ecg_convert.py` and `test_ecg_beats.py`, run with the cloud backend's environment (`cloud/backend/.venv/bin/python -m pytest firmware/wearable/tools`) and in the `payload` job of `.github/workflows/firmware.yml`. **A-host**: the firmware's own C source built and run on the development machine with stand-ins for the ESP-IDF calls.
 
 | ID | Kind | Tests | Notes |
 |---|---|---|---|
-| TC-W01 | A-host + H | `test_check_capture::test_tc_w01_*` | `main/alert.c` built on the host; its alerts pass alert-payload-v1 (`cloud/backend/app/contracts.py`) and fit the 4096-byte MQTT buffer. Pi: H-W01, blocked (Pi not available). |
+| TC-W01 | A-host + H | `test_check_capture::test_tc_w01_*` | `main/alert.c` built on the host; its alerts pass alert-payload-v1 (`cloud/backend/app/contracts.py`): the button's synthetic fallback, and (since 2026-11-26) a model alert with a 10 s segment at 500 SPS, lead II, its samples decoded back, within the 16 KB MQTT output buffer. Pi: H-W01, blocked (Pi not available). |
 | TC-W02 | H | H-W02 | Retained `online` on connect, Last Will `offline`. Blocked (Pi not available). |
 | TC-W03 | H | H-W03 | A press while disconnected is dropped, not queued. Blocked (Pi not available). |
 | TC-W04 | A | `test_check_capture::test_tc_w04_*` | The capture checker refuses what ingestion would (the old test alert, a wrong sample count, unknown topics), a wearable status with `revocation_version`, another device's topic, seq gaps, repeated `msg_id`, and `segment_start` after `sent_at`. A reboot's `seq` 0 is accepted. |
+| TC-W07 | A-host | `test_ecg_convert::test_tc_w07_*` | Iteration 5. `main/ecg_convert.c` (ADS1292, since 2026-11-26) built on the host: frame parsing and the status header, 24-bit sign extension, the channel 1 lead-off bits, codes to µV (full scale ±403 mV at 2.42 V and gain 6), the DC blocker (a 300 mV offset removed, 10 Hz passed, −3 dB at 0.5 Hz), µV to counts at 200 counts/mV with rounding and the int16 clamp, and the leads-off count. |
+| TC-W08 | A-host | `test_ecg_beats::test_tc_w08_*` | Iteration 5. `main/ecg_beats.c` built on the host. Synthetic: beats found within one 128 Hz sample, the window equal to the trace at 128 Hz, the RR features against their definition, the reset on leads off, no beats from a flat signal. MIT-BIH DS2, when `MM_MITDB_DIR`, numpy, scipy and `ai_edge_litert` are present (not in CI): detection Se 99.76 %, PPV 99.74 %; the INT8 model on the found beats 97.45 % accuracy, 89.78 % macro-F1 (2026-11-26). |
+| TC-W09 | A-host | `test_ecg_beats::test_tc_w09_*` | Iteration 5. `main/edge_rule.c`: 3 of 10 S/V beats alert once, 2 of 10 do not, old beats leave the window, the 60 s cooldown, the label, clearing. |
+| H-W04 | H | `hardware_test_procedures.md` | Iteration 5. ADS1292 at 500 SPS ±0.5 % with no lost frames, a visible ECG, `LEADS OFF`. Not run yet. |
+| H-W09 | H | `hardware_test_procedures.md` | The OLED pages: the menu button steps through 1 ECG, 2 benchmarks, 3 log, 4 gateway; messages over a page and their dismissal; the link circle; pairing screens ignore the button. Not run yet. |
+| H-W08 | H | `hardware_test_procedures.md` | Iteration 5. The model on the board: beats, heart rate, no alert at rest, inference time and free heap; a model alert passing `check_capture.py`. Not run yet. |
 
 ## Cloud backend (Iteration 3)
 

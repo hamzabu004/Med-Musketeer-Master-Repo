@@ -1,0 +1,31 @@
+$ MM_MITDB_DIR=<MIT-BIH Arrhythmia Database, 48 records> python -m pytest firmware/wearable/tools/test_ecg_beats.py -v -s   (a venv with numpy 2, scipy, ai-edge-litert, pytest)
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0 -- <scratch venv>/bin/python
+rootdir: <repo>
+collecting ... collected 13 items
+
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_finds_every_beat_at_its_r_peak PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_window_is_the_signal_at_128_hz PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_rr_features PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_leads_off_resets_and_detection_resumes PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_flat_signal_gives_no_beats PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_mitdb_detection DS2 detection: Se 99.76 %, PPV 99.74 %, R within one 128 Hz sample 96.4 %
+PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w08_mitdb_classification INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+DS2 on device pipeline: 49118 beats, accuracy 97.45 %, macro-F1 89.78 %, Se N/S/V 98.09/84.79/95.73 %, PPV S/V 68.19/94.51 %
+[[43297   696   147]
+ [  247  1539    29]
+ [  113    22  3028]]
+PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_three_of_ten_raises_one_alert PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_two_of_ten_is_not_enough PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_abnormal_beats_age_out_of_the_window PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_cooldown PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_label_is_the_more_frequent_class PASSED
+firmware/wearable/tools/test_ecg_beats.py::test_tc_w09_clear_forgets_the_window PASSED
+
+============================= 13 passed in 10.92s ==============================
+ai-edge-litert==2.4.0
+numpy==2.5.5
+pytest==9.2.0
+scipy==1.18.1

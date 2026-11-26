@@ -32,30 +32,123 @@ config WEARABLE_ALERT_BUTTON_GPIO
     range 0 48
     default 21
     help
-        A press publishes one alert with a synthetic ECG segment. It stands in for the on-device
-        model until Iteration 5.
+        A press publishes one manual alert with the last 10 s of ECG (a synthetic trace while
+        fewer than 10 s have been sampled). The on-device model raises its own alerts.
 
-config WEARABLE_ECG_OUTPUT_GPIO
-    int "AD8232 OUTPUT GPIO (ADC1: GPIO 1-10)"
-    range 1 10
-    default 2
+config WEARABLE_MENU_BUTTON_GPIO
+    int "Menu push button GPIO (active low, internal pull-up)"
+    range 0 48
+    default 14
     help
-        Analog ECG signal. Must be an ADC1 pin, because ADC2 is shared with Wi-Fi.
-        The firmware does not sample the AD8232 until Iteration 5.
+        Each press shows the next OLED page: 1 ECG, 2 benchmarks, 3 log, 4 gateway, then 1
+        again. A press while a message is shown dismisses it. Pairing screens ignore it.
 
-config WEARABLE_ECG_LO_PLUS_GPIO
-    int "AD8232 LO+ (leads-off detect) GPIO"
+config WEARABLE_TIMEZONE
+    string "Time zone for the OLED's log page (POSIX TZ)"
+    default "PKT-5"
+    help
+        Pakistan Standard Time (UTC+5) by default. POSIX writes the offset with the
+        opposite sign: "PKT-5" is five hours ahead of UTC.
+
+choice WEARABLE_ECG_FRONTEND
+    prompt "ECG front end"
+    default WEARABLE_ECG_FRONTEND_ADS1292
+    help
+        Where the always-on sampler reads ECG from. Every front end gives 500 SPS int16
+        samples at a stated counts per mV, so the stream and the contracts do not change.
+
+config WEARABLE_ECG_FRONTEND_ADS1292
+    bool "ADS1292 (SPI)"
+
+config WEARABLE_ECG_FRONTEND_SYNTH
+    bool "Synthetic trace (bench runs without electrodes)"
+
+endchoice
+
+menu "ADS1292 pins"
+    depends on WEARABLE_ECG_FRONTEND_ADS1292
+
+config WEARABLE_ECG_SPI_SCLK_GPIO
+    int "SCLK GPIO"
     range 0 48
-    default 15
+    default 12
+    help
+        GPIO 10-13 are the ESP32-S3's IO MUX pins for SPI2 (FSPI).
 
-config WEARABLE_ECG_LO_MINUS_GPIO
-    int "AD8232 LO- (leads-off detect) GPIO"
+config WEARABLE_ECG_SPI_MOSI_GPIO
+    int "DIN (MOSI) GPIO"
     range 0 48
-    default 38
+    default 11
 
-config WEARABLE_ECG_SDN_GPIO
-    int "AD8232 SDN (shutdown, active low) GPIO"
+config WEARABLE_ECG_SPI_MISO_GPIO
+    int "DOUT (MISO) GPIO"
+    range 0 48
+    default 13
+
+config WEARABLE_ECG_SPI_CS_GPIO
+    int "CS GPIO (active low)"
+    range 0 48
+    default 10
+
+config WEARABLE_ECG_DRDY_GPIO
+    int "DRDY GPIO (input, falls when a sample is ready)"
+    range 0 48
+    default 4
+
+config WEARABLE_ECG_START_GPIO
+    int "START GPIO (output)"
     range 0 48
     default 5
+
+config WEARABLE_ECG_PWDN_GPIO
+    int "PWDN/RESET GPIO (output, active low)"
+    range 0 48
+    default 6
+
+endmenu
+
+config WEARABLE_ECG_LEAD
+    string "ECG lead name"
+    default "II"
+    help
+        The lead the electrodes on channel 1 form, reported with each alert and recording.
+        Lead II (IN1N on the right arm, IN1P on the left leg, RLD on the right leg) is the
+        closest match to MIT-BIH MLII, which the on-device model was trained on.
+
+config WEARABLE_ECG_DEBUG_DUMP
+    bool "Print ECG samples to the serial log (debug)"
+    default n
+    help
+        Every 5 s, prints the last second of samples on one "ECG_DUMP" line, with how many
+        were taken with leads off, so the trace can be plotted from a serial capture.
+        For bench checks only.
+
+config WEARABLE_EDGE_MODEL
+    bool "On-device beat classifier (1D-CNN, TFLite Micro)"
+    default y
+    help
+        Detects each beat (Pan-Tompkins at 128 Hz), classifies it as N, S or V with the
+        INT8 1D-CNN in ecg_model/, and raises an alert when the rule below is met.
+
+config WEARABLE_EDGE_ALERT_WINDOW_BEATS
+    int "Alert rule: beats in the window"
+    depends on WEARABLE_EDGE_MODEL
+    range 1 32
+    default 10
+
+config WEARABLE_EDGE_ALERT_MIN_ABNORMAL
+    int "Alert rule: S or V beats in the window that raise an alert"
+    depends on WEARABLE_EDGE_MODEL
+    range 1 32
+    default 3
+    help
+        Must not exceed the window. A single S beat is right only about two times in three
+        on the MIT-BIH test set, so one beat alone is too noisy.
+
+config WEARABLE_EDGE_ALERT_COOLDOWN_S
+    int "Alert rule: seconds between model alerts"
+    depends on WEARABLE_EDGE_MODEL
+    range 0 3600
+    default 60
 
 endmenu
