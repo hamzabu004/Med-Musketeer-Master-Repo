@@ -1,5 +1,6 @@
 dependencies:
   espressif/cjson: "^1.7.19"
+  espressif/esp-tflite-micro: "^1.4.3"
   espressif/mqtt: "^1.1.0"
   espressif/qrcode: "^0.2.0"
   tny-robotics/sh1106-esp-idf: "^1.0.2"

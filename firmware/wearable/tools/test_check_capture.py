@@ -6,9 +6,12 @@ what ingestion would. Run with the cloud backend's environment:
 The host build needs gcc and cJSON's source: the ESP-IDF managed component after `idf.py build`,
 or a directory named by MM_CJSON_DIR (CI clones cJSON there). Without them that test is skipped.
 """
+import base64
 import json
+import math
 import os
 import shutil
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -49,11 +52,20 @@ def test_tc_w01_firmware_alert_passes_the_contract(tmp_path):
 
     report = check(lines, DEVICE)
     assert report.errors == []
-    assert report.counts == {"alert": 2, "status": 0}
+    assert report.counts == {"alert": 3, "status": 0}
     first = json.loads(lines[0].partition(" ")[2])
     assert (first["fs_hz"], first["n_samples"], first["lead"]) == (360, 1080, "SYNTH")
     assert first["screening"] == {"label": "abnormal", "confidence": 1, "model": "button-stub-0"}
-    assert len(lines[0]) < 4096 - 64, "must fit the firmware's 4096-byte MQTT buffer"
+
+    # A model alert: the last 10 s from the ADS1292, which the cloud stores as sent.
+    model = json.loads(lines[2].partition(" ")[2])
+    assert (model["fs_hz"], model["n_samples"], model["lead"]) == (500, 5000, "II")
+    assert model["screening"] == {"label": "V", "confidence": 0.875, "model": "farag-1dcnn-p1best-int8-s0"}
+    raw = base64.b64decode(model["samples"])
+    assert struct.unpack("<3h", raw[:6]) == tuple(round(30000 * math.sin(i * 0.37)) for i in range(3))
+    for payload_line in lines:
+        payload_bytes = len(payload_line.partition(" ")[2].encode())
+        assert payload_bytes < 16384 - 128, "must fit the firmware's 16 KB MQTT out buffer"
 
 
 def test_tc_w04_valid_capture_passes():

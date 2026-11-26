@@ -8,7 +8,11 @@
 
 #include "alert.h"
 #include "cJSON.h"
-#include "display.h"
+#include "ecg_classifier.h"
+#include "ecg_sampler.h"
+#include "edge_model.h"
+#include "elog.h"
+#include "ui.h"
 #include "driver/gpio.h"
 #include "esp_check.h"
 #include "esp_event.h"
@@ -61,10 +65,14 @@ static const char *TAG = "fixed_path";
 #define TLS_PEM_MAX_LEN 4096
 #define DEVICE_ID_MAX_LEN 64
 #define TOPIC_MAX_LEN 96
-#define MQTT_BUFFER_SIZE 4096 /* an alert is about 3.2 KB; the default buffer is 1 KB */
+#define MQTT_BUFFER_SIZE 4096      /* incoming messages; the default is 1 KB */
+#define MQTT_OUT_BUFFER_SIZE 16384 /* an alert with 10 s at 500 SPS is about 13.8 KB */
+#define ALERT_BUTTON (1u << 0)     /* alert task notification bits */
+#define ALERT_MODEL (1u << 1)
 #define BUTTON_DEBOUNCE_MS 50
 #define BUTTON_COOLDOWN_MS 2000
 #define ALERT_SCREEN_MS 3000 /* how long an alert result stays on the OLED */
+#define MESSAGE_MS 3000 /* how long a connection or settings message stays over the page */
 #define STATUS_ONLINE "{\"v\":1,\"state\":\"online\"}"
 #define STATUS_OFFLINE "{\"v\":1,\"state\":\"offline\"}"
 #define CLOCK_VALID_AFTER 1704067200
@@ -208,7 +216,7 @@ static int config_characteristic_access(uint16_t conn_handle, uint16_t attr_hand
 
     uint16_t length = OS_MBUF_PKTLEN(ctxt->om);
     if (length == 0 || length >= CONFIG_JSON_MAX_LEN) {
-        display_show_text("INVALID SETTINGS", "PAYLOAD SIZE", "", "", "", "");
+        ui_message("INVALID SETTINGS", "PAYLOAD SIZE", "", "", "", "", MESSAGE_MS);
         return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
     }
     uint8_t payload[CONFIG_JSON_MAX_LEN];
@@ -217,16 +225,15 @@ static int config_characteristic_access(uint16_t conn_handle, uint16_t attr_hand
     network_request_t request = {0};
     if (!parse_provisioning_json(payload, length, &request)) {
         ESP_LOGW(TAG, "Rejected invalid BLE provisioning payload");
-        display_show_text("INVALID SETTINGS", "CHECK APP VALUES", "", "", "", "");
+        ui_message("INVALID SETTINGS", "CHECK APP VALUES", "", "", "", "", MESSAGE_MS);
         return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
     }
 
     if (xQueueOverwrite(config_queue, &request) != pdPASS) return BLE_ATT_ERR_UNLIKELY;
     if (request.type == NETWORK_REQUEST_CLEAR_WIFI) {
-        display_show_text("WIFI CLEAR REQUEST", "PROCESSING...", "", "", "", "");
+        ui_message("WIFI CLEAR REQUEST", "PROCESSING...", "", "", "", "", MESSAGE_MS);
     } else {
-        display_show_text("SETTINGS RECEIVED", "CONNECTING WIFI", request.config.ssid,
-                          "", "", "");
+        ui_message("SETTINGS RECEIVED", "CONNECTING WIFI", request.config.ssid, "", "", "", MESSAGE_MS);
     }
     return 0;
 }
@@ -254,20 +261,22 @@ static int gap_event_handler(struct ble_gap_event *event, void *arg)
     switch (event->type) {
     case BLE_GAP_EVENT_CONNECT:
         if (event->connect.status == 0) {
-            display_show_text("PHONE CONNECTED", "PAIRING...", "", "", "", "");
+            ui_message("PHONE CONNECTED", "PAIRING...", "", "", "", "", 0);
             (void)ble_gap_security_initiate(event->connect.conn_handle);
         } else {
             start_advertising();
         }
         return 0;
     case BLE_GAP_EVENT_DISCONNECT:
-        if (strlen(device_name) > 0) {
+        if (wifi_configured) {
+            ui_home(); /* back to the pages; pairing again is only needed to change settings */
+        } else if (strlen(device_name) > 0) {
             char payload[64];
             snprintf(payload, sizeof(payload), "%s|7A2E00012B3C4D5E8F90123456789ABC",
                      device_name);
             esp_qrcode_config_t cfg = ESP_QRCODE_CONFIG_DEFAULT();
             cfg.max_qrcode_version = 4;
-            cfg.display_func = display_show_qr;
+            cfg.display_func = ui_qr;
             ESP_ERROR_CHECK(esp_qrcode_generate(&cfg, payload));
         }
         start_advertising();
@@ -279,7 +288,7 @@ static int gap_event_handler(struct ble_gap_event *event, void *arg)
             io.passkey = esp_random() % 1000000;
             char passkey[7];
             snprintf(passkey, sizeof(passkey), "%06" PRIu32, io.passkey);
-            display_show_text("ENTER PASSKEY", "ON YOUR PHONE", "", passkey, "", "");
+            ui_message("ENTER PASSKEY", "ON YOUR PHONE", "", passkey, "", "", 0);
             ESP_LOGI(TAG, "BLE passkey displayed on OLED");
             return ble_sm_inject_io(event->passkey.conn_handle, &io);
         }
@@ -287,7 +296,7 @@ static int gap_event_handler(struct ble_gap_event *event, void *arg)
     }
     case BLE_GAP_EVENT_ENC_CHANGE:
         if (event->enc_change.status == 0) {
-            display_show_text("PHONE PAIRED", "SEND WIFI DATA", "", "", "", "");
+            ui_message("PHONE PAIRED", "SEND WIFI DATA", "", "", "", "", 0);
         }
         return 0;
     case BLE_GAP_EVENT_REPEAT_PAIRING: {
@@ -364,7 +373,7 @@ static void start_ble_provisioning(void)
     esp_qrcode_config_t qr_config = ESP_QRCODE_CONFIG_DEFAULT();
     qr_config.max_qrcode_version = 4;
     qr_config.qrcode_ecc_level = ESP_QRCODE_ECC_LOW;
-    qr_config.display_func = display_show_qr;
+    qr_config.display_func = ui_qr;
     ESP_ERROR_CHECK(esp_qrcode_generate(&qr_config, qr_payload));
 
     ESP_ERROR_CHECK(nimble_port_init());
@@ -529,6 +538,54 @@ static esp_err_t clear_saved_wifi_credentials(void)
     return err;
 }
 
+/* What the OLED's gateway page shows (ui.c). */
+static portMUX_TYPE link_lock = portMUX_INITIALIZER_UNLOCKED;
+static char link_ssid[33];
+static char link_gateway[64];
+static char link_status[24];
+
+static void set_link(const char *ssid, const char *gateway, const char *status)
+{
+    taskENTER_CRITICAL(&link_lock);
+    if (ssid) strlcpy(link_ssid, ssid, sizeof(link_ssid));
+    if (gateway) strlcpy(link_gateway, gateway, sizeof(link_gateway));
+    if (status) strlcpy(link_status, status, sizeof(link_status));
+    taskEXIT_CRITICAL(&link_lock);
+}
+
+static void link_info(ui_link_t *out)
+{
+    out->wifi = wifi_has_ip;
+    out->mqtt = wifi_has_ip && mqtt_connected;
+    taskENTER_CRITICAL(&link_lock);
+    strlcpy(out->ssid, link_ssid, sizeof(out->ssid));
+    strlcpy(out->gateway, link_gateway, sizeof(out->gateway));
+    strlcpy(out->status, link_status, sizeof(out->status));
+    taskEXIT_CRITICAL(&link_lock);
+    if (!out->wifi) return;
+    wifi_ap_record_t ap;
+    if (esp_wifi_sta_get_ap_info(&ap) == ESP_OK) out->rssi = ap.rssi;
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    esp_netif_ip_info_t ip;
+    if (netif && esp_netif_get_ip_info(netif, &ip) == ESP_OK) {
+        snprintf(out->ip, sizeof(out->ip), IPSTR, IP2STR(&ip.ip));
+    }
+}
+
+/* A connection message: over the current page for a few seconds, and kept as the gateway
+ * page's status line. */
+static void show_network(const char *status, const char *l1, const char *l2, const char *l3)
+{
+    set_link(NULL, NULL, status);
+    ui_message(l1, l2, l3, "", "", "", MESSAGE_MS);
+}
+
+static void show_connected(void)
+{
+    set_link(NULL, NULL, "MQTT REACHABLE");
+    ui_home();
+}
+
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data)
 {
@@ -537,6 +594,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     esp_mqtt_event_handle_t event = event_data;
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
+        if (!mqtt_connected) elog_add("MQTT CONNECTED");
         mqtt_connected = true;
         ESP_LOGI(TAG, "MQTT broker accepted CONNECT (CONNACK received)");
         /* Retained, so the gateway learns presence on subscribe; the LWT replaces it on loss.
@@ -544,17 +602,19 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
         if (esp_mqtt_client_enqueue(event->client, status_topic, STATUS_ONLINE, 0, 1, 1, true) < 0) {
             ESP_LOGW(TAG, "Cannot queue the online status");
         }
-        if (wifi_has_ip) display_show_text("WIFI CONNECTED", "MQTT REACHABLE", "", "", "", "");
+        if (wifi_has_ip) show_connected();
         break;
     case MQTT_EVENT_ERROR:
+        if (mqtt_connected) elog_add("MQTT LOST");
         mqtt_connected = false;
         if (!wifi_has_ip) break;
         ESP_LOGW(TAG, "MQTT broker connection failed");
-        display_show_text("WIFI CONNECTED", "MQTT CHECK FAILED", "RETRYING...", "", "", "");
+        show_network("MQTT CHECK FAILED", "WIFI CONNECTED", "MQTT CHECK FAILED", "RETRYING...");
         break;
     case MQTT_EVENT_DISCONNECTED:
+        if (mqtt_connected) elog_add("MQTT LOST");
         mqtt_connected = false;
-        if (wifi_has_ip) display_show_text("WIFI CONNECTED", "MQTT DISCONNECTED", "RETRYING...", "", "", "");
+        if (wifi_has_ip) show_network("MQTT DISCONNECTED", "WIFI CONNECTED", "MQTT DISCONNECTED", "RETRYING...");
         break;
     default:
         break;
@@ -565,70 +625,146 @@ static void IRAM_ATTR alert_button_isr(void *arg)
 {
     (void)arg;
     BaseType_t woken = pdFALSE;
-    if (alert_task_handle) vTaskNotifyGiveFromISR(alert_task_handle, &woken);
+    if (alert_task_handle) xTaskNotifyFromISR(alert_task_handle, ALERT_BUTTON, eSetBits, &woken);
     portYIELD_FROM_ISR(woken);
 }
 
-/* One alert per button press. A press while MQTT is down is dropped: buffering waits for the
- * wearable buffer design (gaps.md). seq restarts at 0 on every boot.
- * The alert result stays on the OLED for ALERT_SCREEN_MS; then the connected screen returns. If
- * the connection dropped meanwhile, the network handlers' screen is left as it is. */
+/* The model's latest alert, handed from the model task to the alert task. */
+static portMUX_TYPE model_alert_lock = portMUX_INITIALIZER_UNLOCKED;
+static edge_alert_t model_alert;
+
+static void on_model_alert(const edge_alert_t *alert)
+{
+    taskENTER_CRITICAL(&model_alert_lock);
+    model_alert = *alert;
+    taskEXIT_CRITICAL(&model_alert_lock);
+    if (alert_task_handle) xTaskNotify(alert_task_handle, ALERT_MODEL, eSetBits);
+}
+
+/* The last ALERT_SEGMENT_S of ECG from the sampler, or false while fewer have been sampled or the
+ * sampler's clock is not anchored yet. */
+static bool ecg_segment(alert_segment_t *seg, const char *label, double confidence, const char *model)
+{
+    static int16_t samples[ALERT_SEGMENT_S * 500];
+    const ecg_frontend_t *fe = ecg_sampler_frontend();
+    if (!fe || ecg_sampler_state() == ECG_STATE_ERROR) return false;
+    const size_t n = (size_t)fe->fs_hz * ALERT_SEGMENT_S;
+    if (n > sizeof(samples) / sizeof(samples[0])) return false;
+    const uint64_t head = ecg_sampler_head();
+    if (head < n) return false;
+    const uint64_t first = head - n;
+    int64_t start_us;
+    if (ecg_sampler_copy(first, n, samples, NULL) != n || !ecg_sampler_time_us(first, &start_us)) {
+        return false;
+    }
+    *seg = (alert_segment_t){
+        .samples = samples,
+        .n_samples = n,
+        .fs_hz = fe->fs_hz,
+        .lead = fe->lead,
+        .start_us = start_us,
+        .label = label,
+        .confidence = confidence,
+        .model = model,
+    };
+    return true;
+}
+
+/* Publishes one alert; returns the MQTT message id, or -1. */
+static int publish_alert(uint64_t seq, const alert_segment_t *seg)
+{
+    char *payload = alert_build(seq, seg);
+    if (!payload) {
+        ESP_LOGE(TAG, "Cannot build the alert payload");
+        return -1;
+    }
+    int message_id = -1;
+    if (xSemaphoreTake(mqtt_client_mutex, portMAX_DELAY) == pdTRUE) {
+        if (mqtt_connected && wifi_has_ip && mqtt_client) {
+            message_id = esp_mqtt_client_publish(mqtt_client, alert_topic, payload, 0, 1, 0);
+        }
+        xSemaphoreGive(mqtt_client_mutex);
+    }
+    if (message_id >= 0) {
+        ESP_LOGI(TAG, "Published alert seq %" PRIu64 " (%s, %u samples at %u Hz, %u B) to %s (message id %d)",
+                 seq, seg ? seg->label : "button stub", (unsigned)(seg ? seg->n_samples : ALERT_N_SAMPLES),
+                 (unsigned)(seg ? seg->fs_hz : ALERT_FS_HZ), (unsigned)strlen(payload), alert_topic, message_id);
+    }
+    cJSON_free(payload);
+    return message_id;
+}
+
+/* One alert per button press, and one per model alert (edge_model.c). An alert while MQTT is down
+ * is dropped: buffering waits for the wearable buffer design (gaps.md). seq restarts at 0 on
+ * every boot. Both carry the last 10 s of ECG; a press before 10 s have been sampled carries the
+ * synthetic trace instead.
+ * The alert result stays on the OLED for ALERT_SCREEN_MS over the current page (ui.c). */
 static void alert_publish_task(void *arg)
 {
     (void)arg;
     uint64_t seq = 0;
-    bool restore_pending = false;
-    TickType_t restore_at = 0;
     for (;;) {
-        TickType_t wait = portMAX_DELAY;
-        if (restore_pending) {
-            const int32_t left = (int32_t)(restore_at - xTaskGetTickCount());
-            wait = left > 0 ? (TickType_t)left : 0;
+        uint32_t events = 0;
+        if (xTaskNotifyWait(0, ALERT_BUTTON | ALERT_MODEL, &events, portMAX_DELAY) != pdTRUE) continue;
+        bool button = false;
+        if (events & ALERT_BUTTON) {
+            vTaskDelay(pdMS_TO_TICKS(BUTTON_DEBOUNCE_MS));
+            button = gpio_get_level(CONFIG_WEARABLE_ALERT_BUTTON_GPIO) == 0; /* else a bounce */
         }
-        if (ulTaskNotifyTake(pdTRUE, wait) == 0) { /* no press before the alert screen timed out */
-            restore_pending = false;
-            if (mqtt_connected && wifi_has_ip) {
-                display_show_text("WIFI CONNECTED", "MQTT REACHABLE", "", "", "", "");
-            }
-            continue;
+        const bool model = (events & ALERT_MODEL) != 0;
+        if (!button && !model) continue;
+        edge_alert_t a = {0};
+        if (model) {
+            taskENTER_CRITICAL(&model_alert_lock);
+            a = model_alert;
+            taskEXIT_CRITICAL(&model_alert_lock);
         }
-        vTaskDelay(pdMS_TO_TICKS(BUTTON_DEBOUNCE_MS));
-        if (gpio_get_level(CONFIG_WEARABLE_ALERT_BUTTON_GPIO) != 0) continue; /* bounce */
 
         if (!mqtt_connected || !wifi_has_ip || !device_id[0] || !alert_topic[0]) {
-            ESP_LOGW(TAG, "Alert button pressed while not connected; alert dropped");
-            display_show_text("ALERT DROPPED", "NOT CONNECTED", "", "", "", "");
+            ESP_LOGW(TAG, "%s alert while not connected; dropped", model ? "Model" : "Button");
+            if (model) elog_add("ABNORMAL %s DROP", a.label);
+            if (button) elog_add("BTN ALERT DROP");
+            ui_message("ALERT DROPPED", "NOT CONNECTED", "", "", "", "", ALERT_SCREEN_MS);
         } else {
-            char *payload = alert_build(seq);
-            if (!payload) {
-                ESP_LOGE(TAG, "Cannot build the alert payload");
+            char line2[24] = "", line3[24] = "";
+            bool sent = false;
+            if (model) {
+                alert_segment_t seg;
+                bool ok = false;
+                if (!ecg_segment(&seg, a.label, a.confidence, ECG_MODEL_NAME)) {
+                    ESP_LOGW(TAG, "Model alert (%s) dropped: no 10 s ECG segment", a.label);
+                } else if (publish_alert(seq, &seg) >= 0) {
+                    snprintf(line2, sizeof(line2), "%s BEATS %d%%", a.label, (int)(a.confidence * 100 + 0.5));
+                    snprintf(line3, sizeof(line3), "SEQ %" PRIu64, seq++);
+                    sent = ok = true;
+                }
+                elog_add("ABNORMAL %s %s", a.label, ok ? "SENT" : "DROP");
+            }
+            if (button) {
+                alert_segment_t seg;
+                const bool real = ecg_segment(&seg, "abnormal", 1.0, "button-0");
+                const bool ok = publish_alert(seq, real ? &seg : NULL) >= 0;
+                if (ok) {
+                    if (!sent) snprintf(line2, sizeof(line2), "BUTTON");
+                    snprintf(line3, sizeof(line3), "SEQ %" PRIu64, seq++);
+                    sent = true;
+                }
+                elog_add("BTN ALERT %s", ok ? "SENT" : "DROP");
+            }
+            if (sent) {
+                ui_message(model ? "ECG ALERT SENT" : "ALERT SENT", line2, line3, "", "", "", ALERT_SCREEN_MS);
             } else {
-                int message_id = -1;
-                if (xSemaphoreTake(mqtt_client_mutex, portMAX_DELAY) == pdTRUE) {
-                    if (mqtt_connected && wifi_has_ip && mqtt_client) {
-                        message_id = esp_mqtt_client_publish(mqtt_client, alert_topic,
-                                                             payload, 0, 1, 0);
-                    }
-                    xSemaphoreGive(mqtt_client_mutex);
-                }
-                cJSON_free(payload);
-                if (message_id >= 0) {
-                    char seq_line[24];
-                    snprintf(seq_line, sizeof(seq_line), "SEQ %" PRIu64, seq);
-                    ESP_LOGI(TAG, "Published alert seq %" PRIu64 " to %s (message id %d)",
-                             seq, alert_topic, message_id);
-                    display_show_text("ALERT SENT", seq_line, "", "", "", "");
-                    ++seq;
-                } else {
-                    ESP_LOGW(TAG, "Failed to queue alert publish to %s", alert_topic);
-                    display_show_text("ALERT DROPPED", "PUBLISH FAILED", "", "", "", "");
-                }
+                ESP_LOGW(TAG, "Failed to queue the alert publish to %s", alert_topic);
+                ui_message("ALERT DROPPED", "PUBLISH FAILED", "", "", "", "", ALERT_SCREEN_MS);
             }
         }
-        restore_pending = true;
-        restore_at = xTaskGetTickCount() + pdMS_TO_TICKS(ALERT_SCREEN_MS);
-        vTaskDelay(pdMS_TO_TICKS(BUTTON_COOLDOWN_MS));
-        ulTaskNotifyTake(pdTRUE, 0); /* ignore presses during the cooldown */
+        if (button) {
+            vTaskDelay(pdMS_TO_TICKS(BUTTON_COOLDOWN_MS));
+            uint32_t ignored = 0; /* presses during the cooldown are ignored; a model alert is kept */
+            if (xTaskNotifyWait(0, ALERT_BUTTON, &ignored, 0) == pdTRUE && (ignored & ALERT_MODEL)) {
+                xTaskNotify(alert_task_handle, ALERT_MODEL, eSetBits);
+            }
+        }
     }
 }
 
@@ -641,7 +777,8 @@ static void start_alert_button(void)
         .intr_type = GPIO_INTR_NEGEDGE,
     };
     ESP_ERROR_CHECK(gpio_config(&button));
-    ESP_ERROR_CHECK(gpio_install_isr_service(0));
+    const esp_err_t isr = gpio_install_isr_service(0); /* the ADS1292 driver may have done it */
+    if (isr != ESP_ERR_INVALID_STATE) ESP_ERROR_CHECK(isr);
     ESP_ERROR_CHECK(gpio_isr_handler_add(CONFIG_WEARABLE_ALERT_BUTTON_GPIO, alert_button_isr, NULL));
 }
 
@@ -657,6 +794,7 @@ static void clock_sync_task(void *arg)
         }
     }
     ESP_LOGI(TAG, "System clock synchronized");
+    elog_add("CLOCK SYNCED");
     clock_task_handle = NULL;
     provisioning_config_t config;
     if (wifi_has_ip && wifi_configured && load_saved_config(&config)) start_mqtt_check(&config);
@@ -666,7 +804,7 @@ static void clock_sync_task(void *arg)
 static void start_mqtt_check(const provisioning_config_t *config)
 {
     if (!tls_credentials_ready) {
-        display_show_text("WIFI CONNECTED", "TLS CREDS MISSING", "FLASH DEVICE IDENTITY", "", "", "");
+        show_network("TLS CREDS MISSING", "WIFI CONNECTED", "TLS CREDS MISSING", "FLASH DEVICE IDENTITY");
         return;
     }
     if (time(NULL) < CLOCK_VALID_AFTER) {
@@ -677,17 +815,17 @@ static void start_mqtt_check(const provisioning_config_t *config)
             esp_err_t err = esp_netif_sntp_init(&sntp_config);
             if (err != ESP_OK) {
                 ESP_LOGE(TAG, "Cannot start SNTP before TLS validation: %s", esp_err_to_name(err));
-                display_show_text("WIFI CONNECTED", "CLOCK SYNC FAILED", "TLS NOT STARTED", "", "", "");
+                show_network("CLOCK SYNC FAILED", "WIFI CONNECTED", "CLOCK SYNC FAILED", "TLS NOT STARTED");
                 return;
             }
             sntp_started = true;
         }
-        display_show_text("WIFI CONNECTED", "SYNCING CLOCK...", "TLS WAITS FOR TIME", "", "", "");
+        show_network("SYNCING CLOCK...", "WIFI CONNECTED", "SYNCING CLOCK...", "TLS WAITS FOR TIME");
         if (!clock_task_handle &&
             xTaskCreate(clock_sync_task, "wearable_clock", 4096, NULL, 4, &clock_task_handle) != pdPASS) {
             clock_task_handle = NULL;
             ESP_LOGE(TAG, "Cannot start the clock sync task; refusing TLS connection");
-            display_show_text("WIFI CONNECTED", "CLOCK SYNC FAILED", "TLS NOT STARTED", "", "", "");
+            show_network("CLOCK SYNC FAILED", "WIFI CONNECTED", "CLOCK SYNC FAILED", "TLS NOT STARTED");
         }
         return;
     }
@@ -715,19 +853,19 @@ static void start_mqtt_check(const provisioning_config_t *config)
             },
             .network.timeout_ms = 5000,
             .buffer.size = MQTT_BUFFER_SIZE,
-            .buffer.out_size = MQTT_BUFFER_SIZE,
+            .buffer.out_size = MQTT_OUT_BUFFER_SIZE,
         };
         mqtt_client = esp_mqtt_client_init(&mqtt_config);
         if (!mqtt_client) {
             xSemaphoreGive(mqtt_client_mutex);
-            display_show_text("WIFI CONNECTED", "MQTT INIT FAILED", "", "", "", "");
+            show_network("MQTT INIT FAILED", "WIFI CONNECTED", "MQTT INIT FAILED", "");
             return;
         }
         ESP_ERROR_CHECK(esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID,
                                                         mqtt_event_handler, NULL));
         start_client = true;
     }
-    display_show_text("WIFI CONNECTED", "CHECKING MQTT...", "", "", "", "");
+    show_network("CHECKING MQTT...", "WIFI CONNECTED", "CHECKING MQTT...", "");
     if (start_client) ESP_ERROR_CHECK(esp_mqtt_client_start(mqtt_client));
     xSemaphoreGive(mqtt_client_mutex);
 }
@@ -739,13 +877,16 @@ static void wifi_event_handler(void *arg, esp_event_base_t base,
     if (base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         if (wifi_configured) ESP_ERROR_CHECK(esp_wifi_connect());
     } else if (base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        if (wifi_has_ip) elog_add("WIFI LOST");
+        if (mqtt_connected) elog_add("MQTT LOST");
         wifi_has_ip = false;
         mqtt_connected = false;
         if (wifi_configured) {
-            display_show_text("WIFI DISCONNECTED", "RETRYING...", "", "", "", "");
+            show_network("WIFI DISCONNECTED", "WIFI DISCONNECTED", "RETRYING...", "");
             (void)esp_wifi_connect();
         }
     } else if (base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        if (!wifi_has_ip) elog_add("WIFI CONNECTED");
         wifi_has_ip = true;
         if (wifi_configured) {
             provisioning_config_t config;
@@ -760,7 +901,7 @@ static void apply_config(const provisioning_config_t *config, bool persist)
         esp_err_t err = save_config(config);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "Unable to save provisioning settings: %s", esp_err_to_name(err));
-            display_show_text("NVS SAVE FAILED", "CHECK FLASH", "", "", "", "");
+            ui_message("NVS SAVE FAILED", "CHECK FLASH", "", "", "", "", MESSAGE_MS);
             return;
         }
     }
@@ -774,6 +915,11 @@ static void apply_config(const provisioning_config_t *config, bool persist)
     xSemaphoreGive(mqtt_client_mutex);
     if (wifi_started) (void)esp_wifi_disconnect();
     wifi_configured = true;
+    if (persist) elog_add("NEW SETTINGS");
+    char gateway[sizeof(link_gateway)];
+    snprintf(gateway, sizeof(gateway), "%.56s:%u", config->broker_host, (unsigned)config->broker_port);
+    set_link(config->ssid, gateway, "CONNECTING WIFI");
+    ui_pages_enable(true);
 
     wifi_config_t wifi_config = {0};
     strlcpy((char *)wifi_config.sta.ssid, config->ssid, sizeof(wifi_config.sta.ssid));
@@ -792,6 +938,8 @@ static void apply_config(const provisioning_config_t *config, bool persist)
 static void clear_wifi_credentials(void)
 {
     wifi_configured = false;
+    ui_pages_enable(false);
+    set_link("", NULL, "WIFI NOT SET UP");
     wifi_has_ip = false;
     xSemaphoreTake(mqtt_client_mutex, portMAX_DELAY);
     mqtt_connected = false;
@@ -810,7 +958,7 @@ static void clear_wifi_credentials(void)
     esp_err_t err = clear_saved_wifi_credentials();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Unable to clear saved Wi-Fi credentials: %s", esp_err_to_name(err));
-        display_show_text("WIFI CLEAR FAILED", "NVS ERROR", "", "", "", "");
+        ui_message("WIFI CLEAR FAILED", "NVS ERROR", "", "", "", "", 0);
         return;
     }
 
@@ -821,12 +969,13 @@ static void clear_wifi_credentials(void)
     if (err == ESP_OK) err = esp_wifi_set_mode(WIFI_MODE_STA);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Unable to clear Wi-Fi driver settings: %s", esp_err_to_name(err));
-        display_show_text("WIFI CLEAR FAILED", "WIFI RESET ERROR", "APP KEYS CLEARED", "", "", "");
+        ui_message("WIFI CLEAR FAILED", "WIFI RESET ERROR", "APP KEYS CLEARED", "", "", "", 0);
         return;
     }
 
-    display_show_text("WIFI CREDENTIALS", "CLEARED", "BROKER AND TLS KEPT", "", "", "");
+    ui_message("WIFI CREDENTIALS", "CLEARED", "BROKER AND TLS KEPT", "", "", "", 0);
     ESP_LOGI(TAG, "Cleared Wi-Fi SSID/password; broker settings and TLS credentials were kept");
+    elog_add("WIFI CLEARED");
 }
 
 static void network_task(void *arg)
@@ -848,6 +997,8 @@ void fixed_path_start(void)
     ESP_ERROR_CHECK(mqtt_client_mutex ? ESP_OK : ESP_ERR_NO_MEM);
     ESP_ERROR_CHECK(xTaskCreate(alert_publish_task, "wearable_alerts", 6144,
                                 NULL, 4, &alert_task_handle) == pdPASS ? ESP_OK : ESP_ERR_NO_MEM);
+    edge_model_set_alert_handler(on_model_alert);
+    ui_set_link_source(link_info);
     start_alert_button();
     config_queue = xQueueCreate(1, sizeof(network_request_t));
     ESP_ERROR_CHECK(config_queue ? ESP_OK : ESP_ERR_NO_MEM);
